@@ -25,8 +25,8 @@ class PS_Controller extends CI_Controller
     //--- get permission for user
     $this->pm = get_permission($this->menu_code, get_cookie('uid'), get_cookie('id_profile'));
 
-    $this->ms = $this->load->database('ms', TRUE); //--- SAP database
-    $this->mc = $this->load->database('mc', TRUE); //--- Temp Database
+    //$this->ms = $this->load->database('ms', TRUE); //--- SAP database
+    //$this->mc = $this->load->database('mc', TRUE); //--- Temp Database
   }
 }
 

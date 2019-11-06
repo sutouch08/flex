@@ -74,11 +74,11 @@ $active_group = 'default';
 $query_builder = TRUE;
 
 $db['default'] = array(
-	'dsn'	=> 'mysql:host=localhost;port=3306;dbname=ps_erp',
+	'dsn'	=> 'mysql:host=localhost;port=3306;dbname=flex',
 	'hostname' => 'localhost',
 	'username' => 'root',
 	'password' => 'ZT20o15u21c3H808',
-	'database' => 'ps_erp',
+	'database' => 'flex',
 	'dbdriver' => 'pdo',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
@@ -95,47 +95,47 @@ $db['default'] = array(
 	'save_queries' => TRUE
 );
 
-$db['ms'] = array(
-	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => 'wrx_admin',
-	'password' => 'W@rr1X$p0rt',
-	'database' => 'DBDemo',
-	'dbdriver' => 'sqlsrv',
-	'dbprefix' => '',
-	'pconnect' => FALSE,
-	'db_debug' => (ENVIRONMENT !== 'production'),
-	'cache_on' => FALSE,
-	'cachedir' => '',
-	'char_set' => 'utf8',
-	'dbcollat' => 'utf8_general_ci',
-	'swap_pre' => '',
-	'encrypt' => FALSE,
-	'compress' => FALSE,
-	'stricton' => FALSE,
-	'failover' => array(),
-	'save_queries' => TRUE
-);
+// $db['ms'] = array(
+// 	'dsn'	=> '',
+// 	'hostname' => 'localhost',
+// 	'username' => 'wrx_admin',
+// 	'password' => 'W@rr1X$p0rt',
+// 	'database' => 'DBDemo',
+// 	'dbdriver' => 'sqlsrv',
+// 	'dbprefix' => '',
+// 	'pconnect' => FALSE,
+// 	'db_debug' => (ENVIRONMENT !== 'production'),
+// 	'cache_on' => FALSE,
+// 	'cachedir' => '',
+// 	'char_set' => 'utf8',
+// 	'dbcollat' => 'utf8_general_ci',
+// 	'swap_pre' => '',
+// 	'encrypt' => FALSE,
+// 	'compress' => FALSE,
+// 	'stricton' => FALSE,
+// 	'failover' => array(),
+// 	'save_queries' => TRUE
+// );
 
 
-$db['mc'] = array(
-	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => 'wrx_admin',
-	'password' => 'W@rr1X$p0rt',
-	'database' => 'DBMiddle',
-	'dbdriver' => 'sqlsrv',
-	'dbprefix' => '',
-	'pconnect' => FALSE,
-	'db_debug' => (ENVIRONMENT !== 'production'),
-	'cache_on' => FALSE,
-	'cachedir' => '',
-	'char_set' => 'utf8',
-	'dbcollat' => 'utf8_general_ci',
-	'swap_pre' => '',
-	'encrypt' => FALSE,
-	'compress' => FALSE,
-	'stricton' => FALSE,
-	'failover' => array(),
-	'save_queries' => TRUE
-);
+// $db['mc'] = array(
+// 	'dsn'	=> '',
+// 	'hostname' => 'localhost',
+// 	'username' => 'wrx_admin',
+// 	'password' => 'W@rr1X$p0rt',
+// 	'database' => 'DBMiddle',
+// 	'dbdriver' => 'sqlsrv',
+// 	'dbprefix' => '',
+// 	'pconnect' => FALSE,
+// 	'db_debug' => (ENVIRONMENT !== 'production'),
+// 	'cache_on' => FALSE,
+// 	'cachedir' => '',
+// 	'char_set' => 'utf8',
+// 	'dbcollat' => 'utf8_general_ci',
+// 	'swap_pre' => '',
+// 	'encrypt' => FALSE,
+// 	'compress' => FALSE,
+// 	'stricton' => FALSE,
+// 	'failover' => array(),
+// 	'save_queries' => TRUE
+// );
