@@ -11,14 +11,16 @@ class Prepare_model extends CI_Model
 
   public function get_warehouse_code($zone_code)
   {
-    $rs = $this->ms->select('WhsCode')->where('BinCode', $zone_code)->get('OBIN');
+    $rs = $this->db->select('warehouse_code')->where('code', $zone_code)->get('zone');
     if($rs->num_rows() === 1)
     {
-      return $rs->row()->WhsCode;
+      return $rs->row()->warehouse_code;
     }
 
     return  NULL;
   }
+
+
 
   public function update_buffer($order_code, $product_code, $zone_code, $qty)
   {
@@ -37,18 +39,19 @@ class Prepare_model extends CI_Model
     }
     else
     {
-      // return $this->db
-      // ->set('qty', "qty + {$qty}", FALSE)
-      // ->where('order_code', $order_code)
-      // ->where('product_code', $product_code)
-      // ->where('zone_code', $zone_code)
-      // ->update('buffer');
-      $qr  = "UPDATE buffer SET qty = qty + {$qty} ";
-      $qr .= "WHERE order_code = '{$order_code}' ";
-      $qr .= "AND product_code = '{$product_code}' ";
-      $qr .= "AND zone_code = '{$zone_code}' ";
-
-      return $this->db->query($qr);
+      return $this->db
+      ->set("qty", "qty + ({$qty})", FALSE)
+      ->where("order_code", $order_code)
+      ->where("product_code", $product_code)
+      ->where("zone_code", $zone_code)
+      ->update("buffer");
+      
+      // $qr  = "UPDATE buffer SET qty = qty + {$qty} ";
+      // $qr .= "WHERE order_code = '{$order_code}' ";
+      // $qr .= "AND product_code = '{$product_code}' ";
+      // $qr .= "AND zone_code = '{$zone_code}' ";
+      //
+      // return $this->db->query($qr);
     }
 
     return FALSE;

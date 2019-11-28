@@ -21,46 +21,6 @@ class Products_model extends CI_Model
 
 
 
-  //--- Export item to SAP
-  public function add_item(array $ds = array())
-  {
-    if(!empty($ds))
-    {
-      return $this->mc->insert('OITM', $ds);
-    }
-
-    return FALSE;
-  }
-
-
-
-  //--- Export item tot SAP
-  public function update_item($code, array $ds = array())
-  {
-    if(!empty($ds))
-    {
-      return $this->mc->where('ItemCode', $code)->update('OITM', $ds);
-    }
-
-    return FALSE;
-  }
-
-
-
-  public function sap_item_exists($code)
-  {
-    $rs = $this->mc->select('ItemCode')->where('ItemCode', $code)->get('OITM');
-    if($rs->num_rows() === 1)
-    {
-      return TRUE;
-    }
-
-    return FALSE;
-  }
-
-
-
-
   public function update($code, array $ds = array())
   {
     if(!empty($ds))
@@ -376,16 +336,7 @@ class Products_model extends CI_Model
   }
 
 
-  public function get_updte_data()
-  {
-    $this->ms->select("CardCode, CardName");
-    $this->ms->where("UpdateDate >=", from_date());
-    $rs = $this->ms->get('OCRD');
-    return $rs->result();
-  }
-
-
-
+  
 
   public function count_color($style_code)
   {

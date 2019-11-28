@@ -77,17 +77,13 @@ class Customers extends PS_Controller
     $data['code'] = $this->session->flashdata('code');
     $data['name'] = $this->session->flashdata('name');
     $data['Tax_Id'] = $this->session->flashdata('Tax_Id');
-    $data['DebPayAcct'] = $this->session->flashdata('DebPayAcct');
-    $data['GroupCode'] = $this->session->flashdata('GroupCode');
-    $data['cmpPrivate'] = $this->session->flashdata('cmpPrivate');
-    $data['GroupNum'] = $this->session->flashdata('GroupNum'); //--- payment term code
     $data['group'] = $this->session->flashdata('group');
     $data['kind'] = $this->session->flashdata('kind');
     $data['type'] = $this->session->flashdata('type');
     $data['class'] = $this->session->flashdata('class');
     $data['area'] = $this->session->flashdata('area');
     $data['sale'] = $this->session->flashdata('sale');
-    $data['CreditLine'] = $this->session->flashdata('CreditLine');
+    $data['credit'] = $this->session->flashdata('credit');
 
     $this->load->view('masters/customers/customers_add_view', $data);
   }
@@ -100,22 +96,18 @@ class Customers extends PS_Controller
       $sc = TRUE;
       $code = $this->input->post('code');
       $name = $this->input->post('name');
+      $credit = $this->input->post('CreditLine');
 
       $ds = array(
         'code' => $code,
         'name' => $name,
         'Tax_Id' => $this->input->post('Tax_Id'),
-        'DebPayAcct' => $this->input->post('DebPayAcct'), //--- รหัสบัญชีลูกหนี้ in OACT
-        'GroupCode' => $this->input->post('GroupCode'), //--- GroupCode in OCRG
-        'cmpPrivate' => $this->input->post('cmpPrivate'), //--- C = Company, G = Government, I = Private
-        'GroupNum' => $this->input->post('GroupNum'), //--- Payment term code in OCTG
         'group_code' => $this->input->post('group'),
         'kind_code' => $this->input->post('kind'),
         'type_code' => $this->input->post('type'),
         'class_code' => $this->input->post('class'),
         'area_code' => $this->input->post('area'),
-        'sale_code' => $this->input->post('sale'),
-        'CreditLine' => $this->input->post('CreditLine')
+        'sale_code' => $this->input->post('sale')
       );
 
       if($this->customers_model->is_exists($code) === TRUE)
@@ -134,8 +126,12 @@ class Customers extends PS_Controller
       {
         if($this->customers_model->add($ds))
         {
+          if(!empty($credit))
+          {
+            $this->add_credit($code, $credit);
+          }
+
           set_message('เพิ่มข้อมูลเรียบร้อยแล้ว');
-          $this->do_export($code);
         }
         else
         {
@@ -150,10 +146,6 @@ class Customers extends PS_Controller
         $this->session->set_flashdata('code', $code);
         $this->session->set_flashdata('name', $name);
         $this->session->set_flashdata('Tax_Id', $this->input->post('Tax_Id'));
-        $this->session->set_flashdata('DebPayAcct', $this->input->post('DebPayAcct'));
-        $this->session->set_flashdata('GroupCode', $this->input->post('GroupCode'));
-        $this->session->set_flashdata('cmpPrivate', $this->input->post('cmpPrivate'));
-        $this->session->set_flashdata('GroupNum', $this->input->post('GroupNum')); //--- payment term code
         $this->session->set_flashdata('group', $this->input->post('group'));
         $this->session->set_flashdata('kind', $this->input->post('kind'));
         $this->session->set_flashdata('type', $this->input->post('type'));
@@ -172,6 +164,16 @@ class Customers extends PS_Controller
   }
 
 
+  public function add_credit($code, $amount)
+  {
+    $arr = array(
+      'customer_code' => $code,
+      'amount' => $amount
+    );
+
+    return $this->customers_model->add_credit($arr);
+  }
+
 
   public function edit($code, $tab='infoTab')
   {
@@ -180,6 +182,9 @@ class Customers extends PS_Controller
     $rs = $this->customers_model->get($code);
     $bill_to = $this->customer_address_model->get_customer_bill_to_address($code);
     $ship_to = $this->address_model->get_shipping_address($code);
+
+    $credit = $this->customers_model->get_credit_amount($code);
+    $rs->credit = $credit === FALSE ? 0 : $credit;
 
     $data['ds'] = $rs;
     $data['tab'] = $tab;
@@ -215,7 +220,6 @@ class Customers extends PS_Controller
       if($rs === TRUE)
       {
         set_message("เพิ่มที่อยู่เปิดบิลเรียบร้อยแล้ว");
-        $this->export_bill_to_address($code);
       }
       else
       {
@@ -271,39 +275,6 @@ class Customers extends PS_Controller
   }
 
 
-  public function export_bill_to_address($code)
-  {
-    $this->load->model('address/customer_address_model');
-    $addr = $this->customer_address_model->get_customer_bill_to_address($code);
-    if(!empty($addr))
-    {
-      $ex = $this->customer_address_model->is_sap_bill_to_exists($code);
-      $ds = array(
-        'Adress' => $addr->address_code,
-        'CardCode' => $addr->customer_code,
-        'Street' => $addr->address,
-        'Block' => $addr->sub_district,
-        'ZipCode' => $addr->postcode,
-        'City' => $addr->province,
-        'County' => $addr->district,
-        'LineNum' => ($this->customer_address_model->get_max_line_num($code) + 1),
-        'AdresType' => 'B',
-        'Address2' => $addr->branch_code,
-        'Address3' => $addr->branch_name,
-        'F_E_Commerce' => $ex ? 'U' : 'A',
-        'F_E_CommerceDate' => now()
-      );
-
-      if(! $ex)
-      {
-        $this->customer_address_model->add_sap_bill_to($ds);
-      }
-      else
-      {
-        $this->customer_address_model->update_sap_bill_to($code);
-      }
-    }
-  }
 
   public function update()
   {
@@ -315,22 +286,18 @@ class Customers extends PS_Controller
       $old_name = $this->input->post('customers_name');
       $code = $this->input->post('code');
       $name = $this->input->post('name');
+      $credit = $this->input->post('CreditLine');
 
       $ds = array(
         'code' => $code,
         'name' => $name,
         'Tax_Id' => $this->input->post('Tax_Id'),
-        'DebPayAcct' => $this->input->post('DebPayAcct'),
-        'GroupCode' => $this->input->post('GroupCode'),
-        'cmpPrivate' => $this->input->post('cmpPrivate'),
-        'GroupNum' => $this->input->post('GroupNum'),
         'group_code' => $this->input->post('group'),
         'kind_code' => $this->input->post('kind'),
         'type_code' => $this->input->post('type'),
         'class_code' => $this->input->post('class'),
         'area_code' => $this->input->post('area'),
-        'sale_code' => $this->input->post('sale'),
-        'CreditLine' => $this->input->post('CreditLine')
+        'sale_code' => $this->input->post('sale')
       );
 
       if($sc === TRUE && $this->customers_model->is_exists($code, $old_code) === TRUE)
@@ -349,6 +316,24 @@ class Customers extends PS_Controller
       {
         if($this->customers_model->update($old_code, $ds) === TRUE)
         {
+          if($credit)
+          {
+            if($this->customers_model->has_credit($code))
+            {
+              $this->customers_model->update_credit($code, $credit);
+              $this->customers_model->update_balance($code);
+            }
+            else
+            {
+              $arr = array(
+                'customer_code' => $code,
+                'amount' => $credit
+              );
+
+              $this->customers_model->add_credit($arr);
+            }
+          }
+          
           set_message('ปรับปรุงข้อมูลเรียบร้อยแล้ว');
         }
         else

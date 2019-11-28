@@ -13,7 +13,7 @@
 <form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/add"; ?>">
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">รหัส</label>
+    <label class="col-sm-3 control-label no-padding-right"><?php echo $this->lang->line('code'); ?></label>
     <div class="col-xs-12 col-sm-3">
       <input type="text" name="code" id="code" class="width-100" value="<?php echo $code; ?>" autofocus required />
     </div>
@@ -23,7 +23,7 @@
 
 
   <div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
+    <label class="col-sm-3 control-label no-padding-right"><?php echo $this->lang->line('name'); ?></label>
     <div class="col-xs-12 col-sm-3">
 			<input type="text" name="name" id="name" class="width-100" value="<?php echo $name; ?>" required />
     </div>
@@ -31,59 +31,18 @@
   </div>
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">เลขประจำตัว/Tax ID</label>
+    <label class="col-sm-3 control-label no-padding-right"><?php echo $this->lang->line('id'); ?>/<?php echo $this->lang->line('tax_id'); ?></label>
     <div class="col-xs-12 col-sm-3">
 			<input type="text" name="Tax_id" id="Tax_id" class="width-100" value="<?php echo $Tax_Id; ?>" />
     </div>
   </div>
 
-	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right">รหัสบัญชีลูกหนี้</label>
- 	 <div class="col-xs-12 col-sm-3">
- 		 <select name="DebPayAcct" id="DebPayAcct" class="form-control" required>
-			 <option value="">เลือกรายการ</option>
- 			 <?php echo select_DebPayAcct($DebPayAcct); ?>
- 		 </select>
- 	 </div>
-  </div>
-
-
 
 	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right">กลุ่มลูกหนี้</label>
- 	 <div class="col-xs-12 col-sm-3">
- 		 <select name="GroupCode" id="GroupCode" class="form-control" required>
- 			 <?php echo select_GroupCode($GroupCode); ?>
- 		 </select>
- 	 </div>
-  </div>
-
-	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right">รูปแบบ</label>
- 	 <div class="col-xs-12 col-sm-3">
- 		 <select name="cmpPrivate" id="cmpPrivate" class="form-control">
- 			<option value="C" <?php echo is_selected('C', $cmpPrivate); ?>>บริษัท/ร้าน</option>
-			<option value="G" <?php echo is_selected('G', $cmpPrivate); ?>>หน่วนงานรัฐ</option>
-			<option value="I" <?php echo is_selected('I', $cmpPrivate); ?>>บุคคลทั่วไป</option>
- 		 </select>
- 	 </div>
-  </div>
-
-	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right">รหัสกลุ่มเครดิต</label>
- 	 <div class="col-xs-12 col-sm-3">
- 		 <select name="GroupNum" id="GroupNum" class="form-control">
- 			 <?php echo select_GroupNum($GroupNum); ?>
- 		 </select>
- 	 </div>
-  </div>
-
-
-	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">กลุ่มลูกค้า</label>
+    <label class="col-sm-3 control-label no-padding-right"><?php echo $this->lang->line('customer_group'); ?></label>
     <div class="col-xs-12 col-sm-3">
 			<select name="group" id="group" class="form-control" required>
-				<option value="">เลือกรายการ</option>
+				<option value=""><?php echo $this->lang->line('choose'); ?></option>
 				<?php echo select_customer_group($group); ?>
 			</select>
     </div>
@@ -92,10 +51,10 @@
 
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">ประเภทลูกค้า</label>
+    <label class="col-sm-3 control-label no-padding-right"><?php echo $this->lang->line('customer_kind'); ?></label>
     <div class="col-xs-12 col-sm-3">
 			<select name="kind" id="kind" class="form-control" required>
-				<option value="">เลือกรายการ</option>
+				<option value=""><?php echo $this->lang->line('choose'); ?></option>
 				<?php echo select_customer_kind($kind); ?>
 			</select>
     </div>
@@ -104,10 +63,10 @@
 
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">ชนิดลูกค้า</label>
+    <label class="col-sm-3 control-label no-padding-right"><?php echo $this->lang->line('customer_type'); ?></label>
     <div class="col-xs-12 col-sm-3">
 			<select name="type" id="type" class="form-control" required>
-				<option value="">เลือกรายการ</option>
+				<option value=""><?php echo $this->lang->line('choose'); ?></option>
 				<?php echo select_customer_type($type); ?>
 			</select>
     </div>
@@ -117,10 +76,10 @@
 
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">เกรดลูกค้า</label>
+    <label class="col-sm-3 control-label no-padding-right"><?php echo $this->lang->line('customer_class'); ?></label>
     <div class="col-xs-12 col-sm-3">
 			<select name="class" id="class" class="form-control" required>
-				<option value="">เลือกรายการ</option>
+				<option value=""><?php echo $this->lang->line('choose'); ?></option>
 				<?php echo select_customer_class($class); ?>
 			</select>
     </div>
@@ -129,10 +88,10 @@
 
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">พื้นที่ขาย</label>
+    <label class="col-sm-3 control-label no-padding-right"><?php echo $this->lang->line('customer_area'); ?></label>
     <div class="col-xs-12 col-sm-3">
 			<select name="area" id="area" class="form-control" required>
-				<option value="">เลือกรายการ</option>
+				<option value=""><?php echo $this->lang->line('choose'); ?></option>
 				<?php echo select_customer_area($area); ?>
 			</select>
     </div>
@@ -151,7 +110,7 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">วงเงินเครดิต</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="number" name="CreditLine" id="CreditLine" class="width-100" value="<?php echo $CreditLine; ?>" />
+			<input type="number" name="CreditLine" id="CreditLine" class="width-100" value="<?php echo $credit; ?>" />
     </div>
   </div>
 

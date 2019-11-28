@@ -6,7 +6,7 @@ class Receive_po extends PS_Controller
   public $menu_code = 'ICPURC';
 	public $menu_group_code = 'IC';
   public $menu_sub_group_code = 'RECEIVE';
-	public $title = 'รับสินค้าจากการซื้อ';
+	public $title;
   public $filter;
   public $error;
   public function __construct()
@@ -14,6 +14,7 @@ class Receive_po extends PS_Controller
     parent::__construct();
     $this->home = base_url().'inventory/receive_po';
     $this->load->model('inventory/receive_po_model');
+    $this->title = label_value('receive_title');
   }
 
 
@@ -128,7 +129,7 @@ class Receive_po extends PS_Controller
   public function save()
   {
     $sc = TRUE;
-    $message = 'ทำรายการไม่สำเร็จ';
+    $message = label_value('operation_fail');
     if($this->input->post('receive_code'))
     {
       $this->load->model('masters/products_model');
@@ -165,7 +166,7 @@ class Receive_po extends PS_Controller
       if($this->receive_po_model->update($code, $arr) === FALSE)
       {
         $sc = FALSE;
-        $message = 'Update Document Fail';
+        $message = label_value('update_fail');
       }
       else
       {
@@ -196,7 +197,7 @@ class Receive_po extends PS_Controller
               if($this->receive_po_model->add_detail($ds) === FALSE)
               {
                 $sc = FALSE;
-                $message = 'Add Receive Row Fail';
+                $message = label_value('insert_fail');
                 break;
               }
               else
@@ -231,165 +232,13 @@ class Receive_po extends PS_Controller
     else
     {
       $sc = FALSE;
-      $message = 'ไม่พบข้อมูล';
+      $message = label_value('no_data_found');
     }
 
-    if($sc === TRUE)
-    {
-      $this->export_receive($code);
-    }
 
     echo $sc === TRUE ? 'success' : $message;
   }
 
-
-
-  public function do_export($code)
-  {
-    $rs = $this->export_receive($code);
-
-    echo $rs === TRUE ? 'success' : $this->error;
-  }
-
-
-  private function export_receive($code)
-  {
-    $this->load->model('masters/products_model');
-    $doc = $this->receive_po_model->get($code);
-    $sap = $this->receive_po_model->get_sap_receive_doc($code);
-
-    if(!empty($doc))
-    {
-      if(empty($sap) OR $tr->DocStatus == 'O')
-      {
-        if($doc->status == 1)
-        {
-          $currency = getConfig('CURRENCY');
-          $vat_rate = getConfig('PURCHASE_VAT_RATE');
-          $vat_code = getConfig('PURCHASE_VAT_CODE');
-          $total_amount = $this->receive_po_model->get_sum_amount($code);
-          $ds = array(
-            'U_ECOMNO' => $doc->code,
-            'DocType' => 'I',
-            'CANCELED' => 'N',
-            'DocDate' => $doc->date_add,
-            'DocDueDate' => $doc->date_add,
-            'CardCode' => $doc->vendor_code,
-            'CardName' => $doc->vendor_name,
-            'NumAtCard' => $doc->invoice_code,
-            'VatPercent' => $vat_rate,
-            'VatSum' => get_vat_amount($total_amount),
-            'VatSumFc' => get_vat_amount($total_amount),
-            'DiscPrcnt' => 0.000000,
-            'DiscSum' => 0.000000,
-            'DiscSumFC' => 0.000000,
-            'DocCur' => $currency,
-            'DocRate' => 1,
-            'DocTotal' => remove_vat($total_amount),
-            'DocTotalFC' => remove_vat($total_amount),
-            'ToWhsCode' => $doc->warehouse_code,
-            'Comments' => $doc->remark,
-            'F_E_Commerce' => (empty($sap) ? 'A' : 'U'),
-            'F_E_CommerceDate' => now()
-          );
-
-          $this->mc->trans_start();
-
-          if(!empty($sap))
-          {
-            $sc = $this->receive_po_model->update_sap_receive_po($code, $ds);
-          }
-          else
-          {
-            $sc = $this->receive_po_model->add_sap_receive_po($ds);
-          }
-
-          if($sc)
-          {
-            if(!empty($sap))
-            {
-              $this->receive_po_model->drop_sap_exists_details($code);
-            }
-
-            $details = $this->receive_po_model->get_details($code);
-
-            if(!empty($details))
-            {
-              $line = 0;
-              foreach($details as $rs)
-              {
-                $arr = array(
-                  'U_ECOMNO' => $rs->receive_code,
-                  'LineNum' => $line,
-                  'ItemCode' => $rs->product_code,
-                  'Dscription' => $rs->product_name,
-                  'Quantity' => $rs->qty,
-                  'unitMsr' => $this->products_model->get_unit_code($rs->product_code),
-                  'PriceBefDi' => remove_vat($rs->price),
-                  'LineTotal' => remove_vat($rs->amount),
-                  'ShipDate' => $doc->date_add,
-                  'Currency' => $currency,
-                  'Rate' => 1,
-                  'Price' => remove_vat($rs->price),
-                  'TotalFrgn' => remove_vat($rs->amount),
-                  'WhsCode' => $doc->warehouse_code,
-                  'FisrtBin' => $doc->zone_code,
-                  'BaseRef' => $doc->po_code,
-                  'TaxStatus' => 'Y',
-                  'VatPrcnt' => $vat_rate,
-                  'VatGroup' => $vat_code,
-                  'PriceAfVAT' => $rs->price,
-                  'VatSum' => get_vat_amount($rs->amount),
-                  'TaxType' => 'Y',
-                  'F_E_Commerce' => (empty($sap) ? 'A' : 'U'),
-                  'F_E_CommerceDate' => now()
-                );
-
-                if( ! $this->receive_po_model->add_sap_receive_po_detail($arr))
-                {
-                  $this->error = 'เพิ่มรายการไม่สำเร็จ';
-                }
-
-                $line++;
-              }
-            }
-            else
-            {
-              $this->error = "ไม่พบรายการสินค้า";
-            }
-          }
-          else
-          {
-            $this->error = "เพิ่มเอกสารไม่สำเร็จ";
-          }
-
-          $this->mc->trans_complete();
-
-          if($this->mc->trans_status() === FALSE)
-          {
-            return FALSE;
-          }
-
-          return TRUE;
-        }
-        else
-        {
-          $this->error = "สถานะเอกสารไม่ถูกต้อง";
-        }
-      }
-      else
-      {
-        $this->error = "เอกสารถูกปิดไปแล้ว";
-      }
-    }
-    else
-    {
-      $this->error = "ไม่พบเอกสาร {$code}";
-    }
-
-    return FALSE;
-  }
-  //--- end export transform
 
 
 
@@ -407,7 +256,7 @@ class Receive_po extends PS_Controller
 
       if($this->db->trans_status() === FALSE)
       {
-        echo 'ยกเลิกรายการไม่สำเร็จ';
+        echo label_value('cancle_fail');
       }
       else
       {
@@ -416,7 +265,7 @@ class Receive_po extends PS_Controller
     }
     else
     {
-      echo 'ไม่พบเลขทีเอกสาร';
+      echo label_value('doc_not_found');
     }
 
   }
@@ -466,7 +315,7 @@ class Receive_po extends PS_Controller
     }
     else
     {
-      $sc = 'ใบสั่งซื้อไม่ถูกต้อง หรือ ใบสั่งซื้อถูกปิดไปแล้ว';
+      $sc = label_value('po_error');
     }
 
     echo $sc;
@@ -501,7 +350,7 @@ class Receive_po extends PS_Controller
       $date = db_date($date_add, TRUE);
       if($Y > '2500')
       {
-        set_error('วันที่ไม่ถูกต้อง');
+        set_error(label_value('date_error'));
         redirect($this->home.'/add_new');
       }
       else
@@ -526,7 +375,7 @@ class Receive_po extends PS_Controller
         }
         else
         {
-          set_error('เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
+          set_error(label_value('doc_error'));
           redirect($this->home.'/add_new');
         }
       }

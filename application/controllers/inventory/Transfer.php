@@ -6,7 +6,7 @@ class Transfer extends PS_Controller
   public $menu_code = 'ICTRWH';
 	public $menu_group_code = 'IC';
   public $menu_sub_group_code = 'TRANFER';
-	public $title = 'โอนสินค้าระหว่างคลัง';
+	public $title;
   public $filter;
   public $error;
   public function __construct()
@@ -14,10 +14,10 @@ class Transfer extends PS_Controller
     parent::__construct();
     $this->home = base_url().'inventory/transfer';
     $this->load->model('inventory/transfer_model');
-    $this->load->model('inventory/warehouse_model');
+    $this->load->model('masters/warehouse_model');
     $this->load->model('masters/zone_model');
     $this->load->model('stock/stock_model');
-
+    $this->title = label_value('transfer_title');
   }
 
 
@@ -127,13 +127,13 @@ class Transfer extends PS_Controller
       }
       else
       {
-        set_error('เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
+        set_error(label_value('doc_error'));
         redirect($this->home.'/add_new');
       }
     }
     else
     {
-      set_error('ไม่พบข้อมูลเอกสาร กรุณาตรวจสอบ');
+      set_error(label_value('doc_not_found'));
       redirect($this->home.'/add_new');
     }
   }
@@ -189,7 +189,7 @@ class Transfer extends PS_Controller
     }
     else
     {
-      echo 'ปรับปรุงข้อมูลไม่สำเร็จ';
+      echo label_value('update_fail');
     }
   }
 
@@ -251,7 +251,7 @@ class Transfer extends PS_Controller
         if($this->movement_model->add($move_out) === FALSE)
         {
           $sc = FALSE;
-          $message = 'บันทึก movement ขาออกไม่สำเร็จ';
+          $message = 'cannot record movement (out)';
           break;
         }
 
@@ -259,7 +259,7 @@ class Transfer extends PS_Controller
         if($this->movement_model->add($move_in) === FALSE)
         {
           $sc = FALSE;
-          $message = 'บันทึก movement ขาเข้าไม่สำเร็จ';
+          $message = 'cannot record movement (in)';
           break;
         }
       }
@@ -347,7 +347,7 @@ class Transfer extends PS_Controller
         if($this->db->trans_status() === FALSE)
         {
           $sc = FALSE;
-          $message = 'เพิ่มข้อมูลไม่สำเร็จ';
+          $message = label_value('insert_fail');
         }
       }
     }

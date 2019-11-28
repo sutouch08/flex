@@ -40,33 +40,6 @@ class Customer_address_model extends CI_Model
 
 
 
-  public function get_max_line_num($code)
-  {
-    $rs = $this->ms->select_max('LineNum')->where('CardCode', $code)->get('CRD1');
-    if($rs->num_rows() === 1)
-    {
-      return $rs->row()->LineNum;
-    }
-
-    return 0;
-  }
-
-
-  public function is_sap_bill_to_exists($code)
-  {
-    $rs = $this->mc
-    ->where('CardCode', $code)
-    ->where('AdresType', 'B')
-    ->get('CRD1');
-    if($rs->num_rows() > 0)
-    {
-      return TRUE;
-    }
-
-    return FALSE;
-  }
-
-
 } //--- end class
 
  ?>

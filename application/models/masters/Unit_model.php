@@ -7,21 +7,18 @@ class Unit_model extends CI_Model
   }
 
 
-  public function get_data()
+  public function get($code)
   {
-    $rs = $this->ms
-    ->select('UomCode AS code')
-    ->select('UomName AS name')
-    ->order_by('UomCode', 'ASC')
-    ->get('OUOM');
-
-    if($rs->num_rows() > 0)
+    $rs = $this->db->where('code', $code)->get('unit');
+    if($rs->num_rows() === 1)
     {
-      return $rs->result();
+      return $rs->row();
     }
 
     return FALSE;
   }
+
+
 } //--- end class
 
  ?>

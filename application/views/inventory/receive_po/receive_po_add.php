@@ -16,21 +16,21 @@
 <form id="addForm" action="<?php echo $this->home.'/add'; ?>" method="post">
 <div class="row">
     <div class="col-sm-1 col-1-harf padding-5 first">
-    	<label>เลขที่เอกสาร</label>
+    	<label><?php label('doc_num'); ?></label>
         <input type="text" class="form-control input-sm text-center" disabled />
     </div>
 		<div class="col-sm-1 padding-5">
-    	<label>วันที่</label>
+    	<label><?php label('date'); ?></label>
       <input type="text" class="form-control input-sm text-center" name="date_add" id="dateAdd" value="<?php echo date('d-m-Y'); ?>" />
     </div>
     <div class="col-sm-8 padding-5">
-    	<label>หมายเหตุ</label>
-        <input type="text" class="form-control input-sm" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" />
+    	<label><?php label('remark'); ?></label>
+        <input type="text" class="form-control input-sm" name="remark" id="remark" />
     </div>
 		<div class="col-sm-1 col-1-harf padding-5 last">
-			<label class="display-block not-show">save</label>
+			<label class="display-block not-show"><?php label('save'); ?></label>
 			<?php 	if($this->pm->can_add) : ?>
-							<button type="button" class="btn btn-sm btn-success btn-block" onclick="addNew()"><i class="fa fa-plus"></i> เพิ่ม</button>
+							<button type="button" class="btn btn-xs btn-success btn-block" onclick="addNew()"><i class="fa fa-plus"></i> <?php label('add_new'); ?></button>
 			<?php	endif; ?>
 		</div>
 </div>

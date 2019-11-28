@@ -4,7 +4,7 @@ var data = [];
 var poError = 0;
 var invError = 0;
 var zoneError = 0;
-
+var lang = language;
 
 function editHeader(){
 	$('.header-box').removeAttr('disabled');
@@ -30,10 +30,12 @@ function receiveProduct(pdCode){
 		bc.removeAttr('disabled');
 		bc.focus();
 	}else{
+		err_lang = lang === 'thai' ? "บาร์โค้ดไม่ถูกต้องหรือสินค้าไม่ตรงกับใบสั่งซื้อ" : "Incorrect barcode or Incorrect item";
 		swal({
-			title: "ข้อผิดพลาด !",
-			text: "บาร์โค้ดไม่ถูกต้องหรือสินค้าไม่ตรงกับใบสั่งซื้อ",
-			type: "error"},
+			title: "Error !",
+			text: err_lang,
+			type: "error"
+		},
 			function(){
 				setTimeout( function(){ $("#barcode")	.focus(); }, 1000 );
 		});
@@ -71,37 +73,65 @@ function save(){
 
 	//--- ตรวจสอบความถูกต้องของข้อมูล
 	if(code == '' || code == undefined){
-		swal('ไม่พบเลขที่เอกสาร', 'หากคุณเห็นข้อผิดพลาดนี้มากกว่า 1 ครับ ให้ลองออกจากหน้านี้แล้วกลับเข้ามาทำรายการใหม่', 'error');
+		if(lang === 'thai'){
+			swal('ไม่พบเลขที่เอกสาร', 'หากคุณเห็นข้อผิดพลาดนี้มากกว่า 1 ครั้ง ให้ลองออกจากหน้านี้แล้วกลับเข้ามาทำรายการใหม่', 'error');
+		}else{
+			swal('Document not found', 'Please, exit this page and come back again', 'error');
+		}
+
 		return false;
 	}
 
 	if(vendor_code == '' || vendor_name == ''){
-		swal('กรุณาระบุผู้จำหน่าย');
+		if(lang === 'thai'){
+			swal('กรุณาระบุผู้จำหน่าย');
+		}
+		else{
+			swal('Vender is required');
+		}
 		return false;
 	}
 
 
 	//--- ใบสั่งซื้อถูกต้องหรือไม่
 	if(po == ''){
-		swal('กรุณาระบุใบสั่งซื้อ');
+		if(lang === 'thai'){
+			swal('กรุณาระบุใบสั่งซื้อ');
+		}else{
+			swal('PO number is required');
+		}
 		return false;
 	}
 
 	//--- มีรายการในใบสั่งซื้อหรือไม่
 	if(count = 0){
-		swal('Error!', 'ไม่พบรายการรับเข้า','error');
+		if(lang === 'thai'){
+			swal('Error!', 'ไม่พบรายการรับเข้า','error');
+		}else{
+			swal('Error!', 'No items found','error');
+		}
+
 		return false;
 	}
 
 	//--- ตรวจสอบใบส่งของ (ต้องระบุ)
 	if(invoice.length == 0){
-		swal('กรุณาระบุใบส่งสินค้า');
+		if(lang === 'thai'){
+			swal('กรุณาระบุใบส่งสินค้า');
+		}else{
+			swal('Invoice is required');
+		}
+
 		return false;
 	}
 
 	//--- ตรวจสอบโซนรับเข้า
 	if(zone_code == '' || zoneName == ''){
-		swal('กรุณาระบุโซนเพื่อรับเข้า');
+		if(lang === 'thai'){
+			swal('กรุณาระบุโซนเพื่อรับเข้า');
+		}else{
+			swal('Please specify receive zone');
+		}
 		return false;
 	}
 
@@ -141,7 +171,12 @@ function save(){
 	});
 
 	if(ds.length < 10){
-		swal('ไม่พบรายการรับเข้า');
+		if(lang === 'thai'){
+			swal('ไม่พบรายการรับเข้า');
+		}else{
+			swal('No items found');
+		}
+
 		return false;
 	}
 
@@ -159,7 +194,7 @@ function save(){
 			if(rs == 'success'){
 				swal({
 					title:'Success',
-					text:'บันทึกรายการเรียบร้อยแล้ว',
+					text: lang === 'thai' ? 'บันทึกรายการเรียบร้อยแล้ว' : 'Items Saved',
 					type:'success',
 					timer:1000
 				});
@@ -172,7 +207,7 @@ function save(){
 			}
 			else
 			{
-				swal("ข้อผิดพลาด !", rs, "error");
+				swal("Error !", rs, "error");
 			}
 		}
 	});
@@ -309,7 +344,7 @@ function doApprove(){
 
 function leave(){
 	swal({
-		title: 'ยกเลิกข้อมูลนี้ ?',
+		title: label('ยกเลิกข้อมูลนี้ ?', 'Cancle this info'),
 		type: 'warning',
 		showCancelButton: true,
 		cancelButtonText: 'No',
@@ -324,7 +359,7 @@ function leave(){
 
 function changePo(){
 	swal({
-		title: 'ยกเลิกข้อมูลนี้ ?',
+		title: label('ยกเลิกข้อมูลนี้ ?', 'Cancle this info'),
 		type: 'warning',
 		showCancelButton: true,
 		cancelButtonText: 'No',
@@ -338,7 +373,7 @@ function changePo(){
 		$('#poCode').removeAttr('disabled');
 		swal({
 			title:'Success',
-			text:'ยกเลิกข้อมูลเรียบร้อยแล้ว',
+			text: label('ยกเลิกข้อมูลเรียบร้อยแล้ว', 'Cancle Items Successfully'),
 			type:'success',
 			timer:1000
 		});
@@ -351,39 +386,41 @@ function changePo(){
 
 function getData(){
 	var po = $("#poCode").val();
-	load_in();
-	$.ajax({
-		url: HOME + 'get_po_detail', //"controller/receiveProductController.php?getPoData",
-		type:"GET",
-		cache:"false",
-		data:{
-			"po_code" : po
-		},
-		success: function(rs){
-			load_out();
-			var rs = $.trim(rs);
-			if( isJson(rs) ){
-				data = $.parseJSON(rs);
-				var source = $("#template").html();
-				var output = $("#receiveTable");
-				render(source, data, output);
-				$("#poCode").attr('disabled', 'disabled');
-				$(".receive-box").keyup(function(e){
-    				sumReceive();
-				});
+	if(po.length > 0){
+		load_in();
+		$.ajax({
+			url: HOME + 'get_po_detail', //"controller/receiveProductController.php?getPoData",
+			type:"GET",
+			cache:"false",
+			data:{
+				"po_code" : po
+			},
+			success: function(rs){
+				load_out();
+				var rs = $.trim(rs);
+				if( isJson(rs) ){
+					data = $.parseJSON(rs);
+					var source = $("#template").html();
+					var output = $("#receiveTable");
+					render(source, data, output);
+					$("#poCode").attr('disabled', 'disabled');
+					$(".receive-box").keyup(function(e){
+	    				sumReceive();
+					});
 
-				$('#btn-get-po').addClass('hide');
-				$('#btn-change-po').removeClass('hide');
-				setTimeout(function(){
-					$('#invoice').focus();
-				},1000);
+					$('#btn-get-po').addClass('hide');
+					$('#btn-change-po').removeClass('hide');
+					setTimeout(function(){
+						$('#invoice').focus();
+					},1000);
 
-			}else{
-				swal("ข้อผิดพลาด !", rs, "error");
-				$("#receiveTable").html('');
+				}else{
+					swal("ข้อผิดพลาด !", rs, "error");
+					$("#receiveTable").html('');
+				}
 			}
-		}
-	});
+		});
+	}
 }
 
 

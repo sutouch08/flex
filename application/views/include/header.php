@@ -27,6 +27,8 @@
     <script src="<?php echo base_url(); ?>assets/js/sweet-alert.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/handlebars-v3.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/chosen.jquery.js"></script>
+		<script src="<?php echo base_url(); ?>scripts/header.js"></script>
+
 	  <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/sweet-alert.css">
     <style> .ui-helper-hidden-accessible { display:none; } </style>
 	</head>
@@ -41,6 +43,7 @@
 		<div id="navbar" class="navbar navbar-default">
 			<script type="text/javascript">
 				var BASE_URL = '<?php echo base_url(); ?>';
+				var language = getCookie('display_lang');
 			</script>
 			<div class="navbar-container" id="navbar-container">
 				<!-- #section:basics/sidebar.mobile.toggle -->
@@ -87,6 +90,16 @@
 									<a href="<?php echo base_url()."admin/profile"; ?>">
 										<i class="ace-icon fa fa-user"></i>
 										โปรไฟล์
+									</a>
+								</li>
+								<li>
+									<a href="javascript:void(0)" onclick="changeLanguage('<?php echo $this->language; ?>')">
+										<i class="ace-icon fa fa-flag"></i>
+										<?php if($this->language === 'thai') : ?>
+											Use English
+										<?php else : ?>
+											ใช้ภาษาไทย
+										<?php endif; ?>
 									</a>
 								</li>
 

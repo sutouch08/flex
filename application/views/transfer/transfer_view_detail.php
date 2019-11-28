@@ -3,11 +3,7 @@
   	<table class="table table-striped border-1">
     	<thead>
       	<tr>
-        	<th colspan="6" class="text-center">รายการโอนย้าย</th>
-        </tr>
-
-      	<tr>
-        	<th class="width-5 text-center">ลำดับ</th>
+        	<th class="width-5 text-center">No.</th>
           <th class="width-15">บาร์โค้ด</th>
           <th class="width-20">สินค้า</th>
           <th class="width-25">ต้นทาง</th>

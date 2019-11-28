@@ -8,53 +8,13 @@ class Customers_model extends CI_Model
 
 
 
-  public function add_sap_customer(array $ds = array())
-  {
-    if(!empty($ds))
-    {
-      return $this->mc->insert('OCRD', $ds);
-    }
-
-    return FALSE;
-  }
-
-
-
-  public function update_sap_customer($code, $ds = array())
-  {
-    if(!empty($ds))
-    {
-      return $this->mc->where('CardCode', $code)->update('OCRD', $ds);
-    }
-
-    return FALSE;
-  }
-
-
-  public function sap_customer_exists($code)
-  {
-    $rs = $this->mc->where('CardCode', $code)->get('OCRD');
-    if($rs->num_rows() === 1)
-    {
-      return TRUE;
-    }
-
-    return FALSE;
-  }
-
-
-
 
   public function get_credit($code)
   {
-    $rs = $this->ms
-    ->select('CreditLine, Balance, DNotesBal, OrdersBal')
-    ->where('CardCode', $code)
-    ->get('OCRD');
+    $rs = $this->db->where('customer_code', $code)->get('customer_credit');
     if($rs->num_rows() === 1)
     {
-      $balance = $rs->row()->CreditLine - ($rs->row()->Balance + $rs->row()->DNotesBal + $rs->row()->OrdersBal);
-      return $balance;
+      return $rs->row()->balance;
     }
 
     return 0.00;
@@ -67,6 +27,74 @@ class Customers_model extends CI_Model
     if(!empty($ds))
     {
       return  $this->db->insert('customers', $ds);
+    }
+
+    return FALSE;
+  }
+
+
+  //--- add new credit
+  public function add_credit(array $ds = array())
+  {
+    if(!empty($ds))
+    {
+      return $this->db->insert('customer_credit', $ds);
+    }
+
+    return FALSE;
+  }
+
+  //--- change credit line
+  public function update_credit($code, $amount)
+  {
+    return $this->db->set('amount', $amount)->where('customer_code', $code)->update('customer_credit');
+  }
+
+
+  public function update_balance($code)
+  {
+    $qr = "UPDATE customer_credit SET balance = amount - used WHERE customer_code = '{$code}'";
+    return $this->db->query($qr);
+  }
+
+
+  public function update_used($code, $used)
+  {
+    return $this->db->set('used', $used)->where('customer_code', $code)->update('customer_credit');
+  }
+
+
+
+  public function get_credit_balance($code)
+  {
+    $rs = $this->db->where('customer_code', $code)->get('customer_credit');
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->balance;
+    }
+
+    return 0;
+  }
+
+
+  public function get_credit_amount($code)
+  {
+    $rs = $this->db->select('amount')->where('customer_code', $code)->get('customer_credit');
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->amount;
+    }
+
+    return FALSE;
+  }
+
+
+  public function has_credit($code)
+  {
+    $rs = $this->db->where('customer_code', $code)->get('customer_credit');
+    if($rs->num_rows() === 1)
+    {
+      return TRUE;
     }
 
     return FALSE;
@@ -276,31 +304,6 @@ class Customers_model extends CI_Model
   }
 
 
-  public function get_update_data()
-  {
-    $rs = $this->ms
-    ->select("CardCode AS code")
-    ->select("CardName AS name")
-    ->select("LicTradNum AS Tax_Id")
-    ->select("DebPayAcct, CardType")
-    ->select("GroupCode, CmpPrivate")
-    ->select("GroupNum, SlpCode AS sale_code")
-    ->select("CreditLine")
-    ->where('CardType', 'C')
-    ->where("UpdateDate >=", date('Y-m-d 00:00:00'))
-    ->get('OCRD');
-
-    if($rs->num_rows() > 0)
-    {
-      return $rs->result();
-    }
-
-    return FALSE;
-  }
-
-
-
-
   public function search($txt)
   {
     $qr = "SELECT code FROM customers WHERE code LIKE '%".$txt."%' OR name LIKE '%".$txt."%'";
@@ -318,63 +321,11 @@ class Customers_model extends CI_Model
 
 
 
-  public function getGroupCode()
-  {
-    $rs = $this->ms
-    ->select('GroupCode AS code, GroupName AS name')
-    ->where('GroupType', 'C')
-    ->get('OCRG');
-
-    if($rs->num_rows() > 0)
-    {
-      return $rs->result();
-    }
-
-    return FALSE;
-  }
-
-
-
-
-  public function getGroupNum()
-  {
-    $rs = $this->ms
-    ->select('GroupNum AS code, PymntGroup AS name')
-    ->order_by('GroupNum', 'ASC')
-    ->get('OCTG');
-
-    if($rs->num_rows() > 0)
-    {
-      return $rs->result();
-    }
-
-    return FALSE;
-  }
-
-
-  public function getDebPayAcct()
-  {
-    $rs = $this->ms
-    ->select('AcctCode AS code, AcctName AS name')
-    ->order_by('AcctCode', 'ASC')
-    ->get('OACT');
-
-    if($rs->num_rows() > 0)
-    {
-      return $rs->result();
-    }
-
-    return FALSE;
-  }
-
-
-
   public function getSlp()
   {
-    $rs = $this->ms
-    ->select('SlpCode AS code, SlpName AS name')
-    ->where('Active', 'Y')
-    ->get('OSLP');
+    $rs = $this->db
+    ->where('Active', 1)
+    ->get('saleman');
 
     if($rs->num_rows() > 0)
     {

@@ -9,9 +9,7 @@ class Warehouse_model extends CI_Model
 
   public function get($code)
   {
-
-    $rs = $this->db
-    ->select('warehouse.*, warehouse_role.name AS role_name')
+    $rs = $this->db->select('warehouse.*, warehouse_role.name AS role_name')
     ->from('warehouse')
     ->join('warehouse_role', 'warehouse.role = warehouse_role.id', 'left')
     ->where('warehouse.code', $code)
@@ -173,36 +171,6 @@ class Warehouse_model extends CI_Model
   }
 
 
-  public function get_new_data($last_add, $last_upd)
-  {
-    $this->ms->select('WhsCode AS code, WhsName AS name');
-    $this->ms->select('createDate, updateDate');
-    $this->ms->where('createDate >', $last_add);
-    $this->ms->or_where('updateDate >', $last_upd);
-    $rs = $this->ms->get('OWHS');
-    if($rs->num_rows() > 0)
-    {
-      return $rs->result();
-    }
-
-    return FALSE;
-  }
-
-
-  public function get_all_warehouse()
-  {
-    $this->ms->select('WhsCode AS code, WhsName AS name');
-    $this->ms->select('createDate, updateDate');
-    $rs = $this->ms->get('OWHS');
-    if($rs->num_rows() > 0)
-    {
-      return $rs->result();
-    }
-
-    return FALSE;
-  }
-
-
   public function has_zone($code)
   {
     //--- return number of result rows like 25
@@ -228,18 +196,6 @@ class Warehouse_model extends CI_Model
     return FALSE;
   }
 
-
-
-  public function is_sap_exists($code)
-  {
-    $rs = $this->ms->select('WhsCode')->where('WhsCode', $code)->get('OWHS');
-    if($rs->num_rows() > 0)
-    {
-      return TRUE;
-    }
-
-    return FALSE;
-  }
 
 
   public function is_auz($code)

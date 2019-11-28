@@ -7,31 +7,8 @@ class Auto_complete extends CI_Controller
   public function __construct()
   {
     parent::__construct();
-    $this->ms = $this->load->database('ms', TRUE);
   }
 
-
-  // public function get_customer_code_and_name()
-  // {
-  //   $txt = $_REQUEST['term'];
-  //   $sc = array();
-  //   $rs = $this->ms
-  //   ->select('CardCode, CardName')
-  //   ->where('CardType', 'C')
-  //   ->like('CardCode', $txt)
-  //   ->or_like('CardName', $txt)
-  //   ->get('OCRD');
-  //
-  //   if($rs->num_rows() > 0)
-  //   {
-  //     foreach($rs->result() as $rd)
-  //     {
-  //       $sc[] = $rd->CardCode.' | '.$rd->CardName;
-  //     }
-  //   }
-  //
-  //   echo json_encode($sc);
-  // }
 
 
   public function get_customer_code_and_name()
@@ -40,7 +17,6 @@ class Auto_complete extends CI_Controller
     $sc = array();
     $rs = $this->db
     ->select('code, name')
-    ->where('CardType', 'C')
     ->like('code', $txt)
     ->or_like('name', $txt)
     ->limit(20)
@@ -243,7 +219,7 @@ public function get_style_code()
     $sc = array();
     $txt = $_REQUEST['term'];
     $this->db->select('code, name');
-    
+
     if(!empty($warehouse))
     {
       $this->db->where('warehouse_code', $warehouse);

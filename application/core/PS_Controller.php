@@ -7,6 +7,7 @@ class PS_Controller extends CI_Controller
   public $home;
   public $ms;
   public $mc;
+  public $language;
   public function __construct()
   {
     parent::__construct();
@@ -24,9 +25,10 @@ class PS_Controller extends CI_Controller
 
     //--- get permission for user
     $this->pm = get_permission($this->menu_code, get_cookie('uid'), get_cookie('id_profile'));
-
-    //$this->ms = $this->load->database('ms', TRUE); //--- SAP database
-    //$this->mc = $this->load->database('mc', TRUE); //--- Temp Database
+    //$language = getConfig('LANGUAGE');
+    $display_lang = get_cookie('display_lang');
+    $this->language = empty($display_lang) ? 'thai' : $display_lang;
+    $this->lang->load($this->language, $this->language);
   }
 }
 

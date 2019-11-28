@@ -6,7 +6,6 @@ class Tools extends CI_Controller
   public function __construct()
   {
     parent::__construct();
-    $this->ms = $this->load->database('ms', TRUE);
   }
 
   public function set_rows()
@@ -25,6 +24,19 @@ class Tools extends CI_Controller
     }
 
     echo 'done';
+  }
+
+
+  public function change_language($lang)
+  {
+    $cookie = array(
+      'name' => 'display_lang',
+      'value' => $lang,
+      'expire' => 259200000, //--- 30 days
+      'path' => '/'
+    );
+
+    $this->input->set_cookie($cookie);
   }
 }
 
