@@ -24,12 +24,12 @@
 			<thead>
 				<tr>
 					<th class="width-30"></th>
-					<th class="width-5 text-center">ดู</th>
-					<th class="width-5 text-center">เพิ่ม</th>
-					<th class="width-5 text-center">แก้ไข</th>
-					<th class="width-5 text-center">ลบ</th>
-					<th class="width-5 text-center">อนุมัติ</th>
-					<th class="width-5 text-center">ทั้งหมด</th>
+					<th class="width-5 text-center"><?php label('view'); ?></th>
+					<th class="width-5 text-center"><?php label('add'); ?></th>
+					<th class="width-5 text-center"><?php label('edit'); ?></th>
+					<th class="width-5 text-center"><?php label('delete'); ?></th>
+					<th class="width-5 text-center"><?php label('approve'); ?></th>
+					<th class="width-5 text-center"><?php label('all'); ?></th>
 
 				</tr>
 			</thead>
@@ -38,7 +38,7 @@
 	<?php foreach($menus as $groups) : ?>
 	<?php 	$g_code = $groups['group_code']; ?>
 				<tr class="font-size-14" style="background-color:#428bca73;">
-					<td class="middle"><?php echo $groups['group_name']; ?></td>
+					<td class="middle"><?php label($g_code); ?></td>
 					<td class="middle text-center">
 						<input id="view-group-<?php echo $g_code; ?>" type="checkbox" class="ace" onchange="groupViewCheck($(this), '<?php echo $g_code; ?>')" />
 						<span class="lbl"></span>
@@ -72,7 +72,7 @@
 						<?php $pm = $menu['permission']; ?>
 						<tr>
 							<td class="middle" style="padding-left:20px;"> -
-								<?php echo $menu['menu_name']; ?>
+								<?php label($code); ?>
 								<input type="hidden" name="menu[<?php echo $code; ?>]" value="<?php echo $code; ?>"  />
 							</td>
 							<td class="middle text-center">

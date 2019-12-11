@@ -7,7 +7,11 @@
     </div>
     <div class="col-sm-6">
     	<p class="pull-right top-p">
-				<button type="button" class="btn btn-sm btn-info" onclick="syncData()"><i class="fa fa-refresh"></i> Sync</button>
+				<?php if($this->pm->can_add) : ?>
+				<button type="button" class="btn btn-sm btn-success" onclick="addNew()">
+					<i class="fa fa-puls"></i> <?php label('add_new'); ?>
+				</button>
+				<?php endif; ?>
       </p>
     </div>
 </div><!-- End Row -->
@@ -15,24 +19,24 @@
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
   <div class="col-sm-2 padding-5 first">
-    <label>รหัสโซน</label>
+    <label><?php label('code'); ?></label>
     <input type="text" class="form-control input-sm" name="code" id="code" value="<?php echo $code; ?>" />
   </div>
 
   <div class="col-sm-2 padding-5">
-    <label>ชื่อโซน</label>
+    <label><?php label('name'); ?></label>
     <input type="text" class="form-control input-sm" name="name" id="name" value="<?php echo $name; ?>" />
   </div>
 
 	<div class="col-sm-2 padding-5">
-    <label>ชื่อลูกค้า</label>
+    <label><?php label('customer_name'); ?></label>
     <input type="text" class="form-control input-sm" name="customer" id="customer" value="<?php echo $customer; ?>" />
   </div>
 
 	<div class="col-sm-2 padding-5">
-    <label>คลังสินค้า</label>
+    <label><?php label('warehouse'); ?></label>
     <select class="form-control input-sm filter" name="warehouse" id="warehouse" onchange="getSearch()">
-			<option value="">ทั้งหมด</option>
+			<option value=""><?php label('all'); ?></option>
 			<?php echo select_warehouse($warehouse); ?>
 		</select>
   </div>
@@ -57,11 +61,11 @@
 		<table class="table table-striped table-hover border-1">
 			<thead>
 				<tr>
-					<th class="width-5 middle text-center">ลำดับ</th>
-					<th class="width-15 middle">รหัสโซน</th>
-					<th class="width-35 middle">ชื่อโซน</th>
-					<th class="width-20 middle">คลังสินค้า</th>
-					<th class="width-10 middle text-center">ลูกค้า(จำนวน)</th>
+					<th class="width-5 middle text-center"><?php label('num'); ?></th>
+					<th class="width-15 middle"><?php label('code'); ?></th>
+					<th class="width-35 middle"><?php label('name'); ?></th>
+					<th class="width-20 middle"><?php label('warehouse'); ?></th>
+					<th class="width-10 middle text-center"><?php label('customer'); ?></th>
 					<th class=""></th>
 				</tr>
 			</thead>
@@ -92,7 +96,7 @@
 				<?php endforeach; ?>
 			<?php else : ?>
 				<tr>
-					<td colspan="6" class="text-center">--- No zone ---</td>
+					<td colspan="6" class="text-center">--- <?php label('no_content'); ?> ---</td>
 				</tr>
 			<?php endif; ?>
 			</tbody>

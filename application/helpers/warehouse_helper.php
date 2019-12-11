@@ -1,5 +1,5 @@
 <?php
-function select_warehouse_role($se = 0)
+function select_warehouse_role($se = NULL)
 {
   $sc = '';
   $CI =& get_instance();
@@ -18,12 +18,12 @@ function select_warehouse_role($se = 0)
 }
 
 
-function select_warehouse($se = 0)
+function select_warehouse($se = NULL)
 {
   $sc = '';
   $CI =& get_instance();
   $CI->load->model('masters/warehouse_model');
-  $options = $CI->warehouse_model->get_list();
+  $options = $CI->warehouse_model->get_warehouses();
 
   if(!empty($options))
   {

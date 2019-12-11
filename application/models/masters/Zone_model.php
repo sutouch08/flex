@@ -80,6 +80,44 @@ class Zone_model extends CI_Model
   }
 
 
+  public function is_exists_code($code, $old_code = NULL)
+  {
+    $this->db->where('code', $code);
+    if(!empty($old_code))
+    {
+      $this->db->where('code !=', $old_code);
+    }
+
+    $rs = $this->db->get('zone');
+    if($rs->num_rows() > 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
+
+  public function is_exists_name($name, $old_name = NULL)
+  {
+    $this->db->where('name', $name);
+    if(!empty($old_name))
+    {
+      $this->db->where('name !=', $old_name);
+    }
+
+    $rs = $this->db->get('warehouse');
+    if($rs->num_rows() > 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
+
   //--- check customer exists in zone or not
   public function is_exists_customer($zone_code, $customer_code)
   {

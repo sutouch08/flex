@@ -223,6 +223,11 @@ function label_value($content)
 	return $ci->lang->line($content);
 }
 
+//--- return null if blank value
+function get_null($value)
+{
+	return $value === '' ? NULL : $value;
+}
 
 function pagination_config( $base_url, $total_rows = 0, $perpage = 20, $segment = 3)
 {

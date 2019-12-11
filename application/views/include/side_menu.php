@@ -150,7 +150,7 @@ $menu_group = $this->menu_group_code;
 				<a href="#" class="dropdown-toggle"><i class="menu-icon fa fa-caret-right"></i> <?php label('PRODUCT'); ?> <b class="arrow fa fa-angle-down"></b></a>
 				<ul class="submenu">
 					<?php echo side_menu($menu, 'DBPROD', 'masters/products', label_value('DBPROD')); ?>
-					<?php //echo side_menu($menu, 'DBPDST', 'masters/product_style','เlabel_value('DBPDST')'); ?>
+					<?php echo side_menu($menu, 'DBITEM', 'masters/items',label_value('DBITEM')); ?>
 					<?php echo side_menu($menu, 'DBPDGP', 'masters/product_group', label_value('DBPDGP')); ?>
 					<?php echo side_menu($menu, 'DBPDSG', 'masters/product_sub_group', label_value('DBPDSG')); ?>
 					<?php echo side_menu($menu, 'DBPDCR', 'masters/product_category', label_value('DBPDCR')); ?>
@@ -183,7 +183,7 @@ $menu_group = $this->menu_group_code;
 					<?php echo side_menu($menu, 'DBZONE', 'masters/zone', label_value('DBZONE')); ?>
 				</ul>
 			</li>
-
+			<?php echo side_menu($menu, 'DBEMPL', 'masters/employee', label_value('DBEMPL')); ?>
 			<?php echo side_menu($menu, 'DBCHAN', 'masters/channels', label_value('DBCHAN')); ?>
 			<?php echo side_menu($menu, 'DBPAYM', 'masters/payment_methods', label_value('DBPAYM')); ?>
 			<?php echo side_menu($menu, 'DBSALE', 'masters/saleman', label_value('DBSALE')); ?>

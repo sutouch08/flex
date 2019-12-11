@@ -19,6 +19,17 @@ class Unit_model extends CI_Model
   }
 
 
+  public function get_data()
+  {
+    $rs = $this->db->get('unit');
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return FALSE;
+  }
+
 } //--- end class
 
  ?>

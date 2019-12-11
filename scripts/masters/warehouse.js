@@ -15,7 +15,9 @@ function clearFilter(){
   });
 }
 
-
+function addNew(){
+  window.location.href = HOME + '/add_new';
+}
 
 function getEdit(code){
   window.location.href = HOME + '/edit/'+code;
@@ -122,17 +124,118 @@ function toggleActive(option)
 }
 
 
-function syncData(){
-  load_in();
-  $.get(HOME +'/syncData', function(){
-    load_out();
-    swal({
-      title:'Completed',
-      type:'success',
-      timer:1000
-    });
-    setTimeout(function(){
-      goBack();
-    }, 1500);
+function checkAdd(){
+  var code = $.trim($('#code').val());
+  var name = $.trim($('#name').val());
+  var type = $('#role').val();
+
+  if(code.length == 0){
+    set_error($('#code'), $('#code-error'), 'Required');
+    return false;
+  }else{
+    clear_error($('#code'), $('#code-error'));
+  }
+
+  if(name.length == 0){
+    set_error($('#name'), $('#name-error'), 'Required');
+    return false;
+  }else{
+    clear_error($('#name'), $('#name-error'));
+  }
+
+  //---- check exists code
+  $.ajax({
+    url:HOME + '/is_exists_code/'+code,
+    type:'GET',
+    cache:false,
+    success:function(rs){
+      if(rs != 'ok'){
+        set_error($('#code'), $('#code-error'), rs);
+        return false;
+      }else{
+        clear_error($('#code'), $('#code-error'));
+        //----- check exists name
+        $.ajax({
+          url: HOME + '/is_exists_name/'+name,
+          type:'GET',
+          cache:false,
+          success:function(rs){
+            if(rs != 'ok'){
+              set_error($('#name'), $('#name-error'), rs);
+              return false;
+            }else{
+              clear_error($('#name'), $('#name-error'));
+
+              if(type == ""){
+                set_error($('#role'), $('#role-error'), 'Required');
+                return false;
+              }else{
+                $('#addForm').submit();
+              }
+            }
+          }
+        });
+      }
+    }
+  });
+}
+
+
+
+function checkUpdate(){
+  var code = $.trim($('#code').val());
+  var old_code = $('#old_code').val();
+  var name = $.trim($('#name').val());
+  var old_name = $('#old_name').val();
+  var type = $('#role').val();
+
+  if(code.length == 0){
+    set_error($('#code'), $('#code-error'), 'Required');
+    return false;
+  }else{
+    clear_error($('#code'), $('#code-error'));
+  }
+
+  if(name.length == 0){
+    set_error($('#name'), $('#name-error'), 'Required');
+    return false;
+  }else{
+    clear_error($('#name'), $('#name-error'));
+  }
+
+  //---- check exists code
+  $.ajax({
+    url:HOME + '/is_exists_code/'+code+'/'+old_code,
+    type:'GET',
+    cache:false,
+    success:function(rs){
+      if(rs != 'ok'){
+        set_error($('#code'), $('#code-error'), rs);
+        return false;
+      }else{
+        clear_error($('#code'), $('#code-error'));
+        //----- check exists name
+        $.ajax({
+          url: HOME + '/is_exists_name/'+name+'/'+old_name,
+          type:'GET',
+          cache:false,
+          success:function(rs){
+            if(rs != 'ok'){
+              set_error($('#name'), $('#name-error'), rs);
+              return false;
+            }else{
+              clear_error($('#name'), $('#name-error'));
+
+              if(type == ""){
+                set_error($('#role'), $('#role-error'), 'Required');
+                return false;
+              }else{
+                $('#addForm').submit();
+              }
+            }
+          }
+        });
+      }
+    }
   });
 }

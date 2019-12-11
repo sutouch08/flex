@@ -5,36 +5,67 @@
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
 	<div class="col-sm-6">
-		<p class="pull-right">
+		<p class="pull-right top-p">
 			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> Back</button>
 		</p>
 	</div>
 </div><!-- End Row -->
-<hr/>
+<hr class="margin-bottom-15"/>
+<form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/update"; ?>">
 <div class="row">
-	<div class="col-sm-3 padding-5 first">
-		<label>รหัสโซน</label>
-		<input type="text" class="form-control input-sm" value="<?php echo $ds->code; ?>" readonly disabled />
-	</div>
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right"><?php label('code'); ?></label>
+    <div class="col-xs-12 col-sm-3">
+      <input type="text" name="code" id="code" class="width-100" value="<?php echo $ds->code; ?>" autofocus required />
+    </div>
+    <div class="help-block col-xs-12 col-sm-reset inline red" id="code-error"></div>
+  </div>
 
-	<div class="col-sm-6 padding-5">
-		<label>ชื่อโซน</label>
-		<input type="text" class="form-control input-sm" value="<?php echo $ds->name; ?>" readonly disabled />
-	</div>
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right"><?php label('name'); ?></label>
+    <div class="col-xs-12 col-sm-3">
+			<input type="text" name="name" id="name" class="width-100" value="<?php echo $ds->name; ?>" required />
+    </div>
+    <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
+  </div>
 
-	<div class="col-sm-3 padding-5">
-		<label>คลังสินค้า</label>
-		<input type="text" class="form-control input-sm" value="<?php echo $ds->warehouse_name; ?>" readonly disabled />
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right"><?php label('warehouse'); ?></label>
+    <div class="col-xs-12 col-sm-3">
+			<select class="form-control input-sm" name="warehouse" id="warehouse">
+				<option value=""><?php label('please_select'); ?></option>
+				<?php echo select_warehouse($ds->warehouse_code); ?>
+			</select>
+    </div>
+    <div class="help-block col-xs-12 col-sm-reset inline red" id="warehouse-error"></div>
+  </div>
+	<div class="divider-hidden">
+
+	</div>
+	<div class="form-group">
+		<label class="col-sm-3 control-label no-padding-right"></label>
+		<div class="col-xs-12 col-sm-3">
+			<p class="pull-right">
+				<button type="button" class="btn btn-sm btn-success" onclick="checkUpdate()"><i class="fa fa-save"></i> <?php label('update'); ?></button>
+			</p>
+		</div>
+		<div class="help-block col-xs-12 col-sm-reset inline">
+			&nbsp;
+		</div>
 	</div>
 </div>
+	<input type="hidden" name="old_code" id="old_code" value="<?php echo $ds->code; ?>">
+	<input type="hidden" name="old_name" id="old_name" value="<?php echo $ds->name; ?>">
+</form>
 <hr class="margin-top-10 margin-bottom-15">
 <div class="row">
 	<div class="col-sm-4 padding-5 first">
-		<input type="text" class="form-control input-sm" id="search-box" placeholder="ค้นหาลูกค้า" autofocus>
+		<input type="text" class="form-control input-sm" id="search-box" placeholder="<?php label('search'); label('customer'); ?>" autofocus>
 	</div>
 	<div class="col-sm-1 padding-5">
 		<button type="button" class="btn btn-xs btn-primary" onclick="addCustomer()">
-			<i class="fa fa-plus"></i> เพิ่มลูกค้า
+			<i class="fa fa-plus"></i> <?php label('customer'); ?>
 		</button>
 	</div>
 </div>
@@ -44,9 +75,9 @@
 		<table class="table table-striped border-1">
 			<thead>
 				<tr>
-					<th class="width-5 text-center">No.</th>
-					<th class="width-15">รหัสลูกค้า</th>
-					<th class="">ชิ้อลูกค้า</th>
+					<th class="width-5 text-center"><?php label('Num'); ?></th>
+					<th class="width-15"><?php label('customer_code'); ?></th>
+					<th class=""><?php label('customer_name'); ?></th>
 					<th class="width-10"></th>
 				</tr>
 			</thead>

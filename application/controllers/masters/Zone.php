@@ -14,6 +14,7 @@ class Zone extends PS_Controller
     $this->load->model('masters/zone_model');
     $this->load->helper('zone');
     $this->load->helper('warehouse');
+    $this->title = label_value('DBZONE');
   }
 
   public function index()
@@ -55,6 +56,71 @@ class Zone extends PS_Controller
 
 
 
+  public function add_new()
+  {
+    $this->load->view('masters/zone/zone_add');
+  }
+
+
+
+  public function add()
+  {
+    if($this->input->post('code'))
+    {
+      $arr = array(
+        'code' => trim($this->input->post('code')),
+        'name' => trim($this->input->post('name')),
+        'warehouse_code' => $this->input->post('warehouse'),
+        'date_add' => now(),
+        'update_user' => get_cookie('uname')
+      );
+
+      if($this->zone_model->add($arr))
+      {
+        set_message(label_value('insert_success'));
+      }
+      else
+      {
+        set_error(label_value('insert_fail'));
+      }
+    }
+    else
+    {
+      set_error(label_value('no_data_found'));
+    }
+
+    redirect($this->home.'/add_new');
+  }
+
+
+
+  public function is_exists_code($code, $old_code = NULL)
+  {
+    $exists = $this->zone_model->is_exists_code($code, $old_code);
+    if($exists)
+    {
+      echo label_value('duplicated_code');
+    }
+    else
+    {
+      echo 'ok';
+    }
+  }
+
+
+  public function is_exists_name($name, $old_name = NULL)
+  {
+    $exists = $this->zone_model->is_exists_name($name, $old_name);
+    if($exists)
+    {
+      echo label_value('duplicated_name');
+    }
+    else
+    {
+      echo 'ok';
+    }
+  }
+
   public function edit($code)
   {
     if($this->pm->can_edit)
@@ -70,6 +136,46 @@ class Zone extends PS_Controller
     }
   }
 
+
+  public function update()
+  {
+    if($this->pm->can_edit)
+    {
+      if($this->input->post('code'))
+      {
+        $old_code = $this->input->post('old_code');
+        $code = trim($this->input->post('code'));
+        $arr = array(
+          'code' => $code,
+          'name' => trim($this->input->post('name')),
+          'warehouse_code' => $this->input->post('warehouse'),
+          'update_user' => get_cookie('uname')
+        );
+
+        if($this->zone_model->update($old_code, $arr))
+        {
+          set_message(label_value('update_success'));
+          redirect($this->home.'/edit/'.$code);
+        }
+        else
+        {
+          set_error(label_value('update_fail'));
+          redirect($this->home.'/edit/'.$old_code);
+        }
+      }
+      else
+      {
+        set_error(label_value('no_data_found'));
+        redirect($this->home);
+      }
+    }
+    else
+    {
+      set_error(label_value('no_permission'));
+      redirect($this->home);
+    }
+  }
+
   public function delete($code)
   {
     $sc = TRUE;
@@ -78,15 +184,7 @@ class Zone extends PS_Controller
       if($this->zone_model->count_customer($code) > 0)
       {
         $sc = FALSE;
-        $this->error = "ไม่สามารถลบโซนได้เนื่องจากมีการเชื่อมโยงลูกค้าไว้";
-      }
-      else
-      {
-        if($this->zone_model->is_sap_exists($code))
-        {
-          $sc = FALSE;
-          $this->error = "กรุณาลบโซนใน SAP ก่อน";
-        }
+        $this->error = label_value('child_inside');
       }
 
       if($sc === TRUE)
@@ -94,7 +192,7 @@ class Zone extends PS_Controller
         if( ! $this->zone_model->delete($code))
         {
           $sc = FALSE;
-          $this->error = "ลบโซนไม่สำเร็จ";
+          $this->error = label_value('delete_fail');
         }
       }
 
@@ -102,7 +200,7 @@ class Zone extends PS_Controller
     else
     {
       $sc = FALSE;
-      $this->error = "คุณไมมีสิทธิ์ลบโซน";
+      $this->error = label_value('no_permission');
     }
 
     echo $sc === TRUE ? 'success' : $this->error;
@@ -127,7 +225,7 @@ class Zone extends PS_Controller
           if($this->zone_model->is_exists_customer($code, $customer->code))
           {
             $sc = FALSE;
-            $this->error = "มีลูกค้าในโซนนี้อยู่แล้ว";
+            $this->error = label_value('already_exists');
           }
           else
           {
@@ -140,27 +238,27 @@ class Zone extends PS_Controller
             if( ! $this->zone_model->add_customer($arr))
             {
               $sc = FALSE;
-              $this->error = "เพิ่มลูกค้าไม่สำเร็จ";
+              $this->error = label_value('insert_fail');
             }
           }
         }
         else
         {
           $sc = FALSE;
-          $this->error = "รหัสลูกค้าไม่ถูกต้อง";
+          $this->error = label_value('invalid_code');
         }
       }
       else
       {
         $sc = FALSE;
-        $this->error = "ไม่พบข้อมูล";
+        $this->error = label_value('no_data_found');
       }
 
     }
     else
     {
       $sc = FALSE;
-      $this->error = "คุณไม่มีสิทธิ์ในการเพิ่มข้อมูล";
+      $this->error = label_value('no_permission');
     }
 
     echo $sc === TRUE ? 'success' : $this->error;
@@ -177,13 +275,13 @@ class Zone extends PS_Controller
       if( ! $this->zone_model->delete_customer($id))
       {
         $sc = FALSE;
-        $this->error = "ลบรายการไม่สำเร็จ";
+        $this->error = label_value('delete_fail');
       }
     }
     else
     {
       $sc = FALSE;
-      $this->error = "คุณไม่มีสิทธิ์ลบข้อมูล";
+      $this->error = label_value('no_permission');
     }
 
     echo $sc === TRUE ? 'success' : $this->error;

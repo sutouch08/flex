@@ -97,19 +97,18 @@ public function get_style_code()
   public function get_vendor_code_and_name()
   {
     $sc = array();
-    $vendor = $this->ms
-    ->select('CardCode, CardName')
-    ->where('CardType', 'S')
-    ->like('CardCode', $_REQUEST['term'])
-    ->or_like('CardName', $_REQUEST['term'])
+    $vendor = $this->db
+    ->select('code, name')
+    ->like('code', $_REQUEST['term'])
+    ->or_like('name', $_REQUEST['term'])
     ->limit(20)
-    ->get('OCRD');
+    ->get('vender');
 
     if($vendor->num_rows() > 0)
     {
       foreach($vendor->result() as $rs)
       {
-        $sc[] = $rs->CardCode.' | '.$rs->CardName;
+        $sc[] = $rs->code.' | '.$rs->name;
       }
     }
 
@@ -559,24 +558,81 @@ public function get_style_code()
   {
     $txt = $_REQUEST['term'];
     $sc  = array();
-    $this->ms->select('WhsCode, WhsName');
+    $this->db->select('code, name');
     if($txt != '*')
     {
-      $this->ms->like('WhsCode', $txt);
-      $this->ms->or_like('WhsName', $txt);
+      $this->db->like('code', $txt);
+      $this->db->or_like('WhsName', $txt);
     }
-    $rs = $this->ms->limit(20)->get('OWHS');
+    $rs = $this->db->limit(20)->get('warehouse');
 
     if($rs->num_rows() > 0)
     {
       foreach($rs->result() as $wh)
       {
-        $sc[] = $wh->WhsCode.' | '.$wh->WhsName;
+        $sc[] = $wh->code.' | '.$wh->name;
       }
     }
     else
     {
       $sc[] = 'not found';
+    }
+
+    echo json_encode($sc);
+  }
+
+
+
+  public function get_color_code_and_name()
+  {
+    $txt = $_REQUEST['term'];
+    $sc = array();
+    $this->db->select('code, name');
+    if($txt != '*')
+    {
+      $this->db->like('code', $txt);
+      $this->db->or_like('name', $txt);
+    }
+    $rs = $this->db->order_by('code', 'ASC')->limit(20)->get('product_color');
+
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $co)
+      {
+        $sc[] = $co->code.' | '.$co->name;
+      }
+    }
+    else
+    {
+      $sc[] = "not_fount";
+    }
+
+    echo json_encode($sc);
+  }
+
+
+  public function get_size_code_and_name()
+  {
+    $txt = $_REQUEST['term'];
+    $sc = array();
+    $this->db->select('code, name');
+    if($txt != '*')
+    {
+      $this->db->like('code', $txt, 'after');
+      $this->db->or_like('name', $txt, 'after');
+    }
+    $rs = $this->db->order_by('position', 'ASC')->limit(20)->get('product_size');
+
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $co)
+      {
+        $sc[] = $co->code.' | '.$co->name;
+      }
+    }
+    else
+    {
+      $sc[] = "not_fount";
     }
 
     echo json_encode($sc);

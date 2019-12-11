@@ -23,6 +23,129 @@ function getEdit(code){
 }
 
 
+function addNew(){
+  window.location.href = HOME + '/add_new';
+}
+
+
+function checkAdd(){
+  var code = $('#code').val();
+  var name = $('#name').val();
+  var warehouse = $('#warehouse').val();
+
+  if(code.length === 0){
+    set_error($('#code'), $('#code-error'), 'Required');
+    return false;
+  }else{
+    clear_error($('#code'), $('#code-error'));
+  }
+
+  if(name.length === 0){
+    set_error($('#name'), $('#name-error'), 'Required');
+    return false;
+  }else{
+    clear_error($('#name'), $('#name-error'));
+  }
+
+  if(warehouse == ""){
+    set_error($('#warehouse'), $('#warehouse-error'), 'Please Choose');
+    return false;
+  }else{
+    clear_error($('#warehouse'), $('#warehouse-error'));
+  }
+
+  //--- check duplicate code
+  $.ajax({
+    url:HOME + '/is_exists_code/' + code,
+    type:'GET',
+    cache:false,
+    success:function(rs){
+      if(rs != 'ok'){
+        set_error($('#code'), $('#code-error'), rs);
+        return false;
+      }else{
+        clear_error($('#code'), $('#code-error'));
+        $.ajax({
+          url:HOME + '/is_exists_name/'+ name,
+          type:'GET',
+          cache:false,
+          success:function(rs){
+            if(rs != 'ok'){
+              set_error($('#name'), $('#name-error'), rs);
+              return false;
+            }else{
+              clear_error($('#name'), $('#name-error'));
+              $('#addForm').submit();
+            }
+          }
+        });
+      }
+    }
+  });
+}
+
+
+
+function checkUpdate(){
+  var code = $('#code').val();
+  var old_code = $('#old_code').val();
+  var name = $('#name').val();
+  var old_name = $('#old_name').val();
+  var warehouse = $('#warehouse').val();
+
+  if(code.length === 0){
+    set_error($('#code'), $('#code-error'), 'Required');
+    return false;
+  }else{
+    clear_error($('#code'), $('#code-error'));
+  }
+
+  if(name.length === 0){
+    set_error($('#name'), $('#name-error'), 'Required');
+    return false;
+  }else{
+    clear_error($('#name'), $('#name-error'));
+  }
+
+  if(warehouse == ""){
+    set_error($('#warehouse'), $('#warehouse-error'), 'Please Choose');
+    return false;
+  }else{
+    clear_error($('#warehouse'), $('#warehouse-error'));
+  }
+
+  //--- check duplicate code
+  $.ajax({
+    url:HOME + '/is_exists_code/' + code +'/'+old_code,
+    type:'GET',
+    cache:false,
+    success:function(rs){
+      if(rs != 'ok'){
+        set_error($('#code'), $('#code-error'), rs);
+        return false;
+      }else{
+        clear_error($('#code'), $('#code-error'));
+        $.ajax({
+          url:HOME + '/is_exists_name/'+ name +'/' + name,
+          type:'GET',
+          cache:false,
+          success:function(rs){
+            if(rs != 'ok'){
+              set_error($('#name'), $('#name-error'), rs);
+              return false;
+            }else{
+              clear_error($('#name'), $('#name-error'));
+              $('#addForm').submit();
+            }
+          }
+        });
+      }
+    }
+  });
+}
+
+
+
 $('#search-box').autocomplete({
   source:BASE_URL + 'auto_complete/get_customer_code_and_name',
   autoFocus:true,

@@ -22,6 +22,8 @@ $lang['from_zone'] = 'From Zone';
 $lang['to_zone'] = 'To Zone';
 $lang['emp'] = 'Employee';
 $lang['status'] = 'Status';
+$lang['active'] = 'Active';
+$lang['deactive'] = 'Deactive';
 $lang['date'] = 'Date';
 $lang['po'] = 'PO';
 $lang['inv'] = 'Invoice';
@@ -29,6 +31,23 @@ $lang['po_qty'] = 'PO qty';
 $lang['po_backlogs'] = 'Backlogs';
 $lang['approver'] = 'Approver';
 $lang['approve'] = 'Approve';
+$lang['already_exists'] = 'already exists';
+$lang['please_select'] = 'Please choose';
+$lang['wh_type'] = 'Warehouse role';
+$lang['allow_sell'] = 'Allow to sell';
+$lang['allow_prepare'] = 'Allow to picking';
+$lang['allow_negative'] = 'Allow Negative';
+$lang['yes'] = 'Yes';
+$lang['no'] = 'No';
+$lang['duplicated_code'] = 'Duplicated code';
+$lang['duplicated_name'] = 'Duplicated name';
+$lang['zone'] = 'Zone';
+$lang['warehouse'] = 'Warehouse';
+$lang['sell'] = 'Sell';
+$lang['pick'] = 'Pick';
+$lang['negative'] = 'Negative';
+$lang['edit_by'] = 'Edit by';
+
 
 $lang['customer'] = 'Customer';
 $lang['customer_code'] = 'Customer code';
@@ -55,6 +74,8 @@ $lang['perpage'] = 'perpage';
 
 $lang['back'] = 'Back';
 $lang['add_new'] = 'Add New';
+$lang['view'] = 'ดู';
+$lang['add'] = 'เพิ่ม';
 $lang['edit'] = 'Edit';
 $lang['cancle'] = 'Cancle';
 $lang['delete'] = 'Delete';
@@ -78,6 +99,15 @@ $lang['barcode_item'] = 'Barcode Item';
 $lang['items'] = 'Items';
 $lang['item_code'] = 'Items code';
 $lang['item_name'] = 'Items name';
+$lang['style'] = 'Model';
+$lang['group'] = 'Group';
+$lang['sub_group'] = 'Sub Group';
+$lang['category'] = 'Category';
+$lang['kind'] = 'Kind';
+$lang['type'] = 'Type';
+$lang['brand'] = 'Brand';
+$lang['year'] = 'Year';
+$lang['image'] = 'Image';
 $lang['qty'] = 'Qty';
 $lang['price'] = 'Price';
 $lang['cost'] = 'Cost';
@@ -90,11 +120,21 @@ $lang['total_discount'] = 'Total Discount';
 $lang['net_amount'] = 'Net Amount';
 $lang['delivery_fee'] = 'Delivery Fee';
 $lang['service_fee'] = 'Service Fee';
+$lang['product_tab'] = 'Product Tabs';
+$lang['unit'] = 'Unit';
+$lang['count_stock'] = 'Count Stock';
+$lang['color'] = 'Color';
+$lang['size'] = 'Size';
 
 //--- Title
 $lang['transfer_title'] = 'Inventory Transfer';
 $lang['receive_title'] = 'Purchase Receive';
 
+
+//--- success message
+$lang['insert_success'] = 'Insert data successfull';
+$lang['update_success'] = 'Update data successfull';
+$lang['delete_success'] = 'Delete data successfull';
 
 
 //---- Error message
@@ -107,6 +147,10 @@ $lang['cancle_fail'] = 'Cancle failed';
 $lang['no_data_found'] = 'No data found';
 $lang['date_error'] = 'Incorrect date';
 $lang['po_error'] = 'Incorrect PO or PO already closed';
+$lang['delete_fail'] = 'Delete data failed';
+$lang['no_permission'] = "You don't have permission";
+$lang['child_inside'] = 'Cannot delete due to association';
+$lang['invalid_code'] = 'Invalid code';
 
 
 //--- Menu group
@@ -116,6 +160,7 @@ $lang['AC'] = 'Accounting';
 $lang['PO'] = 'Purchase';
 $lang['SC'] = 'Setting';
 $lang['DB'] = 'Database';
+$lang['AP'] = 'Approval';
 
 //--- Sub Menu group
 $lang['RECEIVE'] = 'Receive';
@@ -151,12 +196,14 @@ $lang['DBPDSI'] = 'Product size';
 $lang['DBPDST'] = 'Product Model';
 $lang['DBPDTY'] = 'Product type';
 $lang['DBPROD'] = 'Products';
+$lang['DBITEM'] = 'Product Items';
 $lang['DBPROF'] = 'Profiles';
 $lang['DBPTAB'] = 'Product tabs';
 $lang['DBSALE'] = 'Saleman';
 $lang['DBUSER'] = 'Users';
 $lang['DBWRHS'] = 'Warehouse';
 $lang['DBZONE'] = 'Zone location';
+$lang['DBEMPL'] = 'Employee';
 $lang['ICCKBF'] = 'Buffer zone';
 $lang['ICCKCN'] = 'Cancle zone';
 $lang['ICCKMV'] = 'Stock Movement';
@@ -174,6 +221,7 @@ $lang['ICTRFM'] = 'Transform (SO)';
 $lang['ICTRFS'] = 'Transform (Stock)';
 $lang['ICTRRC'] = 'Receive Transform';
 $lang['ICTRWH'] = 'Inventory Transfer';
+$lang['ICTRMV'] = 'Change Stock Location';
 $lang['SCCONF'] = 'Setting';
 $lang['SCPERM'] = 'Permission';
 $lang['SCPOLI'] = 'Discount policy';

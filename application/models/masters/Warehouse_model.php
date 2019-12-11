@@ -137,6 +137,17 @@ class Warehouse_model extends CI_Model
     return FALSE;
   }
 
+  public function get_warehouses()
+  {
+    $rs = $this->db->get('warehouse');
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return FALSE;
+  }
+
 
 
   public function count_zone($code)
@@ -157,20 +168,6 @@ class Warehouse_model extends CI_Model
   }
 
 
-  public function get_last_create_date()
-  {
-    $rs = $this->db->select_max('sap_createDate', 'create_date')->get('warehouse');
-    return $rs->row()->create_date;
-  }
-
-
-  public function get_last_update_date()
-  {
-    $rs = $this->db->select_max('sap_updateDate', 'update_date')->get('warehouse');
-    return $rs->row()->update_date;
-  }
-
-
   public function has_zone($code)
   {
     //--- return number of result rows like 25
@@ -188,6 +185,43 @@ class Warehouse_model extends CI_Model
   public function is_exists($code)
   {
     $rs = $this->db->where('code', $code)->get('warehouse');
+    if($rs->num_rows() > 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
+  public function is_exists_code($code, $old_code = NULL)
+  {
+    $this->db->where('code', $code);
+    if(!empty($old_code))
+    {
+      $this->db->where('code !=', $old_code);
+    }
+
+    $rs = $this->db->get('warehouse');
+    if($rs->num_rows() > 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
+
+  public function is_exists_name($name, $old_name = NULL)
+  {
+    $this->db->where('name', $name);
+    if(!empty($old_name))
+    {
+      $this->db->where('name !=', $old_name);
+    }
+
+    $rs = $this->db->get('warehouse');
     if($rs->num_rows() > 0)
     {
       return TRUE;

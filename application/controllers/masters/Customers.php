@@ -18,6 +18,7 @@ class Customers extends PS_Controller
     $this->load->model('masters/customer_class_model');
     $this->load->model('masters/customer_area_model');
     $this->load->helper('customer');
+    $this->title = label_value('DBCUST');
   }
 
 
@@ -333,7 +334,7 @@ class Customers extends PS_Controller
               $this->customers_model->add_credit($arr);
             }
           }
-          
+
           set_message('ปรับปรุงข้อมูลเรียบร้อยแล้ว');
         }
         else

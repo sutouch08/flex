@@ -13,6 +13,7 @@ class Warehouse extends PS_Controller
     $this->home = base_url().'masters/warehouse';
     $this->load->model('masters/warehouse_model');
     $this->load->helper('warehouse');
+    $this->title = label_value('DBWRHS');
   }
 
   public function index()
@@ -52,6 +53,47 @@ class Warehouse extends PS_Controller
   }
 
 
+  public function add_new()
+  {
+    $this->load->view('masters/warehouse/warehouse_add');
+  }
+
+
+
+  public function add()
+  {
+    if($this->input->post('code'))
+    {
+      $arr = array(
+        'code' => trim($this->input->post('code')),
+        'name' => trim($this->input->post('name')),
+        'role' => $this->input->post('role'),
+        'active' => $this->input->post('active'),
+        'sell' => $this->input->post('sell'),
+        'prepare' => $this->input->post('prepare'),
+        'auz' => $this->input->post('auz'),
+        'date_add' => now(),
+        'update_user' => get_cookie('uname')
+      );
+
+      if($this->warehouse_model->add($arr))
+      {
+        set_message(label_value('insert_success'));
+      }
+      else
+      {
+        set_error(label_value('insert_fail'));
+      }
+    }
+    else
+    {
+      set_error(label_value('no_data_found'));
+    }
+
+    redirect($this->home.'/add_new');
+  }
+
+
 
   public function edit($code)
   {
@@ -62,7 +104,7 @@ class Warehouse extends PS_Controller
     }
     else
     {
-      set_error("คุณไม่มีสิทธิ์แก้ไขคลังสินค้า");
+      set_error(label_value('no_permission'));
       redirect($this->home);
     }
   }
@@ -75,8 +117,11 @@ class Warehouse extends PS_Controller
     {
       if($this->input->post('code'))
       {
-        $code = $this->input->post('code');
+        $old_code = $this->input->post('old_code');
+        $code = trim($this->input->post('code'));
         $arr = array(
+          'code' => $code,
+          'name' => trim($this->input->post('name')),
           'role' => $this->input->post('role'),
           'sell' => $this->input->post('sell'),
           'prepare' => $this->input->post('prepare'),
@@ -85,26 +130,26 @@ class Warehouse extends PS_Controller
           'update_user' => get_cookie('uname')
         );
 
-        if($this->warehouse_model->update($code, $arr))
+        if($this->warehouse_model->update($old_code, $arr))
         {
-          set_message("Update Successfull");
+          set_message(label_value('update_success'));
           redirect($this->home.'/edit/'.$code);
         }
         else
         {
-          set_error("Update Fail");
-          redirect($this->home.'/edit/'.$code);
+          set_error(label_value('update_fail'));
+          redirect($this->home.'/edit/'.$old_code);
         }
       }
       else
       {
-        set_error('ไม่พบรหัสคลังสินค้า');
+        set_error(label_value('no_data_found'));
         redirect($this->home);
       }
     }
     else
     {
-      set_error('คุณไม่มีสิทธิ์แก้ไขคลังสินค้า');
+      set_error(label_value('no_permission'));
       redirect($this->home);
     }
   }
@@ -120,82 +165,52 @@ class Warehouse extends PS_Controller
       if($this->warehouse_model->has_zone($code))
       {
         $sc = FALSE;
-        $this->error = 'ไม่สามารถลบคลังได้เนื่องจากยังมีโซนอยู่';
-      }
-      //--- check warehouse in SAP if exists reject action
-      else if($this->warehouse_model->is_sap_exists($code))
-      {
-        $sc = FALSE;
-        $this->error = 'ไม่สามารถลบคลังได้เนื่องจากยังไม่ได้ลบคลังใน SAP';
+        $this->error = label_value('child_inside');
       }
       else
       {
         if($this->warehouse_model->delete($code) === FALSE)
         {
           $sc = FALSE;
-          $this->error = 'ลบคลังไม่สำเร็จ';
+          $this->error = label_value('delete_fail');
         }
       }
     }
     else
     {
       $sc = FALSE;
-      $this->error = 'คุณไม่มีสิทธิ์ลบคลังสินค้า';
+      $this->error = label_value('no_permission');
     }
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
-  public function syncData()
+  public function is_exists_code($code, $old_code = NULL)
   {
-    $count = $this->warehouse_model->count_rows();
-    if($count > 0 )
+    $exists = $this->warehouse_model->is_exists_code($code, $old_code);
+    if($exists)
     {
-      $last_add = $this->warehouse_model->get_last_create_date();
-      $last_upd = $this->warehouse_model->get_last_update_date();
-
-      $last_add = empty($last_add) ? now() : $last_add;
-      $last_upd = empty($last_upd) ? now() : $last_upd;
-
-      $newData = $this->warehouse_model->get_new_data($last_add, $last_upd);
+      echo label_value('duplicated_code');
     }
     else
     {
-      $last_add = date('1970-01-01 00:00:00');
-      $newData = $this->warehouse_model->get_all_warehouse();
+      echo 'ok';
     }
+  }
 
-    if(!empty($newData))
+
+  public function is_exists_name($name, $old_name = NULL)
+  {
+    $exists = $this->warehouse_model->is_exists_name($name, $old_name);
+    if($exists)
     {
-      foreach($newData as $rs)
-      {
-        if($this->warehouse_model->is_exists($rs->code))
-        {
-          $ds = array(
-            'name' => $rs->name,
-            'sap_updateDate' => $rs->updateDate,
-            'update_user' => 'SAP'
-          );
-
-          $this->warehouse_model->update($rs->code, $ds);
-        }
-        else
-        {
-          $ds = array(
-            'code' => $rs->code,
-            'name' => $rs->name,
-            'sap_createDate' => $rs->createDate,
-            'sap_updateDate' => $rs->updateDate,
-            'update_user' => 'SAP'
-          );
-
-          $this->warehouse_model->add($ds);
-        }
-      }
+      echo label_value('duplicated_name');
     }
-
-    echo 'done';
+    else
+    {
+      echo 'ok';
+    }
   }
 
 

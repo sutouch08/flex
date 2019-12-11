@@ -12,6 +12,7 @@ class Products extends PS_Controller
   {
     parent::__construct();
     $this->home = base_url().'masters/products';
+    $this->title = label_value($this->menu_code);
     //--- load model
     $this->load->model('masters/products_model');
     $this->load->model('masters/product_group_model');
