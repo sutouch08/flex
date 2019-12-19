@@ -165,6 +165,66 @@ class Items extends PS_Controller
   }
 
 
+  public function add_duplicate()
+  {
+    if($this->input->post('code'))
+    {
+      $code = $this->input->post('code');
+      if($this->products_model->is_exists($code))
+      {
+        set_error($code.' '.label_value('already_exists'));
+      }
+      else
+      {
+        $count = $this->input->post('count_stock');
+        $sell = $this->input->post('can_sell');
+        $api = $this->input->post('is_api');
+        $active = $this->input->post('active');
+        $user = get_cookie('uname');
+
+        $arr = array(
+          'code' => trim($this->input->post('code')),
+          'name' => trim($this->input->post('name')),
+          'barcode' => get_null(trim($this->input->post('barcode'))),
+          'style_code' => trim($this->input->post('style')),
+          'color_code' => get_null($this->input->post('color')),
+          'size_code' => get_null($this->input->post('size')),
+          'group_code' => get_null($this->input->post('group_code')),
+          'sub_group_code' => get_null($this->input->post('sub_group_code')),
+          'category_code' => get_null($this->input->post('category_code')),
+          'kind_code' => get_null($this->input->post('kind_code')),
+          'type_code' => get_null($this->input->post('type_code')),
+          'brand_code' => get_null($this->input->post('brand_code')),
+          'year' => $this->input->post('year'),
+          'cost' => round($this->input->post('cost'), 2),
+          'price' => round($this->input->post('price'), 2),
+          'unit_code' => $this->input->post('unit_code'),
+          'count_stock' => is_null($count) ? 0 : 1,
+          'can_sell' => is_null($sell) ? 0 : 1,
+          'active' => is_null($active) ? 0 : 1,
+          'is_api' => is_null($api) ? 0 : 1,
+          'update_user' => $user
+        );
+
+        if($this->products_model->add($arr))
+        {
+          set_message(label_value('insert_success'));
+        }
+        else
+        {
+          set_error(label_value('insert_fail'));
+        }
+      }
+    }
+    else
+    {
+      set_error(label_value('no_data_found'));
+    }
+
+    redirect($this->home);
+  }
+
+
 
 
   public function edit($code)

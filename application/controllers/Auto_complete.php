@@ -40,17 +40,57 @@ public function get_style_code()
 {
   $sc = array();
 
-	$qr  = "SELECT code FROM product_style WHERE code LIKE '%".$_REQUEST['term']."%' ";
-	$qr .= "AND active = 1 AND can_sell = 1 AND is_deleted = 0 ORDER BY code ASC";
-  $qs = $this->db->query($qr);
+  $this->db->select('code')
+  ->like('code', $_REQUEST['term'])
+  ->where('is_deleted', 0)
+  ->order_by('code', 'ASC')
+  ->limit(20);
+  $qs = $this->db->get('product_style');
 
   if($qs->num_rows() > 0)
   {
     foreach($qs->result() as $rs)
-    $sc[] = $rs->code;
+    {
+      $sc[] = $rs->code;
+    }
+  }
+  else
+  {
+    $sc[] = label_value('no_content');
   }
 
 	echo json_encode($sc);
+}
+
+
+public function get_item_code()
+{
+  $sc = array();
+  $this->db
+  ->select('products.code')
+  ->from('products')
+  ->join('product_color', 'products.color_code = product_color.code', 'left')
+  ->join('product_size', 'products.size_code = product_size.code', 'left')
+  ->like('products.code', $_REQUEST['term'])
+  ->order_by('products.style_code', 'ASC')
+  ->order_by('products.color_code', 'ASC')
+  ->order_by('product_size.position', 'ASC')
+  ->limit(20);
+
+  $qs = $this->db->get();
+  if($qs->num_rows() > 0)
+  {
+    foreach($qs->result() as $rs)
+    {
+      $sc[] = $rs->code;
+    }
+  }
+  else
+  {
+    $sc[] = label_value('no_content');
+  }
+
+  echo json_encode($sc);
 }
 
 
@@ -94,19 +134,23 @@ public function get_style_code()
 
 
 
-  public function get_vendor_code_and_name()
+  public function get_vender_code_and_name()
   {
     $sc = array();
-    $vendor = $this->db
-    ->select('code, name')
-    ->like('code', $_REQUEST['term'])
-    ->or_like('name', $_REQUEST['term'])
-    ->limit(20)
-    ->get('vender');
+    $this->db->select('code, name')->where('active', 1);
 
-    if($vendor->num_rows() > 0)
+    if(trim($_REQUEST['term']) != '*')
     {
-      foreach($vendor->result() as $rs)
+      $this->db->group_start();
+      $this->db->like('code', $_REQUEST['term'])->or_like('name', $_REQUEST['term']);
+      $this->db->group_end();
+    }
+
+    $vender = $this->db->limit(20)->get('vender');
+
+    if($vender->num_rows() > 0)
+    {
+      foreach($vender->result() as $rs)
       {
         $sc[] = $rs->code.' | '.$rs->name;
       }

@@ -119,8 +119,7 @@ $menu_group = $this->menu_group_code;
 			<b class="arrow fa fa-angle-down"></b>
 		</a>
 		<ul class="submenu">
-			<?php echo side_menu($menu, 'ACPMCF',  'PO/po', label_value('ACPMCF')); ?>
-			<?php echo side_menu($menu, 'ACCSOD',  'account/consign_order', label_value('ACCSOD')); ?>
+			<?php echo side_menu($menu, 'POPURC',  'purchase/po', label_value('POPURC')); ?>
 		</ul>
 	</li>
 
@@ -184,6 +183,7 @@ $menu_group = $this->menu_group_code;
 				</ul>
 			</li>
 			<?php echo side_menu($menu, 'DBEMPL', 'masters/employee', label_value('DBEMPL')); ?>
+			<?php echo side_menu($menu, 'DBVEND', 'masters/vender', label_value('DBVEND')); ?>
 			<?php echo side_menu($menu, 'DBCHAN', 'masters/channels', label_value('DBCHAN')); ?>
 			<?php echo side_menu($menu, 'DBPAYM', 'masters/payment_methods', label_value('DBPAYM')); ?>
 			<?php echo side_menu($menu, 'DBSALE', 'masters/saleman', label_value('DBSALE')); ?>

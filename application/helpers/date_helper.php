@@ -52,9 +52,10 @@ function today()
 }
 
 
-function db_date($date, $time = FALSE, $sp = '-')
+function db_date($date = '', $time = FALSE, $sp = '-')
 {
-
+  $date = empty($date) ? date('Y-m-d') : $date;
+  
   if($time = TRUE)
   {
     $c_time = date('H:i:s', strtotime($date));

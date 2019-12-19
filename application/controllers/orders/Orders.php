@@ -8,6 +8,7 @@ class Orders extends PS_Controller
   public $menu_sub_group_code = 'ORDER';
 	public $title = 'ออเดอร์';
   public $filter;
+  public $error;
   public function __construct()
   {
     parent::__construct();
@@ -606,14 +607,37 @@ class Orders extends PS_Controller
   {
     //----- Attribute Grid By Clicking image
     $style_code = $this->input->get('style_code');
-  	$sc = 'not exists';
+  	$sc = TRUE;
     $view = FALSE;
-  	$sc = $this->getOrderGrid($style_code, $view);
-  	$tableWidth	= $this->products_model->countAttribute($style_code) == 1 ? 600 : $this->getOrderTableWidth($style_code);
-  	$sc .= ' | '.$tableWidth;
-  	$sc .= ' | ' . $style_code;
-  	$sc .= ' | ' . $style_code;
-  	echo $sc;
+    $style = $this->product_style_model->get($style_code);
+    if(!empty($style))
+    {
+      if($style->can_sell == 0 OR $style->active == 0)
+      {
+        $sc = FALSE;
+        $this->error = 'Not for sell';
+      }
+      else if($style->is_deleted == 1)
+      {
+        $sc = FALSE;
+        $this->error = label_value('invalid_code');
+      }
+      else
+      {
+        $sc = $this->getOrderGrid($style_code, $view);
+      	$tableWidth	= $this->products_model->countAttribute($style_code) == 1 ? 600 : $this->getOrderTableWidth($style_code);
+      	$sc .= ' | '.$tableWidth;
+      	$sc .= ' | ' . $style_code;
+      	$sc .= ' | ' . $style_code;
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = label_value('invalid_code');
+    }
+
+  	echo $sc === FALSE ? $this->error : $sc;
   }
 
 
@@ -638,6 +662,45 @@ class Orders extends PS_Controller
 
 
 
+  //--- Po
+  public function get_product_grid()
+  {
+    $style_code = $this->input->get('style_code');
+    $sc = label_value('invalid_code');
+    $view = FALSE;
+    if($this->products_model->is_exists_style($style_code))
+    {
+      $sc = $this->getProductGrid($style_code);
+    	$tableWidth	= $this->products_model->countAttribute($style_code) == 1 ? 600 : $this->getOrderTableWidth($style_code);
+    	$sc .= ' | '.$tableWidth;
+    	$sc .= ' | ' . $style_code;
+    	$sc .= ' | ' . $style_code;
+    }
+
+  	echo $sc;
+  }
+
+  //---- PO
+  public function getProductGrid($style_code)
+	{
+		$sc = '';
+    $style = $this->product_style_model->get($style_code);
+		$isVisual = TRUE;
+    $view = FALSE;
+		$attrs = $this->getAttribute($style->code);
+
+		if( count($attrs) == 1  )
+		{
+			$sc .= $this->orderGridOneAttribute($style, $attrs[0], $isVisual, $view);
+		}
+		else if( count( $attrs ) == 2 )
+		{
+			$sc .= $this->orderGridTwoAttribute($style, $isVisual, $view);
+		}
+		return $sc;
+	}
+
+
   public function showStock($qty)
 	{
 		return $this->filter == 0 ? $qty : ($this->filter < $qty ? $this->filter : $qty);
@@ -657,7 +720,7 @@ class Orders extends PS_Controller
     {
       $id_attr	= $item->size_code === NULL OR $item->size_code === '' ? $item->color_code : $item->size_code;
       $sc 	.= $i%2 == 0 ? '<tr>' : '';
-      $active	= $item->active == 0 ? 'Disactive' : ( $item->can_sell == 0 ? 'Not for sell' : ( $item->is_deleted == 1 ? 'Deleted' : TRUE ) );
+      $active	= $item->active == 0 ? 'Disactive' : ( $item->can_sell == 0 ? 'N/S' : ( $item->is_deleted == 1 ? 'Deleted' : TRUE ) );
       $stock	= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->stock_model->get_stock($item->code) )  : 0 ) : 0; //---- สต็อกทั้งหมดทุกคลัง
 			$qty 		= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->get_sell_stock($item->code) ) : 0 ) : FALSE; //--- สต็อกที่สั่งซื้อได้
 			$disabled  = $isVisual === TRUE  && $active == TRUE ? '' : ( ($active !== TRUE OR $qty < 1 ) ? 'disabled' : '');
@@ -702,7 +765,6 @@ class Orders extends PS_Controller
 
     }
 
-
 		$sc	.= "</table>";
 
 		return $sc;
@@ -732,7 +794,7 @@ class Orders extends PS_Controller
 
 				if( !empty($item) )
 				{
-					$active	= $item->active == 0 ? 'Disactive' : ( $item->can_sell == 0 ? 'Not for sell' : ( $item->is_deleted == 1 ? 'Deleted' : TRUE ) );
+					$active	= $item->active == 0 ? 'Disactive' : ( $item->can_sell == 0 ? 'N/S' : ( $item->is_deleted == 1 ? 'Deleted' : TRUE ) );
 					$stock	= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->stock_model->get_stock($item->code) )  : 0 ) : 0; //---- สต็อกทั้งหมดทุกคลัง
 					$qty 		= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->get_sell_stock($item->code) ) : 0 ) : FALSE; //--- สต็อกที่สั่งซื้อได้
 					$disabled  = $isVisual === TRUE  && $active == TRUE ? '' : ( ($active !== TRUE OR $qty < 1 ) ? 'disabled' : '');
@@ -760,7 +822,7 @@ class Orders extends PS_Controller
 				}
 				else
 				{
-					$sc .= '<td class="order-grid">Not Available</td>';
+					$sc .= '<td class="order-grid">N/A</td>';
 				}
 			} //--- End foreach $colors
 

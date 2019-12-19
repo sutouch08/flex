@@ -15,6 +15,7 @@ $lang['bill_to'] = 'Billing address';
 $lang['ship_to'] = 'Shipping address';
 $lang['saleman'] = 'Saleman';
 $lang['credit_line'] = "Credit line";
+$lang['credit_term'] = 'Credit term';
 $lang['doc_num'] = 'Doc No';
 $lang['from_wh'] = 'From Warehouse';
 $lang['to_wh'] = 'To Warehouse';
@@ -25,10 +26,13 @@ $lang['status'] = 'Status';
 $lang['active'] = 'Active';
 $lang['deactive'] = 'Deactive';
 $lang['date'] = 'Date';
-$lang['po'] = 'PO';
+$lang['po'] = 'Purchase Order';
+$lang['close_po'] = 'Close PO';
+$lang['un_close_po'] = 'Unclose PO';
 $lang['inv'] = 'Invoice';
 $lang['po_qty'] = 'PO qty';
 $lang['po_backlogs'] = 'Backlogs';
+$lang['received'] = 'Received';
 $lang['approver'] = 'Approver';
 $lang['approve'] = 'Approve';
 $lang['already_exists'] = 'already exists';
@@ -47,6 +51,10 @@ $lang['sell'] = 'Sell';
 $lang['pick'] = 'Pick';
 $lang['negative'] = 'Negative';
 $lang['edit_by'] = 'Edit by';
+$lang['page'] = 'Page';
+$lang['conducted_by'] = 'Conducted by';
+$lang['review_by'] = 'Review by';
+$lang['approve_by'] = 'Approve by';
 
 
 $lang['customer'] = 'Customer';
@@ -125,6 +133,8 @@ $lang['unit'] = 'Unit';
 $lang['count_stock'] = 'Count Stock';
 $lang['color'] = 'Color';
 $lang['size'] = 'Size';
+$lang['due_date'] = 'Due date';
+$lang['require_date'] = 'Require date';
 
 //--- Title
 $lang['transfer_title'] = 'Inventory Transfer';
@@ -147,10 +157,13 @@ $lang['cancle_fail'] = 'Cancle failed';
 $lang['no_data_found'] = 'No data found';
 $lang['date_error'] = 'Incorrect date';
 $lang['po_error'] = 'Incorrect PO or PO already closed';
+$lang['partial_received'] = 'Cannot delete due to already partially received';
 $lang['delete_fail'] = 'Delete data failed';
 $lang['no_permission'] = "You don't have permission";
 $lang['child_inside'] = 'Cannot delete due to association';
 $lang['invalid_code'] = 'Invalid code';
+$lang['invalid_vender'] = 'Invalid vender';
+$lang['invalid_status'] = 'Action cannot be done due to invalid status';
 
 
 //--- Menu group
@@ -204,6 +217,7 @@ $lang['DBUSER'] = 'Users';
 $lang['DBWRHS'] = 'Warehouse';
 $lang['DBZONE'] = 'Zone location';
 $lang['DBEMPL'] = 'Employee';
+$lang['DBVEND'] = 'Vender';
 $lang['ICCKBF'] = 'Buffer zone';
 $lang['ICCKCN'] = 'Cancle zone';
 $lang['ICCKMV'] = 'Stock Movement';
@@ -236,6 +250,7 @@ $lang['SOPRIC'] = 'Price Edit';
 $lang['SORECT'] = 'Unbill finished order';
 $lang['SOREST'] = 'Change order state';
 $lang['SOREUP'] = 'Allow unpaid order';
+$lang['POPURC'] = 'Purchase Order';
 
 
 //$lang[''] = '';

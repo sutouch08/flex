@@ -208,15 +208,6 @@ public function print_header()
 			$header .= '<div style="width:'.$width.'; min-height:10mm; line-height:10mm; float:left; padding-left:10px; padding-right:10px;">';
 			$header .= '<input type="text" class="print-row" value="'.$label.' : &nbsp;&nbsp;'.$value.'" />';
 			$header .= '</div>';
-
-			//$header .= "<div style='width:50%; min-height:10mm; line-height:10mm; float:left; padding-left:10px; '>".$label." : ".$value."</div>";
-
-			// $header .= '<div style="width:10%; min-height:10mm; line-height:10mm; float:left; padding-left:5px; padding-right:5px; font-size:12px;">';
-			// $header .= '<span class="pull-left">'.$label.' : </span>';
-			// $header .= '</div>';
-			// $header .= '<div style="width:40%; min-height:10mm; line-height:10mm; float:left; padding-left:10px; padding-right:5px; font-size:12px;">';
-			// $header .= '<input type="text" class="print-row" value="'.$value.'" />';
-			// $header .= '</div>';
 		}
 		$i++;
 		$v++;
@@ -294,7 +285,7 @@ public function top_page()
 	$top = "";
 	$top .= "<div style='width:".$this->content_width."mm; height:".$this->row_height."mm; margin:auto; margin-bottom:2mm;'>"; //// top start
 	$top .= "<div style='width:80%; line-height:".$this->row_height."mm; float:left'><".$this->title_size." style='margin:0px;'>".$this->title."</".$this->title_size."></div>";
-	$top .= "<div style='width:20%; line-height:".$this->row_height."mm; float:left; text-align:right;'><span style='position:relative; bottom: 0mm;'>หน้า ".$this->current_page."/".$this->total_page."</span></div>";
+	$top .= "<div style='width:20%; line-height:".$this->row_height."mm; float:left; text-align:right;'><span style='position:relative; bottom: 0mm;'>".label_value('page').' '.$this->current_page."/".$this->total_page."</span></div>";
 	$top .= "</div>"; /// top end;
 	if( $this->header_rows )
 	{
