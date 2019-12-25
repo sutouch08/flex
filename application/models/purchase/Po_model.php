@@ -91,6 +91,19 @@ class Po_model extends CI_Model
 
 
 
+  public function update_received($po_code, $product_code, $qty)
+  {
+    return $this->db->set('received', "received + {$qty}", FALSE)->where('po_code', $po_code)->where('product_code', $product_code)->update('po_detail');
+  }
+
+
+  public function count_received($po_code)
+  {
+    return $this->db->where('po_code', $po_code)->where('received >', 0)->count_all_results('po_detail');
+  }
+
+
+
   public function delete_detail($id)
   {
     return $this->db->where('id', $id)->delete('po_detail');
@@ -110,9 +123,39 @@ class Po_model extends CI_Model
   }
 
 
-  public function change_status($code, $status)
+  public function change_status($code, $status = NULL)
   {
-    return $this->db->set('status', $status)->where('code', $code)->update('po');
+    if($status === NULL)
+    {
+      $po = $this->get($code);
+      $count = $this->count_received($code);
+
+
+      if($count == 0 && $po->status != 0 && $po->status != 4)
+      {
+        //--- if not received any more change status to saved
+        return $this->db->set('status', 1)->where('code', $code)->update('po'); //--- saved
+      }
+      else if($count > 0 && $po->status != 0 && $po->status != 4)
+      {
+        //--- if received change status to partially received
+        return $this->db->set('status', 2)->where('code', $code)->update('po'); //--- part
+      }
+      else
+      {
+        return TRUE; //--- do not thing
+      }
+    }
+    else
+    {
+      return $this->db->set('status', $status)->where('code', $code)->update('po');
+    }
+  }
+
+
+  public function unvalid_detail($po_code, $product_code)
+  {
+    return $this->db->set('valid', 0)->where('po_code', $po_code)->where('product_code', $product_code)->update('po_detail');
   }
 
 
@@ -136,6 +179,19 @@ class Po_model extends CI_Model
     return $this->db->trans_status();
   }
 
+
+  public function is_all_done($code)
+  {
+    $qr = "SELECT id FROM po_detail WHERE po_code = '{$code}' AND received < qty";
+    $rs = $this->db->query($qr);
+    //$rs = $this->db->select('id')->where('po_code', $code)->where('received <', 'qty', FALSE)->get('po_detail');
+    if($rs->num_rows() === 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
 
   public function get_list(array $ds = array(), $perpage = NULL, $offset = NULL)
   {
@@ -268,6 +324,18 @@ class Po_model extends CI_Model
     {
       $qty = is_null($rs->row()->received) ? 0 : $rs->row()->received;
       return $qty;
+    }
+
+    return FALSE;
+  }
+
+
+  public function get_po_price($code, $product_code)
+  {
+    $rs = $this->db->select('price')->where('po_code', $code)->where('product_code', $product_code)->get('po_detail');
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->price;
     }
 
     return FALSE;

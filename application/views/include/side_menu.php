@@ -18,7 +18,8 @@ $menu_group = $this->menu_group_code;
 				</a>
 				<ul class="submenu">
 					<?php echo side_menu($menu, 'ICPURC',  'inventory/receive_po', label_value('ICPURC')); ?>
-					<?php echo side_menu($menu, 'ICTRRC',  'inventory/receive_transform', label_value('ICTRRC')); ?>
+					<?php echo side_menu($menu, 'ICPDRC',  'inventory/receive_product', label_value('ICPDRC')); ?>
+					<?php //echo side_menu($menu, 'ICTRRC',  'inventory/receive_transform', label_value('ICTRRC')); ?>
 				</ul>
 			</li>
 			<li class="<?php echo isActiveOpenMenu($menu_sub_group_code, 'RETURN'); ?>">
@@ -35,9 +36,9 @@ $menu_group = $this->menu_group_code;
 					<i class="menu-icon fa fa-caret-right"></i> <?php label('REQUEST'); ?> <b class="arrow fa fa-angle-down"></b>
 				</a>
 				<ul class="submenu">
-				<?php echo side_menu($menu, 'ICTRFM',  'inventory/transform', label_value('ICTRFM')); ?>
-				<?php echo side_menu($menu, 'ICTRFS',  'inventory/transform_stock', label_value('ICTRFS')); ?>
-				<?php echo side_menu($menu, 'ICSUPP',  'inventory/support', label_value('ICSUPP')); ?>
+				<?php //echo side_menu($menu, 'ICTRFM',  'inventory/transform', label_value('ICTRFM')); ?>
+				<?php //echo side_menu($menu, 'ICTRFS',  'inventory/transform_stock', label_value('ICTRFS')); ?>
+				<?php //echo side_menu($menu, 'ICSUPP',  'inventory/support', label_value('ICSUPP')); ?>
 				<?php echo side_menu($menu, 'ICLEND',  'inventory/lend', label_value('ICLEND')); ?>
 				</ul>
 			</li>
@@ -66,7 +67,7 @@ $menu_group = $this->menu_group_code;
 				</a>
 				<ul class="submenu">
 					<?php echo side_menu($menu, 'ICTRWH',  'inventory/transfer', label_value('ICTRWH')); ?>
-					<?php echo side_menu($menu, 'ICTRZN',  'inventory/move', label_value('ICTRZN')); ?>
+					<?php echo side_menu($menu, 'ICTRZN',  'inventory/move', label_value('ICTRMV')); ?>
 				</ul>
 			</li>
 
@@ -81,7 +82,7 @@ $menu_group = $this->menu_group_code;
 					<?php echo side_menu($menu, 'ICCKMV',  'inventory/movement', label_value('ICCKMV')); ?>
 				</ul>
 			</li>
-			<?php echo side_menu($menu, 'ICCSRC',  'inventory/consign_check', label_value('ICCSRC')); ?>
+			<?php //echo side_menu($menu, 'ICCSRC',  'inventory/consign_check', label_value('ICCSRC')); ?>
 		</ul>
 	</li>
 
@@ -94,8 +95,8 @@ $menu_group = $this->menu_group_code;
 		</a>
 		<ul class="submenu">
 			<?php echo side_menu($menu, 'SOODSO',  'orders/orders', label_value('SOODSO')); ?>
-			<?php echo side_menu($menu, 'SOODSP',  'orders/sponsor', label_value('SOODSP')); ?>
-			<?php echo side_menu($menu, 'SOCCSO',  'orders/consign_so', label_value('SOCCSO')); ?>
+			<?php //echo side_menu($menu, 'SOODSP',  'orders/sponsor', label_value('SOODSP')); ?>
+			<?php //echo side_menu($menu, 'SOCCSO',  'orders/consign_so', label_value('SOCCSO')); ?>
 			<?php echo side_menu($menu, 'SOCCTR',  'orders/consign_tr', label_value('SOCCTR')); ?>
 		</ul>
 	</li>
@@ -114,7 +115,7 @@ $menu_group = $this->menu_group_code;
 
 	<li class="<?php echo isActiveOpenMenu($menu_group, 'PO'); ?>">
 		<a href="#" class="dropdown-toggle">
-			<i class="menu-icon fa fa-calculator"></i>
+			<i class="menu-icon fa fa-shopping-bag"></i>
 			<span class="menu-text"><?php label('PO'); ?></span>
 			<b class="arrow fa fa-angle-down"></b>
 		</a>

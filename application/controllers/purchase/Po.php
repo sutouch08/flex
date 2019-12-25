@@ -92,6 +92,7 @@ class Po extends PS_Controller
           $arr = array(
             'code' => $code,
             'vender_code' => $vender->code,
+            'vender_name' => $vender->name,
             'credit_term' => $vender->credit_term,
             'user' => get_cookie('uname'),
             'require_date' => $require_date,
@@ -166,6 +167,7 @@ class Po extends PS_Controller
               $arr = array(
                 'po_code' => $po_code,
                 'product_code' => $item->code,
+                'product_name' => $item->name,
                 'style_code' => $item->style_code,
                 'price' => $item->cost,
                 'qty' => $qty,
@@ -219,6 +221,7 @@ class Po extends PS_Controller
           $arr = array(
             'po_code' => $po_code,
             'product_code' => $item->code,
+            'product_name' => $item->name,
             'style_code' => $item->style_code,
             'price' => $item->cost,
             'qty' => $qty,
@@ -275,6 +278,7 @@ class Po extends PS_Controller
       {
         $arr = array(
           'vender_code' => $vender->code,
+          'vender_name' => $vender->name,
           'credit_term' => $vender->credit_term,
           'user' => get_cookie('uname'),
           'require_date' => $require_date,
@@ -439,6 +443,28 @@ public function delete_po($code)
     {
       $code = $this->input->post('po_code');
       $rs = $this->po_model->change_status($code, 1);
+      if($rs)
+      {
+        echo 'success';
+      }
+      else
+      {
+        echo label_value('update_fail');
+      }
+    }
+    else
+    {
+      echo label_value('no_data_found');
+    }
+  }
+
+
+  public function unsave_po()
+  {
+    if($this->input->post('po_code'))
+    {
+      $code = $this->input->post('po_code');
+      $rs = $this->po_model->change_status($code, 0);
       if($rs)
       {
         echo 'success';

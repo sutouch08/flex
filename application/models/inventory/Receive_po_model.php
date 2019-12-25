@@ -19,6 +19,16 @@ class Receive_po_model extends CI_Model
   }
 
 
+  public function add_detail(array $ds = array())
+  {
+    if(!empty($ds))
+    {
+      return $this->db->insert('receive_product_detail', $ds);
+    }
+
+    return FALSE;
+  }
+
 
   public function update($code, array $ds = array())
   {
@@ -31,11 +41,11 @@ class Receive_po_model extends CI_Model
   }
 
 
-  public function add_detail(array $ds = array())
+  public function update_detail($id, $ds = array())
   {
     if(!empty($ds))
     {
-      return $this->db->insert('receive_product_detail', $ds);
+      return $this->db->where('id', $id)->update('receive_product_detail', $ds);
     }
 
     return FALSE;
@@ -43,9 +53,38 @@ class Receive_po_model extends CI_Model
 
 
 
+
+
   public function get($code)
   {
     $rs = $this->db->where('code', $code)->get('receive_product');
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return FALSE;
+  }
+
+
+  public function get_detail_by_product($code, $product_code)
+  {
+    $rs = $this->db
+    ->where('receive_code', $code)
+    ->where('product_code', $product_code)
+    ->get('receive_product_detail');
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return FALSE;
+  }
+
+
+  public function get_detail($id)
+  {
+    $rs = $this->db->where('id', $id)->get('receive_product_detail');
     if($rs->num_rows() === 1)
     {
       return $rs->row();
@@ -69,9 +108,41 @@ class Receive_po_model extends CI_Model
 
 
 
+  public function get_unsave_details($code)
+  {
+    $rs = $this->db->where('receive_code', $code)->where('status', 'N')->get('receive_product_detail');
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return FALSE;
+  }
+
+
+
+  public function get_saved_details($code)
+  {
+    $rs = $this->db->where('receive_code', $code)->where('status', 'S')->get('receive_product_detail');
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return FALSE;
+  }
+
+
   public function drop_details($code)
   {
     return $this->db->where('receive_code', $code)->delete('receive_product_detail');
+  }
+
+
+
+  public function drop_detail($id)
+  {
+    return $this->db->where('id', $id)->delete('receive_product_detail');
   }
 
 
@@ -85,13 +156,12 @@ class Receive_po_model extends CI_Model
 
   public function get_po_details($po_code)
   {
-    $rs = $this->ms
-    ->select('ItemCode, Dscription, Quantity, OpenQty, PriceAfVAT AS price')
-    ->where('DocEntry', $po_code)
-    ->where('LineStatus', 'O')
-    ->get('POR1');
+    $rs = $this->db
+    ->select('product_code, product_name, price, qty, received')
+    ->where('po_code', $po_code)
+    ->get('po_detail');
 
-    if(!empty($rs))
+    if($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -100,44 +170,16 @@ class Receive_po_model extends CI_Model
   }
 
 
-  public function get_sap_receive_doc($code)
+  public function is_exists_detail($code, $product_code)
   {
-    $rs = $this->mc
-    ->select('CANCELED, DocStatus')
-    ->where('U_ECOMNO', $code)
-    ->get('OPDN');
-    if($rs->num_rows() === 1)
+    $rs = $this->db->select('id')->where('receive_code', $code)->where('product_code', $product_code)->get('receive_product_detail');
+    if($rs->num_rows() > 0)
     {
-      return $rs->row();
+      return TRUE;
     }
 
     return FALSE;
   }
-
-
-  public function add_sap_receive_po(array $ds = array())
-  {
-    return $this->mc->insert('OPDN', $ds);
-  }
-
-
-  public function update_sap_receive_po($code, $ds)
-  {
-    return $this->mc->where('U_ECOMNO', $code)->update('OPDN', $ds);
-  }
-
-
-  public function add_sap_receive_po_detail(array $ds = array())
-  {
-    return $this->mc->insert('PDN1', $ds);
-  }
-
-
-  public function drop_sap_exists_details($code)
-  {
-    return $this->mc->where('U_ECOMNO', $code)->delete('PDN1');
-  }
-
 
 
 
@@ -227,11 +269,11 @@ class Receive_po_model extends CI_Model
     }
 
 
-    //--- vendor
-    if($ds['vendor'] != '')
+    //--- vender
+    if($ds['vender'] != '')
     {
-      $this->db->like('vendor_code', $ds['vendor']);
-      $this->db->or_like('vendor_name', $ds['vendor']);
+      $this->db->like('vender_code', $ds['vender']);
+      $this->db->or_like('vender_name', $ds['vender']);
     }
 
 
@@ -255,6 +297,7 @@ class Receive_po_model extends CI_Model
   public function get_max_code($code)
   {
     $rs = $this->db
+    ->select_max('code')
     ->like('code', $code, 'after')
     ->order_by('code', 'DESC')
     ->get('receive_product');

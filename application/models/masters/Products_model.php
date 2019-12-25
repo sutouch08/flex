@@ -172,10 +172,10 @@ class Products_model extends CI_Model
 
   public function get_barcode($code)
   {
-    $rs = $this->db->select('barcode')->where('code', $code)->get('products');
+    $rs = $this->db->where('code', $code)->get('products');
     if($rs->num_rows() === 1)
     {
-      return $rs->row()->barcode;
+      return empty($rs->row()->barcode) ? $rs->row()->code : $rs->row()->barcode;
     }
 
     return NULL;

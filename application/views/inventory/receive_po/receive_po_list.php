@@ -33,7 +33,7 @@
 
 	<div class="col-sm-2 padding-5">
     <label><?php label('vender'); ?></label>
-		<input type="text" class="form-control input-sm search" name="vendor" value="<?php echo $vendor; ?>" />
+		<input type="text" class="form-control input-sm search" name="vender" value="<?php echo $vender; ?>" />
   </div>
 
 	<div class="col-sm-2 padding-5">
@@ -90,7 +90,7 @@
               <td class="middle"><?php echo $rs->code; ?></td>
               <td class="middle"><?php echo $rs->invoice_code; ?></td>
               <td class="middle"><?php echo $rs->po_code; ?></td>
-              <td class="middle"><?php echo $rs->vendor_name; ?></td>
+              <td class="middle"><?php echo $rs->vender_name; ?></td>
               <td class="middle text-center"><?php echo $rs->qty; ?></td>
               <td class="middle text-center">
                 <?php if($rs->status == 0 ) : ?>

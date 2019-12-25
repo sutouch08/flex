@@ -22,14 +22,14 @@
           <td class="middle"><?php echo $rs->product_code; ?></td>
           <td class="middle"><?php echo $rs->product_name; ?></td>
           <td class="middle text-right">
-            <?php if($po->status > 1) : ?>
+            <?php if($po->status > 0) : ?>
               <?php echo number($rs->price, 2); ?>
             <?php else : ?>
             <input class="form-control input-sm text-right price" type="number" step="any" name="price[<?php echo $rs->id; ?>]" id="price-<?php echo $rs->id; ?>" value="<?php echo $rs->price; ?>">
             <?php endif; ?>
           </td>
           <td class="middle text-right">
-            <?php if($po->status > 1) : ?>
+            <?php if($po->status > 0) : ?>
               <?php echo number($rs->qty, 2); ?>
             <?php else : ?>
             <input class="form-control input-sm text-right qty" type="number" step="1" name="qty[<?php echo $rs->id; ?>]" id="qty-<?php echo $rs->id; ?>" value="<?php echo $rs->qty; ?>">
@@ -39,7 +39,7 @@
             <span id="amount-<?php echo $rs->id; ?>"><?php echo number($rs->total_amount, 2); ?></span>
           </td>
           <td class="width-5 text-center">
-            <?php if($po->status < 2) : ?>
+            <?php if($po->status < 0) : ?>
             <button type="button" class="btn btn-minier btn-danger" onclick="removeDetail(<?php echo $rs->id; ?>, '<?php echo $rs->product_code; ?>')">
             <i class="fa fa-trash"></i>
             <?php endif ?>

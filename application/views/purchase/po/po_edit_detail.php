@@ -12,8 +12,11 @@
 			 <?php if(($po->status == 1 OR $po->status == 2) && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
 				 <button type="button" class="btn btn-sm btn-danger" onclick="closePO()"><i class="fa fa-lock"></i> <?php label('close_po'); ?></button>
 			 <?php endif; ?>
-			 <?php if(($this->pm->can_add OR $this->pm->can_edit) && $po->status < 2) : ?>
+			 <?php if(($this->pm->can_add OR $this->pm->can_edit) && $po->status == 0) : ?>
 				 <button type="button" class="btn btn-sm btn-success" onclick="save()"><i class="fa fa-save"></i> <?php label('save'); ?></button>
+			 <?php endif; ?>
+			 <?php if(($this->pm->can_add OR $this->pm->can_edit) && $po->status == 1) : ?>
+				 <button type="button" class="btn btn-sm btn-warning" onclick="unsave()"><i class="fa fa-refresh"></i> <?php label('unsave'); ?></button>
 			 <?php endif; ?>
 			 <?php if($po->status > 0 && $po->status < 4) : ?>
 				 <button type="button" class="btn btn-sm btn-info" onclick="printPO()"><i class="fa fa-print"></i> <?php label('print'); ?></button>

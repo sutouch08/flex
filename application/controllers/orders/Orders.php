@@ -750,7 +750,7 @@ class Orders extends PS_Controller
 
       if( $view === FALSE )
 			{
-			$sc 	.= '<input type="number" class="form-control input-sm order-grid display-block" name="qty[0]['.$item->code.']" id="qty_'.$item->code.'" onkeyup="valid_qty($(this), '.($qty === FALSE ? 1000000 : $qty).')" '.$disabled.' />';
+			$sc 	.= '<input type="number" class="form-control input-sm order-grid display-block" name="qty[0]['.$item->code.']" id="'.$item->code.'" onkeyup="valid_qty($(this), '.($qty === FALSE ? 1000000 : $qty).')" '.$disabled.' />';
 			}
 
       $sc 	.= 	'<center>';
@@ -815,7 +815,7 @@ class Orders extends PS_Controller
 					$sc 	.= $isVisual === FALSE ? '<center><span class="font-size-10 blue">('.$stock.')</span></center>' : '';
 					if( $view === FALSE )
 					{
-						$sc 	.= '<input type="number" min="1" max="'.$limit.'" class="form-control order-grid" name="qty['.$item->color_code.']['.$item->code.']" id="qty_'.$item->code.'" onkeyup="valid_qty($(this), '.$limit.')" '.$disabled.' />';
+						$sc 	.= '<input type="number" min="1" max="'.$limit.'" class="form-control order-grid input-qty" name="qty['.$item->color_code.']['.$item->code.']" id="'.$item->code.'" onkeyup="valid_qty($(this), '.$limit.')" '.$disabled.' />';
 					}
 					$sc 	.= $isVisual === FALSE ? '<center>'.$available.'</center>' : '';
 					$sc 	.= '</td>';

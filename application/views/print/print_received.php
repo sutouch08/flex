@@ -9,7 +9,7 @@
     'วันที่'  => thai_date($doc->date_add, FALSE, '/'),
     'ใบสั่งซื้อ' => $doc->po_code,
     'ใบรับสินค้า' => $doc->invoice_code,
-    'ผู้ขาย' => $doc->vendor_name,
+    'ผู้ขาย' => $doc->vender_name,
     'โซน' => $doc->zone_name,
     'คลัง' => $doc->warehouse_name,
     'พนักงาน' => $this->user_model->get_name($doc->user)
@@ -33,16 +33,16 @@
 	$row 	= $this->printer->row;
 	$total_page = $this->printer->total_page;
 	$total_qty 	= 0;
-  $total_bf = 0;
-  $total_af = 0;
+  $total_amount = 0;
 	//**************  กำหนดหัวตาราง  ******************************//
 	$thead	= array(
-						array("ลำดับ", "width:5%; text-align:center; border-top:0px; border-top-left-radius:10px;"),
-						array("รหัส", "width:20%; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
-						array("สินค้า", "width:45%; text-align:center;border-left: solid 1px #ccc; border-top:0px;"),
-            array("ก่อนรับ", "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
-						array("รับ", "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
-						array("ยังค้างรับ", "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px; border-top-right-radius:10px")
+						array(label_value('Num'), "width:5%; text-align:center; border-top:0px; border-top-left-radius:10px;"),
+						array(label_value('item_code'), "width:20%; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
+						array(label_value('item_name'), "text-align:center;border-left: solid 1px #ccc; border-top:0px;"),
+            array(label_value('po'), "width:10%; text-align:center;border-left: solid 1px #ccc; border-top:0px;"),
+            array(label_value('price'), "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
+						array(label_value('qty'), "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
+						array(label_value('amount'), "width:15%; text-align:center; border-left: solid 1px #ccc; border-top:0px; border-top-right-radius:10px")
 						);
 
 	$this->printer->add_subheader($thead);
@@ -55,7 +55,6 @@
 							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
 							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
               "text-align:center; border-left: solid 1px #ccc; border-top:0px;",
-							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
 							"text-align:right; border-left: solid 1px #ccc; border-top:0px;"
 							);
 	$this->printer->set_pattern($pattern);
@@ -99,17 +98,17 @@
               $n,
 							inputRow($rs->product_code),
 							inputRow($rs->product_name),
-              number($rs->before_backlogs),
+              $rs->po_code,
+              number($rs->price, 2),
 							number($rs->qty),
-              number($rs->after_backlogs)
+              number($rs->amount, 2)
 						);
             $total_qty += $rs->qty;
-            $total_bf += $rs->before_backlogs;
-            $total_af += $rs->after_backlogs;
+            $total_amount += $rs->amount;
           }
           else
           {
-            $data = array("", "", "", "","", "");
+            $data = array("", "", "", "","", "", "");
           }
 					$page .= $this->printer->print_row($data);
 					$n++; $i++;
@@ -120,29 +119,26 @@
 				if($this->printer->current_page == $this->printer->total_page)
 				{
 					$qty = number($total_qty);
+          $amount = number($total_amount,2);
 					$remark = $doc->remark;
 				}else{
 					$qty = "";
+          $amount = "";
 					$remark = "";
 				}
 
 				$sub_total = array(
           array(
           "<td style='height:".$this->printer->row_height."mm; border: solid 1px #ccc;
-          border-bottom:0px; border-left:0px; text-align:right;
-          width:70.3%;'>
+          border-bottom:0px; border-left:0px; text-align:right;'>
           <strong>รวม</strong>
-          </td>
-					<td style='height:".$this->printer->row_height."mm; border: solid 1px #ccc;
-          border-right:0px; border-bottom:0px; width:10%; text-align:right;'>
-          ".number($total_bf)."
           </td>
           <td style='height:".$this->printer->row_height."mm; border: solid 1px #ccc;
           border-right:0px; border-bottom:0px; width:10%; text-align:right;'>
           ".number($total_qty)."</td>
           <td style='height:".$this->printer->row_height."mm; border: solid 1px #ccc;
           border-right:0px; border-bottom:0px; border-bottom-right-radius:10px;
-          text-align:right;'>".number($total_af)."</td>")
+          text-align:right; width:15%;'>".number($total_amount,2)."</td>")
 
 			);
 

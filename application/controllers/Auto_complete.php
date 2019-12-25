@@ -7,6 +7,10 @@ class Auto_complete extends CI_Controller
   public function __construct()
   {
     parent::__construct();
+    //$language = getConfig('LANGUAGE');
+    $display_lang = get_cookie('display_lang');
+    $this->language = empty($display_lang) ? 'thai' : $display_lang;
+    $this->lang->load($this->language, $this->language);
   }
 
 
@@ -155,6 +159,10 @@ public function get_item_code()
         $sc[] = $rs->code.' | '.$rs->name;
       }
     }
+    else
+    {
+      $sc[] = label_value('no_content');
+    }
 
     echo json_encode($sc);
   }
@@ -202,30 +210,70 @@ public function get_item_code()
   {
     $sc = array();
     $txt = $_REQUEST['term'];
-    $this->ms->select('DocNum')->where('DocStatus', 'O');
+    $this->db->select('code')->where_in('status', array('1', '2'));
     if($vendor !== FALSE)
     {
-      $this->ms->where('CardCode', $vendor);
+      $this->db->where('vender_code', $vendor);
     }
 
     if($txt != '*')
     {
-      $this->ms->like('DocNum', $txt);
+      $this->db->like('code', $txt);
     }
 
-    $po = $this->ms->get('OPOR');
+    $po = $this->db->get('po');
 
-    if(!empty($po))
+    if($po->num_rows() > 0)
     {
       foreach($po->result() as $rs)
       {
-        $sc[] = 'PO | '.$rs->DocNum;
+        $sc[] = $rs->code;
       }
+    }
+    else
+    {
+      $sc[] = label_value('no_content');
     }
 
     echo json_encode($sc);
   }
 
+
+  public function get_po_code_and_vender_name($vendor = FALSE)
+  {
+    $sc = array();
+    $txt = $_REQUEST['term'];
+    $this->db
+    ->select('po.code, vender.name')
+    ->from('po')
+    ->join('vender', 'po.vender_code = vender.code', 'left')
+    ->where_in('po.status', array('1', '2'));
+    if($vendor !== FALSE)
+    {
+      $this->db->where('vender_code', $vendor);
+    }
+
+    if($txt != '*')
+    {
+      $this->db->like('po.code', $txt);
+    }
+
+    $po = $this->db->get();
+
+    if($po->num_rows() > 0)
+    {
+      foreach($po->result() as $rs)
+      {
+        $sc[] = $rs->code.' | '.$rs->name;
+      }
+    }
+    else
+    {
+      $sc[] = label_value('no_content');
+    }
+
+    echo json_encode($sc);
+  }
 
 
   public function get_valid_lend_code($customer_code = '')
@@ -281,7 +329,7 @@ public function get_item_code()
     }
     else
     {
-      $sc[] = 'ไม่พบรายการ';
+      $sc[] = label_value('no_content');
     }
 
     echo json_encode($sc);
@@ -293,27 +341,21 @@ public function get_item_code()
   {
     $sc = array();
     $txt = $_REQUEST['term'];
-    $this->ms
-    ->select('OBIN.BinCode')
-    ->from('OBIN')
-    ->join('OWHS', 'OWHS.WhsCode = OBIN.WhsCode', 'left')
-    ->where('OWHS.U_WH_MAIN', 'Y')
-    ->where('OBIN.SysBin', 'N');
+    $this->db->select('code');
     if($txt != '*')
     {
-      $this->ms->like('OBIN.BinCode', $txt);
+      $this->db->like('code', $txt);
     }
+    $this->db->limit(20);
+    $zone = $this->db->get('zone');
 
-    $this->ms->limit(20);
-    $zone = $this->ms->get();
     if(!empty($zone))
     {
       foreach($zone->result() as $rs)
       {
-        $sc[] = $rs->BinCode;
+        $sc[] = $rs->code;
       }
     }
-
 
     echo json_encode($sc);
   }
@@ -349,7 +391,7 @@ public function get_item_code()
     }
     else
     {
-      $sc[] = "not found";
+      $sc[] = label_value('no_content');
     }
 
     echo json_encode($sc);
@@ -391,7 +433,7 @@ public function get_item_code()
       }
       else
       {
-        $sc[] = "not found";
+        $sc[] = label_value('no_content');
       }
     }
     else

@@ -9,6 +9,12 @@ $('#require_date').datepicker({
 $('#vender_code').autocomplete({
   source: BASE_URL + 'auto_complete/get_vender_code_and_name',
   autoFocus:true,
+  open:function(event, ui){
+    $(this).autocomplete("widget").css({
+      'width' : 'auto',
+      'min-width' : $(this).width() + 'px'
+    })
+  },
   close:function(){
     var arr = $(this).val().split(' | ');
     if(arr.length == 2){
@@ -25,6 +31,12 @@ $('#vender_code').autocomplete({
 $('#vender_name').autocomplete({
   source: BASE_URL + 'auto_complete/get_vender_code_and_name',
   autoFocus:true,
+  open:function(event, ui){
+    $(this).autocomplete('widget').css({
+      'width' : 'auto',
+      'min-width' : $(this).width() + 'px'
+    })
+  },
   close:function(){
     var arr = $(this).val().split(' | ');
     if(arr.length == 2){
@@ -78,6 +90,38 @@ function save(){
   })
 }
 
+
+function unsave(){
+  var code = $('#code').val();
+  $.ajax({
+    url:HOME + 'unsave_po',
+    type:'POST',
+    cache:false,
+    data:{
+      'po_code' : code
+    },
+    success:function(rs){
+      if(rs === 'success'){
+        swal({
+          title:'Success',
+          text:'',
+          type:'success',
+          timer:1000
+        });
+        setTimeout(function(){
+          window.location.reload();
+        }, 2000);
+
+      }else{
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error'
+        });
+      }
+    }
+  })
+}
 
 
 function update(){

@@ -8,7 +8,63 @@ class stock_model extends CI_Model
     parent::__construct();
   }
 
+  public function update_stock_zone($zone_code, $product_code, $qty)
+  {
+    if(!empty($zone_code) && !empty($product_code) && $qty != 0)
+    {
+      $id = $this->get_id($zone_code, $product_code);
+      if($id === FALSE)
+      {
+        $arr = array(
+          'product_code' => $product_code,
+          'zone_code' => $zone_code,
+          'qty' => $qty
+        );
 
+        return $this->add($arr);
+      }
+      else
+      {
+        return $this->update($id, $qty);
+      }
+    }
+
+    return FALSE;
+  }
+
+
+  public function add(array $ds = array())
+  {
+    if(!empty($ds))
+    {
+      return $this->db->insert('stock', $ds);
+    }
+
+    return FALSE;
+  }
+
+
+  public function update($id, $qty)
+  {
+    return $this->db->set("qty", "qty + {$qty}", FALSE)->where('id', $id)->update('stock');
+  }
+
+
+  public function get_id($zone_code, $product_code)
+  {
+    $rs = $this->db
+    ->select('id')
+    ->where('product_code', $product_code)
+    ->where('zone_code', $zone_code)
+    ->get('stock');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->id;
+    }
+
+    return FALSE;
+  }
 
   public function get_style_sell_stock($style_code)
   {
@@ -117,6 +173,24 @@ class stock_model extends CI_Model
     }
 
     return NULL;
+  }
+
+
+  public function is_enough($zone_code, $product_code, $qty)
+  {
+    $rs = $this->db
+    ->select('qty')
+    ->where('product_code', $product_code)
+    ->where('zone_code', $zone_code)
+    ->where('qty >=', $qty, FALSE)
+    ->get('stock');
+
+    if($rs->num_rows() > 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
   }
 
 }//--- end class

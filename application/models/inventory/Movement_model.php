@@ -18,20 +18,46 @@ class Movement_model extends CI_Model
 
 
 
-  public function move_in($reference, $product_code, $zone_code, $move_in, $date_add)
+  public function move_in($reference, $product_code, $warehouse_code, $zone_code, $qty, $date_add)
   {
     $id = $this->get_id($reference, $product_code, $zone_code, 'move_in');
     if($id !== FALSE)
     {
-      return $this->db->set("move_in", "qty + {$move_in}", FALSE)->where('id', $id)->update('stock_movement');
+      return $this->db->set("move_in", "qty + {$qty}", FALSE)->where('id', $id)->update('stock_movement');
     }
     else
     {
       $arr = array(
         'reference' => $reference,
+        'warehouse_code' => $warehouse_code,
         'zone_code' => $zone_code,
         'product_code' => $product_code,
-        'move_in' => $move_in,
+        'move_in' => $qty,
+        'date_add' => $date_add
+      );
+
+      return $this->db->insert('stock_movement', $arr);
+    }
+
+    return FALSE;
+  }
+
+
+  public function move_out($reference, $product_code, $warehouse_code, $zone_code, $qty, $date_add)
+  {
+    $id = $this->get_id($reference, $product_code, $zone_code, 'move_in');
+    if($id !== FALSE)
+    {
+      return $this->db->set("move_out", "qty + {$qty}", FALSE)->where('id', $id)->update('stock_movement');
+    }
+    else
+    {
+      $arr = array(
+        'reference' => $reference,
+        'warehouse_code' => $warehouse_code,
+        'zone_code' => $zone_code,
+        'product_code' => $product_code,
+        'move_out' => $qty,
         'date_add' => $date_add
       );
 
@@ -75,6 +101,30 @@ class Movement_model extends CI_Model
   public function drop_movement($code)
   {
     return $this->db->where('reference', $code)->delete('stock_movement');
+  }
+
+
+  public function drop_move_in($reference, $product_code, $zone_code)
+  {
+    $this->db
+    ->where('reference', $reference)
+    ->where('product_code', $product_code)
+    ->where('zone_code', $zone_code)
+    ->where('move_in >', 0)
+    ->where('move_out', 0);
+    return $this->db->delete('stock_movement');
+  }
+
+
+  public function drop_move_out($reference, $product_code, $zone_code)
+  {
+    $this->db
+    ->where('reference', $reference)
+    ->where('product_code', $product_code)
+    ->where('zone_code', $zone_code)
+    ->where('move_out >', 0)
+    ->where('move_in', 0);
+    return $this->db->delete('stock_movement');
   }
 
 } //--- end class

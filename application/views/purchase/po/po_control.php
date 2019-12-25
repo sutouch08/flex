@@ -23,7 +23,7 @@
 
   <div class="col-sm-2 col-sm-offset-2 padding-5 last">
     <label class="display-block not-show">delete</label>
-    <button type="button" class="btn btn-xs btn-danger btn-block" onclick="clearAll()">ลบรายการทั้งหมด</button>
+    <button type="button" class="btn btn-xs btn-danger btn-block" onclick="clearAll()"><?php label('delete_all'); ?></button>
   </div>
 </div>
 <hr class="margin-top-15">

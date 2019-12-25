@@ -17,7 +17,7 @@ function goDelete(code){
 				type:"POST",
 				cache:"false",
 				data:{
-					"receive_code" : code
+					"code" : code
 				},
 				success: function(rs){
 					var rs = $.trim(rs);
@@ -38,20 +38,6 @@ function goDelete(code){
 				}
 			});
 	});
-}
-
-
-
-function addNew()
-{
-  var date_add = $('#dateAdd').val();
-  var remark = $('#remark').val();
-  if(!isDate(date_add)){
-    swal('วันที่ไม่ถูกต้อง');
-    return false;
-  }
-
-  $('#addForm').submit();
 }
 
 
@@ -108,39 +94,10 @@ $("#toDate").datepicker({
 
 // JavaScript Document
 function printReceived(){
-	var code = $("#receive_code").val();
+	var code = $("#code").val();
 	var center = ($(document).width() - 800) /2;
   var target = HOME + 'print_detail/'+code;
   window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
-}
-
-
-
-function doExport(){
-	var code = $('#receive_code').val();
-	load_in();
-	$.ajax({
-		url: HOME + 'do_export/'+code,
-		type:'POST',
-		cache:false,
-		success:function(rs){
-			load_out();
-			if(rs == 'success'){
-				swal({
-					title:'Success',
-					text:'Send data successfully',
-					type:'success',
-					timer:1000
-				});
-			}else{
-				swal({
-					title:'Errow!',
-					text: rs,
-					type:'error'
-				});
-			}
-		}
-	})
 }
 
 
