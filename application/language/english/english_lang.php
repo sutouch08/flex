@@ -56,6 +56,11 @@ $lang['page'] = 'Page';
 $lang['conducted_by'] = 'Conducted by';
 $lang['review_by'] = 'Review by';
 $lang['approve_by'] = 'Approve by';
+$lang['report'] = 'Report';
+$lang['export'] = 'Export';
+$lang['range'] = 'Range';
+$lang['specify'] = 'Specify';
+$lang['current'] = 'Current';
 
 
 $lang['customer'] = 'Customer';
@@ -177,6 +182,7 @@ $lang['PO'] = 'Purchase';
 $lang['SC'] = 'Setting';
 $lang['DB'] = 'Database';
 $lang['AP'] = 'Approval';
+$lang['RE'] = 'Report';
 
 //--- Sub Menu group
 $lang['RECEIVE'] = 'Receive';
@@ -230,7 +236,7 @@ $lang['ICODDO'] = 'Delivery orders';
 $lang['ICODIV'] = 'Finished orders';
 $lang['ICODPR'] = 'Order picking';
 $lang['ICODQC'] = 'Order packing';
-$lang['ICPURC'] = 'Receive PO';
+$lang['ICPURC'] = 'Receive Products';
 $lang['ICPDRC'] = 'Recieve Product';
 $lang['ICRTLD'] = 'Lend return';
 $lang['ICRTOR'] = 'Return product';
@@ -255,7 +261,11 @@ $lang['SORECT'] = 'Unbill finished order';
 $lang['SOREST'] = 'Change order state';
 $lang['SOREUP'] = 'Allow unpaid order';
 $lang['POPURC'] = 'Purchase Order';
+$lang['REINVT'] = 'Inventory Report';
+$lang['RESOOD'] = 'Sales Report';
+$lang['REPURC'] = 'Purchasing Report';
 
+$lang['RICSTB'] = 'Report Stock Balance';
 
 //$lang[''] = '';
 

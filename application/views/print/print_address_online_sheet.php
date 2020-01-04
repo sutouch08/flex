@@ -13,12 +13,12 @@ $sender	.= '</div>';
 $receiver	 = '<div class="col-sm-12" style="font-size:24px; border:solid 2px #ccc; border-radius:10px; padding:10px;">';
 $receiver	.=  '<span style="display:block; font-size: 20px; font-weight:bold; padding-bottom:10px; border-bottom:solid 2px #ccc; margin-bottom:15px;">ผู้รับ &nbsp; |  &nbsp; ';
 $receiver	.=  '<span style="font-size:16px; font-weight:500">โทร. '.$cusPhone.'</span></span>';
-$receiver	.=  '<span style="display:block;">'.$cusName.'</span>';
-$receiver	.=  '<span style="display:block;">'.$cusAdr1.'</span>';
-$receiver	.=  '<span style="display:block;">'.$cusAdr2.'</span>';
+$receiver	.=  '<span style="display:block; font-size:18px;">'.$cusName.'</span>';
+$receiver	.=  '<span style="display:block; font-size:18px;">'.$cusAdr1.'</span>';
+$receiver	.=  '<span style="display:block; font-size:18px;">'.$cusAdr2.'</span>';
 //$receiver	.=  '<span style="display:block;">'.$cusDistr.'</span>';
-$receiver	.=  '<span style="display:block;">'.$cusProv.'</span>';
-$receiver	.=  '<span style="display:block; margin-top:15px;">รหัสไปรษณีย์  <span style="font-size:30px;">'.$cusPostCode.'</span></span>';
+$receiver	.=  '<span style="display:block; font-size:18px;">'.$cusProv.'</span>';
+$receiver	.=  '<span style="display:block; margin-top:15px; font-size:18px;">รหัสไปรษณีย์  <span style="font-size:30px;">'.$cusPostCode.'</span></span>';
 $receiver	.= '</div>';
 /********** / Receiver ***********/
 
@@ -173,7 +173,7 @@ $Page .= '<table style="width:100%; border:0px;">';
 
 $Page .= 	'<tr>';
 $Page .= 		'<td valign="top" style="width:40%; padding:10px;">'.$sender.'</td>';
-$Page .=		'<td valign="top" style="padding:10px;">'.$receiver.'</td>';
+$Page .=		'<td valign="top" style="padding:10px; white-space:normal;">'.$receiver.'</td>';
 $Page .= 	'</tr>';
 
 $Page	 .= '<tr>';

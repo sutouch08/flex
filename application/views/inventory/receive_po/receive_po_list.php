@@ -14,6 +14,7 @@
     </div>
 </div><!-- End Row -->
 <hr class=""/>
+
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
   <div class="col-sm-2 padding-5 first">
@@ -33,7 +34,7 @@
 
 	<div class="col-sm-2 padding-5">
     <label><?php label('vender'); ?></label>
-		<input type="text" class="form-control input-sm search" name="vender" value="<?php echo $vender; ?>" />
+		<input type="text" class="form-control input-sm search" name="venderx" value="<?php echo $vender; ?>" />
   </div>
 
 	<div class="col-sm-2 padding-5">

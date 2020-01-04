@@ -55,6 +55,7 @@ class Receive_po extends PS_Controller
     $filter['document'] = $document;
 
 		$this->pagination->initialize($init);
+
     $this->load->view('inventory/receive_po/receive_po_list', $filter);
   }
 

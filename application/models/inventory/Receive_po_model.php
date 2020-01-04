@@ -215,24 +215,24 @@ class Receive_po_model extends CI_Model
     $this->db->select('status');
 
     //---- เลขที่เอกสาร
-    if($ds['code'] != '')
+    if(!empty($ds['code']))
     {
       $this->db->like('code', $ds['code']);
     }
 
     //--- ใบสั่งซื้อ
-    if($ds['po'] != '')
+    if(!empty($ds['po']))
     {
       $this->db->like('po_code', $ds['po']);
     }
 
     //---- invoice
-    if($ds['invoice'] != '')
+    if(!empty($ds['invoice']))
     {
       $this->db->like('invoice_code', $ds['invoice']);
     }
 
-    if($ds['from_date'] != '' && $ds['to_date'] != '')
+    if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
       $this->db->where('date_add <=', to_date($ds['to_date']));
@@ -251,33 +251,33 @@ class Receive_po_model extends CI_Model
   public function get_data(array $ds = array(), $perpage = '', $offset = '', $role = 'S')
   {
     //---- เลขที่เอกสาร
-    if($ds['code'] != '')
+    if(!empty($ds['code']))
     {
       $this->db->like('code', $ds['code']);
     }
 
     //--- ใบสั่งซื้อ
-    if($ds['po'] != '')
+    if(!empty($ds['po']))
     {
       $this->db->like('po_code', $ds['po']);
     }
 
     //---- invoice
-    if($ds['invoice'] != '')
+    if(!empty($ds['invoice']))
     {
       $this->db->like('invoice_code', $ds['invoice']);
     }
 
 
     //--- vender
-    if($ds['vender'] != '')
+    if(!empty($ds['vender']))
     {
       $this->db->like('vender_code', $ds['vender']);
       $this->db->or_like('vender_name', $ds['vender']);
     }
 
 
-    if($ds['from_date'] != '' && $ds['to_date'] != '')
+    if(!empty($ds['from_date']) && !empty($ds['to_date']))
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
       $this->db->where('date_add <=', to_date($ds['to_date']));

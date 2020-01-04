@@ -7,6 +7,19 @@ class Warehouse_model extends CI_Model
     parent::__construct();
   }
 
+  public function get_all_warehouse()
+  {
+    $rs = $this->db->get('warehouse');
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return FALSE;
+  }
+
+
+
   public function get($code)
   {
     $rs = $this->db->select('warehouse.*, warehouse_role.name AS role_name')

@@ -1,4 +1,7 @@
-
+<?php
+$btn_qc_yes = $USE_QC == 1 ? 'btn-success' : '';
+$btn_qc_no = $USE_QC == 0 ? 'btn-danger' : '';
+ ?>
 <div class="tab-pane fade" id="inventory">
 	<form id="inventoryForm" method="post" action="<?php echo $this->home; ?>/update_config">
   	<div class="row">
@@ -25,6 +28,16 @@
         <input type="text" class="form-control input-sm input-small" name="LEND_WAREHOUSE" value="<?php echo $LEND_WAREHOUSE; ?>" />
       </div>
       <div class="divider-hidden"></div>
+			<div class="col-sm-3"><span class="form-control left-label">ใช้งานระบบ QC</span></div>
+			<div class="col-sm-9">
+				<div class="btn-group input-medium">
+					<button type="button" class="btn btn-sm <?php echo $btn_qc_yes; ?>" style="width:50%;" id="btn-qc-yes" onClick="toggleQC(1)">ใช้</button>
+					<button type="button" class="btn btn-sm <?php echo $btn_qc_no; ?>" style="width:50%;" id="btn-qc-no" onClick="toggleQC(0)">ไม่ใช้</button>
+				</div>
+				<span class="help-block">กรณีปิดจะไม่สามารแก้ไขส่วนลดในออเดอร์ได้ ส่วนลดจะถูกคำนวณโดยระบบเท่านั้น</span>
+				<input type="hidden" name="USE_QC" id="use_qc" value="<?php echo $USE_QC; ?>" />
+			</div>
+			<div class="divider-hidden"></div>
 
 
       <div class="col-sm-9 col-sm-offset-3">

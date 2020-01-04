@@ -336,6 +336,7 @@ class Prepare extends PS_Controller
   public function finish_prepare()
   {
     $code = $this->input->post('order_code');
+    $use_qc = getConfig('USE_QC');
     $sc = TRUE;
 
     $state = $this->orders_model->get_state($code);
@@ -348,14 +349,27 @@ class Prepare extends PS_Controller
       //--- mark all detail as valid
       $this->orders_model->valid_all_details($code);
 
-      //---	เปลียน state ของออเดอร์ เป็น รอแพ็คสินค้า
-      $this->orders_model->change_state($code, 5);
+      if($use_qc == 1)
+      {
+        //---	เปลียน state ของออเดอร์ เป็น รอแพ็คสินค้า
+        $this->orders_model->change_state($code, 5);
 
-      $arr = array(
-        'order_code' => $code,
-        'state' => 5,
-        'update_user' => get_cookie('uname')
-      );
+        $arr = array(
+          'order_code' => $code,
+          'state' => 5,
+          'update_user' => get_cookie('uname')
+        );
+      }
+      else
+      {
+        //---	เปลียน state ของออเดอร์ เป็น รอแพ็คสินค้า
+        $this->orders_model->change_state($code, 7);
+        $arr = array(
+          'order_code' => $code,
+          'state' => 7,
+          'update_user' => get_cookie('uname')
+        );
+      }
 
       //--- add state event
       $this->order_state_model->add_state($arr);

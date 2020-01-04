@@ -60,7 +60,7 @@ class Invoice extends PS_Controller
     $this->load->model('inventory/qc_model');
     $this->load->helper('order');
     $this->load->helper('discount');
-
+    $use_qc = getConfig('USE_QC') == 1 ? TRUE : FALSE;
     $order = $this->orders_model->get($code);
     $order->customer_name = $this->customers_model->get_name($order->customer_code);
 
@@ -70,11 +70,12 @@ class Invoice extends PS_Controller
       $order->zone_name = $this->zone_model->get_name($order->zone_code);
     }
 
-    $details = $this->invoice_model->get_billed_detail($code);
-    $box_list = $this->qc_model->get_box_list($code);
+    $details = $this->invoice_model->get_billed_detail($code, $use_qc);
+    $box_list = $use_qc ? $this->qc_model->get_box_list($code) : FALSE;
     $ds['order'] = $order;
     $ds['details'] = $details;
     $ds['box_list'] = $box_list;
+    $ds['use_qc'] = $use_qc;
     $this->load->view('inventory/order_closed/closed_detail', $ds);
   }
 

@@ -1,5 +1,3 @@
-//var intv = setInterval(function(){ goBack(); }, 60000*5); //--- Reload every 5 minutes.
-
 
 $("#fromDate").datepicker({
   dateFormat:'dd-mm-yy',
