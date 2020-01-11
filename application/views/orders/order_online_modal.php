@@ -159,7 +159,7 @@
             </div>
             <div class="col-sm-8 top-col">
             	<div class="input-group">
-              	<input type="number" class="form-control input-sm input-lagre" name="payAmount" id="payAmount" />
+              	<input type="number" step="any" class="form-control input-sm input-lagre" name="payAmount" id="payAmount" />
                   <span class="input-group-addon">บาท</span>
               </div>
             </div>
@@ -189,6 +189,16 @@
             </div>
           </div><!--/ row -->
         </div>
+        <div class="col-sm-12" style="padding-bottom:15px; margin-bottom:15px; border-bottom:solid 1px #eee;">
+          <div class="row">
+            <div class="col-sm-10" style="padding-top:5px;">
+              <label>
+                <input type="checkbox" class="ace" name="deposit" id="deposit" onchange="toggleDeposit()">
+                <span class="lbl">  บันทึกเป็นเงินมัดจำ</span>
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
       </div>
 
@@ -198,6 +208,7 @@
     </div>
   </div>
 </div>
+<input type="hidden" name="is_deposit" id="is_deposit" value="0">
 </form>
 
 

@@ -3,7 +3,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Sender extends PS_Controller{
 	public $menu_code = 'DBSEND'; //--- Add/Edit Users
-	public $menu_group_code = 'TRANSPORT'; //--- System security
+	public $menu_group_code = 'DB'; //--- System security
+	public $menu_sub_group_code = 'TRANSPORT';
 	public $title = 'เพิ่ม/แก้ไข ขนส่ง';
 
   public function __construct()

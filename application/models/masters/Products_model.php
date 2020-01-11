@@ -185,7 +185,7 @@ class Products_model extends CI_Model
 
   public function get_product_by_barcode($barcode)
   {
-    $rs = $this->db->where('barcode', $barcode)->get('products');
+    $rs = $this->db->where('barcode', $barcode)->or_where('code', $barcode)->get('products');
     if($rs->num_rows() === 1)
     {
       return $rs->row();

@@ -183,6 +183,14 @@ $menu_group = $this->menu_group_code;
 					<?php echo side_menu($menu, 'DBZONE', 'masters/zone', label_value('DBZONE')); ?>
 				</ul>
 			</li>
+			<li class="<?php echo isActiveOpenMenu($menu_sub_group_code, 'TRANSPORT'); ?>">
+				<a href="#" class="dropdown-toggle"><i class="menu-icon fa fa-caret-right"></i> ฐานข้อมูลขนส่ง <b class="arrow fa fa-angle-down"></b></a>
+				<b class="arrow"></b>
+				<ul class="submenu">
+					<?php echo side_menu($menu, 'DBSEND', 'masters/sender','เพิ่ม/แก้ไข ขนส่ง'); ?>
+					<?php echo side_menu($menu, 'DBTRSP', 'masters/transport','เชื่อมโยงขนส่ง'); ?>
+				</ul>
+			</li>
 			<?php echo side_menu($menu, 'DBEMPL', 'masters/employee', label_value('DBEMPL')); ?>
 			<?php echo side_menu($menu, 'DBVEND', 'masters/vender', label_value('DBVEND')); ?>
 			<?php echo side_menu($menu, 'DBCHAN', 'masters/channels', label_value('DBCHAN')); ?>
@@ -203,24 +211,7 @@ $menu_group = $this->menu_group_code;
 			<li class="<?php echo isActiveOpenMenu($menu_sub_group_code, 'REINVT'); ?>">
 				<a href="#" class="dropdown-toggle"><i class="menu-icon fa fa-caret-right"></i> <?php label('REINVT'); ?> <b class="arrow fa fa-angle-down"></b></a>
 				<ul class="submenu">
-					<?php echo side_menu($menu, 'RICSTB', 'report/Inventory/stock_balance', label_value('RICSTB')); ?>
-				</ul>
-			</li>
-			<li class="<?php echo isActiveOpenMenu($menu_sub_group_code, 'CUSTOMER'); ?>">
-				<a href="#" class="dropdown-toggle"><i class="menu-icon fa fa-caret-right"></i> <?php label('CUSTOMER'); ?> <b class="arrow fa fa-angle-down"></b></a>
-				<b class="arrow"></b>
-				<ul class="submenu">
-					<?php echo side_menu($menu, 'DBCUST', 'masters/customers', label_value('DBCUST')); ?>
-
-				</ul>
-			</li>
-
-			<li class="<?php echo isActiveOpenMenu($menu_sub_group_code, 'WAREHOUSE'); ?>">
-				<a href="#" class="dropdown-toggle"><i class="menu-icon fa fa-caret-right"></i> <?php label('WAREHOUSE'); ?> <b class="arrow fa fa-angle-down"></b></a>
-				<b class="arrow"></b>
-				<ul class="submenu">
-					<?php echo side_menu($menu, 'DBWRHS', 'masters/warehouse', label_value('DBWRHS')); ?>
-					<?php echo side_menu($menu, 'DBZONE', 'masters/zone', label_value('DBZONE')); ?>
+					<?php echo side_menu($menu, 'RICSTB', 'report/inventory/stock_balance', label_value('RICSTB')); ?>
 				</ul>
 			</li>
 

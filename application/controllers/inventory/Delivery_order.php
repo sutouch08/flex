@@ -62,6 +62,8 @@ class Delivery_order extends PS_Controller
     $this->load->model('inventory/buffer_model');
     $this->load->model('inventory/cancle_model');
     $this->load->model('inventory/movement_model');
+    $this->load->model('inventory/invoice_model');
+    $this->load->model('masters/customers_model');
     $this->load->helper('discount');
     $code = $this->input->post('order_code');
     $use_qc = getConfig('USE_QC') == 1 ? TRUE : FALSE;
@@ -375,12 +377,47 @@ class Delivery_order extends PS_Controller
 
         }
 
+        if($sc === TRUE)
+        {
+          //--- set is_complete
+          $this->orders_model->set_completed($code);
+
+          //--- ถ้าเป็นออเดอร์แบบขาย และ เป็นเครดิต ให้ตั้งหนี้
+          if($order->role === 'S' && $order->is_term == 1)
+          {
+            $this->load->model('account/order_credit_model');
+
+            $sold_amount = $this->invoice_model->get_total_sold_amount($code);
+            $customer = $this->customers_model->get($order->customer_code);
+            $arr = array(
+              'order_code' => $code,
+              'customer_code' => $order->customer_code,
+              'delivery_date' => date('Y-m-d'),
+              'due_date' => added_date(date('Y-m-d'), $customer->credit_term),
+              'over_due_date' => added_date(date('Y-m-d'), $customer->credit_term + getConfig('OVER_DUE_DATE')),
+              'amount' => $sold_amount
+            );
+
+            if($this->order_credit_model->is_exists($code))
+            {
+              $this->order_credit_model->update($code, $arr);
+            }
+            else
+            {
+              $this->order_credit_model->add($arr);
+            }
+            //--- recal balance
+            $this->order_credit_model->recal_balance($code);
+          }
+        }
+
         $this->db->trans_complete();
 
         if($this->db->trans_status() === FALSE)
         {
           $sc = FALSE;
         }
+        
       } //--- end if state == 7
       else
       {

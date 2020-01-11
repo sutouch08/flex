@@ -104,9 +104,9 @@
             </tr>
           <?php endif; ?>
 
-<?php 	$netAmount = ( $total_amount - $order->bDiscAmount ) + $order->shipping_fee + $order->service_fee;	?>
+<?php 	$netAmount = ( $total_amount - $order->bDiscAmount - $order->deposit ) + $order->shipping_fee + $order->service_fee;	?>
 			<tr class="font-size-12">
-            	<td colspan="6" rowspan="4"></td>
+            	<td colspan="6" rowspan="7"></td>
                 <td style="border-left:solid 1px #CCC;"><b>จำนวนรวม</b></td>
                 <td class="text-right"><b><?php echo number($total_qty); ?></b></td>
                 <td class="text-center"><b>Pcs.</b></td>
@@ -118,7 +118,25 @@
             </tr>
             <tr class="font-size-12">
                 <td style="border-left:solid 1px #CCC;"><b>ส่วนลดรวม</b></td>
-                <td class="text-right" id="discount-td" style="font-weight:bold;"><?php echo number($total_discount, 2); ?></td>
+                <td class="text-right" id="discount-td" style="font-weight:bold;">- <?php echo number($total_discount, 2); ?></td>
+                <td class="text-center"><b>THB.</b></td>
+            </tr>
+
+						<tr class="font-size-12">
+                <td style="border-left:solid 1px #CCC;"><b>ค่าจัดส่ง</b></td>
+                <td class="text-right" id="discount-td" style="font-weight:bold;"><?php echo number($order->shipping_fee, 2); ?></td>
+                <td class="text-center"><b>THB.</b></td>
+            </tr>
+
+						<tr class="font-size-12">
+                <td style="border-left:solid 1px #CCC;"><b>อื่นๆ</b></td>
+                <td class="text-right" id="discount-td" style="font-weight:bold;"><?php echo number($order->service_fee, 2); ?></td>
+                <td class="text-center"><b>THB.</b></td>
+            </tr>
+
+						<tr class="font-size-12">
+                <td style="border-left:solid 1px #CCC;"><b>ชำระแล้ว</b></td>
+                <td class="text-right" id="deposit-td" style="font-weight:bold;">- <?php echo number($order->deposit, 2); ?></td>
                 <td class="text-center"><b>THB.</b></td>
             </tr>
             <tr class="font-size-12">

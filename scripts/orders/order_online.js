@@ -10,12 +10,12 @@ function viewImage(imageUrl)
 
 
 
-function viewPaymentDetail()
+function viewPaymentDetail(id)
 {
 	var order_code = $('#order_code').val();
 	load_in();
 	$.ajax({
-		url: BASE_URL + 'orders/orders/view_payment_detail',
+		url: BASE_URL + 'orders/orders/view_payment_detail/'+id,
 		type:"POST",
 		cache:"false",
 		data:{
@@ -105,6 +105,8 @@ function submitPayment()
 	var payDate			= $("#payDate").val();
 	var payHour			= $("#payHour").val();
 	var payMin			= $("#payMin").val();
+	var is_deposit  = $('#is_deposit').val();
+
 	if( order_code == '' ){
 		swal('ข้อผิดพลาด', 'ไม่พบไอดีออเดอร์กรุณาออกจากหน้านี้แล้วเข้าใหม่อีกครั้ง', 'error');
 		return false;
@@ -125,10 +127,20 @@ function submitPayment()
 		return false;
 	}
 
-	if( payAmount == 0 || isNaN( parseFloat(payAmount) ) || parseFloat(payAmount) < parseFloat(orderAmount) ){
+	if( payAmount == 0 || isNaN( parseFloat(payAmount) )){
 		swal("ข้อผิดพลาด", "ยอดชำระไม่ถูกต้อง", 'error');
 		return false;
 	}
+
+
+	if(is_deposit == 0)
+	{
+		if( parseFloat(payAmount) < parseFloat(orderAmount) ){
+			swal("ข้อผิดพลาด", "ยอดชำระไม่ครบ", 'error');
+			return false;
+		}
+	}
+
 
 	if( !isDate(payDate) ){
 		swal('วันที่ไม่ถูกต้อง');
@@ -147,6 +159,7 @@ function submitPayment()
 	fd.append('payDate', payDate);
 	fd.append('payHour', payHour);
 	fd.append('payMin', payMin);
+	fd.append('is_deposit', is_deposit);
 	load_in();
 	$.ajax({
 		url: BASE_URL + 'orders/orders/confirm_payment',
@@ -423,14 +436,14 @@ function editAddress(id)
 //--------- set address as default address  ------------------//
 function setDefault(id)
 {
-	var customer_ref = $('#customer_ref').val();
+	var order_code = $('#order_code').val();
 	$.ajax({
-		url:BASE_URL + 'orders/orders/set_default_address',
+		url:BASE_URL + 'orders/orders/set_order_address',
 		type:"POST",
 		cache:"false",
 		data:{
 			"id_address" : id,
-			"customer_ref" : customer_ref
+			"order_code" : order_code
 		},
 		success: function(rs){
 			$(".btn-address").removeClass('btn-success');
@@ -452,7 +465,8 @@ function reloadAddressTable()
 		type:"POST",
 		cache:"false",
 		data:{
-			'customer_ref' : customer_ref
+			'customer_ref' : customer_ref,
+			'order_code' : order_code
 		},
 		success: function(rs){
 			var rs = $.trim(rs);
@@ -594,6 +608,7 @@ $('#sub_district').autocomplete({
 			$('#district').val(adr[1]);
 			$('#province').val(adr[2]);
 			$('#postcode').val(adr[3]);
+			$('#postcode').focus();
 		}
 	}
 });
@@ -613,6 +628,7 @@ $('#district').autocomplete({
 			$('#district').val(adr[0]);
 			$('#province').val(adr[1]);
 			$('#postcode').val(adr[2]);
+			$('#postcode').focus();
 		}
 	}
 });
@@ -631,10 +647,34 @@ $('#province').autocomplete({
 		if(adr.length == 2){
 			$('#province').val(adr[0]);
 			$('#postcode').val(adr[1]);
+			$('#postcode').focus();
 		}
 	}
 })
 
+$('#sub_district').keyup(function(e){
+	if(e.keyCode == 13){
+		$('#district').focus();
+	}
+})
+
+$('#district').keyup(function(e){
+	if(e.keyCode == 13){
+		$('#province').focus();
+	}
+})
+
+$('#province').keyup(function(e){
+	if(e.keyCode == 13){
+		$('#postcode').focus();
+	}
+})
+
+$('#postcode').keyup(function(e){
+	if(e.keyCode == 13){
+		$('#phone').focus();
+	}
+})
 
 
 function clearAddressField()
@@ -701,3 +741,92 @@ $("#address1").keyup(function(e){ if( e.keyCode == 13 ){ $("#sub_district").focu
 $("#phone").keyup(function(e){ if( e.keyCode == 13 ){ $("#email").focus(); 	} });
 $("#email").keyup(function(e){ if( e.keyCode == 13 ){ $("#alias").focus(); 	} });
 $("#alias").keyup(function(e){ if( e.keyCode == 13 ){ saveAddress(); } });
+
+
+function toggleDeposit(){
+	var deposit = $('#deposit');
+	if(deposit.is(':checked') === true){
+		$('#is_deposit').val(1);
+	}else{
+		$('#is_deposit').val(0);
+	}
+}
+
+
+function activeShippingFee(){
+	$('#shippingFee').removeAttr('disabled');
+	$('#btn-edit-shipping-fee').addClass('hide');
+	$('#btn-update-shipping-fee').removeClass('hide');
+	$('#shippingFee').select();
+}
+
+$('#shippingFee').keyup(function(e){
+	if(e.keyCode == 13){
+		updateShippingFee();
+	}
+});
+
+
+
+function updateShippingFee(){
+	var order_code = $('#order_code').val();
+	var amount = parseDefault(parseFloat($('#shippingFee').val()), 0.00);
+	$.ajax({
+		url:BASE_URL + 'orders/orders/update_shipping_fee',
+		type:'POST',
+		cache:false,
+		data:{
+			'order_code' : order_code,
+			'shipping_fee' : amount
+		},
+		success:function(rs){
+			if(rs == 'success'){
+				window.location.reload();
+			}else{
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+			}
+		}
+	})
+}
+
+function activeServiceFee(){
+	$('#serviceFee').removeAttr('disabled');
+	$('#btn-edit-service-fee').addClass('hide');
+	$('#btn-update-service-fee').removeClass('hide');
+	$('#serviceFee').select();
+}
+
+$('#serviceFee').keyup(function(e){
+	if(e.keyCode == 13){
+		updateServiceFee();
+	}
+});
+
+function updateServiceFee(){
+	var order_code = $('#order_code').val();
+	var amount = parseDefault(parseFloat($('#serviceFee').val()), 0.00);
+	$.ajax({
+		url:BASE_URL + 'orders/orders/update_service_fee',
+		type:'POST',
+		cache:false,
+		data:{
+			'order_code' : order_code,
+			'service_fee' : amount
+		},
+		success:function(rs){
+			if(rs == 'success'){
+				window.location.reload();
+			}else{
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+			}
+		}
+	})
+}

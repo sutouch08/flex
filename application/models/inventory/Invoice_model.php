@@ -53,6 +53,12 @@ class Invoice_model extends CI_Model
   }
 
 
+  public function get_total_sold_amount($code)
+  {
+    $rs = $this->db->select_sum('total_amount')->where('reference', $code)->get('order_sold');
+    return $rs->row()->total_amount;
+  }
+
 
   public function drop_sold($id)
   {
@@ -71,7 +77,7 @@ class Invoice_model extends CI_Model
     ->where('balance >', 0, FALSE)
     ->where('customer_code', $customer_code)
     ->where('over_due_date >', $today)
-    ->get('order_credit_payment');
+    ->get('order_credit');
 
     if($rs->num_rows() > 0)
     {

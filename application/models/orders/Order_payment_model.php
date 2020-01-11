@@ -113,7 +113,14 @@ class Order_payment_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->db->replace('order_payment', $ds);
+      if(!empty($ds['is_deposit']))
+      {
+        return $this->db->insert('order_payment', $ds);
+      }
+      else
+      {
+        return $this->db->replace('order_payment', $ds);
+      }
     }
 
     return FALSE;
@@ -122,12 +129,24 @@ class Order_payment_model extends CI_Model
 
 
 
-  public function get($code)
+  public function get($id)
   {
-    $rs = $this->db->where('order_code', $code)->get('order_payment');
+    $rs = $this->db->where('id', $id)->get('order_payment');
     if($rs->num_rows() === 1)
     {
       return $rs->row();
+    }
+
+    return FALSE;
+  }
+
+
+  public function get_payments($code)
+  {
+    $rs = $this->db->where('order_code', $code)->get('order_payment');
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
     }
 
     return FALSE;
@@ -171,7 +190,7 @@ class Order_payment_model extends CI_Model
     $rs = $this->db->select('order_code')
     ->where('order_code', $code)
     ->get('order_payment');
-    if($rs->num_rows() === 1)
+    if($rs->num_rows() > 0)
     {
       return TRUE;
     }

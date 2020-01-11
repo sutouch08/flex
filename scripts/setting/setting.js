@@ -61,7 +61,88 @@ function toggleQC(option)
 	}
 }
 
+function toggleManualCode(option)
+{
+	$('#manual-doc-code').val(option);
+	if(option == 1){
+		$('#btn-manual-yes').addClass('btn-success');
+		$('#btn-manual-no').removeClass('btn-danger');
+		return;
+	}
+	if(option == 0){
+		$('#btn-manual-yes').removeClass('btn-success');
+		$('#btn-manual-no').addClass('btn-danger');
+		return;
+	}
+}
 
+
+//---- ไม่ขายสินค้าให้ลูกค้าที่มียอดค้างเกินกำหนด
+function toggleStrictDue(option)
+{
+	$('#strict-over-due').val(option);
+	if(option == 1){
+		$('#btn-strict-yes').addClass('btn-success');
+		$('#btn-strict-no').removeClass('btn-danger');
+		return;
+	}
+	if(option == 0){
+		$('#btn-strict-yes').removeClass('btn-success');
+		$('#btn-strict-no').addClass('btn-danger');
+		return;
+	}
+}
+
+
+
+//---- ไม่ขายสินค้าให้ลูกค้าที่มียอดค้างเกินกำหนด
+function toggleAuz(option)
+{
+	$('#allow-under-zero').val(option);
+	if(option == 1){
+		$('#btn-auz-yes').addClass('btn-danger');
+		$('#btn-auz-no').removeClass('btn-success');
+		return;
+	}
+	if(option == 0){
+		$('#btn-auz-yes').removeClass('btn-danger');
+		$('#btn-auz-no').addClass('btn-success');
+		return;
+	}
+}
+
+
+function toggleControlCredit(option)
+{
+	$('#control-credit').val(option);
+	if(option == 1){
+		$('#btn-credit-yes').addClass('btn-success');
+		$('#btn-credit-no').removeClass('btn-danger');
+		return;
+	}
+	if(option == 0){
+		$('#btn-credit-yes').removeClass('btn-success');
+		$('#btn-credit-no').addClass('btn-danger');
+		return;
+	}
+}
+
+
+
+function toggleReceiveDue(option)
+{
+	$('#receive-over-due').val(option);
+	if(option == 1){
+		$('#btn-receive-yes').addClass('btn-success');
+		$('#btn-receive-no').removeClass('btn-danger');
+		return;
+	}
+	if(option == 0){
+		$('#btn-receive-yes').removeClass('btn-success');
+		$('#btn-receive-no').addClass('btn-danger');
+		return;
+	}
+}
 
 function toggleEditDiscount(option)
 {

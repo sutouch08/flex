@@ -33,6 +33,55 @@ class Orders_model extends CI_Model
   }
 
 
+  public function update_order_total_amount($code, $amount)
+  {
+    return $this->db->set('total_amount', $amount)->where('code', $code)->update('orders');
+  }
+
+
+  public function recal_order_balance($code)
+  {
+    return $this->db->set('balance', 'total_amount - deposit', FALSE)->where('code', $code)->update('orders');
+  }
+
+  public function update_deposit($code, $amount)
+  {
+    $rs = $this->db->set('deposit', "deposit + {$amount}", FALSE)->where('code', $code)->update('orders');
+    if($rs)
+    {
+      return $this->recal_order_balance($code);
+    }
+
+    return FALSE;
+  }
+
+  public function get_order_deposit($code)
+  {
+    $rs = $this->db->select('deposit')->where('code', $code)->get('orders');
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->deposit;
+    }
+
+    return 0;
+  }
+
+
+  public function get_order_balance($code)
+  {
+    $rs = $this->db->select('balance')->where('code', $code)->get('orders');
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->balance;
+    }
+
+    return 0;
+  }
+
+
+
+
+
   public function get($code)
   {
     $rs = $this->db->where('code', $code)->get('orders');
@@ -229,6 +278,17 @@ class Orders_model extends CI_Model
   }
 
 
+  public function update_shipping_fee($code, $amount)
+  {
+    return $this->db->set('shipping_fee', $amount, FALSE)->where('code', $code)->update('orders');
+  }
+
+
+  public function update_service_fee($code, $amount)
+  {
+    return $this->db->set('service_fee', $amount, FALSE)->where('code', $code)->update('orders');
+  }
+
 
 
   public function set_never_expire($code, $option)
@@ -250,6 +310,12 @@ class Orders_model extends CI_Model
     }
 
     return TRUE;
+  }
+
+
+  public function set_completed($code)
+  {
+    return $this->db->set('is_complete', 1)->where('order_code', $code)->update('order_details');
   }
 
 
@@ -564,6 +630,12 @@ class Orders_model extends CI_Model
   public function clear_order_detail($code)
   {
     return $this->db->where('order_code', $code)->delete('order_details');
+  }
+
+
+  public function set_address_id($code, $id_address)
+  {
+    return $this->db->set('address_id', $id_address)->where('code', $code)->update('orders');
   }
 
 

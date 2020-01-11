@@ -6,6 +6,13 @@ $btn_price_no = $ALLOW_EDIT_PRICE == 0 ? 'btn-danger' : '';
 //--- อนุญาติให้แก้ไขส่วนลดในออเดอร์หรือไม่
 $btn_disc_yes = $ALLOW_EDIT_DISCOUNT == 1 ? 'btn-success' : '';
 $btn_disc_no  = $ALLOW_EDIT_DISCOUNT == 0 ? 'btn-danger' : '';
+
+//--- ไม่อนุญาติให้ขายสินค้ากับลูกค้าที่มียอดค้างชำระเกินกำหนด
+$btn_strict_yes = $STRICT_OVER_DUE == 1 ? 'btn-success' : '';
+$btn_strict_no  = $STRICT_OVER_DUE == 0 ? 'btn-danger' : '';
+
+$btn_credit_yes = $CONTROL_CREDIT == 1 ? 'btn-success' : '';
+$btn_credit_no  = $CONTROL_CREDIT == 0 ? 'btn-danger' : '';
 ?>
 <div class="tab-pane fade" id="order">
 <form id="orderForm" method="post" action="<?php echo $this->home; ?>/update_config">
@@ -31,6 +38,17 @@ $btn_disc_no  = $ALLOW_EDIT_DISCOUNT == 0 ? 'btn-danger' : '';
 		</div>
 		<div class="divider-hidden"></div>
 
+		<div class="col-sm-3"><span class="form-control left-label">ควบคุมเครดิต</span></div>
+		<div class="col-sm-9">
+			<div class="btn-group">
+				<button type="button" class="btn btn-sm <?php echo $btn_credit_yes; ?>" style="width:50%;" id="btn-credit-yes" onClick="toggleControlCredit(1)">คุม</button>
+				<button type="button" class="btn btn-sm <?php echo $btn_credit_no; ?>" style="width:50%;" id="btn-credit-no" onClick="toggleControlCredit(0)">ไม่คุม</button>
+			</div>
+			<input type="hidden" name="CONTROL_CREDIT" id="control-credit" value="<?php echo $CONTROL_CREDIT; ?>" />
+			<span class="help-block">ใช้การควบคุมเครดิตหรือไม่ หากควบคุมจะไม่สามารถเปิดออเดอร์ได้ถ้าเครดิตคงเหลือไม่เพียงพอ</span>
+		</div>
+		<div class="divider-hidden"></div>
+
 		<div class="col-sm-3"><span class="form-control left-label">วันเพิ่มในการคุมเครดิต</span></div>
 		<div class="col-sm-9">
 			<input type="number" class="form-control input-sm input-small text-center" name="OVER_DUE_DATE" required value="<?php echo $OVER_DUE_DATE; ?>" />
@@ -38,6 +56,16 @@ $btn_disc_no  = $ALLOW_EDIT_DISCOUNT == 0 ? 'btn-danger' : '';
 		</div>
 		<div class="divider-hidden"></div>
 
+		<div class="col-sm-3"><span class="form-control left-label">มียอดค้างชำระเกินกำหนด</span></div>
+    <div class="col-sm-9">
+			<div class="btn-group">
+				<button type="button" class="btn btn-sm <?php echo $btn_strict_yes; ?>" style="width:50%;" id="btn-strict-yes" onClick="toggleStrictDue(1)">ไม่ขาย</button>
+				<button type="button" class="btn btn-sm <?php echo $btn_strict_no; ?>" style="width:50%;" id="btn-strict-no" onClick="toggleStrictDue(0)">ขาย</button>
+			</div>
+      <span class="help-block">ไม่อนุญาติให้ขายสินค้าให้ลูกค้าที่มียอดค้างชำระเกินวันที่กำหนดในการคุมเครดิต</span>
+			<input type="hidden" name="STRICT_OVER_DUE" id="strict-over-due" value="<?php echo $STRICT_OVER_DUE; ?>" />
+    </div>
+    <div class="divider-hidden"></div>
 
 		<div class="col-sm-3"><span class="form-control left-label">การแก้ไขส่วนลดในออเดอร์</span></div>
 		<div class="col-sm-9">

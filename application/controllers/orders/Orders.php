@@ -72,7 +72,7 @@ class Orders extends PS_Controller
         $rs->channels_name = $this->channels_model->get_name($rs->channels_code);
         $rs->payment_name  = $this->payment_methods_model->get_name($rs->payment_code);
         $rs->customer_name = $this->customers_model->get_name($rs->customer_code);
-        $rs->total_amount  = $this->orders_model->get_order_total_amount($rs->code);
+        $rs->total_amount  = $this->orders_model->get_order_total_amount($rs->code) + $rs->shipping_fee + $rs->service_fee;
         $rs->state_name    = get_state_name($rs->state);
         $ds[] = $rs;
       }
@@ -394,6 +394,7 @@ class Orders extends PS_Controller
     $ds['details'] = $details;
     $ds['addr']  = $ship_to;
     $ds['banks'] = $banks;
+    $ds['payments'] = $this->order_payment_model->get_payments($code);
     $ds['allowEditDisc'] = getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
     $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
     $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
@@ -526,12 +527,21 @@ class Orders extends PS_Controller
       //--- credit balance from sap
       $credit_balance = $this->customers_model->get_credit($order->customer_code);
 
-      if($credit_used > $credit_balance)
+      $skip = getConfig('CONTROL_CREDIT');
+
+      if($skip == 1)
       {
-        $diff = $credit_used - $credit_balance;
-        $sc = FALSE;
-        $message = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
+        if($credit_used > $credit_balance)
+        {
+          $diff = $credit_used - $credit_balance;
+          $sc = FALSE;
+          $message = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
+        }
       }
+    }
+    else
+    {
+      update_order_total_amount($code);
     }
 
 
@@ -547,7 +557,6 @@ class Orders extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $message;
   }
-
 
 
 
@@ -1044,11 +1053,12 @@ class Orders extends PS_Controller
       $code = $this->input->get('order_code');
 
       //--- ยอดรวมหลังหักส่วนลด ตาม item
-      $amount = $this->orders_model->get_order_total_amount($code);
-      //--- ส่วนลดท้ายบิล
-      $bDisc = $this->orders_model->get_bill_discount($code);
+      // $amount = $this->orders_model->get_order_total_amount($code);
+      // //--- ส่วนลดท้ายบิล
+      // $bDisc = $this->orders_model->get_bill_discount($code);
+      // $pay_amount = $amount - $bDisc;
 
-      $pay_amount = $amount - $bDisc;
+      $pay_amount = $this->orders_model->get_order_balance($code);
     }
 
     echo $pay_amount;
@@ -1088,7 +1098,8 @@ class Orders extends PS_Controller
       $h = $this->input->post('payHour');
       $m = $this->input->post('payMin');
       $dhm = $date.' '.$h.':'.$m.':00';
-      $pay_date = db_date($dhm, TRUE);
+      $pay_date = date('Y-m-d H:i:s', strtotime($dhm));
+      $img_name = $order_code.'-'.date('Ymdhis');
       $arr = array(
         'order_code' => $order_code,
         'order_amount' => $this->input->post('orderAmount'),
@@ -1096,29 +1107,20 @@ class Orders extends PS_Controller
         'pay_date' => $pay_date,
         'id_account' => $this->input->post('id_account'),
         'acc_no' => $this->input->post('acc_no'),
-        'user' => get_cookie('uname')
+        'user' => get_cookie('uname'),
+        'is_deposit' => $this->input->post('is_deposit'),
+        'img' => $img_name
       );
 
       //--- บันทึกรายการ
       if($this->order_payment_model->add($arr))
       {
-        $rs = $this->orders_model->change_state($order_code, 2);  //--- แจ้งชำระเงิน
-
-        if($rs)
-        {
-          $arr = array(
-            'order_code' => $order_code,
-            'state' => 2,
-            'update_user' => get_cookie('uname')
-          );
-          $this->order_state_model->add_state($arr);
-        }
-
-        if($rs === FALSE)
-        {
-          $sc = FALSE;
-          $message = 'เปลี่ยนสถานะออเดอร์ไม่สำเร็จ';
-        }
+        $arr = array(
+          'order_code' => $order_code,
+          'state' => 2,
+          'update_user' => get_cookie('uname')
+        );
+        $this->order_state_model->add_state($arr);
       }
       else
       {
@@ -1128,7 +1130,7 @@ class Orders extends PS_Controller
 
       if($file !== FALSE)
       {
-        $rs = $this->do_upload($file, $order_code);
+        $rs = $this->do_upload($file, $img_name);
         if($rs !== TRUE)
         {
           $sc = FALSE;
@@ -1142,7 +1144,7 @@ class Orders extends PS_Controller
 
 
 
-  public function do_upload($file, $code)
+  public function do_upload($file, $img_name)
 	{
     $this->load->library('upload');
     $sc = TRUE;
@@ -1151,7 +1153,7 @@ class Orders extends PS_Controller
     $image 	= new upload($file);
     if( $image->uploaded )
     {
-      $image->file_new_name_body = $code; 		//--- เปลี่ยนชือ่ไฟล์ตาม order_code
+      $image->file_new_name_body = $img_name; 		//--- เปลี่ยนชือ่ไฟล์ตาม order_code
       $image->image_resize			 = TRUE;		//--- อนุญาติให้ปรับขนาด
       $image->image_retio_fill	 = TRUE;		//--- เติกสีให้เต็มขนาดหากรูปภาพไม่ได้สัดส่วน
       $image->file_overwrite		 = TRUE;		//--- เขียนทับไฟล์เดิมได้เลย
@@ -1178,18 +1180,18 @@ class Orders extends PS_Controller
 
 
 
-  public function view_payment_detail()
+  public function view_payment_detail($id)
   {
     $this->load->model('orders/order_payment_model');
     $this->load->model('masters/bank_model');
     $sc = TRUE;
     $code = $this->input->post('order_code');
-    $rs = $this->order_payment_model->get($code);
+    $rs = $this->order_payment_model->get($id);
 
     if(!empty($rs))
     {
       $bank = $this->bank_model->get_account_detail($rs->id_account);
-      $img  = payment_image_url($code); //--- order_helper
+      $img  = payment_image_url($rs->img); //--- order_helper
       $ds   = array(
         'order_code' => $code,
         'orderAmount' => number($rs->order_amount, 2),
@@ -1221,6 +1223,38 @@ class Orders extends PS_Controller
     {
       $rs = $this->orders_model->update_shipping_code($order_code, $ship_code);
       echo $rs === TRUE ? 'success' : 'fail';
+    }
+  }
+
+
+  public function update_shipping_fee()
+  {
+    $order_code = $this->input->post('order_code');
+    $shipping_fee = $this->input->post('shipping_fee');
+    if($this->orders_model->update_shipping_fee($order_code, $shipping_fee))
+    {
+      update_order_total_amount($order_code);
+      echo 'success';
+    }
+    else
+    {
+      echo 'failed';
+    }
+  }
+
+
+  public function update_service_fee()
+  {
+    $order_code = $this->input->post('order_code');
+    $service_fee = $this->input->post('service_fee');
+    if($this->orders_model->update_service_fee($order_code, $service_fee))
+    {
+      update_order_total_amount($order_code);
+      echo 'success';
+    }
+    else
+    {
+      echo 'failed';
     }
   }
 
@@ -1278,8 +1312,11 @@ class Orders extends PS_Controller
     if($this->input->post('customer_ref'))
     {
       $code = $this->input->post('customer_ref');
+      $order_code = $this->input->post('order_code');
       if(!empty($code))
       {
+        $order = $this->orders_model->get($order_code);
+
         $ds = array();
         $this->load->model('address/address_model');
         $adrs = $this->address_model->get_shipping_address($code);
@@ -1294,7 +1331,7 @@ class Orders extends PS_Controller
               'phone' => $rs->phone,
               'email' => $rs->email,
               'alias' => $rs->alias,
-              'default' => $rs->is_default == 1 ? 1 : ''
+              'default' => ($rs->id == $order->address_id) ? 1 : ''
             );
             array_push($ds, $arr);
           }
@@ -1315,16 +1352,12 @@ class Orders extends PS_Controller
 
 
 
-  public function set_default_address()
+  public function set_order_address()
   {
-    $this->load->model('address/address_model');
     $id = $this->input->post('id_address');
-    $code = $this->input->post('customer_ref');
-    //--- drop current
-    $this->address_model->unset_default_shipping_address($code);
-
+    $code = $this->input->post('order_code');
     //--- set new default
-    $rs = $this->address_model->set_default_shipping_address($id);
+    $rs = $this->orders_model->set_address_id($code, $id);
     echo $rs === TRUE ? 'success' :'fail';
   }
 

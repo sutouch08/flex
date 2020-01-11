@@ -62,7 +62,7 @@ class Order_payment extends PS_Controller
     $detail = $this->order_payment_model->get_detail($id);
     if(!empty($detail))
     {
-      $img = payment_image_url($detail->order_code);
+      $img = payment_image_url($detail->img);
       $bank   = $this->bank_model->get_account_detail($detail->id_account);
       $ds  = array(
         'id' => $detail->id,
@@ -115,14 +115,26 @@ class Order_payment extends PS_Controller
       //--- mark payment as paid
       $this->order_payment_model->valid_payment($id);
 
-      //--- mark order as paid
-      $this->orders_model->paid($detail->order_code, TRUE);
+      $this->orders_model->update_deposit($detail->order_code, $detail->pay_amount);
+      
+      update_order_total_amount($detail->order_code);
 
-      //--- change state to waiting for prepare
-      $this->orders_model->change_state($detail->order_code, 3);
+      if($this->orders_model->get_order_balance($detail->order_code) <= 0)
+      {
+        //--- mark order as paid
+        $this->orders_model->paid($detail->order_code, TRUE);
+      }
 
-      //--- add state event
-      $this->order_state_model->add_state($arr);
+      $order = $this->orders_model->get($detail->order_code);
+
+      if($order->state < 3)
+      {
+        //--- change state to waiting for prepare
+        $this->orders_model->change_state($detail->order_code, 3);
+
+        //--- add state event
+        $this->order_state_model->add_state($arr);
+      }
 
       //--- complete transecrtion with commit or rollback if any error
       $this->db->trans_complete();
@@ -166,6 +178,9 @@ class Order_payment extends PS_Controller
 
       //--- mark payment as unpaid
       $this->order_payment_model->un_valid_payment($id);
+
+      //--
+      update_order_total_amount($detail->order_code);
 
       //--- mark order as unpaid
       $this->orders_model->paid($detail->order_code, FALSE);
@@ -213,6 +228,12 @@ class Order_payment extends PS_Controller
         //--- mark order as unpaid
         $this->orders_model->paid($detail->order_code, FALSE);
 
+        //--- change deposit
+        $this->orders_model->update_deposit($detail->order_code, ($detail->pay_amount * -1));
+
+        //---
+        update_order_total_amount($detail->order_code);
+
         //--- change state to pending
         $this->orders_model->change_state($detail->order_code, 1);
 
@@ -236,6 +257,16 @@ class Order_payment extends PS_Controller
           $sc = FALSE;
           $message = $this->db->error();
         }
+
+        if($sc === TRUE)
+        {
+          $file = $this->config->item('image_file_path').'payments/'.$detail->img.'.jpg';
+          if(file_exists($file))
+          {
+            unlink($file);
+          }
+
+        }
       }
       else
       {
@@ -251,8 +282,6 @@ class Order_payment extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $message;
   }
-
-
 
 
   public function clear_filter()

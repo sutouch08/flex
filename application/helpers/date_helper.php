@@ -55,7 +55,7 @@ function today()
 function db_date($date = '', $time = FALSE, $sp = '-')
 {
   $date = empty($date) ? date('Y-m-d') : $date;
-  
+
   if($time = TRUE)
   {
     $c_time = date('H:i:s', strtotime($date));
@@ -156,5 +156,11 @@ function selectTime($time='')
 		$sc .= '<option value="'.$hrs.'" '.is_selected($time, $hrs).'>'.$hrs.'</option>';
 	}
 	return $sc;
+}
+
+
+function added_date($date, $add_days)
+{
+  return date('Y-m-d', strtotime("+{$add_days} day {$date}"));
 }
  ?>

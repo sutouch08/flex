@@ -14,6 +14,27 @@ class Auto_complete extends CI_Controller
   }
 
 
+  public function get_sender()
+  {
+    $txt = $_REQUEST['term'];
+    $sc = array();
+    $rs = $this->db
+    ->select('id, name')
+    ->like('name', $txt)
+    ->limit(20)
+    ->get('address_sender');
+
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $rd)
+      {
+        $sc[] = $rd->id.' | '.$rd->name;
+      }
+    }
+
+    echo json_encode($sc);
+  }
+
 
   public function get_customer_code_and_name()
   {

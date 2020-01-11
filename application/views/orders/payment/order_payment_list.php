@@ -66,7 +66,7 @@
 			<thead>
 				<tr>
 					<th class="width-5 middle text-center">ลำดับ</th>
-					<th class="width-15 middle">เลขที่เอกสาร</th>
+					<th class="width-10 middle">เลขที่เอกสาร</th>
           <th class="width-10 middle">ช่องทาง</th>
 					<th class="width-20 middle">ลูกค้า</th>
           <th class="width-15 middle hidden-md">พนักงาน</th>
@@ -86,7 +86,12 @@
               <td class="middle" style="font-size:12px;"><?php echo $rs->channels; ?></td>
               <td class="middle" style="font-size:12px;"><?php echo $customer_name; ?></td>
               <td class="middle hidden-md" style="font-size:12px;"><?php echo $rs->user; ?></td>
-              <td class="middle text-right" style="font-size:12px;"><?php echo number($rs->pay_amount,2); ?></td>
+              <td class="middle text-right" style="font-size:12px;">
+								<?php if($rs->is_deposit == 1) : ?>
+									[มัดจำ] &nbsp;&nbsp;
+								<?php endif; ?>
+								<?php echo number($rs->pay_amount,2); ?>
+							</td>
               <td class="middle text-center" style="font-size:12px;"><?php echo $rs->acc_no; ?></td>
               <td class="middle text-right">
                 <button type="button" class="btn btn-xs btn-info" onClick="viewDetail(<?php echo $rs->id; ?>)"><i class="fa fa-eye"></i></button>

@@ -117,7 +117,7 @@ class stock_model extends CI_Model
     ->where('warehouse.sell', 1)
     ->get();
 
-    return $rs->row()->qty === NULL ? 0 : $this->row()->qty;
+    return $rs->row()->qty === NULL ? 0 : $rs->row()->qty;
   }
 
 
@@ -125,7 +125,7 @@ class stock_model extends CI_Model
   public function get_stock($item)
   {
     $rs = $this->db->select_sum('qty', 'qty')->where('product_code', $item)->get('stock');
-    return $rs->row()->qty === NULL ? 0 : $this->row()->qty;
+    return $rs->row()->qty === NULL ? 0 : $rs->row()->qty;
   }
 
 
