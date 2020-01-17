@@ -60,6 +60,10 @@ class Invoice extends PS_Controller
     $this->load->model('inventory/qc_model');
     $this->load->helper('order');
     $this->load->helper('discount');
+    $this->load->model('masters/channels_model');
+    $this->load->model('masters/payment_methods_model');
+    $this->load->model('masters/sender_model');
+
     $use_qc = getConfig('USE_QC') == 1 ? TRUE : FALSE;
     $order = $this->orders_model->get($code);
     $order->customer_name = $this->customers_model->get_name($order->customer_code);
@@ -69,6 +73,11 @@ class Invoice extends PS_Controller
       $this->load->model('masters/zone_model');
       $order->zone_name = $this->zone_model->get_name($order->zone_code);
     }
+
+    $order->channels_name = $this->channels_model->get_name($order->channels_code);
+    $order->payment_name = $this->payment_methods_model->get_name($order->payment_code);
+    $order->payment_role = $this->payment_methods_model->get_role($order->payment_code);
+    $order->sender_name = $this->sender_model->get_name($order->sender_id);
 
     $details = $this->invoice_model->get_billed_detail($code, $use_qc);
     $box_list = $use_qc ? $this->qc_model->get_box_list($code) : FALSE;
@@ -103,6 +112,11 @@ class Invoice extends PS_Controller
     $this->load->view('print/print_invoice', $ds);
   }
 
+  public function clear_filter()
+  {
+    $filter = array('code','customer','user','role','channels','from_date','to_date');
+    clear_filter($filter);
+  }
 
 } //--- end class
 ?>

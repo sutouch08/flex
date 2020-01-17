@@ -12,9 +12,9 @@ var myDropzone = new Dropzone("#imageForm", {
 	paramName: "file", // The name that will be used to transfer the file
 	maxFilesize: 2, // MB
 	uploadMultiple: true,
-	maxFiles: 5,
+	maxFiles: 10,
 	acceptedFiles: "image/*",
-	parallelUploads: 5,
+	parallelUploads: 10,
 	autoProcessQueue: false,
 	addRemoveLinks: true
 });

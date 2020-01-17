@@ -82,7 +82,7 @@ $lang['all'] = 'All';
 $lang['search'] = 'Search';
 $lang['reset'] = 'Reset';
 
-$lang['items'] = 'Items';
+$lang['rows'] = 'Rows';
 $lang['show'] = 'show';
 $lang['perpage'] = 'perpage';
 
@@ -229,6 +229,7 @@ $lang['DBEMPL'] = 'Employee';
 $lang['DBVEND'] = 'Vender';
 $lang['DBSEND'] = 'Carrier';
 $lang['DBTRSP'] = 'Carrier Matching';
+$lang['ICCKST'] = 'Current Stock';
 $lang['ICCKBF'] = 'Buffer zone';
 $lang['ICCKCN'] = 'Cancle zone';
 $lang['ICCKMV'] = 'Stock Movement';

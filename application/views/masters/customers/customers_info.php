@@ -97,11 +97,33 @@
 	</div>
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right"><?php label('credit_line'); ?></label>
+    <label class="col-sm-3 control-label no-padding-right">เครดิตเทอม</label>
     <div class="col-xs-12 col-sm-4">
-			<input type="number" name="CreditLine" id="CreditLine" class="form-control input-sm" value="<?php echo $ds->credit; ?>" />
+			<input type="number" name="credit_term" id="credit_term" class="form-control input-sm width-50" value="<?php echo $ds->credit_term; ?>" />
     </div>
   </div>
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">วงเงินเครติด</label>
+    <div class="col-xs-12 col-sm-4">
+			<input type="number" name="CreditLine" id="CreditLine" class="form-control input-sm width-50" value="<?php echo $ds->amount; ?>" />
+    </div>
+  </div>
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">วงเงินใช้ไป</label>
+    <div class="col-xs-12 col-sm-4">
+			<input type="text" class="form-control input-sm width-50" value="<?php echo number($ds->used,2); ?>" disabled/>
+    </div>
+  </div>
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">วงเงินคงเหลือ</label>
+    <div class="col-xs-12 col-sm-4">
+			<input type="text" class="form-control input-sm width-50 " value="<?php echo number($ds->balance, 2); ?>" disabled/>
+    </div>
+  </div>
+
 
 
 	<div class="divider-hidden">

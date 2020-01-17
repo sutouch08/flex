@@ -5,7 +5,6 @@
 		<button type="button" class="btn btn-sm btn-primary" onclick="newItems()">สร้างรายการสินค้า</button>
 		<button type="button" class="btn btn-sm btn-info" onclick="setImages()">เชื่อมโยงรูปภาพ</button>
 		<button type="button" class="btn btn-sm btn-warning" onclick="setBarcodeForm()">Generate Barcode</button>
-		<button type="button" class="btn btn-sm btn-info" onclick="doExport('<?php echo $style->code; ?>')"><i class="fa fa-send"></i> ส่งไป SAP </button>
 		<?php endif; ?>
 	</div>
 </div>
@@ -47,8 +46,26 @@
 						data-toggle="tooltip" data-placement="right" title=""
 						/>
 					</td>
-					<td class="middle text-center"><?php echo $item->color_code; ?></td>
-					<td class="middle text-center"><?php echo $item->size_code; ?></td>
+					<td class="middle text-center">
+						<span class="lb" id="color-lbl-<?php echo $item->code; ?>">
+						<?php echo $item->color_code; ?>
+						</span>
+						<input type="text"
+						class="form-control input-sm text-center color edit hide"
+						name="color[<?php echo $item->code; ?>]"
+						id="color-<?php echo $item->code; ?>"
+						value="<?php echo $item->color_code; ?>"
+						/>
+						<td class="middle text-center">
+							<span class="lb" id="size-lbl-<?php echo $item->code; ?>">
+							<?php echo $item->size_code; ?>
+							</span>
+							<input type="text"
+							class="form-control input-sm text-center size edit hide"
+							name="size[<?php echo $item->code; ?>]"
+							id="size-<?php echo $item->code; ?>"
+							value="<?php echo $item->size_code; ?>"
+							/>
 					<td class="middle text-right">
 						<span class="lb" id="cost-lbl-<?php echo $item->code; ?>">
 						<?php echo number($item->cost, 2); ?>
@@ -160,8 +177,9 @@
 			<div class="modal-body">
 				<div class="row">
 					<div class="col-sm-12 text-center">
-						<label style="margin:20px;"><input type="radio" class="ace" name="barcodeType" value="1" checked /><span class="lbl"> บาร์โค้ดภายใน</span></label>
-						<label><input type="radio" class="ace" name="barcodeType" value="2" /><span class="lbl"> บาร์โค้ดสากล</span></label>
+						<label style="margin:10px;"><input type="radio" class="ace" name="barcodeType" value="0" checked /><span class="lbl"> รหัสสินค้า</span></label>
+						<label style="margin:10px;"><input type="radio" class="ace" name="barcodeType" value="1" /><span class="lbl"> บาร์โค้ดภายใน</span></label>
+						<label style="margin:10px;"><input type="radio" class="ace" name="barcodeType" value="2" /><span class="lbl"> บาร์โค้ดสากล</span></label>
 					</div>
 				</div>
 

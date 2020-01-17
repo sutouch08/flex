@@ -1,7 +1,6 @@
 <?php
-if(empty($order->has_payment) && !$order->is_paid && !$order->is_expired ) :
+if(empty($order->has_payment) && !$order->is_paid && !$order->is_expired && $order->state < 4 && $order->state != 11 ) :
 ?>
-<hr/>
 <div class="row">
 	<div class="col-sm-12 margin-top-5 margin-bottom-5">
 		<?php if( $allowEditDisc && ($order->role == 'S' OR $order->role == 'C') OR $order->role == 'N') : ?>

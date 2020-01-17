@@ -59,11 +59,10 @@ function addToPo(){
   var code = $('#code').val();
 	//var count = countInput();
   var data = [];
-  $(".order-grid").each(function(index, element){
+  $(".input-qty").each(function(index, element){
     if($(this).val() != ''){
-      var code = $(this).attr('id');
-      var arr = code.split('qty_');
-      data.push({'code' : arr[1], 'qty' : $(this).val()});
+      var item = $(this).attr('id');
+      data.push({'code' : item, 'qty' : $(this).val()});
     }
   });
 

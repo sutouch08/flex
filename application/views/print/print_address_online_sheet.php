@@ -5,7 +5,7 @@ $paid		= $order->is_paid == 1 ? 'จ่ายแล้ว' : 'รอชำระ
 $sender	 = '<div class="col-sm-12" style="font-size:14px; font-weight: bold; border:solid 2px #ccc; border-radius:10px; padding:10px;">';
 $sender	.=  '<span style="display:block; font-size: 20px; font-weight:bold; padding-bottom:10px; border-bottom:solid 2px #ccc; margin-bottom:15px;">ผู้ส่ง</span>';
 $sender	.=  '<span style="display:block;">'.$cName.'</span>';
-$sender	.=  '<span style="width:70%; display:block;">'.$cAddress.' '.$cPostCode.'</span>';
+$sender	.=  '<span style="display:block;">'.$cAddress.' '.$cPostCode.'</span>';
 $sender	.= '</div>';
 /********* / Sender *************/
 
@@ -172,7 +172,7 @@ $Page .= $this->printer->content_start();
 $Page .= '<table style="width:100%; border:0px;">';
 
 $Page .= 	'<tr>';
-$Page .= 		'<td valign="top" style="width:40%; padding:10px;">'.$sender.'</td>';
+$Page .= 		'<td valign="top" style="width:40%; padding:10px; white-space:normal;">'.$sender.'</td>';
 $Page .=		'<td valign="top" style="padding:10px; white-space:normal;">'.$receiver.'</td>';
 $Page .= 	'</tr>';
 

@@ -55,7 +55,14 @@
 		<input type="text" class="form-control input-sm" name="reference" value="" />
   </div>
 
-  <div class="col-sm-8 col-8-harf col-xs-12 padding-5">
+	<div class="col-sm-2 col-xs-12 padding-5">
+		<label>การจัดส่ง</label>
+    <select class="form-control input-sm" name="sender_id" id="sender_id">
+      <option value="">กรุณาเลือก</option>
+      <?php echo select_sender_list(); ?>
+    </select>
+  </div>
+  <div class="col-sm-6 col-6-harf col-xs-12 padding-5">
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm" name="remark" id="remark" value="">
   </div>

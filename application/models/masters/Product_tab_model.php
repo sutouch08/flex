@@ -25,51 +25,52 @@ class Product_tab_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
-    $qr  = "SELECT COUNT(t.id) AS rows ";
-    $qr .= "FROM product_tab AS t ";
-    $qr .= "LEFT JOIN product_tab AS p ON t.id_parent = p.id ";
-    $qr .= "WHERE t.name IS NOT NULL ";
+    $this->db->from('product_tab AS t')
+    ->join('product_tab AS p', 't.id_parent = p.id', 'left')
+    ->where('t.id >', 0, FALSE)
+    ->where('t.name IS NOT NULL', NULL, FALSE);
 
     if(!empty($ds['name']))
     {
-      $qr .= "AND t.name LIKE '%{$ds['name']}%' ";
+      $this->db->like('t.name', $ds['name']);
     }
 
     if(!empty($ds['parent']))
     {
-      $qr .= "AND p.name LIKE '%{$ds['parent']}%' ";
+      $this->db->like('p.name', $ds['parent']);
     }
 
-    $rs = $this->db->query($qr);
-    return $rs->row()->rows;
+    return $this->db->count_all_results();
   }
 
 
 
   public function get_list(array $ds = array(), $perpage = NULL, $offset = NULL)
   {
-    $qr  = "SELECT t.id, t.name, t.id_parent, p.name AS parent ";
-    $qr .= "FROM product_tab AS t ";
-    $qr .= "LEFT JOIN product_tab AS p ON t.id_parent = p.id ";
-    $qr .= "WHERE t.name IS NOT NULL ";
+    $this->db
+    ->select('t.id, t.name, t.id_parent, p.name AS parent')
+    ->from('product_tab AS t')
+    ->join('product_tab AS p', 't.id_parent = p.id', 'left')
+    ->where('t.id >', 0, FALSE)
+    ->where('t.name IS NOT NULL', NULL, FALSE);
 
-    if(!empty($ds['tab_name']))
+    if(!empty($ds['name']))
     {
-      $qr .= "AND t.name LIKE '%{$ds['tab_name']}%' ";
+      $this->db->like('t.name', $ds['name']);
     }
 
     if(!empty($ds['parent']))
     {
-      $qr .= "AND p.name LIKE '%{$ds['parent']}%' ";
+      $this->db->like('p.name', $ds['parent']);
     }
 
     if(!empty($perpage))
     {
       $offset = empty($offset) ? 0 : $offset;
-      $qr .= "LIMIT {$offset}, {$perpage}";
+      $this->db->limit($perpage, $offset);
     }
 
-    $rs = $this->db->query($qr);
+    $rs = $this->db->get();
 
     if($rs->num_rows() > 0)
     {

@@ -48,9 +48,10 @@ class Payment_methods extends PS_Controller
 
   public function add_new()
   {
+    $this->load->helper('payment_method');
     $data['code'] = $this->session->flashdata('code');
     $data['name'] = $this->session->flashdata('name');
-    $this->title = 'New payment channels';
+    $data['role'] = $this->session->flashdata('role');
     $this->load->view('masters/payment_methods/payment_methods_add_view', $data);
   }
 
@@ -110,12 +111,13 @@ class Payment_methods extends PS_Controller
 
   public function edit($code)
   {
-    $this->title = 'Edit payment channels';
+    $this->load->helper('payment_method');
     $rs = $this->payment_methods_model->get_payment_methods($code);
     $data = array(
       'code' => $rs->code,
       'name' => $rs->name,
-      'term' => $rs->has_term
+      'term' => $rs->has_term,
+      'role' => $rs->role
     );
 
     $this->load->view('masters/payment_methods/payment_methods_edit_view', $data);
@@ -134,11 +136,13 @@ class Payment_methods extends PS_Controller
       $code = $this->input->post('code');
       $name = $this->input->post('name');
       $term = $this->input->post('term');
+      $role = $this->input->post('role');
 
       $ds = array(
         'code' => $code,
         'name' => $name,
-        'has_term' => $term === NULL ? 0 : $term
+        'has_term' => $term === NULL ? 0 : $term,
+        'role' => $role
       );
 
       if($sc === TRUE && $this->payment_methods_model->is_exists($code, $old_code) === TRUE)

@@ -58,10 +58,11 @@
 				<tr>
 					<th class="width-5 middle text-center">ลำดับ</th>
 					<th class="width-15 middle">ชื่อ</th>
-          <th class="width-40 middle">ที่อยู่</th>
+          <th class="width-30 middle">ที่อยู่</th>
           <th class="width-10 middle">เบอร์โทร</th>
           <th class="width-10 middle">เวลาทำการ</th>
 					<th class="width-10 middle">เงื่อนไข</th>
+					<th class="width-10 middle text-center">ตัวเลือก</th>
           <th class="middle"></th>
 				</tr>
 			</thead>
@@ -76,6 +77,7 @@
             <td class="middle"><?php echo $rs->phone; ?></td>
             <td class="middle"><?php echo date('H:i', strtotime($rs->open)).' - '.date('H:i', strtotime($rs->close)); ?></td>
             <td class="middle"><?php echo $rs->type; ?></td>
+						<td class="middle text-center"><?php echo is_active($rs->show_in_list); ?></td>
             <td class="middle text-right">
               <?php if($this->pm->can_edit OR $this->pm->can_add): ?>
               <button type="button" class="btn btn-minier btn-warning" onclick="getEdit(<?php echo $rs->id; ?>)"><i class="fa fa-pencil"></i></button>

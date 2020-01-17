@@ -23,13 +23,12 @@ class Address_model extends CI_Model
   public function get_default_address($code)
   {
     $rs = $this->db
-    ->where('is_default', 1)
     ->where('code', $code)
     ->order_by('is_default', 'DESC')
     ->limit(1)
     ->get('address_ship_to');
 
-    if($rs->num_rows() == 1)
+    if($rs->num_rows() === 1)
     {
       return $rs->row();
     }

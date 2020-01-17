@@ -1,9 +1,10 @@
 <?php
-
+	$use_delivery_bill = getConfig('USE_DELIVERY_BILL') == 1 ? TRUE : FALSE;
+	
 	/*********  Sender  ***********/
-	$sender			= '<div class="col-lg-12" style="font-size:18px; padding-top:15px; padding-bottom:30px;">';
+	$sender			= '<div class="col-lg-12" style="font-size:14px; padding-top:15px; padding-bottom:30px;">';
 	$sender			.= '<span style="display:block; margin-bottom:10px;">'.$cName.'</span>';
-	$sender			.= '<span style="width:70%; display:block;">'.$cAddress.' '.$cPostCode.'</span>';
+	$sender			.= '<span style="width:70%; display:block; white-space:normal;">'.$cAddress.' '.$cPostCode.'</span>';
 	$sender			.= '<span style="display:block"> โทร. '.$cPhone.'</span>';
 	$sender			.= '</div>';
 	/********* / Sender *************/
@@ -33,7 +34,7 @@
 
 	/*********** / transport **********/
 
-	$total_page		= $boxes <= 1 ? 1 : ($boxes+1)/2;
+	$total_page		= $use_delivery_bill ? ($boxes <= 1 ? 1 : ($boxes+1)/2) : ($boxes <= 1 ? 1 : $boxes/2);
 	$Page = '';
 
 	$config = array("row" => 16, "header_row" => 0, "footer_row" => 0, "sub_total_row" => 0);
@@ -51,7 +52,8 @@
 			$Page .= $this->printer->content_start();
 			$Page .= '<table style="width:100%; border:0px;"><tr><td style="width:50%;">';
 			$Page .= $sender;
-			$Page .= '</td><td style=" vertical-align:text-top; text-align:right; font-size:18px; padding-top:25px; padding-right:15px;">'.$reference.' : กล่องที่ '.$n.' / '.$boxes.'</td></tr></table>';
+			$Page .= '</td>';
+			$Page .= '<td style=" vertical-align:text-top; text-align:right; font-size:18px; padding-top:25px; padding-right:15px;">'.$reference.' : กล่องที่ '.$n.' / '.$boxes.'</td></tr></table>';
 			$Page .= $receiver;
 			$Page .= $transport;
 			$Page .= $this->printer->content_end();
@@ -68,7 +70,8 @@
 			$Page .= $this->printer->content_end();
 			$n++;
 		}
-		if( $n > $boxes ){
+
+		if( $n > $boxes && $use_delivery_bill){
 			if( $n > $boxes && ($n % 2) == 0 )
 			{
 				$Page .= '

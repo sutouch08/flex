@@ -211,11 +211,15 @@ class Products extends PS_Controller
     {
       $code = $this->input->post('code');
       $barcode = $this->input->post('barcode');
+      $color_code = $this->input->post('color_code');
+      $size_code = $this->input->post('size_code');
       $cost = $this->input->post('cost');
       $price = $this->input->post('price');
 
       $ds = array(
-        'barcode' => ($barcode === '' ? NULL: $barcode),
+        'barcode' => get_null($barcode),
+        'color_code' => get_null($color_code),
+        'size_code' => get_null($size_code),
         'cost' => ($cost === NULL ? 0.00 : $cost),
         'price' => ($price === NULL ? 0.00 : $price)
       );
@@ -830,7 +834,7 @@ class Products extends PS_Controller
     {
       foreach($items as $item)
       {
-        //--- type   1 = บาร์โค้ดภายใน  2 = บาร์โค้ดสากล
+        //--- type  0 = รหัสสินค้า 1 = บาร์โค้ดภายใน  2 = บาร์โค้ดสากล
         if($type == 1)
         {
           $barcode = $this->product_barcode_model->get_last_barcode();
@@ -845,7 +849,7 @@ class Products extends PS_Controller
             $this->products_model->update_barcode($item->code, $barcode);
           }
         }
-        else
+        else if($type == 2)
         {
           $running = $this->product_barcode_model->get_last_ean_barcode();
           $running += 1;
@@ -861,6 +865,10 @@ class Products extends PS_Controller
             $this->products_model->update_barcode($item->code, $barcode);
           }
 
+        }
+        else
+        {
+          $this->products_model->update_barcode($item->code, $item->code);
         }
       }
 

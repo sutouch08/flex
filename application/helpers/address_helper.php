@@ -40,7 +40,7 @@ function get_address_form($adds, $sds, $ds, $dd)
             $add .=       '<span class="lbl">&nbsp;&nbsp;'.$rs->alias.'</span>';
             $add .=     '</label>';
             $add .=   '</td>';
-            $add .=   '<td>';
+            $add .=   '<td style="white-space:normal;">';
             $add .=     $rs->address.'  ต. '.$rs->sub_district.' อ. '.$rs->district.' จ. '.$rs->province;
             $add .=   '</td>';
             $add .= '</tr>';
@@ -49,7 +49,7 @@ function get_address_form($adds, $sds, $ds, $dd)
         }
       }
 
-
+      $dds = '';
       //--- มีผู้จัดส่งมากกว่า 1
       if( $sds >= 1 )
       {
@@ -65,7 +65,7 @@ function get_address_form($adds, $sds, $ds, $dd)
         {
           //--- ผู้จัดส่งรายหลัก
           $dds .= '<tr >';
-          $dds .=   '<td colspan="2">';
+          $dds .=   '<td colspan="2" style="white-space:normal;">';
           $dds .=     '<label>';
           $dds .=       '<input type="radio" class="ace" name="id_sender" value="'.$dd->main_sender.'" checked />';
           $dds .=       '<span class="lbl">&nbsp;&nbsp; '.$dd->main.'</span>'; //---  transport_helper
@@ -94,8 +94,8 @@ function get_address_form($adds, $sds, $ds, $dd)
             $dds .= '<tr>';
             $dds .=   '<td colspan="2">';
             $dds .=     '<label>';
-            $dds .=       '<input type="radio" class="ace" name="id_sender" value="'.$dd->hird_sender.'" />';
-            $dds .=       '<span class="lbl">&nbsp;&nbsp; '.$dd->third_sender.'</span>'; //---  transport_helper
+            $dds .=       '<input type="radio" class="ace" name="id_sender" value="'.$dd->third_sender.'" />';
+            $dds .=       '<span class="lbl">&nbsp;&nbsp; '.$dd->third.'</span>'; //---  transport_helper
             $dds .=     '</label>';
             $dds .=   '</td>';
             $dds .= '</tr>';
@@ -103,6 +103,15 @@ function get_address_form($adds, $sds, $ds, $dd)
 
         } //--- end if $ds
       }
+
+      $dds .= '<tr>';
+      $dds .=   '<td colspan="2">';
+      $dds .=     '<label>';
+      $dds .=       '<span class="lbl">จำนวนกล่อง </span>'; //---  transport_helper
+      $dds .=       '<input type="number" class="form-control input-sm input-mini" name="print_qty" value="1" />';
+      $dds .=     '</label>';
+      $dds .=   '</td>';
+      $dds .= '</tr>';
 
       //--- ประกอบร่าง
       if( $adds >= 1 && $sds >= 1 )

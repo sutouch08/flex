@@ -18,8 +18,11 @@ $this->printer->add_header($header);
 //--- รายการที่จะพิมพ์ต้องเอามาจากการสั่งสินค้า เปรียบเทียบ กับยอดตรวจ ที่เท่ากัน หรือ ตัวที่น้อยกว่า
 
 $total_row 	= empty($details) ? 0 :count($details);
+$shipping_row = $order->shipping_fee > 0 ? 1 : 0;
+$service_row = $order->service_fee > 0 ? 1 : 0;
+$deposit_row = $order->deposit > 0 ? 1 : 0;
+$subtotal_row = 4 + $shipping_row + $service_row + $deposit_row;
 
-$subtotal_row = 4;
 
 $config 		= array(
                 "total_row" => $total_row,
@@ -149,9 +152,10 @@ while($total_page > 0 )
     $qty  = number($total_qty);
     $total_order = number($total_order, 2);
     $total_discount_amount = number(($total_discount + $bill_discount),2);
-    $net_amount = number( ($total_amount + $order->shipping_fee + $order->service_fee) - $bill_discount, 2);
+    $net_amount = number( ($total_amount + $order->shipping_fee + $order->service_fee) - $bill_discount - $order->deposit, 2);
     $service_fee = number($order->service_fee, 2);
     $shipping_fee = number($order->shipping_fee, 2);
+    $deposit = number($order->deposit, 2);
     $remark = $order->remark;
   }
   else
@@ -159,16 +163,18 @@ while($total_page > 0 )
     $qty = "";
     $amount = "";
     $shipping_fee = "";
-    $service_fee = "";
+    $service_fee = '';
+    $deposit = '';
     $total_discount_amount = "";
     $net_amount = "";
     $remark = "";
   }
 
+  $subTotal = array();
 
   //--- จำนวนรวม   ตัว
   $sub_qty  = '<td class="width-60 subtotal-first text-center" style="height:'.$this->printer->row_height.'mm;">';
-  $sub_qty .=  '**** ส่วนลดท้ายบิล '.$bill_discount.' ****';
+  //$sub_qty .=  '**** ส่วนลดท้ายบิล '.$bill_discount.' ****';
   $sub_qty .= '</td>';
   $sub_qty .= '<td class="width-20 subtotal">';
   $sub_qty .=  '<strong>จำนวนรวม</strong>';
@@ -176,6 +182,8 @@ while($total_page > 0 )
   $sub_qty .= '<td class="width-20 subtotal text-right">';
   $sub_qty .=    $qty;
   $sub_qty .= '</td>';
+
+  array_push($subTotal, array($sub_qty));
 
   //--- ราคารวม
   $sub_price  = '<td rowspan="'.($subtotal_row).'" class="subtotal-first font-size-10" style="height:'.$this->printer->row_height.'mm;">';
@@ -187,14 +195,52 @@ while($total_page > 0 )
   $sub_price .= '<td class="subtotal text-right">';
   $sub_price .=  $total_order;
   $sub_price .= '</td>';
+  array_push($subTotal, array($sub_price));
 
   //--- ส่วนลดรวม
   $sub_disc  = '<td class="subtotal" style="height:'.$this->printer->row_height.'mm;">';
   $sub_disc .=  '<strong>ส่วนลดรวม</strong>';
   $sub_disc .= '</td>';
-  $sub_disc .= '<td class="subtotal text-right">';
+  $sub_disc .= '<td class="subtotal text-right"> -';
   $sub_disc .=  $total_discount_amount;
   $sub_disc .= '</td>';
+  array_push($subTotal, array($sub_disc));
+
+  //--- shipping_fee
+  if($order->shipping_fee > 0)
+  {
+    $sub_ship  = '<td class="subtotal" style="height:'.$this->printer->row_height.'mm;">';
+    $sub_ship .=  '<strong>ค่าจัดส่ง</strong>';
+    $sub_ship .= '</td>';
+    $sub_ship .= '<td class="subtotal text-right">';
+    $sub_ship .=  $shipping_fee;
+    $sub_ship .= '</td>';
+    array_push($subTotal, array($sub_ship));
+  }
+
+  //--- service_fee
+  if($order->service_fee > 0)
+  {
+    $sub_serv  = '<td class="subtotal" style="height:'.$this->printer->row_height.'mm;">';
+    $sub_serv .=  '<strong>อื่นๆ</strong>';
+    $sub_serv .= '</td>';
+    $sub_serv .= '<td class="subtotal text-right">';
+    $sub_serv .=  $service_fee;
+    $sub_serv .= '</td>';
+    array_push($subTotal, array($sub_serv));
+  }
+
+  //--- deposit
+  if($order->deposit > 0)
+  {
+    $sub_depo  = '<td class="subtotal" style="height:'.$this->printer->row_height.'mm;">';
+    $sub_depo .=  '<strong>ชำระแล้ว</strong>';
+    $sub_depo .= '</td>';
+    $sub_depo .= '<td class="subtotal text-right"> -';
+    $sub_depo .=  $deposit;
+    $sub_depo .= '</td>';
+    array_push($subTotal, array($sub_depo));
+  }
 
   //--- ยอดสุทธิ
   $sub_net  = '<td class="subtotal" style="height:'.$this->printer->row_height.'mm;">';
@@ -204,12 +250,7 @@ while($total_page > 0 )
   $sub_net .=  $net_amount;
   $sub_net .= '</td>';
 
-  $subTotal = array(
-    array($sub_qty),
-    array($sub_price),
-    array($sub_disc),
-    array($sub_net)
-  );
+  array_push($subTotal, array($sub_net));
 
   $page .= $this->printer->print_sub_total($subTotal);
   $page .= $this->printer->content_end();

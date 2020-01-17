@@ -101,6 +101,9 @@
 
           <td class="pointer hide-text" onclick="viewDetail('<?php echo $rs->code; ?>')">
             <?php echo $rs->customer_name; ?>
+						<?php if(!empty($rs->customer_ref)) : ?>
+							[<?php echo $rs->customer_ref; ?>]
+						<?php endif; ?>
           </td>
 
           <td class="pointer text-center" onclick="viewDetail('<?php echo $rs->code; ?>')">

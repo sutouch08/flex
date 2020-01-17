@@ -39,27 +39,32 @@ class Payment_methods_model extends CI_Model
 
   public function count_rows($c_code = '', $c_name = '', $term = '')
   {
-    $this->db->select('code');
+    $this->db->select('payment_method.code')
+    ->from('payment_method')
+    ->join('payment_role', 'payment_method.role = payment_role.id', 'left');
 
     if($term == 1)
     {
       $this->db->where('has_term', 1);
     }
 
-
-    if($c_code != '')
+    if(!empty($c_code))
     {
       $this->db->like('code', $c_code);
     }
 
-    if($c_name != '')
+    if(!empty($c_name))
     {
       $this->db->like('name', $c_name);
     }
 
-    $rs = $this->db->get('payment_method');
+    if(!empty($c_role))
+    {
+      $this->db->where('role', $c_role);
+    }
 
-    return $rs->num_rows();
+    return $this->db->count_all_results();
+
   }
 
 
@@ -97,21 +102,59 @@ class Payment_methods_model extends CI_Model
   }
 
 
-  public function get_data($c_code = '', $c_name = '', $term = '', $perpage = '', $offset = '')
+
+  public function get_role($code)
   {
+    $rs = $this->db->select('role')->where('code', $code)->get('payment_method');
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->role;
+    }
+
+    return FALSE;
+  }
+
+
+
+  public function get_role_list()
+  {
+    $rs = $this->db->get('payment_role');
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return FALSE;
+  }
+
+
+
+  public function get_data($c_code = '', $c_name = '', $c_role = '', $term = '', $perpage = '', $offset = '')
+  {
+    $this->db->select('payment_method.code, payment_method.name')
+    ->select('payment_method.has_term, payment_method.is_default')
+    ->select('payment_role.name as role_name, payment_method.date_upd')
+    ->from('payment_method')
+    ->join('payment_role', 'payment_method.role = payment_role.id', 'left');
+
     if($term == 1)
     {
       $this->db->where('has_term', 1);
     }
 
-    if($c_code != '')
+    if(!empty($c_code))
     {
       $this->db->like('code', $c_code);
     }
 
-    if($c_name != '')
+    if(!empty($c_name))
     {
       $this->db->like('name', $c_name);
+    }
+
+    if(!empty($c_role))
+    {
+      $this->db->where('role', $c_role);
     }
 
     if($perpage != '')
@@ -120,7 +163,7 @@ class Payment_methods_model extends CI_Model
       $this->db->limit($perpage, $offset);
     }
 
-    $rs = $this->db->get('payment_method');
+    $rs = $this->db->get();
 
     return $rs->result();
   }

@@ -166,6 +166,12 @@ class Product_tab extends PS_Controller
   }
 
 
+  public function clear_filter()
+  {
+    $filter = array('tab_name', 'parent');
+    clear_filter($filter);
+  }
+
 
 }//--- end class
 ?>

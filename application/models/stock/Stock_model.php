@@ -8,6 +8,80 @@ class stock_model extends CI_Model
     parent::__construct();
   }
 
+  public function get_data(array $ds=array(), $perpage = NULL, $offset = NULL)
+  {
+    if(!empty($ds))
+    {
+      if(!empty($ds['pd_code']) OR !empty($ds['zone_code']))
+      {
+        $this->db
+        ->select('st.*, zone.name')
+        ->from('stock AS st')
+        ->join('zone', 'st.zone_code = zone.code', 'left');
+
+        if(!empty($ds['pd_code']))
+        {
+          $this->db->like('st.product_code', $ds['pd_code']);
+        }
+
+        if(!empty($ds['zone_code']))
+        {
+          $this->db->group_start();
+          $this->db->like('zone.code', $ds['zone_code']);
+          $this->db->or_like('zone.name', $ds['zone_code']);
+          $this->db->group_end();
+        }
+
+        if($perpage > 0)
+        {
+          $offset = $offset === NULL ? 0 : $offset;
+          $this->db->limit($perpage, $offset);
+        }
+
+        $rs = $this->db->get();
+
+        return $rs->result();
+      }
+    }
+
+    return FALSE;
+  }
+
+
+
+  public function count_rows(array $ds=array())
+  {
+    if(!empty($ds))
+    {
+      if(!empty($ds['pd_code']) OR !empty($ds['zone_code']))
+      {
+        $this->db
+        ->from('stock AS st')
+        ->join('zone', 'st.zone_code = zone.code', 'left');
+
+        if(!empty($ds['pd_code']))
+        {
+          $this->db->like('st.product_code', $ds['pd_code']);
+        }
+
+        if(!empty($ds['zone_code']))
+        {
+          $this->db->group_start();
+          $this->db->like('zone.code', $ds['zone_code']);
+          $this->db->or_like('zone.name', $ds['zone_code']);
+          $this->db->group_end();
+        }
+
+        return $this->db->count_all_results();
+      }
+    }
+
+    return 0;
+  }
+
+
+
+
   public function update_stock_zone($zone_code, $product_code, $qty)
   {
     if(!empty($zone_code) && !empty($product_code) && $qty != 0)

@@ -27,6 +27,7 @@ class Orders extends PS_Controller
     $this->load->helper('order');
     $this->load->helper('channels');
     $this->load->helper('payment_method');
+    $this->load->helper('sender');
     $this->load->helper('customer');
     $this->load->helper('users');
     $this->load->helper('state');
@@ -71,6 +72,7 @@ class Orders extends PS_Controller
       {
         $rs->channels_name = $this->channels_model->get_name($rs->channels_code);
         $rs->payment_name  = $this->payment_methods_model->get_name($rs->payment_code);
+        $rs->payment_role  = $this->payment_methods_model->get_role($rs->payment_code);
         $rs->customer_name = $this->customers_model->get_name($rs->customer_code);
         $rs->total_amount  = $this->orders_model->get_order_total_amount($rs->code) + $rs->shipping_fee + $rs->service_fee;
         $rs->state_name    = get_state_name($rs->state);
@@ -88,7 +90,6 @@ class Orders extends PS_Controller
 
   public function add_new()
   {
-
     $this->load->view('orders/orders_add');
   }
 
@@ -106,9 +107,11 @@ class Orders extends PS_Controller
       $role = 'S'; //--- S = ขาย
       $has_term = $this->payment_methods_model->has_term($this->input->post('payment'));
       $sale_code = $this->customers_model->get_sale_code($this->input->post('customerCode'));
+      $sender_id = get_null($this->input->post('sender_id'));
 
       //--- check over due
-      $overDue = $this->invoice_model->is_over_due($this->input->post('customerCode'));
+      $is_strict = getConfig('STRICT_OVER_DUE') == 1 ? TRUE : FALSE;
+      $overDue = $is_strict ? $this->invoice_model->is_over_due($this->input->post('customerCode')) : FALSE;
 
       //--- ถ้ามียอดค้างชำระ และ เป็นออเดอร์แบบเครดิต
       //--- ไม่ให้เพิ่มออเดอร์
@@ -125,12 +128,13 @@ class Orders extends PS_Controller
           'bookcode' => $book_code,
           'reference' => $this->input->post('reference'),
           'customer_code' => $this->input->post('customerCode'),
-          'customer_ref' => $this->input->post('customer_ref'),
+          'customer_ref' => $this->input->post('cust_ref'),
           'channels_code' => $this->input->post('channels'),
           'payment_code' => $this->input->post('payment'),
           'sale_code' => $sale_code,
           'is_term' => ($has_term === TRUE ? 1 : 0),
           'user' => get_cookie('uname'),
+          'sender_id' => $sender_id,
           'remark' => addslashes($this->input->post('remark'))
         );
 
@@ -369,6 +373,7 @@ class Orders extends PS_Controller
     {
       $rs->channels_name = $this->channels_model->get_name($rs->channels_code);
       $rs->payment_name  = $this->payment_methods_model->get_name($rs->payment_code);
+      $rs->payment_role  = $this->payment_methods_model->get_role($rs->payment_code);
       $rs->customer_name = $this->customers_model->get_name($rs->customer_code);
       $rs->total_amount  = $this->orders_model->get_order_total_amount($rs->code);
       $rs->user          = $this->user_model->get_name($rs->user);
@@ -435,6 +440,7 @@ class Orders extends PS_Controller
           'payment_code' => $this->input->post('payment_code'),
           'sale_code' => $sale_code,
           'is_term' => $has_term,
+          'sender_id' => get_null($this->input->post('sender_id')),
           'date_add' => db_date($this->input->post('date_add')),
           'remark' => $this->input->post('remark'),
           'status' => 0
@@ -509,6 +515,12 @@ class Orders extends PS_Controller
       $ds['edit_order'] = FALSE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
       $this->load->view('orders/order_edit_detail', $ds);
     }
+    else
+    {
+      $ds['order'] = $rs;
+      $this->load->view('orders/invalid_state', $ds);
+    }
+
   }
 
 
@@ -521,29 +533,28 @@ class Orders extends PS_Controller
     if($order->is_term == 1)
     {
       //---- check credit balance
-      $amount = $this->orders_model->get_order_total_amount($code);
-      //--- creadit used
-      $credit_used = $this->orders_model->get_sum_not_complete_amount($order->customer_code);
+      $amount = $this->orders_model->get_order_total_amount($code) + $order->shipping_fee + $order->service_fee;
+
       //--- credit balance from sap
-      $credit_balance = $this->customers_model->get_credit($order->customer_code);
+      $credit_balance = $this->customers_model->get_credit_balance($order->customer_code);
 
-      $skip = getConfig('CONTROL_CREDIT');
+      $control = getConfig('CONTROL_CREDIT');
 
-      if($skip == 1)
+      if($control == 1)
       {
-        if($credit_used > $credit_balance)
+        if($amount > $credit_balance)
         {
-          $diff = $credit_used - $credit_balance;
+          $diff = $amount - $credit_balance;
           $sc = FALSE;
           $message = 'เครดิตคงเหลือไม่พอ (ขาด : '.number($diff, 2).')';
         }
       }
     }
-    else
+
+    if($sc === TRUE)
     {
       update_order_total_amount($code);
     }
-
 
     if($sc === TRUE)
     {
@@ -573,7 +584,7 @@ class Orders extends PS_Controller
 
   			if( $style->active == 1 && $this->products_model->is_disactive_all($style->code) === FALSE)
   			{
-  				$ds 	.= 	'<div class="col-lg-2 col-md-2 col-sm-3 col-xs-4"	style="text-align:center;">';
+  				$ds 	.= 	'<div class="col-lg-1 col-md-2 col-sm-3 col-xs-4"	style="text-align:center;">';
   				$ds 	.= 		'<div class="product" style="padding:5px;">';
   				$ds 	.= 			'<div class="image">';
   				$ds 	.= 				'<a href="javascript:void(0)" onClick="getOrderGrid(\''.$style->code.'\')">';
@@ -730,7 +741,7 @@ class Orders extends PS_Controller
       $id_attr	= $item->size_code === NULL OR $item->size_code === '' ? $item->color_code : $item->size_code;
       $sc 	.= $i%2 == 0 ? '<tr>' : '';
       $active	= $item->active == 0 ? 'Disactive' : ( $item->can_sell == 0 ? 'N/S' : ( $item->is_deleted == 1 ? 'Deleted' : TRUE ) );
-      $stock	= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->stock_model->get_stock($item->code) )  : 0 ) : 0; //---- สต็อกทั้งหมดทุกคลัง
+      //$stock	= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->stock_model->get_stock($item->code) )  : 0 ) : 0; //---- สต็อกทั้งหมดทุกคลัง
 			$qty 		= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->get_sell_stock($item->code) ) : 0 ) : FALSE; //--- สต็อกที่สั่งซื้อได้
 			$disabled  = $isVisual === TRUE  && $active == TRUE ? '' : ( ($active !== TRUE OR $qty < 1 ) ? 'disabled' : '');
 
@@ -755,7 +766,7 @@ class Orders extends PS_Controller
 			$sc 	.= '</td>';
 
 			$sc 	.= '<td class="middle" class="one-attribute">';
-			$sc 	.= $isVisual === FALSE ? '<center><span class="font-size-10 blue">('.($stock < 0 ? 0 : $stock).')</span></center>':'';
+			//$sc 	.= $isVisual === FALSE ? '<center><span class="font-size-10 blue">('.($stock < 0 ? 0 : $stock).')</span></center>':'';
 
       if( $view === FALSE )
 			{
@@ -804,7 +815,7 @@ class Orders extends PS_Controller
 				if( !empty($item) )
 				{
 					$active	= $item->active == 0 ? 'Disactive' : ( $item->can_sell == 0 ? 'N/S' : ( $item->is_deleted == 1 ? 'Deleted' : TRUE ) );
-					$stock	= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->stock_model->get_stock($item->code) )  : 0 ) : 0; //---- สต็อกทั้งหมดทุกคลัง
+					//$stock	= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->stock_model->get_stock($item->code) )  : 0 ) : 0; //---- สต็อกทั้งหมดทุกคลัง
 					$qty 		= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->get_sell_stock($item->code) ) : 0 ) : FALSE; //--- สต็อกที่สั่งซื้อได้
 					$disabled  = $isVisual === TRUE  && $active == TRUE ? '' : ( ($active !== TRUE OR $qty < 1 ) ? 'disabled' : '');
 					if( $qty < 1 && $active === TRUE )
@@ -821,7 +832,7 @@ class Orders extends PS_Controller
 
 
 					$sc 	.= '<td class="order-grid">';
-					$sc 	.= $isVisual === FALSE ? '<center><span class="font-size-10 blue">('.$stock.')</span></center>' : '';
+					//$sc 	.= $isVisual === FALSE ? '<center><span class="font-size-10 blue">('.$stock.')</span></center>' : '';
 					if( $view === FALSE )
 					{
 						$sc 	.= '<input type="number" min="1" max="'.$limit.'" class="form-control order-grid input-qty" name="qty['.$item->color_code.']['.$item->code.']" id="'.$item->code.'" onkeyup="valid_qty($(this), '.$limit.')" '.$disabled.' />';
@@ -1315,7 +1326,7 @@ class Orders extends PS_Controller
       $order_code = $this->input->post('order_code');
       if(!empty($code))
       {
-        $order = $this->orders_model->get($order_code);
+        $order = empty($order_code) ? NULL : $this->orders_model->get($order_code);
 
         $ds = array();
         $this->load->model('address/address_model');
@@ -1331,7 +1342,7 @@ class Orders extends PS_Controller
               'phone' => $rs->phone,
               'email' => $rs->email,
               'alias' => $rs->alias,
-              'default' => ($rs->id == $order->address_id) ? 1 : ''
+              'default' => empty($order_code) ? ($rs->is_default == 1? 1 : 0) : ($rs->id == $order->address_id) ? 1 : ''
             );
             array_push($ds, $arr);
           }
@@ -1361,6 +1372,20 @@ class Orders extends PS_Controller
     echo $rs === TRUE ? 'success' :'fail';
   }
 
+
+
+  public function set_default_address()
+  {
+    $this->load->model('address/address_model');
+    $id = $this->input->post('id_address');
+    $code = $this->input->post('customer_ref');
+    //--- drop current
+    $this->address_model->unset_default_shipping_address($code);
+
+    //--- set new default
+    $rs = $this->address_model->set_default_shipping_address($id);
+    echo $rs === TRUE ? 'success' :'fail';
+  }
 
 
   public function get_shipping_address()
@@ -1504,27 +1529,13 @@ class Orders extends PS_Controller
             }
           }
 
+          $this->rollback_unvalid_details($code);
 
           $this->db->trans_complete();
 
           if($this->db->trans_status() === FALSE)
           {
             $sc = FALSE;
-          }
-
-          if($sc === TRUE && $order->state == 8)
-          {
-            if(!empty($details))
-            {
-              foreach($details as $rs)
-              {
-                $item = $this->products_model->get($rs->product_code);
-                if($rs->is_count == 1 && $item->is_api == 1 && $rs->is_complete == 1)
-                {
-                  $this->update_api_stock($rs->product_code);
-                }
-              }
-            }
           }
         }
       }
@@ -1538,7 +1549,23 @@ class Orders extends PS_Controller
   }
 
 
+  public function rollback_unvalid_details($code)
+  {
+    $this->load->model('inventory/prepare_model');
 
+    $details = $this->orders_model->get_order_details($code);
+    if(!empty($details))
+    {
+      foreach($details as $rs)
+      {
+        $prepared = $this->prepare_model->get_prepared($code, $rs->product_code);
+        if($prepared < $rs->qty)
+        {
+          $this->orders_model->unvalid_detail($rs->id);
+        }
+      }
+    }
+  }
 
   public function roll_back_action($code, $role)
   {
@@ -1587,6 +1614,7 @@ class Orders extends PS_Controller
         }
 
         $this->invoice_model->drop_sold($rs->id);
+
         //------ หากเป็นออเดอร์เบิกแปรสภาพ
         if($role == 'T')
         {
@@ -1600,6 +1628,7 @@ class Orders extends PS_Controller
         }
       } //--- end foreach
     } //---- end sold
+
   }
 
 
@@ -1608,18 +1637,47 @@ class Orders extends PS_Controller
     $this->load->model('inventory/prepare_model');
     $this->load->model('inventory/qc_model');
     $this->load->model('inventory/transform_model');
+    $this->load->model('orders/order_payment_model');
 
+    $order = $this->orders_model->get($code);
+
+    $use_qc = getConfig('USE_QC');
     //---- เมื่อมีการยกเลิกออเดอร์
     //--- 1. เคลียร์ buffer เข้า cancle
     $this->clear_buffer($code);
+
     //--- 2. ลบประวัติการจัดสินค้า
     $this->prepare_model->clear_prepare($code);
+
     //--- 3. ลบประวัติการตรวจสินค้า
-    $this->qc_model->clear_qc($code);
+    if($use_qc)
+    {
+      $this->qc_model->clear_qc($code);
+    }
+
     //--- 4. ลบรายการสั่งซื้อ
     $this->orders_model->clear_order_detail($code);
+
     //--- 5. ยกเลิกออเดอร์
     $this->orders_model->set_status($code, 2);
+
+    if($role == 'S')
+    {
+
+      if($order->is_term == 1)
+      {
+        //--- clear order_credit
+        $this->clear_credit_payment($order);
+      }
+      else
+      {
+        //---- clear payment
+        $this->order_payment_model->clear_payment($code);
+      }
+
+    }
+
+
     //--- 6. ลบรายการที่ผู้ไว้ใน order_transform_detail (กรณีเบิกแปรสภาพ)
     if($role == 'T')
     {
@@ -1629,6 +1687,23 @@ class Orders extends PS_Controller
 
   }
 
+  //--- รับ obj
+  public function clear_credit_payment($order)
+  {
+    $this->load->model('masters/customers_model');
+    $this->load->model('account/order_credit_model');
+    //--- ดึงยอดที่เคยตั้งหนี้ไว้ แล้วทำให้เป็นค่าลบเพื่อบวกกลับเข้ายอดใช้ไป
+    $credit = $this->order_credit_model->get($order->code);
+    $amount = $credit->amount * (-1);
+    //--- คืนยอดใช้ไป
+    if($this->customers_model->update_used($order->customer_code, $amount))
+    {
+      //--- ลบรายการตั้งหนี้
+      return $this->order_credit_model->delete($order->code);
+    }
+
+    return FALSE;
+  }
 
   //--- เคลียร์ยอดค้างที่จัดเกินมาไปที่ cancle หรือ เคลียร์ยอดที่เป็น 0
   public function clear_buffer($code)
@@ -1865,6 +1940,22 @@ class Orders extends PS_Controller
   }
 
 
+  public function paid_order($code, $option)
+  {
+    $option = $option == 1 ? TRUE : FALSE;
+    $paid = $this->orders_model->paid($code, $option);
+
+    if($paid)
+    {
+      echo 'success';
+    }
+    else
+    {
+      echo 'failed';
+    }
+  }
+
+
 
   public function get_summary()
   {
@@ -1880,25 +1971,6 @@ class Orders extends PS_Controller
   }
 
 
-
-  public function get_available_stock($item)
-  {
-    $sell_stock = $this->stock_model->get_sell_stock($item);
-    $reserv_stock = $this->orders_model->get_reserv_stock($item);
-    $availableStock = $sell_stock - $reserv_stock;
-    return $availableStock < 0 ? 0 : $availableStock;
-  }
-
-
-  public function update_api_stock($item)
-  {
-    if(getConfig('SYNC_WEB_STOCK') == 1)
-    {
-      $this->load->library('api');
-      $available_stock = $this->get_available_stock($item);
-      $this->api->update_web_stock($item, $available_stock);
-    }
-  }
 
   public function clear_filter()
   {

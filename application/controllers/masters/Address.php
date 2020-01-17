@@ -18,17 +18,29 @@ class Address extends PS_Controller
   }
 
 
-  public function get_online_address($customer_ref)
+  public function get_online_address()
   {
-    $rs = $this->address_model->get_default_address($customer_ref);
-    if(!empty($rs))
+    $this->load->model('orders/orders_model');
+    $order_code = $this->input->get('order_code');
+    $customer_ref = $this->input->get('customer_ref');
+    $order = $this->orders_model->get($order_code);
+    if(!empty($order->address_id))
     {
-      echo $rs->id;
+      echo $order->address_id;
     }
     else
     {
-      echo 'noaddress';
+      $rs = $this->address_model->get_default_address($customer_ref);
+      if(!empty($rs))
+      {
+        echo $rs->id;
+      }
+      else
+      {
+        echo 'noaddress';
+      }
     }
+
   }
 
 
@@ -71,15 +83,15 @@ class Address extends PS_Controller
 
 
 
-  public function print_address_sheet($code, $customer_code, $id_address = '', $id_sender = '')
+  public function print_address_sheet($code, $customer_code, $id_address=NULL, $id_sender=NULL, $box_count = 1)
   {
     $this->load->library('printer');
     $this->load->model('inventory/qc_model');
-    $id_address = $id_address === '' ? $this->address_model->get_id($customer_code) : $id_address;
-    $id_sender = $id_sender === '' ? $this->transport_model->get_id($customer_code) : $id_sender;
+    $id_address = empty($id_address) ? $this->address_model->get_id($customer_code) : $id_address;
+    $id_sender = empty($id_sender) ? $this->transport_model->get_id($customer_code) : $id_sender;
     $ds = array(
       'reference' => $code,
-      'boxes' => $this->qc_model->count_box($code),
+      'boxes' => getConfig('USE_QC') == 1 ? $this->qc_model->count_box($code) : $box_count,
       'ad' => $this->address_model->get_shipping_detail($id_address),
       'sd' => $this->transport_model->get_sender($id_sender),
       'cName' => getConfig('COMPANY_FULL_NAME'),

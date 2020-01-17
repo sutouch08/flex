@@ -109,6 +109,7 @@ class Delivery_order extends PS_Controller
               break;
             }
 
+
             //--- ถ้ายอดตรวจ น้อยกว่า หรือ เท่ากับ ยอดสั่ง ใช้ยอดตรวจในการตัด buffer
             //--- ถ้ายอดตวจ มากกว่า ยอดสั่ง ให้ใช้ยอดสั่งในการตัด buffer (บางทีอาจมีการแก้ไขออเดอร์หลังจากมีการตรวจสินค้าแล้ว)
             if($use_qc)
@@ -167,6 +168,23 @@ class Delivery_order extends PS_Controller
                     break;
                   }
 
+                  $total_amount = $rs->final_price * $buffer_qty;
+                  //--- 4. update credit used
+                  if($sc === TRUE && $order->role == 'S' && $order->is_term == 1)
+                  {
+                    $credit_balance = $this->customers_model->get_credit_balance($order->customer_code);
+
+                    if($credit_balance < $total_amount)
+                    {
+                      $sc = FALSE;
+                      $message = 'เครดิตคงเหลือไม่เพียงพอ';
+                    }
+
+                    if($sc === TRUE && $this->customers_model->update_used($order->customer_code, ($rs->final_price * $buffer_qty)))
+                    {
+                      $this->customers_model->update_balance($order->customer_code);
+                    }
+                  }
 
                   //--- ข้อมูลสำหรับบันทึกยอดขาย
                   $arr = array(
@@ -334,6 +352,25 @@ class Delivery_order extends PS_Controller
         {
           foreach($bill as $rs)
           {
+
+            $total_amount = $rs->final_price * $rs->qty;
+            //--- 4. update credit used
+            if($sc === TRUE && $order->role == 'S' && $order->is_term == 1)
+            {
+              $credit_balance = $this->customers_model->get_credit_balance($order->customer_code);
+
+              if($credit_balance < $total_amount)
+              {
+                $sc = FALSE;
+                $message = 'เครดิตคงเหลือไม่เพียงพอ';
+              }
+
+              if($sc === TRUE && $this->customers_model->update_used($order->customer_code, ($rs->final_price * $buffer_qty)))
+              {
+                $this->customers_model->update_balance($order->customer_code);
+              }
+            }
+
             //--- ข้อมูลสำหรับบันทึกยอดขาย
             $arr = array(
                     'reference' => $order->code,
@@ -350,7 +387,7 @@ class Delivery_order extends PS_Controller
                     'discount_label'  => discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
                     'discount_amount' => ($rs->discount_amount * $rs->qty),
                     'total_amount'   => $rs->final_price * $rs->qty,
-                    'total_cost'   => $rs->cost * $buffer_qty,
+                    'total_cost'   => $rs->cost * $rs->qty,
                     'margin'  => ($rs->final_price * $rs->qty) - ($rs->cost * $rs->qty),
                     'id_policy'   => $rs->id_policy,
                     'id_rule'     => $rs->id_rule,
@@ -417,7 +454,7 @@ class Delivery_order extends PS_Controller
         {
           $sc = FALSE;
         }
-        
+
       } //--- end if state == 7
       else
       {
@@ -440,6 +477,9 @@ class Delivery_order extends PS_Controller
     $this->load->model('inventory/qc_model');
     $this->load->helper('order');
     $this->load->helper('discount');
+    $this->load->model('masters/channels_model');
+    $this->load->model('masters/payment_methods_model');
+    $this->load->model('masters/sender_model');
     $use_qc = getConfig('USE_QC') == 1 ? TRUE : FALSE;
     $order = $this->orders_model->get($code);
     $order->customer_name = $this->customers_model->get_name($order->customer_code);
@@ -448,9 +488,15 @@ class Delivery_order extends PS_Controller
       $this->load->model('masters/zone_model');
       $order->zone_name = $this->zone_model->get_name($order->zone_code);
     }
+
     $details = $this->delivery_order_model->get_billed_detail($code);
 
     $box_list = $use_qc ? $this->qc_model->get_box_list($code) : FALSE;
+
+    $order->channels_name = $this->channels_model->get_name($order->channels_code);
+    $order->payment_name = $this->payment_methods_model->get_name($order->payment_code);
+    $order->payment_role = $this->payment_methods_model->get_role($order->payment_code);
+    $order->sender_name = $this->sender_model->get_name($order->sender_id);
 
     $ds['order'] = $order;
     $ds['details'] = $details;

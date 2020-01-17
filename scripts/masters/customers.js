@@ -13,10 +13,25 @@ function getEdit(code){
   window.location.href = BASE_URL + 'masters/customers/edit/'+code;
 }
 
-function changeURL(style, tab)
+
+function viewDetail(code){
+  window.location.href = BASE_URL + 'masters/customers/view_detail/'+code;
+}
+
+
+function changeURL(code, tab)
 {
 
-	var url = BASE_URL + 'masters/customers/edit/' + style + '/' + tab;
+	var url = BASE_URL + 'masters/customers/edit/' + code + '/' + tab;
+	var stObj = { stage: 'stage' };
+	window.history.pushState(stObj, 'customers', url);
+}
+
+
+function changeView(code, tab)
+{
+
+	var url = BASE_URL + 'masters/customers/view_detail/' + code + '/' + tab;
 	var stObj = { stage: 'stage' };
 	window.history.pushState(stObj, 'customers', url);
 }

@@ -22,7 +22,19 @@ class Po_model extends CI_Model
   //--- get po detail in document
   public function get_details($code)
   {
-    $rs = $this->db->where('po_code', $code)->get('po_detail');
+    $this->db
+    ->select('po_detail.*')
+    ->from('po_detail')
+    ->join('products', 'po_detail.product_code = products.code', 'left')
+    ->join('product_size', 'products.size_code = product_size.code', 'left')
+    ->where('po_detail.po_code', $code)
+    ->order_by('products.style_code', 'ASC')
+    ->order_by('products.color_code', 'ASC')
+    ->order_by('product_size.position', 'ASC');
+
+    //$rs = $this->db->where('po_code', $code)->get('po_detail');
+    $rs = $this->db->get();
+
     if($rs->num_rows() > 0)
     {
       return $rs->result();

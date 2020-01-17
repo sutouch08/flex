@@ -233,7 +233,7 @@ function pagination_config( $base_url, $total_rows = 0, $perpage = 20, $segment 
 {
     $rows = get_rows();
     $input_rows  = '<p class="pull-right pagination hidden-xs">';
-    $input_rows .= label_value('all').' '.$total_rows.' '.label_value('items').' | '.label_value('show');
+    $input_rows .= label_value('all').' '.$total_rows.' '.label_value('rows').' | '.label_value('show');
     $input_rows .= '<input type="number" name="set_rows" id="set_rows" class="input-mini text-center margin-left-15 margin-right-10" value="'.$rows.'" />';
     $input_rows .= label_value('perpage').' ';
     $input_rows .= '<buton class="btn btn-success btn-xs" type="button" onClick="set_rows()">'.label_value('show').'</button>';

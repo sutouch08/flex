@@ -25,9 +25,13 @@ function getOnlineAddress()
 	var code = $("#customer_ref").val();
 	var order_code = $("#order_code").val();
 	$.ajax({
-		url: BASE_URL + 'masters/address/get_online_address/'+ code,
+		url: BASE_URL + 'masters/address/get_online_address',
 		type:"GET",
 		cache: false,
+		data:{
+			'order_code' : order_code,
+			'customer_ref' : code
+		},
 		success: function(id){
 			var id = $.trim(id);
 			if( id == 'noaddress' || isNaN( parseInt(id) ) ){
@@ -105,7 +109,8 @@ function printSelectAddress()
 	var customer_code   = $("#customer_code").val();
 	var id_ad    = $('input[name=id_address]:radio:checked').val();
 	var id_sen	 = $('input[name=id_sender]:radio:checked').val();
-  var target   = BASE_URL + 'masters/address/print_address_sheet/'+order_code+'/'+customer_code+'/'+id_ad+'/'+id_sen;
+	var qty      = parseDefault(parseInt($('input[name=print_qty]').val()), 1);
+  var target   = BASE_URL + 'masters/address/print_address_sheet/'+order_code+'/'+customer_code+'/'+id_ad+'/'+id_sen+'/'+qty;
 
 	if( isNaN(parseInt(id_ad)) ){
     swal("กรุณาเลือกที่อยู่", "", "warning");

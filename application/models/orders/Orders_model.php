@@ -257,6 +257,10 @@ class Orders_model extends CI_Model
   }
 
 
+  public function unvalid_detail($id)
+  {
+    return $this->db->set('valid', 0)->where('id', $id)->update('order_details');
+  }
 
 
   public function change_state($code, $state)
@@ -426,7 +430,10 @@ class Orders_model extends CI_Model
       if( ! empty($ds['customer']))
       {
         $customers = customer_in($ds['customer']);
+        $this->db->group_start();
         $this->db->where_in('customer_code', $customers);
+        $this->db->or_like('customer_ref', $ds['customer']);
+        $this->db->group_end();
       }
 
       //---- user name / display name

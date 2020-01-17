@@ -227,6 +227,25 @@ class Product_size extends PS_Controller
   }
 
 
+  public function is_exists($code)
+  {
+    if(!empty($code))
+    {
+      if($this->product_size_model->is_exists($code) === TRUE)
+      {
+        echo 'exists';
+      }
+      else
+      {
+        echo 'not exists';
+      }
+    }
+    else
+    {
+      echo 'not exists';
+    }
+  }
+
 
   public function clear_filter()
 	{

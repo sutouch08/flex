@@ -22,7 +22,8 @@ class Sender extends PS_Controller{
 			'name' => get_filter('name', 'name', ''),
 			'addr' => get_filter('addr', 'addr', ''),
 			'phone' => get_filter('phone', 'phone', ''),
-			'type' => get_filter('type', 'type', 'all')
+			'type' => get_filter('type', 'type', 'all'),
+			'in_list' => get_filter('in_list', 'in_list', 'all')
 		);
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -67,6 +68,7 @@ class Sender extends PS_Controller{
 			$open = $this->input->post('open');
 			$close = $this->input->post('close');
 			$type = $this->input->post('type');
+			$inlist = $this->input->post('in_list') ? 1 : 0;
 
 			$arr = array(
 				'name' => $name,
@@ -75,7 +77,8 @@ class Sender extends PS_Controller{
 				'phone' => $phone,
 				'open' => $open,
 				'close' => $close,
-				'type' => $type
+				'type' => $type,
+				'show_in_list' => $inlist
 			);
 
 			if($this->sender_model->add($arr))
@@ -118,6 +121,7 @@ class Sender extends PS_Controller{
 				$open = $this->input->post('open');
 				$close = $this->input->post('close');
 				$type = $this->input->post('type');
+				$inlist = $this->input->post('in_list') ? 1 : 0;
 
 				$arr = array(
 					'name' => $name,
@@ -126,7 +130,8 @@ class Sender extends PS_Controller{
 					'phone' => $phone,
 					'open' => $open,
 					'close' => $close,
-					'type' => $type
+					'type' => $type,
+					'show_in_list' => $inlist
 				);
 
 				if($this->sender_model->update($id, $arr))

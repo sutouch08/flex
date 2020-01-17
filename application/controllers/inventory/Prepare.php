@@ -153,11 +153,16 @@ class Prepare extends PS_Controller
     if($this->input->post('order_code'))
     {
       $this->load->model('masters/products_model');
+      $this->load->model('stock/stock_model');
+      $this->load->model('masters/warehouse_model');
+      $this->load->model('masters/zone_model');
 
       $order_code = $this->input->post('order_code');
       $zone_code  = $this->input->post('zone_code');
       $barcode    = $this->input->post('barcode');
       $qty        = $this->input->post('qty');
+
+      $zone = $this->zone_model->get($zone_code);
 
       $state = $this->orders_model->get_state($order_code);
       //--- ตรวจสอบสถานะออเดอร์ 4 == กำลังจัดสินค้า
@@ -186,8 +191,10 @@ class Prepare extends PS_Controller
               }
               else
               {
-                $stock = $this->get_stock_zone($zone_code, $ds->product_code);
-                if($stock < $qty)
+                $is_enough = $this->stock_model->is_enough($zone_code, $ds->product_code, $qty);
+                $auz = getConfig('AlLOW_UNDER_ZERO') == 1 ? TRUE : $this->waehouse_model->is_auz($zone->warehouse_code);
+
+                if(!$is_enough && !$auz)
                 {
                   $sc = FALSE;
                   $message = "สินค้าไม่เพียงพอ กรุณากำหนดจำนวนสินค้าใหม่";
@@ -195,6 +202,7 @@ class Prepare extends PS_Controller
                 else
                 {
                   $this->db->trans_start();
+                  $this->stock_model->update_stock_zone($zone_code, $ds->product_code, $qty * -1);
                   $this->prepare_model->update_buffer($ds->order_code, $ds->product_code, $zone_code, $qty);
                   $this->prepare_model->update_prepare($ds->order_code, $ds->product_code, $zone_code, $qty);
                   $this->db->trans_complete();
@@ -308,21 +316,6 @@ class Prepare extends PS_Controller
   }
 
 
-  //---- สินค้าคงเหลือในโซน ลบด้วย สินค้าที่จัดไปแล้ว
-  public function get_stock_zone($zone_code, $item_code)
-  {
-    $this->load->model('stock/stock_model');
-
-    //---- สินค้าคงเหลือในโซน
-    $stock = $this->stock_model->get_stock_zone($zone_code, $item_code);
-
-    //--- ยอดจัดสินค้าที่จัดออกจากโซนนี้ไปแล้ว แต่ยังไม่ได้ตัด
-    $prepared = $this->prepare_model->get_prepared_zone($zone_code, $item_code);
-
-    return $stock - $prepared;
-
-  }
-
 
   public function set_zone_label($value)
   {
@@ -335,6 +328,7 @@ class Prepare extends PS_Controller
 
   public function finish_prepare()
   {
+    $this->load->helper('order');
     $code = $this->input->post('order_code');
     $use_qc = getConfig('USE_QC');
     $sc = TRUE;
@@ -373,6 +367,9 @@ class Prepare extends PS_Controller
 
       //--- add state event
       $this->order_state_model->add_state($arr);
+
+      //--- recalulate total_amount
+      update_order_total_amount($code); //-- order_helper
 
       $this->db->trans_complete();
 

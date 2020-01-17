@@ -21,7 +21,7 @@
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">ที่อยู่ 1</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="text" name="address1" class="width-100" value="<?php echo $address1; ?>" required />
+			<input type="text" name="address1" class="width-100" value="<?php echo $address1; ?>" />
     </div>
   </div>
 
@@ -59,6 +59,16 @@
         <option value="เก็บเงินปลายทาง" <?php echo is_selected('เก็บเงินปลายทาง', $type); ?>>เก็บเงินปลายทาง</option>
         <option value="เก็บเงินต้นทาง" <?php echo is_selected('เก็บเงินต้นทาง', $type); ?>>เก็บเงินต้นทาง</option>
       </select>
+    </div>
+  </div>
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right"></label>
+    <div class="col-xs-12 col-sm-3">
+			<label>
+				<input type="checkbox" name="in_list" id="in_list" class="ace" value="1" <?php echo is_checked($show_in_list, 1); ?> />
+				<span class="lbl">  แสดงในตัวเลือก</span>
+			</label>
     </div>
   </div>
 

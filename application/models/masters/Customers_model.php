@@ -11,7 +11,7 @@ class Customers_model extends CI_Model
 
   public function get_credit($code)
   {
-    $rs = $this->db->where('customer_code', $code)->get('customer_credit');
+    $rs = $this->db->select('balance')->where('code', $code)->get('customers');
     if($rs->num_rows() === 1)
     {
       return $rs->row()->balance;
@@ -33,41 +33,46 @@ class Customers_model extends CI_Model
   }
 
 
-  //--- add new credit
-  public function add_credit(array $ds = array())
+  //--- change credit line
+  public function update_credit($code, $amount)
   {
-    if(!empty($ds))
+    $arr = array(
+      'amount' => $amount,
+      'user_upd' => get_cookie('uname')
+    );
+
+    $rs = $this->db->where('code', $code)->update('customers', $arr);
+    if($rs)
     {
-      return $this->db->insert('customer_credit', $ds);
+      return $this->update_balance($code);
     }
 
     return FALSE;
   }
 
-  //--- change credit line
-  public function update_credit($code, $amount)
-  {
-    return $this->db->set('amount', $amount)->where('customer_code', $code)->update('customer_credit');
-  }
-
 
   public function update_balance($code)
   {
-    $qr = "UPDATE customer_credit SET balance = amount - used WHERE customer_code = '{$code}'";
-    return $this->db->query($qr);
+    return $this->db->set('balance', 'amount - used', FALSE)->where('code', $code)->update('customers');
   }
 
 
   public function update_used($code, $used)
   {
-    return $this->db->set('used', $used)->where('customer_code', $code)->update('customer_credit');
+    $rs = $this->db->set('used', "used + {$used}", FALSE)->where('code', $code)->update('customers');
+    if($rs)
+    {
+      return $this->update_balance($code);
+    }
+
+    return FALSE;
   }
 
 
 
   public function get_credit_balance($code)
   {
-    $rs = $this->db->where('customer_code', $code)->get('customer_credit');
+    $rs = $this->db->select('balance')->where('code', $code)->get('customers');
     if($rs->num_rows() === 1)
     {
       return $rs->row()->balance;
@@ -77,9 +82,21 @@ class Customers_model extends CI_Model
   }
 
 
+  public function get_credit_used($code)
+  {
+    $rs = $this->db->select('used')->where('code', $code)->get('customers');
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->used;
+    }
+
+    return 0;
+  }
+
+
   public function get_credit_amount($code)
   {
-    $rs = $this->db->select('amount')->where('customer_code', $code)->get('customer_credit');
+    $rs = $this->db->select('amount')->where('code', $code)->get('customers');
     if($rs->num_rows() === 1)
     {
       return $rs->row()->amount;
@@ -91,7 +108,12 @@ class Customers_model extends CI_Model
 
   public function has_credit($code)
   {
-    $rs = $this->db->where('customer_code', $code)->get('customer_credit');
+    $rs = $this->db
+    ->where('code', $code)
+    ->where('amount >', 0, FALSE)
+    ->where('credit_term >', 0, FALSE)
+    ->get('customers');
+
     if($rs->num_rows() === 1)
     {
       return TRUE;

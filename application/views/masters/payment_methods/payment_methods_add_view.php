@@ -13,7 +13,7 @@
 <form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/add"; ?>">
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">Code</label>
+    <label class="col-sm-3 control-label no-padding-right">รหัส</label>
     <div class="col-xs-12 col-sm-3">
       <input type="text" name="code" id="code" class="width-100" value="<?php echo $code; ?>" autofocus required />
     </div>
@@ -23,11 +23,21 @@
 
 
   <div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">Name</label>
+    <label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
     <div class="col-xs-12 col-sm-3">
 			<input type="text" name="name" id="name" class="width-100" value="<?php echo $name; ?>" required />
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
+  </div>
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">ประเภท</label>
+    <div class="col-xs-12 col-sm-3">
+			<select name="role" id="role" class="form-control input-sm" required>
+				<option value="">โปรดเลือก</option>
+				<?php echo select_payment_role($role); ?>
+			</select>
+    </div>
   </div>
 
 

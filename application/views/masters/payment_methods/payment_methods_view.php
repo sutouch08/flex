@@ -54,8 +54,9 @@
 			<thead>
 				<tr>
 					<th class="width-5 middle text-center">ลำดับ</th>
-					<th class="width-15 middle">รหัส</th>
+					<th class="width-10 middle">รหัส</th>
 					<th class="width-30 middle">ชื่อ</th>
+					<th class="width-10 middle text-center">ประเภท</th>
 					<th class="width-10 middle text-center">เครติด</th>
 					<th class="width-10 middle text-center">Default</th>
           <th class="width-15 middle">ปรับปรุงล่าสุด</th>
@@ -70,6 +71,7 @@
 						<td class="middle text-center"><?php echo $no; ?></td>
 						<td class="middle"><?php echo $rs->code; ?></td>
 						<td class="middle"><?php echo $rs->name; ?></td>
+						<td class="middle text-center"><?php echo $rs->role_name; ?></td>
 						<td class="middle text-center">
 							<?php if($rs->has_term == 1) : ?>
 								<i class="fa fa-check green"></i>

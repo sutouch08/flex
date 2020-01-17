@@ -19,7 +19,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ทุน</label>
 		<div class="col-xs-12 col-sm-3">
-			<input type="number" name="cost" id="cost" class="width-100" value="" required />
+			<input type="number" step="any" name="cost" id="cost" class="width-100" value="" required />
 		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
 	</div>
@@ -27,7 +27,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ราคา</label>
 		<div class="col-xs-12 col-sm-3">
-			<input type="number" name="price" id="price" class="width-100" value="" required />
+			<input type="number" step="any" name="price" id="price" class="width-100" value="" required />
 		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
 	</div>
@@ -36,7 +36,6 @@
 		<label class="col-sm-3 control-label no-padding-right">หน่วยนับ</label>
 		<div class="col-xs-12 col-sm-3">
 			<select class="form-control input-sm" name="unit_code" id="unit_code" required>
-				<option value="">เลือกรายการ</option>
 				<?php echo select_unit($unit_code); ?>
 			</select>
 		</div>
@@ -152,17 +151,6 @@
 		<div class="help-block col-xs-12 col-sm-reset inline red"></div>
 	</div>
 
-
-	<div class="form-group">
-		<label class="col-sm-3 control-label no-padding-right">API</label>
-		<div class="col-xs-12 col-sm-3">
-			<label style="padding-top:5px;">
-				<input name="is_api" class="ace ace-switch ace-switch-7" type="checkbox" value="1" />
-				<span class="lbl"></span>
-			</label>
-		</div>
-		<div class="help-block col-xs-12 col-sm-reset inline red"></div>
-	</div>
 
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">เปิดใช้งาน</label>

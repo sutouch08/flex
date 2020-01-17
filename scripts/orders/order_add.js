@@ -257,6 +257,7 @@ function updateOrder(recal){
 	var channels_code = $("#channels").val();
 	var payment_code = $("#payment").val();
 	var reference = $('#reference').val();
+  var sender_id = $('#sender_id').val();
 	var remark = $("#remark").val();
 
 	load_in();
@@ -273,6 +274,7 @@ function updateOrder(recal){
   		"channels_code" : channels_code,
   		"payment_code" : payment_code,
   		"reference" : reference,
+      "sender_id" : sender_id,
   		"remark" : remark,
       "recal" : recal
     },
@@ -407,4 +409,36 @@ function unExpired(){
       }
     }
   });
+}
+
+
+function paid_order(option){
+  var code = $('#order_code').val();
+  load_in();
+  $.ajax({
+    url:BASE_URL + 'orders/orders/paid_order/'+code+'/'+option,
+    type:'POST',
+    cache:false,
+    success:function(rs){
+      load_out();
+      if(rs === 'success'){
+        swal({
+          title:'Paid',
+          text:'ได้รับเงินเรียบร้อยแล้ว',
+          type:'success',
+          timer:1000
+        });
+
+        setTimeout(function(){
+          window.location.reload();
+        }, 1500);
+      }else{
+        swal({
+          title:'Error',
+          text:rs,
+          type:'error'
+        });
+      }
+    }
+  })
 }

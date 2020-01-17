@@ -45,13 +45,6 @@ class Prepare_model extends CI_Model
       ->where("product_code", $product_code)
       ->where("zone_code", $zone_code)
       ->update("buffer");
-      
-      // $qr  = "UPDATE buffer SET qty = qty + {$qty} ";
-      // $qr .= "WHERE order_code = '{$order_code}' ";
-      // $qr .= "AND product_code = '{$product_code}' ";
-      // $qr .= "AND zone_code = '{$zone_code}' ";
-      //
-      // return $this->db->query($qr);
     }
 
     return FALSE;

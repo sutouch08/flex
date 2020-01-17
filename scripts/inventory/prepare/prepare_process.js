@@ -144,8 +144,7 @@ $("#barcode-zone").keyup(function(e){
               $("#barcode-item").removeAttr('disabled');
               $("#btn-submit").removeAttr('disabled');
 
-              $("#qty").focus();
-              $("#qty").select();
+              $("#barcode-item").focus();
             }else{
               beep();
               swal("Error!", 'โซนไม่ถูกต้อง', "error");

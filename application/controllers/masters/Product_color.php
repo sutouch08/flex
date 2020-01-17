@@ -231,6 +231,25 @@ class Product_color extends PS_Controller
 
 
 
+  public function is_exists($code)
+  {
+    if(!empty($code))
+    {
+      if($this->product_color_model->is_exists($code) === TRUE)
+      {
+        echo 'exists';
+      }
+      else
+      {
+        echo 'not exists';
+      }
+    }
+    else
+    {
+      echo 'not exists';
+    }
+  }
+
   public function clear_filter()
 	{
 		$this->session->unset_userdata('code');

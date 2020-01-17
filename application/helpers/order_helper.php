@@ -1,10 +1,38 @@
 <?php
+
 function update_order_total_amount($code)
 {
 	$CI =& get_instance();
 	$CI->load->model('oders/orders_model');
 	$order = $CI->orders_model->get($code);
-	$amount = $CI->orders_model->get_order_total_amount($code);
+	$amount = 0;
+	if($order->state > 3)
+	{
+		$CI->load->model('inventory/delivery_order_model');
+		$use_qc = getConfig('USER_QC') == 1 ? TRUE : FALSE;
+		$details = $CI->delivery_order_model->get_bill_detail($code, $use_qc);
+		if(!empty($details))
+		{
+			foreach($details as $rs)
+			{
+				if($use_qc)
+				{
+					$row_amount = $rs->is_count == 0 ? ($rs->final_price * $rs->order_qty) : ($rs->final_price * $rs->qc);
+				}
+				else
+				{
+					$row_amount = $rs->is_count == 0 ? ($rs->final_price * $rs->order_qty) : ( $rs->final_price * $rs->prepared);
+				}
+
+				$amount += $row_amount;
+			}
+		}
+	}
+	else
+	{
+		$amount = $CI->orders_model->get_order_total_amount($code);
+	}
+
 	$amount += $order->shipping_fee;
 	$amount += $order->service_fee;
 	$CI->orders_model->update_order_total_amount($code, $amount);
@@ -88,49 +116,50 @@ function get_summary($order, $details, $banks)
 
 	$orderTxt = '<div>สรุปการสั่งซื้อ</div>';
 	$orderTxt .= '<div>Order No : '.$order->code.'</div>';
-	$orderTxt .= '<div style="width:100%; border-bottom:solid 1px #CCC;">&nbsp;</div>';
+	$orderTxt .= '########################<br/>';
 
 	foreach($details as $rs)
 	{
-		$orderTxt .= '<div class="width-100">';
-		$orderTxt .=   $rs->product_code.' <span class="pull-right">('.number($rs->qty).') x '.number($rs->price, 2);
-		$orderTxt .= '</div>';
+		$orderTxt .=   $rs->product_code.'  @'.number($rs->qty).' x '.number($rs->price, 2);
+		$orderTxt .= '<br/>';
 		$orderAmount += $rs->qty * $rs->price;
 		$discount += $rs->discount_amount;
 		$totalAmount += $rs->total_amount;
 	}
 
-	$orderTxt .= "<br/>";
-	$orderTxt .= 'ค่าสินค้ารวม'.getSpace(number( $orderAmount, 2), 24).'<br/><br/>';
+	$orderTxt .= '=======================<br/>';
+	$orderTxt .= 'ค่าสินค้ารวม'.getSpace(number( $orderAmount, 2), 24).'<br/>';
 
 	if( ($discount + $order->bDiscAmount) > 0 )
 	{
-		$orderTxt .= 'ส่วนลดรวม'.getSpace('- '.number( ($discount + $order->bDiscAmount), 2), 27).'<br/>';
+		$orderTxt .= 'ส่วนลดรวม'.getSpace('- '.number( ($discount + $order->bDiscAmount), 2), 27);
 		$orderTxt .= '<br/>';
 	}
 
-	// if( $order->shipping_fee > 0 )
-	// {
-	// 	$orderTxt .= 'ค่าจัดส่ง'.getSpace(number($order->shipping_fee, 2), 31).'<br/>';
-	//  	$orderTxt .= '<br/>';
-	// }
-	//
-	// if( $order->service_fee > 0 )
-	// {
-	// 	$orderTxt .= 'อื่นๆ'.getSpace(number($order->service_fee, 2), 36).'<br/>';
-	//  	$orderTxt .= '<br/>';
-	// }
+	if( $order->shipping_fee > 0 )
+	{
+		$orderTxt .= 'ค่าจัดส่ง'.getSpace(number($order->shipping_fee, 2), 31).'<br/>';
+	}
 
-	$payAmount = $orderAmount - ($discount + $order->bDiscAmount);
+	if( $order->service_fee > 0 )
+	{
+		$orderTxt .= 'อื่นๆ'.getSpace(number($order->service_fee, 2), 36).'<br/>';
+	}
+
+	if($order->deposit > 0)
+	{
+		$orderTxt .= 'ชำระแล้ว'.getSpace('- '.number($order->deposit, 2), 24).'<br/>';
+	}
+
+	$payAmount = ($orderAmount + $order->shipping_fee + $order->service_fee) - ($discount + $order->bDiscAmount) - $order->deposit;
 	$orderTxt .= 'ยอดชำระ' . getSpace(number( $payAmount, 2), 29).'<br/>';
 
-
-	$orderTxt .= '====================<br/><br/>';
+	$orderTxt .= '=======================<br/>';
 
 	if(!empty($banks))
 	{
 		$orderTxt .= 'สามารถชำระได้ที่ <br/>';
-		$orderTxt .= '<br/>';
+		$orderTxt .= '#####################<br/>';
 		foreach($banks as $rs)
 		{
 			$orderTxt .= '- '.$rs->bank_name.'<br/>';

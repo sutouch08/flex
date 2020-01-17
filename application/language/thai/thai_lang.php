@@ -82,7 +82,7 @@ $lang['all'] = 'ทั้งหมด';
 $lang['search'] = 'ค้นหา';
 $lang['reset'] = 'เคลียร์';
 
-$lang['items'] = 'รายการ';
+$lang['rows'] = 'บรรทัด';
 $lang['show'] = 'แสดง';
 $lang['perpage'] = 'ต่อหน้า';
 
@@ -229,6 +229,7 @@ $lang['DBEMPL'] = 'เพิ่ม/แก้ไข พนักงาน';
 $lang['DBVEND'] = 'เพิ่ม/แก้ไข ผู้จำหน่าย';
 $lang['DBSEND'] = 'ผู้ให้บริากรจัดส่ง';
 $lang['DBTRSP'] = 'เชื่อมโยงขนส่ง';
+$lang['ICCKST'] = 'ตรวจสอบ STOCK';
 $lang['ICCKBF'] = 'ตรวจสอบ BUFFER';
 $lang['ICCKCN'] = 'ตรวจสอบ CANCLE';
 $lang['ICCKMV'] = 'ตรวจสอบ MOVEMENT';

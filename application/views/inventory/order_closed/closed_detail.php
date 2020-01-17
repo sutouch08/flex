@@ -17,47 +17,48 @@
   <input type="hidden" id="customer_code" value="<?php echo $order->customer_code; ?>" />
   <input type="hidden" id="customer_ref" value="<?php echo $order->customer_ref; ?>" />
   <div class="row">
-    <div class="col-sm-2 padding-5 first">
-      <?php if(!empty($order->reference)) : ?>
-        <label class="font-size-12 blod">
-          <?php echo $order->code.' ['.$order->reference.']';  ?>
-        </label>
-      <?php else : ?>
-      <label class="font-size-14 blod">
-        <?php echo $order->code; ?>
-      </label>
-      <?php endif; ?>
-    </div>
+    <div class="col-sm-">
 
-    <?php if($order->role == 'C' OR $order->role == 'N') : ?>
-    <div class="col-sm-4 padding-5">
-      <label class="font-size-12 blod">ลูกค้า : <?php echo empty($order->customer_ref) ? $order->customer_name : $order->customer_ref; ?></label>
-    </div>
-    <?php else : ?>
-      <div class="col-sm-6 padding-5">
-        <label class="font-size-14 blod">ลูกค้า : <?php echo empty($order->customer_ref) ? $order->customer_name : $order->customer_ref; ?></label>
+    </div><div class="col-sm-1 col-1-harf col-xs-6 padding-5 first">
+      	<label>เลขที่เอกสาร</label>
+          <input type="text" class="form-control input-sm text-center" value="<?php echo $order->code; ?>" disabled />
       </div>
-    <?php endif; ?>
-
-    <?php if($order->role == 'C' OR $order->role == 'N') : ?>
-      <div class="col-sm-4 padding-5">
-        <label class="font-size-2 blod">โซน : <?php echo $order->zone_name; ?></label>
+      <div class="col-sm-1 col-xs-6 padding-5">
+      	<label>วันที่</label>
+  			<input type="text" class="form-control input-sm text-center edit" name="date" id="date" value="<?php echo thai_date($order->date_add); ?>" disabled readonly />
       </div>
-      <div class="col-sm-2 padding-5 last text-right">
-        <label class="font-size-14 blod">พนักงาน : <?php echo $order->user; ?></label>
+      <div class="col-sm-4 col-4-harf col-xs-12 padding-5">
+      	<label>ลูกค้า[ในระบบ]</label>
+  			<input type="text" class="form-control input-sm edit" id="customer" name="customer" value="<?php echo $order->customer_name; ?>" required disabled />
       </div>
-    <?php else : ?>
-    <div class="col-sm-4 padding-5 last text-right">
-      <label class="font-size-14 blod">พนักงาน : <?php echo $order->user; ?></label>
-    </div>
-    <?php endif; ?>
-
-    <?php if( $order->remark != '') : ?>
-      <div class="col-sm-12">
-        <label class="font-size-14 blod">หมายเหตุ :</label>
-        <?php echo $order->remark; ?>
+      <div class="col-sm-2 col-xs-12 padding-5">
+      	<label>ลูกค้า[ออนไลน์]</label>
+        <input type="text" class="form-control input-sm edit" id="customer_ref" name="customer_ref" value="<?php echo $order->customer_ref; ?>" disabled />
       </div>
-    <?php endif; ?>
+      <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+      	<label>ช่องทางขาย</label>
+        <input type="text" class="form-control input-sm" value="<?php echo $order->channels_name; ?>" disabled />
+     </div>
+      <div class="col-sm-1 col-1-harf col-xs-6 padding-5 last">
+      	<label>การชำระเงิน</label>
+        <input type="text" class="form-control input-sm" value="<?php echo $order->payment_name; ?>" disabled />
+      </div>
+  		<div class="col-sm-1 col-1-harf col-xs-6 padding-5 first">
+  			<label>อ้างอิง</label>
+  		  <input type="text" class="form-control input-sm text-center edit" name="reference" id="reference" value="<?php echo $order->reference; ?>" disabled />
+  		</div>
+  		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+  			<label>เลขที่จัดส่ง</label>
+  		  <input type="text" class="form-control input-sm text-center edit" name="shipping_code" id="shipping_code" value="<?php echo $order->shipping_code; ?>" disabled />
+  		</div>
+  		<div class="col-sm-2 col-xs-12 padding-5">
+  			<label>การจัดส่ง</label>
+        <input type="text" class="form-control input-sm" value="<?php echo $order->sender_name; ?>" disabled />
+  	  </div>
+  		<div class="col-sm-7 col-xs-12 padding-5 last">
+  		 	<label>หมายเหตุ</label>
+  		  <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $order->remark; ?>" disabled />
+  		</div>
   </div>
   <hr/>
 

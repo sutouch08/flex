@@ -77,6 +77,7 @@ $menu_group = $this->menu_group_code;
 					<b class="arrow fa fa-angle-down"></b>
 				</a>
 				<ul class="submenu">
+					<?php echo side_menu($menu, 'ICCKST',  'inventory/stock', label_value('ICCKST')); ?>
 					<?php echo side_menu($menu, 'ICCKBF',  'inventory/buffer', label_value('ICCKBF')); ?>
 					<?php echo side_menu($menu, 'ICCKCN',  'inventory/cancle', label_value('ICCKCN')); ?>
 					<?php echo side_menu($menu, 'ICCKMV',  'inventory/movement', label_value('ICCKMV')); ?>

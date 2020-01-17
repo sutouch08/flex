@@ -108,11 +108,21 @@
 	</div>
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">วงเงินเครดิต</label>
+    <label class="col-sm-3 control-label no-padding-right">เครดิตเทอม</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="number" name="CreditLine" id="CreditLine" class="width-100" value="<?php echo $credit; ?>" />
+			<input type="number" name="credit_term" id="credit_term" class="width-50" value="<?php echo $credit_term; ?>" />
+			วัน
     </div>
   </div>
+	
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">วงเงินเครดิต</label>
+    <div class="col-xs-12 col-sm-3">
+			<input type="number" name="CreditLine" id="CreditLine" class="width-50" value="<?php echo $credit; ?>" />
+    </div>
+  </div>
+
+
 
 
 	<div class="divider-hidden"></div>

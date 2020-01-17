@@ -177,13 +177,17 @@ class Order_payment_model extends CI_Model
     return $this->db->set('valid', 0)->where('id', $id)->update('order_payment');
   }
 
+
   public function delete($id)
   {
     return $this->db->where('id', $id)->delete('order_payment');
   }
 
 
-
+  public function clear_payment($code)
+  {
+    return $this->db->where('order_code', $code)->delete('order_payment');
+  }
 
   public function is_exists($code)
   {

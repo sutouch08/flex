@@ -144,18 +144,6 @@
 
 
 	<div class="form-group">
-		<label class="col-sm-3 control-label no-padding-right">API</label>
-		<div class="col-xs-12 col-sm-3">
-			<label style="padding-top:5px;">
-				<input name="is_api" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($style->is_api, 1); ?> />
-				<span class="lbl"></span>
-			</label>
-		</div>
-		<div class="help-block col-xs-12 col-sm-reset inline red"></div>
-	</div>
-
-
-	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">เปิดใช้งาน</label>
 		<div class="col-xs-12 col-sm-3">
 			<label style="padding-top:5px;">

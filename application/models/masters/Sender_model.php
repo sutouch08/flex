@@ -100,31 +100,34 @@ class Sender_model extends CI_Model
   {
     if(!empty($ds))
     {
-      $qr = "SELECT count(*) AS row FROM address_sender WHERE id > 0 ";
-
       if(!empty($ds['name']))
       {
-        $qr .= "AND name LIKE '%{$ds['name']}%' ";
+        $this->db->like('name', $ds['name']);
       }
 
       if(!empty($ds['addr']))
       {
-        $qr .= "AND (address1 LIKE '%{$ds['addr']}%' OR address2 LIKE '%{$ds['addr']}%') ";
+        $this->db->group_start();
+        $this->db->like('address1', $ds['addr'])->or_like('address2', $ds['addr']);
+        $this->db->group_end();
       }
 
       if(!empty($ds['phone']))
       {
-        $qr .= "AND phone LIKE '%{$ds['phone']}%' ";
+        $this->db->like('phone', $ds['phone']);
       }
 
       if($ds['type'] != 'all')
       {
-        $qr .= "AND type = '{$ds['type']}' ";
+        $this->db->where('type', $ds['type']);
       }
 
-      $rs = $this->db->query($qr);
+      if($ds['in_list'] != 'all')
+      {
+        $this->db->where('show_in_list', $ds['in_list']);
+      }
 
-      return $rs->row()->row;
+      return $this->db->count_all_results('address_sender');
     }
 
     return 0;
@@ -135,36 +138,40 @@ class Sender_model extends CI_Model
   {
     if(!empty($ds))
     {
-      $qr = "SELECT * FROM address_sender WHERE id > 0 ";
-
       if(!empty($ds['name']))
       {
-        $qr .= "AND name LIKE '%{$ds['name']}%' ";
+        $this->db->like('name', $ds['name']);
       }
 
       if(!empty($ds['addr']))
       {
-        $qr .= "AND (address1 LIKE '%{$ds['addr']}%' OR address2 LIKE '%{$ds['addr']}%') ";
+        $this->db->group_start();
+        $this->db->like('address1', $ds['addr'])->or_like('address2', $ds['addr']);
+        $this->db->group_end();
       }
 
       if(!empty($ds['phone']))
       {
-        $qr .= "AND phone LIKE '%{$ds['phone']}%' ";
+        $this->db->like('phone', $ds['phone']);
       }
 
       if($ds['type'] != 'all')
       {
-        $qr .= "AND type = '{$ds['type']}' ";
+        $this->db->where('type', $ds['type']);
       }
 
-      if(empty($offset))
+      if($ds['in_list'] != 'all')
       {
-        $offset = 0;
+        $this->db->where('show_in_list', $ds['in_list']);
       }
 
-      $qr .= "LIMIT {$perpage} OFFSET {$offset}";
+      if(!empty($offset))
+      {
+        $offset = $offset === NULL ? 0 : $offset;
+        $this->db->limit($perpage, $offset);
+      }
 
-      $rs = $this->db->query($qr);
+      $rs = $this->db->get('address_sender');
 
       if($rs->num_rows() > 0)
       {
@@ -177,6 +184,17 @@ class Sender_model extends CI_Model
   }
 
 
+  //---- เอาเฉพาะรายการที่จะแสดงหน้าออเดอร์
+  public function get_sender_list()
+  {
+    $rs = $this->db->where('show_in_list', 1)->get('address_sender');
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return FALSE;
+  }
 
   public function search($txt)
   {

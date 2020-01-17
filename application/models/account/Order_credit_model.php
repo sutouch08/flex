@@ -6,6 +6,17 @@ class Order_credit_model extends CI_Model
     parent::__construct();
   }
 
+  public function get($order_code)
+  {
+    $rs = $this->db->where('order_code', $order_code)->get('order_credit');
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return FALSE;
+  }
+
 
   //---- ตั้งหนี้
   public function add(array $ds = array())
@@ -30,6 +41,11 @@ class Order_credit_model extends CI_Model
     return FALSE;
   }
 
+
+  public function delete($code)
+  {
+    return $this->db->where('order_code', $code)->delete('order_credit');
+  }
 
 
   public function is_exists($code)
