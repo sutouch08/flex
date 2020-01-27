@@ -412,11 +412,11 @@ function unExpired(){
 }
 
 
-function paid_order(option){
+function paid_order(){
   var code = $('#order_code').val();
   load_in();
   $.ajax({
-    url:BASE_URL + 'orders/orders/paid_order/'+code+'/'+option,
+    url:BASE_URL + 'orders/orders/paid_order/'+code,
     type:'POST',
     cache:false,
     success:function(rs){
@@ -425,6 +425,38 @@ function paid_order(option){
         swal({
           title:'Paid',
           text:'ได้รับเงินเรียบร้อยแล้ว',
+          type:'success',
+          timer:1000
+        });
+
+        setTimeout(function(){
+          window.location.reload();
+        }, 1500);
+      }else{
+        swal({
+          title:'Error',
+          text:rs,
+          type:'error'
+        });
+      }
+    }
+  })
+}
+
+
+function unpaid_order(){
+  var code = $('#order_code').val();
+  load_in();
+  $.ajax({
+    url:BASE_URL + 'orders/orders/unpaid_order/'+code,
+    type:'POST',
+    cache:false,
+    success:function(rs){
+      load_out();
+      if(rs === 'success'){
+        swal({
+          title:'Success',
+          text:'ยกเลิกการชำระเงินเรียบร้อยแล้ว',
           type:'success',
           timer:1000
         });

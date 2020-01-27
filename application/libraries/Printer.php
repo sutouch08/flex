@@ -63,7 +63,7 @@ public function doc_header($pageTitle = 'print pages')
 	$header .= "<head>";
 	$header .= "	<meta charset='utf-8'>";
 	$header .= "	<meta name='viewport' content='width=device-width, initial-scale=1.0'>";
-	$header .= "	<link rel='icon' href='../favicon.ico' type='image/x-icon' />";
+	//$header .= "	<link rel='icon' href='".base_url()."assets/favicon.ico' type='image/x-icon' />";
 	$header .= "	<title>". $pageTitle ."</title>";
 	$header .= "	<link href='".base_url()."assets/css/bootstrap.css' rel='stylesheet' />";
 	$header .= "	<link href='".base_url()."assets/css/template.css' rel='stylesheet' />";

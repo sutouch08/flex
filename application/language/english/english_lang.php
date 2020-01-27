@@ -198,6 +198,9 @@ $lang['WAREHOUSE'] = 'Inventory Master';
 //---- Menu
 $lang['ACCSOD'] = 'Consign sales record';
 $lang['ACPMCF'] = 'Payment confirmation';
+$lang['ACODRP'] = 'Repay Debt';
+$lang['ACPMRC'] = 'Payment Received';
+$lang['ACODCR'] = 'Order Credit';
 $lang['APOVPO'] = 'Approve receive over PO';
 $lang['DBADDR'] = 'Customer address';
 $lang['DBCARE'] = 'Sales area';

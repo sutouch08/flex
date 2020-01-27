@@ -108,14 +108,6 @@ class Receive_po extends PS_Controller
 
     $details = $this->receive_po_model->get_details($code);
 
-    if(!empty($details))
-    {
-      foreach($details as $rs)
-      {
-        $rs->barcode = $this->products_model->get_barcode($rs->product_code);
-      }
-    }
-
     $ds = array(
       'doc' => $doc,
       'details' => $details

@@ -8,65 +8,6 @@ class Transfer_model extends CI_Model
 
 
 
-  public function get_sap_transfer_doc($code)
-  {
-    $rs = $this->mc->select('DocStatus')->where('U_ECOMNO', $code)->get('OWTR');
-    if($rs->num_rows() === 1)
-    {
-      return $rs->row();
-    }
-
-    return FALSE;
-  }
-
-
-
-  public function add_sap_transfer_doc(array $ds = array())
-  {
-    if(!empty($ds))
-    {
-      return $this->mc->insert('OWTR', $ds);
-    }
-
-    return FALSE;
-  }
-
-
-
-
-  public function update_sap_transfer_doc($code, $ds = array())
-  {
-    if(! empty($code) && ! empty($ds))
-    {
-      return $this->mc->where('U_ECOMNO', $code)->update('OWTR', $ds);
-    }
-
-    return FALSE;
-  }
-
-
-
-  public function add_sap_transfer_detail(array $ds = array())
-  {
-    if(!empty($ds))
-    {
-      return $this->mc->insert('WTR1', $ds);
-    }
-
-    return FALSE;
-  }
-
-
-
-
-  public function drop_sap_exists_details($code)
-  {
-    return $this->mc->where('U_ECOMNO', $code)->delete('WTR1');
-  }
-
-
-
-
   public function add(array $ds = array())
   {
     if(!empty($ds))
@@ -120,7 +61,11 @@ class Transfer_model extends CI_Model
     ->select('transfer_detail.*, products.barcode')
     ->from('transfer_detail')
     ->join('products', 'products.code = transfer_detail.product_code', 'left')
+    ->join('product_size', 'products.size_code = product_size.code', 'left')
     ->where('transfer_detail.transfer_code', $code)
+    ->order_by('products.style_code', 'ASC')
+    ->order_by('products.color_code', 'ASC')
+    ->order_by('product_size.position', 'ASC')
     ->get();
 
     if($rs->num_rows() > 0)
@@ -356,6 +301,12 @@ class Transfer_model extends CI_Model
   }
 
 
+  public function valid_detail($id, $val)
+  {
+    return $this->db->set('valid', $val)->where('id', $id)->update('transfer_detail');
+  }
+
+
   public function count_rows(array $ds = array())
   {
     $this->db->where('code IS NOT NULL',NULL, FALSE);
@@ -452,11 +403,11 @@ class Transfer_model extends CI_Model
 
   public function get_warehouse_in($txt)
   {
-    $rs = $this->ms
-    ->select('WhsCode')
-    ->like('WhsCode', $txt)
-    ->or_like('WhsName', $txt)
-    ->get('OWHS');
+    $rs = $this->db
+    ->select('code')
+    ->like('code', $txt)
+    ->or_like('name', $txt)
+    ->get('warehouse');
 
     $arr = array('none');
 
@@ -464,7 +415,7 @@ class Transfer_model extends CI_Model
     {
       foreach($rs->result() as $wh)
       {
-        $arr[] = $wh->WhsCode;
+        $arr[] = $wh->code;
       }
     }
 

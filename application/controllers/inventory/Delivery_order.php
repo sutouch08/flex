@@ -23,11 +23,12 @@ class Delivery_order extends PS_Controller
   {
     $this->load->model('masters/customers_model');
     $this->load->helper('channels');
+    $this->load->helper('payment_method');
     $this->load->helper('order');
     $filter = array(
       'code'          => get_filter('code', 'code', ''),
       'customer'      => get_filter('customer', 'customer', ''),
-      'user'          => get_filter('user', 'user', ''),
+      'payment'       => get_filter('payment', 'payment', ''),
       'role'          => get_filter('role', 'role', ''),
       'channels'      => get_filter('channels', 'channels', ''),
       'from_date'     => get_filter('from_date', 'from_date', ''),
@@ -58,12 +59,12 @@ class Delivery_order extends PS_Controller
   public function confirm_order()
   {
     $sc = TRUE;
-    $message = 'ทำรายการไม่สำเร็จ';
     $this->load->model('inventory/buffer_model');
     $this->load->model('inventory/cancle_model');
     $this->load->model('inventory/movement_model');
     $this->load->model('inventory/invoice_model');
     $this->load->model('masters/customers_model');
+    $this->load->model('stock/stock_model');
     $this->load->helper('discount');
     $code = $this->input->post('order_code');
     $use_qc = getConfig('USE_QC') == 1 ? TRUE : FALSE;
@@ -75,14 +76,21 @@ class Delivery_order extends PS_Controller
         $this->load->model('inventory/transform_model');
       }
 
+      //--- กรณียืมสินค้า
       if($order->role == 'L')
       {
         $this->load->model('inventory/lend_model');
       }
 
+      //---- กรณีฝากขาย (โอนคลัง)
+      if($order->role == 'N')
+      {
+        $this->load->model('orders/consign_model');
+      }
+
       if($order->state == 7)
       {
-        $this->db->trans_start();
+        $this->db->trans_begin();
 
         //--- change state
        $this->orders_model->change_state($code, 8);
@@ -166,6 +174,36 @@ class Delivery_order extends PS_Controller
                     $sc = FALSE;
                     $message = 'บันทึก movement ขาออกไม่สำเร็จ';
                     break;
+                  }
+
+
+                  //--- กรณีฝากขาย
+                  if($order->role === 'N' OR $order->role === 'C')
+                  {
+                    //--- 1. เพิ่มสต็อกเข้าโซนปลายทาง
+                    if($this->stock_model->update_stock_zone($order->zone_code, $rm->product_code, $buffer_qty) !== TRUE)
+                    {
+                      $sc = FALSE;
+                      $message = 'โอนสินค้าเข้าโซนปลายทางไม่สำเร็จ';
+                    }
+
+                    //--- 2. เพิ่ม movement เข้าปลายทาง
+                    $arr = array(
+                      'reference' => $order->code,
+                      'warehouse_code' => $order->warehouse_code,
+                      'zone_code' => $order->zone_code,
+                      'product_code' => $rm->product_code,
+                      'move_in' => $buffer_qty,
+                      'move_out' => 0,
+                      'date_add' => $order->date_add
+                    );
+
+                    if($this->movement_model->add($arr) === FALSE)
+                    {
+                      $sc = FALSE;
+                      $message = 'บันทึก movement ขาเข้าไม่สำเร็จ';
+                      break;
+                    }
                   }
 
                   $total_amount = $rs->final_price * $buffer_qty;
@@ -448,23 +486,17 @@ class Delivery_order extends PS_Controller
           }
         }
 
-        $this->db->trans_complete();
-
-        if($this->db->trans_status() === FALSE)
+        if($sc === TRUE)
         {
-          $sc = FALSE;
+          $this->db->trans_commit();
+        }
+        else
+        {
+          $this->db->trans_rollback();
         }
 
       } //--- end if state == 7
-      else
-      {
-        $sc = FALSE;
-      }
-    }
-    else
-    {
-      $sc = FALSE;
-      $message = 'order code not found';
+
     }
 
     echo $sc === TRUE ? 'success' : $message;

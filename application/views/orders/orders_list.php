@@ -68,8 +68,16 @@
       <input type="text" class="form-control input-sm width-50 from-date" name="fromDate" id="fromDate" value="<?php echo $from_date; ?>" />
       <input type="text" class="form-control input-sm width-50" name="toDate" id="toDate" value="<?php echo $to_date; ?>" />
     </div>
-
   </div>
+
+	<div class="col-sm-1 col-1-harf padding-5">
+		<label>สถานะการชำระเงิน</label>
+		<select class="form-control input-sm" name="is_paid" onchange="getSearch()">
+			<option value="all" <?php echo is_selected('all', $is_paid); ?>>ทั้งหมด</option>
+			<option value="paid" <?php echo is_selected('paid', $is_paid); ?>>จ่ายแล้ว</option>
+			<option value="not_paid" <?php echo is_selected('not_paid', $is_paid); ?>>ยังไม่จ่าย</option>
+		</select>
+	</div>
 
   <div class="col-sm-1 padding-5">
     <label class="display-block not-show">buton</label>

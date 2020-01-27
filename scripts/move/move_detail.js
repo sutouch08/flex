@@ -1,31 +1,3 @@
-function doExport()
-{
-	var code = $('#move_code').val();
-	load_in();
-	$.ajax({
-		url:HOME + 'export_move/' + code,
-		type:'POST',
-		cache:false,
-		success:function(rs){
-			load_out();
-			if(rs == 'success'){
-				swal({
-					title:'Success',
-					text:'ส่งข้อมูลไป SAP เรียบร้อยแล้ว',
-					type:'success',
-					timer:1000
-				});
-			}else{
-				swal({
-					title:'Error!',
-					text:rs,
-					type:'error'
-				});
-			}
-		}
-	});
-}
-
 
 function deleteMoveItem(id, code)
 {

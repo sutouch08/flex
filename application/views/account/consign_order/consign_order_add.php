@@ -19,39 +19,22 @@
     <input type="text" class="form-control input-sm" value="" disabled />
   </div>
 
-  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+  <div class="col-sm-1 col-xs-6 padding-5">
     <label>วันที่</label>
     <input type="text" class="form-control input-sm text-center" name="date_add" id="date" value="<?php echo date('d-m-Y'); ?>" readonly required />
   </div>
 
-  <div class="col-sm-4 col-4-harf col-xs-12 padding-5">
+  <div class="col-sm-2 col-2-harf col-xs-12 padding-5">
     <label>ลูกค้า[ในระบบ]</label>
     <input type="text" class="form-control input-sm" name="customer" id="customer" value="" required />
   </div>
 
-	<div class="col-sm-4 col-4-harf col-xs-12 padding-5 last">
+	<div class="col-sm-3 col-xs-12 padding-5">
     <label>โซน[ฝากขาย]</label>
 		<input type="text" class="form-control input-sm" name="zone" id="zone" value="" />
   </div>
 
-  <div class="col-sm-1 col-1-harf col-xs-6 padding-5 first">
-    <label>ช่องทางขาย</label>
-    <select class="form-control input-sm" name="channels" id="channels" required>
-      <option value="">กรุณาเลือก</option>
-      <?php echo select_channels(); ?>
-    </select>
-  </div>
-
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-    <label>เปิดบิล</label>
-    <select class="form-control input-sm" name="is_so" id="is_so" required>
-      <option value="">กรุณาเลือก</option>
-      <option value="1">เปิดบิล</option>
-			<option value="0">ไม่เปิด</option>
-    </select>
-  </div>
-
-  <div class="col-sm-8 col-xs-12 padding-5">
+  <div class="col-sm-3 col-xs-12 padding-5">
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm" name="remark" id="remark" value="">
   </div>

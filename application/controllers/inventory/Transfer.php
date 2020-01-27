@@ -214,7 +214,7 @@ class Transfer extends PS_Controller
   public function save_transfer($code)
   {
     $sc = TRUE;
-    $this->db->trans_start();
+    $this->db->trans_begin();
     //--- change state to 1
     $this->transfer_model->set_status($code, 1);
     $this->transfer_model->valid_all_detail($code, 1);
@@ -224,9 +224,31 @@ class Transfer extends PS_Controller
     if(!empty($details))
     {
       $this->load->model('inventory/movement_model');
+      //--- global config for allow stock less than zero
+      $g_auz = getConfig('ALLOW_UNDER_ZERO') == 1 ? TRUE : FALSE;
+
       foreach($details as $rs)
       {
-        //--- 2. update movement
+        //--- 2. move stock out
+        $auz = $g_auz === TRUE ? TRUE : $this->warehouse_model->is_auz($doc->from_warehouse);
+        $in_zone = $this->stock_model->get_stock_zone($rs->from_zone, $rs->product_code);
+        if(($in_zone < $rs->qty) && $auz === FALSE)
+        {
+          $sc = FALSE;
+          $message = $rs->product_code.' : สต็อกคงเหลือน้อยกว่ายอดที่ต้องการย้าย';
+        }
+        else
+        {
+          //----- ตัดสต็อกออกจากโซนต้นทาง
+          if($this->stock_model->update_stock_zone($rs->from_zone, $rs->product_code, (-1) * $rs->qty) === FALSE)
+          {
+            $sc = FALSE;
+            $message = 'ตัดยอดจากโซนต้นทางไม่สำเร็จ';
+          }
+        }
+
+
+        //--- 2.1  update movement
         $move_out = array(
           'reference' => $code,
           'warehouse_code' => $doc->from_warehouse,
@@ -234,16 +256,6 @@ class Transfer extends PS_Controller
           'product_code' => $rs->product_code,
           'move_in' => 0,
           'move_out' => $rs->qty,
-          'date_add' => $doc->date_add
-        );
-
-        $move_in = array(
-          'reference' => $code,
-          'warehouse_code' => $doc->to_warehouse,
-          'zone_code' => $rs->to_zone,
-          'product_code' => $rs->product_code,
-          'move_in' => $rs->qty,
-          'move_out' => 0,
           'date_add' => $doc->date_add
         );
 
@@ -255,6 +267,24 @@ class Transfer extends PS_Controller
           break;
         }
 
+        //--- 2.2 เพิ่มสต็อกเข้าโซนปลายทาง
+        if($this->stock_model->update_stock_zone($rs->to_zone, $rs->product_code, $rs->qty) === FALSE)
+        {
+          $sc = FALSE;
+          $message = 'เพิ่มสต็อกเข้าโซนปลายทางไม่สำเร็จ';
+        }
+
+        //--- 2.3 บันทึก movement เข้าปลายทาง
+        $move_in = array(
+          'reference' => $code,
+          'warehouse_code' => $doc->to_warehouse,
+          'zone_code' => $rs->to_zone,
+          'product_code' => $rs->product_code,
+          'move_in' => $rs->qty,
+          'move_out' => 0,
+          'date_add' => $doc->date_add
+        );
+
         //--- move in
         if($this->movement_model->add($move_in) === FALSE)
         {
@@ -265,18 +295,13 @@ class Transfer extends PS_Controller
       }
     }
 
-
-    $this->db->trans_complete();
-
-    if($this->db->trans_status() === FALSE)
-    {
-      $sc = FALSE;
-      $message = $this->db->error();
-    }
-
     if($sc === TRUE)
     {
-      $this->do_export($code);
+      $this->db->trans_commit();
+    }
+    else
+    {
+      $this->db->trans_rollback();
     }
 
     echo $sc === TRUE ? 'success' : $message;
@@ -288,20 +313,96 @@ class Transfer extends PS_Controller
   {
     $sc = TRUE;
     $this->load->model('inventory/movement_model');
-    $this->db->trans_start();
-    //--- change state to 1
-    $this->transfer_model->set_status($code, 0);
-    $this->transfer_model->valid_all_detail($code, 0);
-    $this->movement_model->drop_movement($code);
-    $this->db->trans_complete();
-
-    if($this->db->trans_status() === FALSE)
+    $doc = $this->transfer_model->get($code);
+    $details = $this->transfer_model->get_details($code);
+    if($doc->status == 1)
     {
-      $sc = FALSE;
-      $message = $this->db->error();
+      $this->db->trans_begin();
+      if(!empty($details))
+      {
+        $g_auz = getConfig('ALLOW_UNDER_ZERO') == 1 ? TRUE : FALSE;
+        foreach($details as $rs)
+        {
+          if($sc === FALSE)
+          {
+            break;
+          }
+
+          //--- 1. ดึงสต็อกออกจากโซนปลายทาง
+          $auz = $g_auz === TRUE ? TRUE : $this->warehouse_model->is_auz($doc->to_warehouse);
+          $in_zone = $this->stock_model->get_stock_zone($rs->to_zone, $rs->product_code);
+          if($in_zone < $rs->qty && $auz === FALSE)
+          {
+            $sc = FALSE;
+            $this->error = $rs->product_code.' : สินค้าในโซนไม่เพียงพอ';
+            break;
+          }
+          else
+          {
+            if($this->stock_model->update_stock_zone($rs->to_zone, $rs->product_code, (-1) * $rs->qty) === FALSE)
+            {
+              $sc = FALSE;
+              $this->error = 'ตัดสต็อกออกจากโซน '.$rs->to_zone.' ไม่สำเร็จ';
+            }
+          }
+
+          //--- 2. drop movement ขาเข้า
+          if($this->movement_model->drop_move_in($doc->code, $rs->product_code, $rs->to_zone) === FALSE)
+          {
+            $sc = FALSE;
+            $this->error = $rs->product_code.' : ลบ movement (in) ไม่สำเร็จ';
+            break;
+          }
+
+          //--- 3. add stock back to zone
+          if($this->stock_model->update_stock_zone($rs->from_zone, $rs->product_code, $rs->qty) === FALSE)
+          {
+            $sc = FALSE;
+            $this->error = $rs->product_code.' : เพิ่มสต็อกกลับโซน '.$rs->from_zone.' ไม่สำเร็จ';
+            break;
+          }
+
+          //--- 4. ลบ movement out
+          if($this->movement_model->drop_move_out($doc->code, $rs->product_code, $rs->from_zone) === FALSE)
+          {
+            $sc = FALSE;
+            $this->error = $rs->product_code.' : ลบ movement (out) ไม่สำเร็จ';
+            break;
+          }
+
+          //--- 5. valid detail
+          if($this->transfer_model->valid_detail($rs->id, 0) === FALSE)
+          {
+            $sc = FALSE;
+            $this->error = $rs->product_code.' : เปลี่ยนสถานะรายการไม่สำเร็จ';
+            break;
+          }
+
+        }
+      }
+
+      if($sc === TRUE)
+      {
+        //--- 6. เปลี่ยนสถานะเอกสาร
+        if($this->transfer_model->set_status($code, 0) === FALSE)
+        {
+          $sc = FALSE;
+          $this->error = 'เปลี่ยนสถานะเอกสารไมสำเร็จ';
+        }
+      }
+
+
+      if($sc === TRUE)
+      {
+        $this->db->trans_commit();
+      }
+      else
+      {
+        $this->db->trans_rollback();
+      }
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 

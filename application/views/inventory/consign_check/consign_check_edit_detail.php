@@ -46,7 +46,7 @@
 				</td>
 				<td class="middle">
 					<input type="hidden" id="barcode_<?php echo $rs->barcode; ?>" value="<?php echo $rs->barcode; ?>">
-					<?php echo $rs->barcode; ?>
+					<span class="barcode"><?php echo $rs->barcode; ?></span>
 				</td>
 				<td class="middle"><?php echo $rs->product_code; ?></td>
 				<td class="middle text-right">

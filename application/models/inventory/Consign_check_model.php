@@ -101,7 +101,7 @@ class Consign_check_model extends CI_Model
     $rs = $this->db
     ->select('product_code, product_name, (stock_qty - qty) AS diff')
     ->where('check_code', $code)
-    ->where('stock_qty !=', 'qty')
+    ->where('stock_qty !=', 'qty', FALSE)
     ->get('consign_check_detail');
 
     if($rs->num_rows() > 0)

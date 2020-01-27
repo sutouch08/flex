@@ -120,8 +120,21 @@ class stock_model extends CI_Model
 
   public function update($id, $qty)
   {
-    return $this->db->set("qty", "qty + {$qty}", FALSE)->where('id', $id)->update('stock');
+    $rs = $this->db->set("qty", "qty + {$qty}", FALSE)->where('id', $id)->update('stock');
+    if($rs)
+    {
+      $this->remove_zero_stock();
+    }
+
+    return $rs;
   }
+
+
+  public function remove_zero_stock()
+  {
+    return $this->db->where('qty =',0, FALSE)->delete('stock');
+  }
+
 
 
   public function get_id($zone_code, $product_code)

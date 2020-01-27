@@ -15,8 +15,6 @@ class Consign_order extends PS_Controller
     $this->load->model('masters/zone_model');
     $this->load->model('masters/warehouse_model');
     $this->load->model('masters/products_model');
-    $this->load->model('masters/channels_model');
-    $this->load->helper('channels');
     $this->load->helper('discount');
   }
 
@@ -27,12 +25,10 @@ class Consign_order extends PS_Controller
       'code' => get_filter('code', 'code', ''),
       'customer' => get_filter('customer', 'customer', ''),
       'zone' => get_filter('zone', 'zone', ''),
-      'channels' => get_filter('channels', 'channels', 'all'),
       'from_date' => get_filter('from_date', 'from_date', ''),
       'to_date' => get_filter('to_date', 'to_date', ''),
       'status' => get_filter('status', 'status', 'all'),
-      'ref_code' => get_filter('ref_code', 'ref_code', ''),
-      'is_so' => get_filter('is_so', 'is_so', 'all')
+      'ref_code' => get_filter('ref_code', 'ref_code', '')
     );
 
     //--- แสดงผลกี่รายการต่อหน้า
@@ -83,7 +79,6 @@ class Consign_order extends PS_Controller
 
         $arr = array(
           'code' => $code,
-          'channels_code' => $this->input->post('channels'),
           'customer_code' => $this->input->post('customerCode'),
           'customer_name' => $this->input->post('customer'),
           'zone_code' => $zone->code,
@@ -91,8 +86,7 @@ class Consign_order extends PS_Controller
           'warehouse_code' => $zone->warehouse_code,
           'remark' => $this->input->post('remark'),
           'date_add' => $date_add,
-          'user' => get_cookie('uname'),
-          'is_so' => $this->input->post('is_so')
+          'user' => get_cookie('uname')
         );
 
         if(! $this->consign_order_model->add($arr))
@@ -162,9 +156,7 @@ class Consign_order extends PS_Controller
       {
         $arr = array(
           'date_add' => db_date($this->input->post('date'), TRUE),
-          'channels_code' => $this->input->post('channels'),
-          'remark' => trim($this->input->post('remark')),
-          'is_so' => $this->input->post('is_so')
+          'remark' => trim($this->input->post('remark'))
         );
 
         if(! $this->consign_order_model->update($code, $arr))
@@ -233,10 +225,6 @@ class Consign_order extends PS_Controller
   {
     $this->load->helper('print');
     $doc = $this->consign_order_model->get($code);
-    if(!empty($doc))
-    {
-      $doc->channels_name = $this->channels_model->get_name($doc->channels_code);
-    }
 
     $details = $this->consign_order_model->get_details($code);
     if(!empty($details))
@@ -382,50 +370,154 @@ class Consign_order extends PS_Controller
   {
     $sc = TRUE;
     $this->load->model("stock/stock_model");
+    $this->load->model('inventory/movement_model');
+    $this->load->model('inventory/delivery_order_model');
+    $this->load->model('account/payment_receive_model');
     $this->load->model("masters/warehouse_model");
     $doc = $this->consign_order_model->get($code);
-    $auz = $this->warehouse_model->is_auz($doc->warehouse_code);
-    if($doc->status == 0)
+    if(!empty($doc))
     {
-      $details = $this->consign_order_model->get_details($code);
-      if(!empty($details))
+      $g_auz = getConfig('ALLOW_UNDER_ZERO') == 1 ? TRUE : FALSE;
+      //--- อณุญาติให้ติดลบได้หรือไม่
+      $auz = $g_auz === TRUE ? TRUE : $this->warehouse_model->is_auz($doc->warehouse_code);
+      //--- ยอดเงินรวมสำหรับบันทึกรับเงิน
+      $pay_amount = 0;
+
+      $this->db->trans_begin();
+
+      //---- ถ้ายังไม่ได้บันทึก
+      if($doc->status == 0)
       {
-        $this->db->trans_begin();
+        $details = $this->consign_order_model->get_details($code);
 
-        //--- check stock and update status each row
-        foreach($details as $rs)
+        if(!empty($details))
         {
-          if($sc === FALSE)
+          //--- check stock and update status each row
+          foreach($details as $rs)
           {
-            break;
-          }
-
-          //--- get item info
-          $item = $this->products_model->get($rs->product_code);
-
-          if(!empty($item))
-          {
-            $stock = $item->count_stock == 1 ?$this->stock_model->get_stock_zone($doc->zone_code, $item->code) : 1000000;
-            if($rs->qty <= $stock OR $auz)
+            if($sc === FALSE)
             {
+              break;
+            }
+
+            //--- get item info
+            $item = $this->products_model->get($rs->product_code);
+
+            if(!empty($item))
+            {
+              if($item->count_stock == 1)
+              {
+                $stock = $this->stock_model->get_stock_zone($doc->zone_code, $rs->product_code);
+                if($rs->qty <= $stock OR $auz)
+                {
+                  //--- 1. ตัดสต็อกออกจากโซน
+                  if(! $this->stock_model->update_stock_zone($doc->zone_code, $rs->product_code, (-1) * $rs->qty))
+                  {
+                    $sc = FALSE;
+                    $this->error = "ตัดสต็อกไม่สำเร็จ : {$rs->product_code}";
+                    break;
+                  }
+                }
+                else
+                {
+                  $sc = FALSE;
+                  $this->error = "{$rs->product_code} ยอดในโซนไม่พอตัด  ในโซน: {$stock} ยอดตัด : {$rs->qty}";
+                }
+              }
+
+              //--- 2. บันทึก movement
+              if(! $this->movement_model->move_out($doc->code, $rs->product_code, $doc->warehouse_code, $doc->zone_code, $rs->qty, $doc->date_add))
+              {
+                $sc = FALSE;
+                $this->error = "บันทึก movement ไม่สำเร็จ : {$rs->product_code}";
+                break;
+              }
+
+              //--- 3. บันทึกขาย
+              //--- ข้อมูลสำหรับบันทึกยอดขาย
+              $arr = array(
+                      'reference' => $doc->code,
+                      'role'   => 'M', //-- ตัดยอดฝากขาย
+                      'payment_code'   => NULL,
+                      'channels_code'  => NULL,
+                      'product_code'  => $rs->product_code,
+                      'product_name'  => $rs->product_name,
+                      'product_style' => $rs->style_code,
+                      'cost'  => $rs->cost,
+                      'price'  => $rs->price,
+                      'sell'  => ($rs->amount/$rs->qty),
+                      'qty'   => $rs->qty,
+                      'discount_label'  => $rs->discount,
+                      'discount_amount' => $rs->discount_amount,
+                      'total_amount'   => $rs->amount,
+                      'total_cost'   => $rs->cost * $rs->qty,
+                      'margin'  =>  $rs->amount - ($rs->cost * $rs->qty),
+                      'id_policy'   => NULL,
+                      'id_rule'     => NULL,
+                      'customer_code' => $doc->customer_code,
+                      'customer_ref' => NULL,
+                      'sale_code'   => NULL,
+                      'user' => $doc->user,
+                      'date_add'  => $doc->date_add,
+                      'zone_code' => $doc->zone_code,
+                      'warehouse_code'  => $doc->warehouse_code,
+                      'update_user' => get_cookie('uname'),
+                      'budget_code' => NULL
+              );
+
+              //--- 3. บันทึกยอดขาย
+              if($this->delivery_order_model->sold($arr) !== TRUE)
+              {
+                $sc = FALSE;
+                $message = 'บันทึกขายไม่สำเร็จ';
+                break;
+              }
+
+              $pay_amount += $rs->amount;
+
               if(! $this->consign_order_model->change_detail_status($rs->id, 1))
               {
                 $sc = FALSE;
-                $this->error = "บันทึกรายการไม่สำเร็จ : {$item->code}";
+                $this->error = "บันทึกรายการไม่สำเร็จ : {$rs->product_code}";
               }
+
             }
             else
             {
               $sc = FALSE;
-              $this->error = "{$item->code} ยอดในโซนไม่พอตัด  ในโซน: {$stock} ยอดตัด : {$rs->qty}";
+              $this->error = "ไม่พบรายการสินค้า : {$rs->product_code}";
+            }
+
+
+          } //-- end foreach
+
+        }//--- end if details
+
+
+
+        if($sc === TRUE)
+        {
+          if($pay_amount != 0)
+          {
+            //--- 4. บันทึกรับเงิน
+            $payment = array(
+              'reference' => $doc->code,
+              'customer_code' => $doc->customer_code,
+              'pay_date' => $doc->date_add,
+              'amount' => $pay_amount,
+              'payment_type' => 'CA', //-- เงินสด
+              'valid' => 1
+            );
+
+            if(! $this->payment_receive_model->add($payment))
+            {
+              $sc = FALSE;
+              $this->error = "บันทึกรับเงินไม่สำเร็จ";
             }
           }
-          else
-          {
-            $sc = FALSE;
-            $this->error = "ไม่พบรายการสินค้า : {$rs->product_code}";
-          }
         }
+
+
 
         //--- if no error
         if($sc === TRUE)
@@ -445,24 +537,19 @@ class Consign_order extends PS_Controller
         {
           $this->db->trans_commit();
         }
-
-        //--- export data to SAP
-        if($sc === TRUE && $doc->is_so == 0)
-        {
-          $this->export_goods_issue($code);
-        }
-
-        if($sc === TRUE && $doc->is_so == 1)
-        {
-          $this->export_delivery_order($code);
-        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "เอกสารถูกบันทึกไปแล้ว";
       }
     }
     else
     {
       $sc = FALSE;
-      $this->error = "เอกสารถูกบันทึกไปแล้ว";
+      $this->error = 'เลขที่เอกสารไม่ถูกต้อง';
     }
+
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
@@ -473,34 +560,132 @@ class Consign_order extends PS_Controller
   {
     $sc = TRUE;
     $this->load->model("stock/stock_model");
+    $this->load->model('inventory/movement_model');
+    $this->load->model('inventory/invoice_model');
+    $this->load->model('account/payment_receive_model');
     $this->load->model("masters/warehouse_model");
     $doc = $this->consign_order_model->get($code);
-    if($doc->status == 1)
+    if(!empty($doc))
     {
-      $this->db->trans_begin();
-      if(! $this->consign_order_model->change_all_detail_status($code, 0))
+      if($doc->status == 1)
       {
-        $sc = FALSE;
-        $this->error = "เปลี่ยนสถานะรายการไม่สำเร็จ";
-      }
+        $this->db->trans_begin();
 
-      if($sc === TRUE)
-      {
-        if(! $this->consign_order_model->change_status($code, 0))
+        $pay_amount = 0;
+
+        $details = $this->consign_order_model->get_details($code);
+
+        if(!empty($details))
         {
-          $sc = FALSE;
-          $this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
-        }
-      }
+          //--- check stock and update status each row
+          foreach($details as $rs)
+          {
+            if($sc === FALSE)
+            {
+              break;
+            }
 
-      if($sc === TRUE)
-      {
-        $this->db->trans_commit();
-      }
-      else
-      {
-        $this->db->trans_rollback();
-      }
+            //--- get item info
+            $item = $this->products_model->get($rs->product_code);
+
+            if(!empty($item))
+            {
+              if($item->count_stock == 1)
+              {
+                //--- 1. คืนสต็อกกลับเข้าโซน
+                if(! $this->stock_model->update_stock_zone($doc->zone_code, $rs->product_code, $rs->qty))
+                {
+                  $sc = FALSE;
+                  $this->error = "คืนสต็อกกลับโซนไม่สำเร็จ : {$rs->product_code}";
+                  break;
+                }
+              } //-- end if item
+
+
+              //--- 2. บันทึก movement
+              if(! $this->movement_model->move_out($doc->code, $rs->product_code, $doc->warehouse_code, $doc->zone_code, (-1) * $rs->qty, $doc->date_add))
+              {
+                $sc = FALSE;
+                $this->error = "บันทึก movement ไม่สำเร็จ : {$rs->product_code}";
+                break;
+              }
+
+              //--- 3. ลบยอดขาย
+              $sold_id = $this->invoice_model->get_sold_id($doc->code, $doc->customer_code, $rs->product_code, $rs->cost, $rs->price, $rs->discount);
+
+              if(! $this->invoice_model->drop_sold($sold_id))
+              {
+                $sc = FALSE;
+                $message = 'ลบบันทึกขายไม่สำเร็จ';
+                break;
+              }
+
+              $pay_amount -= $rs->amount;
+
+              if(! $this->consign_order_model->change_detail_status($rs->id, 0))
+              {
+                $sc = FALSE;
+                $this->error = "บันทึกรายการไม่สำเร็จ : {$rs->product_code}";
+              }
+
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "ไม่พบรายการสินค้า : {$rs->product_code}";
+            }
+          } //-- end foreach
+
+          if($sc === TRUE)
+          {
+            if($pay_amount != 0)
+            {
+              //--- 4. บันทึกรับเงิน
+              $payment = array(
+                'reference' => $doc->code,
+                'customer_code' => $doc->customer_code,
+                'pay_date' => $doc->date_add,
+                'amount' => $pay_amount,
+                'payment_type' => 'CA', //-- เงินสด
+                'valid' => 1
+              );
+
+              if(! $this->payment_receive_model->add($payment))
+              {
+                $sc = FALSE;
+                $this->error = "บันทึกรับเงินไม่สำเร็จ";
+              }
+            }
+          }
+
+        } //--- end if $details
+
+        //--- if no error
+        if($sc === TRUE)
+        {
+          if( ! $this->consign_order_model->change_status($code, 0))
+          {
+            $sc = FALSE;
+            $this->error = "บันทึกสถานะเอกสารไม่สำเร็จ";
+          }
+        }
+
+        if($sc === FALSE)
+        {
+          $this->db->trans_rollback();
+        }
+        else
+        {
+          $this->db->trans_commit();
+        }
+
+      } //--- end if $doc  == 1
+
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = 'เลขที่เอกสารไม่ถูกต้อง';
     }
 
 
@@ -1030,12 +1215,6 @@ class Consign_order extends PS_Controller
   }
 
 
-  public function export_consign($code)
-  {
-    return TRUE;
-  }
-
-
 
   public function print_consign($code)
   {
@@ -1044,7 +1223,6 @@ class Consign_order extends PS_Controller
     $doc = $this->consign_order_model->get($code);
     if(!empty($doc))
     {
-      $doc->channels_name = $this->channels_model->get_name($doc->channels_code);
       $doc->warehouse_name = $this->warehouse_model->get_name($doc->warehouse_code);
     }
 
@@ -1090,95 +1268,9 @@ class Consign_order extends PS_Controller
   }
 
 
-  public function export_goods_issue($code)
-  {
-    $sc = TRUE;
-    $doc = $this->consign_order_model->get($code);
-    if(!empty($doc))
-    {
-      $do = $this->consign_order_model->get_sap_consign_order_doc($code);
-      $update = empty($do) ? FALSE : TRUE;
-      if(empty($do) OR $do->DocStatus == 'O')
-      {
-        $arr = array(
-          'U_ECOMNO' => $code,
-          'DocType' => 'I',
-          'DocDate' => $doc->date_add,
-          'Comments' => $doc->remark,
-          'F_E_Commerce' => $update ? 'U' : 'A',
-          'F_E_CommerceDate' => now(),
-        );
-
-        $this->mc->trans_start();
-        if(!empty($do))
-        {
-          if(! $this->consign_order_model->update_sap_goods_issue($code, $arr))
-          {
-            $sc = FALSE;
-            $this->error = "ปรับปรุงเอกสารไม่สำเร็จ";
-          }
-        }
-        else
-        {
-          if(! $this->consign_order_model->add_sap_goods_issue($arr))
-          {
-            $sc = FALSE;
-            $this->error = "เพิ่มเอกสารไม่สำเร็จ";
-          }
-        }
-
-
-        //--- now add details
-        if($sc === TRUE)
-        {
-          $details = $this->consign_order_model->get_details($code);
-          if(!empty($details))
-          {
-            if($update)
-            {
-              $this->consign_order_model->drop_sap_exists_details($code);
-            }
-
-            $line = 0;
-            foreach($details as $rs)
-            {
-              $arr = array(
-                'U_ECOMNO' => $rs->consign_code,
-                'LineNum' => $line,
-                'ItemCode' => $rs->product_code,
-                'Dscription' => $rs->product_name,
-                'Quantity' => $rs->qty,
-                'WhsCode' => $doc->warehouse_code,
-                'FisrtBin' => $doc->zone_code,
-                'DocDate' => $doc->date_add,
-                'F_E_Commerce' => $update ? 'U' : 'A'
-              );
-
-              $this->consign_order_model->add_sap_goods_issue_row($arr);
-              $line++;
-            }
-          }
-        }
-
-        $this->mc->trans_complete();
-      } //-- endif;
-
-    }
-    else
-    {
-      $sc = FALSE;
-      $this->error = "ไม่พบเลขที่เอกสาร";
-    }
-
-    return $sc;
-  }
-
-
-
-
   public function clear_filter()
   {
-    $filter = array('code', 'customer', 'zone', 'channels', 'from_date', 'to_date', 'status', 'is_so', 'ref_code');
+    $filter = array('code', 'customer', 'zone', 'from_date', 'to_date', 'status', 'ref_code');
     clear_filter($filter);
   }
 

@@ -340,7 +340,6 @@ class Orders_model extends CI_Model
 
   public function count_rows(array $ds = array(), $role = 'S')
   {
-    $this->db->select('status');
     $this->db->where('role', $role);
 
     //---- เลขที่เอกสาร
@@ -400,16 +399,23 @@ class Orders_model extends CI_Model
     }
 
 
+    if(! empty($ds['is_paid']))
+    {
+      if($ds['is_paid'] !== 'all')
+      {
+        $is_paid = $ds['is_paid'] == 'paid' ? 1 : 0;
+        $this->db->where('is_paid', $is_paid);
+      }
+    }
+
+
     if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
     {
       $this->db->where('date_add >=', from_date($ds['from_date']));
       $this->db->where('date_add <=', to_date($ds['to_date']));
     }
 
-    $rs = $this->db->get('orders');
-
-
-    return $rs->num_rows();
+    return $this->db->count_all_results('orders');
   }
 
 
@@ -477,6 +483,15 @@ class Orders_model extends CI_Model
       if( !empty($ds['user_ref']))
       {
         $this->db->like('user_ref', $ds['user_ref']);
+      }
+
+      if(! empty($ds['is_paid']))
+      {
+        if($ds['is_paid'] !== 'all')
+        {
+          $is_paid = $ds['is_paid'] == 'paid' ? 1 : 0;
+          $this->db->where('is_paid', $is_paid);
+        }
       }
 
       if( ! empty($ds['from_date']) && ! empty($ds['to_date']))

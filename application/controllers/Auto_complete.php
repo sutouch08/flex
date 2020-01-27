@@ -536,20 +536,23 @@ public function get_item_code()
   {
     $sc = array();
     $txt = $_REQUEST['term'];
-    $this->ms->select('CardCode, CardName')->where('CardType', 'C');
+    $this->db->where('active', 1);
     if($txt != '*')
     {
-      $this->ms->like('CardCode', $txt)->or_like('CardName', $txt);
+      $this->db->group_start();
+      $this->db->like('code', $txt)->or_like('name', $txt);
+      $this->db->group_end();
     }
-    $this->ms->limit(20);
 
-    $sponsor = $this->ms->get('OCRD');
+    $this->db->limit(20);
 
-    if($sponsor->num_rows() > 0)
+    $emp = $this->db->get('employee');
+
+    if($emp->num_rows() > 0)
     {
-      foreach($sponsor->result() as $rs)
+      foreach($emp->result() as $rs)
       {
-        $sc[] = $rs->CardCode.' | '.$rs->CardName;
+        $sc[] = $rs->code.' | '.$rs->name;
       }
     }
     else
@@ -669,7 +672,7 @@ public function get_item_code()
     if($txt != '*')
     {
       $this->db->like('code', $txt);
-      $this->db->or_like('WhsName', $txt);
+      $this->db->or_like('name', $txt);
     }
     $rs = $this->db->limit(20)->get('warehouse');
 

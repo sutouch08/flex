@@ -25,8 +25,11 @@
   </div>
 
 	<div class="col-sm-1 col-1-harf padding-5">
-    <label>พนักงาน</label>
-    <input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
+    <label>การชำระเงิน</label>
+		<select class="form-control input-sm" name="payment" onchange="getSearch()">
+			<option value="">ทั้งหมด</option>
+			<?php echo select_payment_method($payment); ?>
+		</select>
   </div>
 
 	<div class="col-sm-1 col-1-harf padding-5">
@@ -75,7 +78,7 @@
           <th class="width-20">เลขที่เอกสาร</th>
           <th class="">ลูกค้า/ผู้รับ/ผู้เบิก</th>
           <th class="width-10 text-center">ยอดเงิน</th>
-          <th class="width-10 text-center">รูปแบบ</th>
+          <th class="width-10 text-center">การชำระเงิน</th>
           <th class="width-15 text-center">พนักงาน</th>
         </tr>
       </thead>
@@ -97,6 +100,9 @@
           <td class="pointer" onclick="viewDetail('<?php echo $rs->code; ?>')">
             <?php echo $rs->code; ?>
             <?php echo ($rs->reference != '' ? ' ['.$rs->reference.']' : ''); ?>
+						<?php if($rs->payment_role == 4 && $rs->is_paid == 0) : ?>
+							<span class="label label-danger">รอเงินเข้า</span>
+						<?php endif; ?>
           </td>
 
           <td class="pointer hide-text" onclick="viewDetail('<?php echo $rs->code; ?>')">
@@ -111,7 +117,7 @@
           </td>
 
           <td class="pointer text-center" onclick="viewDetail('<?php echo $rs->code; ?>')">
-            <?php echo role_name($rs->role); ?>
+            <?php echo $rs->payment_name; ?>
           </td>
 
           <td class="pointer text-center hide-text" onclick="viewDetail('<?php echo $rs->code; ?>')">

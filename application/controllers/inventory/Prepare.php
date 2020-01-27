@@ -192,7 +192,7 @@ class Prepare extends PS_Controller
               else
               {
                 $is_enough = $this->stock_model->is_enough($zone_code, $ds->product_code, $qty);
-                $auz = getConfig('AlLOW_UNDER_ZERO') == 1 ? TRUE : $this->waehouse_model->is_auz($zone->warehouse_code);
+                $auz = getConfig('AlLOW_UNDER_ZERO') == 1 ? TRUE : $this->warehouse_model->is_auz($zone->warehouse_code);
 
                 if(!$is_enough && !$auz)
                 {

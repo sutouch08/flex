@@ -49,12 +49,16 @@ class Address extends PS_Controller
   {
     $this->load->model('orders/orders_model');
     $this->load->model('inventory/invoice_model');
+    $this->load->model('masters/payment_methods_model');
+    $this->load->model('masters/sender_model');
     $this->load->library('printer');
     $adr = $this->address_model->get_shipping_detail($id);
     $order = $this->orders_model->get($code);
     if(!empty($order))
     {
       $order->total_qty = $this->invoice_model->get_total_sold_qty($code);
+      $order->payment_role = $this->payment_methods_model->get_role($order->payment_code);
+      $order->sender_name = $this->sender_model->get_name($order->sender_id);
     }
 
     $details = $order->state == 8 ? $this->invoice_model->get_details($code) : FALSE;
@@ -70,7 +74,7 @@ class Address extends PS_Controller
         'cusProv' => ('จ. '.$adr->province),
         'cusPostCode' => $adr->postcode,
         'cusPhone' => $adr->phone,
-        'cusCode' => $code,
+        'cusCode' => $order->customer_code,
         'cName' => getConfig('COMPANY_FULL_NAME'),
         'cAddress' => getConfig('COMPANY_ADDRESS1').'<br>'.getConfig('COMPANY_ADDRESS2'),
         'cPhone' => getConfig('COMPANY_PHONE'),

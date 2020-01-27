@@ -9,18 +9,14 @@
     <div class="col-sm-9">
     	<p class="pull-right top-p">
 				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
-		    <?php if($doc->status == 1) : ?>
-		      <button type="button" class="btn btn-sm btn-info" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
-				<?php if($this->pm->can_edit) : ?>
+		    <?php if($doc->status == 1 && $this->pm->can_edit) : ?>
 					<button type="button" class="btn btn-sm btn-danger" onclick="unSave()"><i class="fa fa-exclamation-triangle"></i> ยกเลิกการบันทึก</button>
 				<?php endif; ?>
-		    <?php endif; ?>
-		    <?php if($doc->status == 1 && $this->pm->can_add OR $this->pm->can_edit) : ?>
 
+		    <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
 		      <?php if($doc->status == 0 && $barcode === TRUE) : ?>
 		        <button type="button" class="btn btn-sm btn-primary" onclick="goUseKeyboard()">คีย์มือ</button>
 		      <?php endif; ?>
-
 		      <?php if($doc->status == 0 && $barcode === FALSE) : ?>
 		        <button type="button" class="btn btn-sm btn-primary" onclick="goUseBarcode()">ใช้บาร์โค้ด</button>
 		      <?php endif; ?>

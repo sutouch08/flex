@@ -41,16 +41,12 @@
 		<input type="text" class="form-control input-sm" name="zone" id="zone" value="<?php echo $doc->zone_name; ?>" disabled />
   </div>
 
-  <div class="col-sm-1 col-1-harf col-xs-6 padding-5 first">
-    <label>ช่องทางขาย</label>
-    <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->channels_name; ?>" disabled>
-  </div>
 
-  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+  <div class="col-sm-1 col-1-harf col-xs-6 padding-5 first">
     <label>อ้างอิง</label>
     <input type="text" class="form-control input-sm text-center" name="ref_code" id="ref_code" value="<?php echo $doc->ref_code; ?>" disabled>
   </div>
-	<div class="col-sm-9 col-xs-12 padding-5 last">
+	<div class="col-sm-10 col-10-harf col-xs-12 padding-5 last">
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled>
   </div>

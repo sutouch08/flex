@@ -18,27 +18,27 @@
 
 <form id="searchForm" method="post">
 <div class="row">
-  <div class="col-sm-2 col-xs-6 padding-5 first">
+  <div class="col-sm-1 col-1-harf col-xs-6 padding-5 first">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search text-center" name="code" id="code" value="<?php echo $code; ?>" autofocus />
   </div>
 
-  <div class="col-sm-3 col-xs-6 padding-5">
+  <div class="col-sm-2 col-xs-6 padding-5">
     <label>ลูกค้า</label>
     <input type="text" class="form-control input-sm search text-center" name="customer" id="customer" value="<?php echo $customer; ?>" />
   </div>
 
-  <div class="col-sm-3 col-xs-6 padding-5">
+  <div class="col-sm-2 col-xs-6 padding-5">
     <label>โซน</label>
     <input type="text" class="form-control input-sm search text-center" name="zone" id="zone" value="<?php echo $zone; ?>" />
   </div>
 
-  <div class="col-sm-2 col-xs-6 padding-5">
+  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     <label>อ้างอิง</label>
     <input type="text" class="form-control input-sm search text-center" name="ref_code" id="ref_code" value="<?php echo $ref_code; ?>" />
   </div>
 
-  <div class="col-sm-2 col-xs-6 padding-5 last">
+  <div class="col-sm-2 col-xs-6 padding-5">
     <label class="display-block">วันที่</label>
     <div class="input-daterange input-group">
         <input type="text" class="form-control input-sm width-50 text-center from-date" name="from_date" id="fromDate" value="<?php echo $from_date; ?>">
@@ -46,15 +46,7 @@
       </div>
   </div>
 
-  <div class="col-sm-2 col-xs-6 padding-5 first">
-    <label>ช่องทางขาย</label>
-    <select class="form-control input-sm" name="channels" id="channels" onchange="getSearch()">
-      <option value="all">ทั้งหมด</option>
-      <?php echo select_channels($channels); ?>
-    </select>
-  </div>
-
-  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+  <div class="col-sm-1 col-xs-6 padding-5">
     <label>สถานะ</label>
     <select class="form-control input-sm" name="status" id="status" onchange="getSearch()">
       <option value="all" <?php echo is_selected($status, 'all'); ?>>ทั้งหมด</option>
@@ -64,23 +56,12 @@
     </select>
   </div>
 
-
-  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-    <label>เปิดบิล</label>
-    <select class="form-control input-sm" name="is_so" id="is_so" onchange="getSearch()">
-      <option value="all" <?php echo is_selected($is_so, 'all'); ?>>ทั้งหมด</option>
-      <option value="0" <?php echo is_selected($is_so, '0'); ?>>ไม่เปิด</option>
-      <option value="1" <?php echo is_selected($is_so, 1); ?>>เปิดบิล</option>
-    </select>
-  </div>
-
-
   <div class="col-sm-1 col-xs-6 padding-5">
     <label class="display-block not-show">search</label>
     <button type="button" class="btn btn-xs btn-primary btn-block" onclick="getSearch()"><i class="fa fa-search"></i> ค้นหา</button>
   </div>
 
-  <div class="col-sm-1 col-xs-6 padding-5">
+  <div class="col-sm-1 col-xs-6 padding-5 last">
     <label class="display-block not-show">Reset</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
@@ -110,7 +91,6 @@
            <th class="width-25">ลูกค้า</th>
            <th class="">โซน</th>
            <th class="width-10 text-right">มูลค่า</th>
-           <th class="width-5 text-center">เปิดบิล</th>
            <th class="width-5 text-center">สถานะ</th>
            <th class="width-8"></th>
          </tr>
@@ -138,14 +118,7 @@
           <td class="middle text-right">
             <?php echo number($rs->amount, 2); ?>
           </td>
-          <td class="middle text-center">
-            <?php if($rs->is_so == 1) : ?>
-              <span class="green">Y</span>
-            <?php endif; ?>
-            <?php if($rs->is_so == 0) : ?>
-              <span class="blue">N</span>
-            <?php endif; ?>
-          </td>
+          
           <td class="middle text-center">
             <?php if($rs->status == 2) : ?>
               <span class="red">CN</span>

@@ -233,22 +233,10 @@ class Consign_order_model extends CI_Model
 
   public function get_list(array $ds = array(), $perpage = NULL, $offset = NULL)
   {
-    //---- filter for channels code
-    if($ds['channels'] !== 'all')
-    {
-      $this->db->where('channels_code', $ds['channels']);
-    }
-
     //--- status
     if($ds['status'] !== 'all')
     {
       $this->db->where('status', $ds['status']);
-    }
-
-    //--- is so
-    if($ds['is_so'] !== 'all')
-    {
-      $this->db->where('is_so', $ds['is_so']);
     }
 
 
@@ -301,22 +289,10 @@ class Consign_order_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
-    //---- filter for channels code
-    if($ds['channels'] !== 'all')
-    {
-      $this->db->where('channels_code', $ds['channels']);
-    }
-
     //--- status
     if($ds['status'] !== 'all')
     {
       $this->db->where('status', $ds['status']);
-    }
-
-    //--- is so
-    if($ds['is_so'] !== 'all')
-    {
-      $this->db->where('is_so', $ds['is_so']);
     }
 
     //--- document date

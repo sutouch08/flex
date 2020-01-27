@@ -154,8 +154,7 @@ function add(){
   var date_add = $('#date').val();
   var zone_code = $('#zone_code').val();
   var zone_name = $('#zone').val();
-  var channels = $('#channels').val();
-  var is_so = $('#is_so').val();
+
 
   if(customer_code.length == 0 || customer_name.length == 0){
     swal('ชื่อลูกค้าไม่ถูกต้อง');
@@ -174,22 +173,11 @@ function add(){
     return false;
   }
 
-  if(channels.length == 0){
-    swal('กรุณาเลือกช่องทางขาย');
-    return false;
-  }
-
-  if(is_so === ''){
-    swal('กรุณาระบุการเปิดบิล');
-    return false;
-  }
-
   $('#addForm').submit();
 }
 
 
 var customer;
-var channels;
 var payment;
 var date;
 
@@ -204,19 +192,7 @@ function getEdit(){
 function update(){
   let code = $('#consign_code').val();
   let date = $('#date').val();
-  let channels = $('#channels').val();
-  let is_so = $('#is_so').val();
   let remark = $('#remark').val();
-
-  if(channels == ''){
-    swal('กรุณาเลือกช่องทางขาย');
-    return false;
-  }
-
-  if(is_so === ""){
-    swal('กรุณาระบุการเปิดบิล');
-    return false;
-  }
 
   if(!isDate(date)){
     swal('วันที่ไม่ถูกต้อง');
@@ -231,8 +207,6 @@ function update(){
     data:{
       'code' : code,
       'date' : date,
-      'channels' : channels,
-      'is_so' : is_so,
       'remark' : remark
     },
     success:function(rs){

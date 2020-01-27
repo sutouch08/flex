@@ -276,3 +276,10 @@ function openCheck(){
     });
   });
 }
+
+
+$('.barcode').click(function(){
+  var barcode = $(this).text();
+  $('#barcode').val(barcode);
+  $('#barcode').focus();
+})

@@ -239,8 +239,8 @@ function pagination_config( $base_url, $total_rows = 0, $perpage = 20, $segment 
     $input_rows .= '<buton class="btn btn-success btn-xs" type="button" onClick="set_rows()">'.label_value('show').'</button>';
     $input_rows .= '</p>';
 
-		$config['full_tag_open'] 		= '<nav><ul class="pagination">';
-		$config['full_tag_close'] 		= '</ul>'.$input_rows.'</nav><hr>';
+		$config['full_tag_open'] 		= '<nav><ul class="pagination hidden-print">';
+		$config['full_tag_close'] 		= '</ul>'.$input_rows.'</nav><hr class="hidden-print">';
 		$config['first_link'] 				= 'First';
 		$config['first_tag_open'] 		= '<li>';
 		$config['first_tag_close'] 		= '</li>';

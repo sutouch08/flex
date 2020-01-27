@@ -22,13 +22,13 @@ $menu_group = $this->menu_group_code;
 					<?php //echo side_menu($menu, 'ICTRRC',  'inventory/receive_transform', label_value('ICTRRC')); ?>
 				</ul>
 			</li>
-			<li class="<?php echo isActiveOpenMenu($menu_sub_group_code, 'RETURN'); ?>">
+			<!--<li class="<?php echo isActiveOpenMenu($menu_sub_group_code, 'RETURN'); ?>">
 				<a href="#" class="dropdown-toggle">
 					<i class="menu-icon fa fa-caret-right"></i> <?php label('RETURN'); ?> <b class="arrow fa fa-angle-down"></b>
 				</a>
 				<ul class="submenu">
 					<?php echo side_menu($menu, 'ICRTOR',  'inventory/return_order', label_value('ICRTOR')); ?>
-					<?php echo side_menu($menu, 'ICRTLD',  'inventory/return_lend', label_value('ICRTLD')); ?>
+					<?php //echo side_menu($menu, 'ICRTLD',  'inventory/return_lend', label_value('ICRTLD')); ?>
 				</ul>
 			</li>
 			<li class="<?php echo isActiveOpenMenu($menu_sub_group_code, 'REQUEST'); ?>">
@@ -41,7 +41,7 @@ $menu_group = $this->menu_group_code;
 				<?php //echo side_menu($menu, 'ICSUPP',  'inventory/support', label_value('ICSUPP')); ?>
 				<?php echo side_menu($menu, 'ICLEND',  'inventory/lend', label_value('ICLEND')); ?>
 				</ul>
-			</li>
+			</li> -->
 			<li class="<?php echo isActiveOpenMenu($menu_sub_group_code, 'PICKPACK'); ?>">
 				<a href="#" class="dropdown-toggle">
 					<i class="menu-icon fa fa-caret-right"></i> <?php label('PICKPACK'); ?>
@@ -83,7 +83,7 @@ $menu_group = $this->menu_group_code;
 					<?php echo side_menu($menu, 'ICCKMV',  'inventory/movement', label_value('ICCKMV')); ?>
 				</ul>
 			</li>
-			<?php //echo side_menu($menu, 'ICCSRC',  'inventory/consign_check', label_value('ICCSRC')); ?>
+			<?php echo side_menu($menu, 'ICCSRC',  'inventory/consign_check', label_value('ICCSRC')); ?>
 		</ul>
 	</li>
 
@@ -111,6 +111,9 @@ $menu_group = $this->menu_group_code;
 		<ul class="submenu">
 			<?php echo side_menu($menu, 'ACPMCF',  'orders/order_payment', label_value('ACPMCF')); ?>
 			<?php echo side_menu($menu, 'ACCSOD',  'account/consign_order', label_value('ACCSOD')); ?>
+			<?php echo side_menu($menu, 'ACODRP',  'account/order_repay', label_value('ACODRP')); ?>
+			<?php echo side_menu($menu, 'ACPMRC',  'account/payment_receive', label_value('ACPMRC')); ?>
+			<?php echo side_menu($menu, 'ACODCR',  'account/order_credit', label_value('ACODCR')); ?>
 		</ul>
 	</li>
 

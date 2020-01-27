@@ -24,9 +24,10 @@ class Delivery_order_model extends CI_Model
 
   public function count_rows(array $ds = array(), $state = 7)
   {
-    $this->db->select('state')
+    $this->db
     ->from('orders')
     ->join('channels', 'channels.code = orders.channels_code','left')
+    ->join('payment_method', 'payment_method.code = orders.payment_code', 'left')
     ->join('customers', 'customers.code = orders.customer_code', 'left')
     ->where('orders.state', $state);
 
@@ -53,7 +54,7 @@ class Delivery_order_model extends CI_Model
 
     if(!empty($ds['role']))
     {
-      $this->db->where('role', $ds['role']);
+      $this->db->where('orders.role', $ds['role']);
     }
 
 
@@ -62,15 +63,20 @@ class Delivery_order_model extends CI_Model
       $this->db->where('orders.channels_code', $ds['channels']);
     }
 
+
+    if(!empty($ds['payment']))
+    {
+      $this->db->where('orders.payment_code', $ds['payment']);
+    }
+
+
     if($ds['from_date'] != '' && $ds['to_date'] != '')
     {
       $this->db->where('orders.date_add >=', from_date($ds['from_date']));
       $this->db->where('orders.date_add <=', to_date($ds['to_date']));
     }
 
-    $rs = $this->db->get();
-
-    return $rs->num_rows();
+    return $this->db->count_all_results();
   }
 
 
@@ -78,9 +84,13 @@ class Delivery_order_model extends CI_Model
   public function get_data(array $ds = array(), $perpage = '', $offset = '', $state = 7)
   {
     //$total_query = "(SELECT SUM(total_amount) FROM order_details WHERE order_code = orders.code) AS total_amount";
-    $this->db->select("orders.*, channels.name AS channels_name, customers.name AS customer_name")
+    $this->db->select('orders.*')
+    ->select('channels.name AS channels_name')
+    ->select('payment_method.name AS payment_name, payment_method.role AS payment_role')
+    ->select('customers.name AS customer_name')
     ->from('orders')
     ->join('channels', 'channels.code = orders.channels_code','left')
+    ->join('payment_method', 'payment_method.code = orders.payment_code', 'left')
     ->join('customers', 'customers.code = orders.customer_code', 'left')
     ->where('orders.state', $state);
 
@@ -107,12 +117,17 @@ class Delivery_order_model extends CI_Model
 
     if(!empty($ds['role']))
     {
-      $this->db->where('role', $ds['role']);
+      $this->db->where('orders.role', $ds['role']);
     }
 
     if(!empty($ds['channels']))
     {
       $this->db->where('orders.channels_code', $ds['channels']);
+    }
+
+    if(!empty($ds['payment']))
+    {
+      $this->db->where('orders.payment_code', $ds['payment']);
     }
 
     if($ds['from_date'] != '' && $ds['to_date'] != '')

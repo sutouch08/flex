@@ -76,12 +76,34 @@ class Invoice_model extends CI_Model
     ->where('valid', 0, FALSE)
     ->where('balance >', 0, FALSE)
     ->where('customer_code', $customer_code)
-    ->where('over_due_date >', $today)
+    ->where('over_due_date <', $today)
     ->get('order_credit');
 
     if($rs->num_rows() > 0)
     {
       return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
+  //--- get sold id
+  public function get_sold_id($reference, $customer_code, $product_code, $cost, $price, $discount_label)
+  {
+    $rs = $this->db
+    ->select('id')
+    ->where('reference', $reference)
+    ->where('customer_code', $customer_code)
+    ->where('product_code', $product_code)
+    ->where('cost', $cost, FALSE)
+    ->where('price', $price, FALSE)
+    ->where('discount_label')
+    ->get('order_sold');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->id;
     }
 
     return FALSE;

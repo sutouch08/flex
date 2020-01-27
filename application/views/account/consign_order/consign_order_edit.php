@@ -50,24 +50,8 @@
 		<input type="text" class="form-control input-sm" name="zone" id="zone" value="<?php echo $doc->zone_name; ?>" disabled />
   </div>
 
-  <div class="col-sm-1 col-1-harf col-xs-6 padding-5 first">
-    <label>ช่องทางขาย</label>
-    <select class="form-control input-sm edit" name="channels" id="channels" disabled>
-      <option value="">กรุณาเลือก</option>
-      <?php echo select_channels($doc->channels_code); ?>
-    </select>
-  </div>
-	<div class="col-sm-1 col-xs-6 padding-5">
-    <label>เปิดบิล</label>
-    <select class="form-control input-sm edit" name="is_so" id="is_so" disabled>
-      <option value="">กรุณาเลือก</option>
-      <option value="1" <?php echo is_selected($doc->is_so, 1); ?>>เปิดบิล</option>
-			<option value="0" <?php echo is_selected($doc->is_so, 0); ?>>ไม่เปิด</option>
-    </select>
-  </div>
-
 <?php if(!empty($doc->ref_code) && $this->pm->can_edit) : ?>
-	<div class="col-sm-1 col-1-harf col-xs-8 padding-5">
+	<div class="col-sm-1 col-1-harf col-xs-8 padding-5 first">
     <label>อ้างอิง</label>
     <input type="text" class="form-control input-sm text-center" name="ref_code" id="ref_code" value="<?php echo $doc->ref_code; ?>" disabled>
   </div>
@@ -82,7 +66,7 @@
     <input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $doc->remark; ?>" disabled>
   </div>
 <?php else : ?>
-	<div class="col-sm-1 col-1-harf col-xs-12 padding-5 hidden-xs">
+	<div class="col-sm-1 col-1-harf col-xs-12 padding-5 hidden-xs first">
     <label>อ้างอิง</label>
     <input type="text" class="form-control input-sm text-center" name="ref_code" id="ref_code" value="<?php echo $doc->ref_code; ?>" disabled>
   </div>

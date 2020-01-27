@@ -49,7 +49,8 @@ class Orders extends PS_Controller
       'channels'      => get_filter('channels', 'channels', ''),
       'payment'       => get_filter('payment', 'payment', ''),
       'from_date'     => get_filter('fromDate', 'fromDate', ''),
-      'to_date'       => get_filter('toDate', 'toDate', '')
+      'to_date'       => get_filter('toDate', 'toDate', ''),
+      'is_paid'       => get_filter('is_paid', 'is_paid', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -1486,6 +1487,7 @@ class Orders extends PS_Controller
           }
         }
 
+
         if($sc === TRUE)
         {
           $this->db->trans_start();
@@ -1495,12 +1497,12 @@ class Orders extends PS_Controller
           {
             if($state < 8)
             {
-              $this->roll_back_action($code, $order->role);
+              $this->roll_back_action($order);
             }
 
             if($state == 9)
             {
-              $this->roll_back_action($code, $order->role);
+              $this->roll_back_action($order);
               $this->cancle_order($code, $order->role);
             }
           }
@@ -1567,7 +1569,7 @@ class Orders extends PS_Controller
     }
   }
 
-  public function roll_back_action($code, $role)
+  public function roll_back_action($order)
   {
     $this->load->model('inventory/movement_model');
     $this->load->model('inventory/buffer_model');
@@ -1575,17 +1577,19 @@ class Orders extends PS_Controller
     $this->load->model('inventory/invoice_model');
     $this->load->model('inventory/transform_model');
     $this->load->model('inventory/lend_model');
+    $this->load->model('stock/stock_model');
+
     //---- set is_complete = 0
-    $this->orders_model->un_complete($code);
+    $this->orders_model->un_complete($order->code);
 
     //---- move cancle product back to  buffer
-    $this->cancle_model->restore_buffer($code);
+    $this->cancle_model->restore_buffer($order->code);
 
     //--- remove movement
-    $this->movement_model->drop_movement($code);
+    $this->movement_model->drop_movement($order->code);
 
     //--- restore sold product back to buffer
-    $sold = $this->invoice_model->get_details($code);
+    $sold = $this->invoice_model->get_details($order->code);
 
     if(!empty($sold))
     {
@@ -1611,20 +1615,31 @@ class Orders extends PS_Controller
 
             $this->buffer_model->add($ds);
           }
+
+          if($order->role === 'N' OR $order->role === 'L')
+          {
+            //--- remove stock from zone
+            $this->stock_model->update_stock_zone($order->zone_code, $rs->product_code, (-1) * $rs->qty);
+          }
         }
 
         $this->invoice_model->drop_sold($rs->id);
 
         //------ หากเป็นออเดอร์เบิกแปรสภาพ
-        if($role == 'T')
+        if($order->role == 'T')
         {
-          $this->transform_model->reset_sold_qty($code);
+          $this->transform_model->reset_sold_qty($order->code);
         }
 
         //-- หากเป็นออเดอร์ยืม
-        if($role == 'L')
+        if($order->role == 'L')
         {
-          $this->lend_model->drop_backlogs_list($code);
+          $this->lend_model->drop_backlogs_list($order->code);
+        }
+
+        if($order->role === 'N' OR $order->role === 'C')
+        {
+
         }
       } //--- end foreach
     } //---- end sold
@@ -1940,19 +1955,98 @@ class Orders extends PS_Controller
   }
 
 
-  public function paid_order($code, $option)
+  public function paid_order($code)
   {
-    $option = $option == 1 ? TRUE : FALSE;
-    $paid = $this->orders_model->paid($code, $option);
+    $sc = TRUE;
+    $this->load->model('account/payment_receive_model');
+    $order = $this->orders_model->get($code);
+    if($order->is_paid == 0)
+    {
+      //--- บันทึกรับเงิน
+      //--- เพิ่มรายการเข้า payment_receive
+      $payment = array(
+        'reference' => $order->code,
+        'customer_code' => $order->customer_code,
+        'pay_date' => now(),
+        'amount' => $order->balance,
+        'payment_type' => 'TR',
+        'valid' => 1
+      );
 
-    if($paid)
-    {
-      echo 'success';
+      $this->db->trans_begin();
+
+      if(! $this->payment_receive_model->add($payment) )
+      {
+        $sc = FALSE;
+        $this->error = 'เพิ่มรายการเงินเข้าไม่สำเร็จ';
+      }
+
+      if( ! $this->orders_model->paid($code, TRUE))
+      {
+        $sc = FALSE;
+        $this->error = 'เปลี่ยนสถานะออเดอร์เป็นชำระแล้วไม่สำเร็จ';
+      }
+
+      if($sc === TRUE)
+      {
+        $this->db->trans_commit();
+      }
+      else
+      {
+        $this->db->trans_rollback();
+      }
+
     }
-    else
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
+
+  public function unpaid_order($code)
+  {
+    $sc = TRUE;
+    $this->load->model('account/payment_receive_model');
+    $order = $this->orders_model->get($code);
+    if($order->is_paid == 1)
     {
-      echo 'failed';
+      //--- บันทึกรับเงิน
+      //--- เพิ่มรายการเข้า payment_receive
+      $payment = array(
+        'reference' => $order->code,
+        'customer_code' => $order->customer_code,
+        'pay_date' => now(),
+        'amount' => (-1) * $order->balance,
+        'payment_type' => 'TR',
+        'valid' => 1
+      );
+
+      $this->db->trans_begin();
+
+      if(! $this->payment_receive_model->add($payment) )
+      {
+        $sc = FALSE;
+        $this->error = 'เพิ่มรายการเงินเข้าไม่สำเร็จ';
+      }
+
+      if( ! $this->orders_model->paid($code, FALSE))
+      {
+        $sc = FALSE;
+        $this->error = 'ยกเลิกสถานะออเดอร์ไม่สำเร็จ';
+      }
+
+      if($sc === TRUE)
+      {
+        $this->db->trans_commit();
+      }
+      else
+      {
+        $this->db->trans_rollback();
+      }
+
     }
+
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -1983,7 +2077,8 @@ class Orders extends PS_Controller
       'channels',
       'payment',
       'fromDate',
-      'toDate'
+      'toDate',
+      'is_paid'
     );
 
     clear_filter($filter);

@@ -10,11 +10,11 @@
   <div class="col-sm-4 padding-5 first">
   <?php echo paymentLabel($payments); ?>
   <?php if($order->state == 8 && $order->is_paid == 0 && $order->payment_role == 4): ?>
-    <button type="button" class="btn btn-xs btn-yellow" onclick="paid_order(1)">ทำเครื่องหมายว่าชำระแล้ว</button>
+    <button type="button" class="btn btn-xs btn-yellow" onclick="paid_order()">ทำเครื่องหมายว่าชำระแล้ว</button>
   <?php endif; ?>
   <?php if($order->state == 8 && $order->is_paid == 1 && $order->payment_role == 4): ?>
     <span class="label label-xlg label-success"><i class="ace-icon fa fa-check"></i> ชำระเงินแล้ว</span>
-    <button type="button" class="btn btn-mini btn-yellow" onclick="paid_order(0)">
+    <button type="button" class="btn btn-mini btn-yellow" onclick="unpaid_order()">
       <i class="fa fa-times"></i> ทำเครื่องหมายว่ายังไม่ได้รับเงิน
     </button>
   <?php endif; ?>

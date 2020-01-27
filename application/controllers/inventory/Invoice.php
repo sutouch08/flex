@@ -23,12 +23,13 @@ class Invoice extends PS_Controller
   public function index()
   {
     $this->load->helper('channels');
+    $this->load->helper('payment_method');
     $filter = array(
       'code'          => get_filter('code', 'code', ''),
       'customer'      => get_filter('customer', 'customer', ''),
-      'user'          => get_filter('user', 'user', ''),
       'role'          => get_filter('role', 'role', ''),
       'channels'      => get_filter('channels', 'channels', ''),
+      'payment'       => get_filter('payment', 'payment', ''),
       'from_date'     => get_filter('from_date', 'from_date', ''),
       'to_date'       => get_filter('to_date', 'to_date', '')
     );

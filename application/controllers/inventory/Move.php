@@ -214,72 +214,124 @@ class Move extends PS_Controller
   public function save_move($code)
   {
     $sc = TRUE;
-    $this->db->trans_start();
+    $this->db->trans_begin();
     //--- change state to 1
     $this->move_model->set_status($code, 1);
     $this->move_model->valid_all_detail($code, 1);
 
     $details = $this->move_model->get_details($code);
     $doc = $this->move_model->get($code);
+    $g_auz = getConfig('ALLOW_UNDER_ZERO') == 1 ? TRUE : FALSE;
     if(!empty($details))
     {
       $this->load->model('inventory/movement_model');
+      $this->load->model('masters/products_model');
+
       foreach($details as $rs)
       {
-        //--- 2. update movement
-        $move_out = array(
-          'reference' => $code,
-          'warehouse_code' => $doc->from_warehouse,
-          'zone_code' => $rs->from_zone,
-          'product_code' => $rs->product_code,
-          'move_in' => 0,
-          'move_out' => $rs->qty,
-          'date_add' => $doc->date_add
-        );
-
-        $move_in = array(
-          'reference' => $code,
-          'warehouse_code' => $doc->to_warehouse,
-          'zone_code' => $rs->to_zone,
-          'product_code' => $rs->product_code,
-          'move_in' => $rs->qty,
-          'move_out' => 0,
-          'date_add' => $doc->date_add
-        );
-
-        //--- move out
-        if($this->movement_model->add($move_out) === FALSE)
+        if($sc === FALSE)
         {
-          $sc = FALSE;
-          $message = 'บันทึก movement ขาออกไม่สำเร็จ';
           break;
         }
 
-        //--- move in
-        if($this->movement_model->add($move_in) === FALSE)
+        $item = $this->products_model->get($rs->product_code);
+        $auz = $g_auz === TRUE ? TRUE : $this->warehouse_model->is_auz($doc->from_warehouse);
+
+        if($item->count_stock == 1)
         {
-          $sc = FALSE;
-          $message = 'บันทึก movement ขาเข้าไม่สำเร็จ';
-          break;
-        }
-      }
-    }
+          $is_enough = $this->stock_model->is_enough($rs->from_zone, $rs->product_code, $rs->qty);
+          if($is_enough === FALSE && $auz === FALSE)
+          {
+            $sc = FALSE;
+            $this->error = "สต็อกในโซนไม่พอให้ตัด : {$rs->product_code}";
+            break;
+          }
+
+            //--- update stock original zone
+          if($sc === TRUE)
+          {
+            if(! $this->stock_model->update_stock_zone($rs->from_zone, $rs->product_code, (-1) * $rs->qty))
+            {
+              $sc = FALSE;
+              $this->error = "ตัดยอกออกจากต้นทางไม่สำเร็จ : {$rs->product_code}";
+              break;
+            }
+          }
 
 
-    $this->db->trans_complete();
+          //--- update movement out
+          if($sc === TRUE)
+          {
+            //--- 2. update movement
+            $move_out = array(
+              'reference' => $code,
+              'warehouse_code' => $doc->from_warehouse,
+              'zone_code' => $rs->from_zone,
+              'product_code' => $rs->product_code,
+              'move_in' => 0,
+              'move_out' => $rs->qty,
+              'date_add' => $doc->date_add
+            );
 
-    if($this->db->trans_status() === FALSE)
-    {
-      $sc = FALSE;
-      $message = $this->db->error();
-    }
+            //--- move out
+            if(! $this->movement_model->add($move_out))
+            {
+              $sc = FALSE;
+              $this->error = 'บันทึก movement ขาออกไม่สำเร็จ';
+              break;
+            }
+          }
+
+
+          //---- update stock desination zone
+          if($sc === TRUE)
+          {
+            if( ! $this->stock_model->update_stock_zone($rs->to_zone, $rs->product_code, $rs->qty))
+            {
+              $sc = FALSE;
+              $this->error = "เพิ่มสต็อกปลายทางไม่สำเร็จ : {$rs->product_code}";
+              break;
+            }
+          }
+
+          //--- update movement in
+          if($sc === TRUE)
+          {
+            $move_in = array(
+              'reference' => $code,
+              'warehouse_code' => $doc->to_warehouse,
+              'zone_code' => $rs->to_zone,
+              'product_code' => $rs->product_code,
+              'move_in' => $rs->qty,
+              'move_out' => 0,
+              'date_add' => $doc->date_add
+            );
+
+            //--- move in
+            if(! $this->movement_model->add($move_in))
+            {
+              $sc = FALSE;
+              $this->error = 'บันทึก movement ขาเข้าไม่สำเร็จ';
+              break;
+            }
+          }
+
+        } //--- end if count_stock
+
+      } //--- end foreach
+
+    } //--- end if empty detail
 
     if($sc === TRUE)
     {
-      $this->do_export($code);
+      $this->db->trans_commit();
+    }
+    else
+    {
+      $this->db->trans_rollback();
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -805,8 +857,8 @@ class Move extends PS_Controller
     {
       foreach($details as $rs)
       {
-        // $rs->from_zone_name = $this->zone_model->get_name($rs->from_zone);
-        // $rs->to_zone_name = $this->zone_model->get_name($rs->to_zone);
+        $rs->from_zone_name = $this->zone_model->get_name($rs->from_zone);
+        $rs->to_zone_name = $this->zone_model->get_name($rs->to_zone);
         $rs->temp_qty = $this->move_model->get_temp_qty($code, $rs->product_code, $rs->from_zone);
       }
     }
@@ -821,159 +873,12 @@ class Move extends PS_Controller
 
 
 
-  private function do_export($code)
+  public function clear_filter()
   {
-    $doc = $this->move_model->get($code);
-    $tr = $this->move_model->get_sap_move_doc($code);
-    if(!empty($doc))
-    {
-      if(empty($tr) OR $tr->DocStatus == 'O')
-      {
-        if($doc->status == 1)
-        {
-          $currency = getConfig('CURRENCY');
-          $vat_rate = getConfig('SALE_VAT_RATE');
-          $vat_code = getConfig('SALE_VAT_CODE');
-
-          $ds = array(
-            'U_ECOMNO' => $doc->code,
-            'DocType' => 'I',
-            'CANCELED' => 'N',
-            'DocDate' => $doc->date_add,
-            'DocDueDate' => $doc->date_add,
-            'CardCode' => NULL,
-            'CardName' => NULL,
-            'VatPercent' => 0.000000,
-            'VatSum' => 0.000000,
-            'VatSumFc' => 0.000000,
-            'DiscPrcnt' => 0.000000,
-            'DiscSum' => 0.000000,
-            'DiscSumFC' => 0.000000,
-            'DocCur' => $currency,
-            'DocRate' => 1,
-            'DocTotal' => 0.000000,
-            'DocTotalFC' => 0.000000,
-            'Filler' => $doc->from_warehouse,
-            'ToWhsCode' => $doc->to_warehouse,
-            'Comments' => $doc->remark,
-            'F_E_Commerce' => (empty($tr) ? 'A' : 'U'),
-            'F_E_CommerceDate' => sap_date(now(), TRUE),
-            'U_BOOKCODE' => $doc->bookcode
-          );
-
-          $this->mc->trans_start();
-
-          if(!empty($tr))
-          {
-            $sc = $this->move_model->update_sap_move_doc($code, $ds);
-          }
-          else
-          {
-            $sc = $this->move_model->add_sap_move_doc($ds);
-          }
-
-          if($sc)
-          {
-            if(!empty($tr))
-            {
-              $this->move_model->drop_sap_exists_details($code);
-            }
-
-            $details = $this->move_model->get_details($code);
-
-            if(!empty($details))
-            {
-              $line = 0;
-              foreach($details as $rs)
-              {
-                $arr = array(
-                  'U_ECOMNO' => $rs->move_code,
-                  'LineNum' => $line,
-                  'ItemCode' => $rs->product_code,
-                  'Dscription' => $rs->product_name,
-                  'Quantity' => $rs->qty,
-                  'unitMsr' => NULL,
-                  'PriceBefDi' => 0.000000,
-                  'LineTotal' => 0.000000,
-                  'ShipDate' => $doc->date_add,
-                  'Currency' => $currency,
-                  'Rate' => 1,
-                  'DiscPrcnt' => 0.000000,
-                  'Price' => 0.000000,
-                  'TotalFrgn' => 0.000000,
-                  'FromWhsCod' => $doc->from_warehouse,
-                  'WhsCode' => $doc->to_warehouse,
-                  'FisrtBin' => $rs->from_zone,
-                  'AllocBinC' => $rs->to_zone,
-                  'TaxStatus' => 'Y',
-                  'VatPrcnt' => 0.000000,
-                  'VatGroup' => NULL,
-                  'PriceAfVAT' => 0.000000,
-                  'VatSum' => 0.000000,
-                  'TaxType' => 'Y',
-                  'F_E_Commerce' => (empty($tr) ? 'A' : 'U'),
-                  'F_E_CommerceDate' => sap_date(now(), TRUE)
-                );
-
-                if( ! $this->move_model->add_sap_move_detail($arr))
-                {
-                  $this->error = 'เพิ่มรายการไม่สำเร็จ';
-                }
-
-                $line++;
-              }
-            }
-            else
-            {
-              $this->error = "ไม่พบรายการสินค้า";
-            }
-          }
-          else
-          {
-            $this->error = "เพิ่มเอกสารไม่สำเร็จ";
-          }
-
-          $this->mc->trans_complete();
-
-          if($this->mc->trans_status() === FALSE)
-          {
-            return FALSE;
-          }
-
-          return TRUE;
-        }
-        else
-        {
-          $this->error = "สถานะเอกสารไม่ถูกต้อง";
-        }
-      }
-      else
-      {
-        $this->error = "เอกสารถูกปิดไปแล้ว";
-      }
-    }
-    else
-    {
-      $this->error = "ไม่พบเอกสาร {$code}";
-    }
-
-    return FALSE;
+    $filter = array('code', 'from_warehouse', 'user', 'to_warehouse', 'form_date', 'to_date', 'status');
+    clear_filter($filter);
+    echo 'done';
   }
-
-
-
-  public function export_move($code)
-  {
-    if($this->do_export($code) === TRUE)
-    {
-      echo 'success';
-    }
-    else
-    {
-      echo $this->error;
-    }
-  }
-
 
 } //--- end class
 ?>

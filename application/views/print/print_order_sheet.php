@@ -83,7 +83,7 @@ $this->printer->set_footer($footer);
 
 
 $n = 1;
-
+$index = 0;
 while($total_page > 0 )
 {
   $page .= $this->printer->page_start();
@@ -94,7 +94,7 @@ while($total_page > 0 )
 
   while($i<$row)
   {
-    $rs = isset($details[$i]) ? $details[$i] : FALSE;
+    $rs = isset($details[$index]) ? $details[$index] : FALSE;
 
     if( ! empty($rs) )
     {
@@ -143,6 +143,7 @@ while($total_page > 0 )
 
     $n++;
     $i++;
+    $index++;
   }
 
   $page .= $this->printer->table_end();

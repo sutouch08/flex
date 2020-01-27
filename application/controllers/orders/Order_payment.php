@@ -22,6 +22,7 @@ class Order_payment extends PS_Controller
 
   public function index()
   {
+    $this->load->model('orders/orders_model');
     $filter = array(
       'code'  => get_filter('code', 'code', ''),
       'customer' => get_filter('customer', 'customer', ''),
@@ -45,6 +46,14 @@ class Order_payment extends PS_Controller
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 		$orders   = $this->order_payment_model->get_data($filter, $perpage, $this->uri->segment($segment));
+    if(!empty($orders))
+    {
+      foreach($orders as $rs)
+      {
+        $order = $this->orders_model->get($rs->order_code);
+        $rs->state = $order->state;
+      }
+    }
 
     $filter['orders'] = $orders;
 
@@ -101,8 +110,10 @@ class Order_payment extends PS_Controller
     {
       $this->load->model('orders/orders_model');
       $this->load->model('orders/order_state_model');
+      $this->load->model('account/payment_receive_model');
       $id = $this->input->post('id');
       $detail = $this->order_payment_model->get_detail($id);
+      $order = $this->orders_model->get($detail->order_code);
       $arr = array(
         'order_code' => $detail->order_code,
         'state' => 3,
@@ -110,19 +121,43 @@ class Order_payment extends PS_Controller
       );
 
       //--- start transection
-      $this->db->trans_start();
+      $this->db->trans_begin();
 
       //--- mark payment as paid
-      $this->order_payment_model->valid_payment($id);
+      if(! $this->order_payment_model->valid_payment($id) )
+      {
+        $sc = FALSE;
+        $this->error = 'เปลี่ยนสภานะรายการไม่สำเร็จ';
+      }
+
+      //--- เพิ่มรายการเช้า payment_receive
+      $payment = array(
+        'reference' => $order->code,
+        'customer_code' => $order->customer_code,
+        'pay_date' => $detail->pay_date,
+        'amount' => $detail->pay_amount,
+        'payment_type' => 'TR',
+        'valid' => 1
+      );
+
+      if(! $this->payment_receive_model->add($payment) )
+      {
+        $sc = FALSE;
+        $this->error = 'เพิ่มรายการเงินเข้าไม่สำเร็จ';
+      }
 
       $this->orders_model->update_deposit($detail->order_code, $detail->pay_amount);
-      
+
       update_order_total_amount($detail->order_code);
 
       if($this->orders_model->get_order_balance($detail->order_code) <= 0)
       {
         //--- mark order as paid
-        $this->orders_model->paid($detail->order_code, TRUE);
+        if(! $this->orders_model->paid($detail->order_code, TRUE) )
+        {
+          $sc = FALSE;
+          $this->error = 'เปลี่ยนสถานะออเดอร์เป็นชำระแล้วไม่สำเร็จ';
+        }
       }
 
       $order = $this->orders_model->get($detail->order_code);
@@ -137,22 +172,23 @@ class Order_payment extends PS_Controller
       }
 
       //--- complete transecrtion with commit or rollback if any error
-      $this->db->trans_complete();
 
-      //--- check for any error
-      if($this->db->trans_status() === FALSE)
+      if($sc === TRUE)
       {
-        $sc = FALSE;
-        $message = $this->db->error();
+        $this->db->trans_commit();
+      }
+      else
+      {
+        $this->db->trans_rollback();
       }
     }
     else
     {
       $sc = FALSE;
-      $message = 'ไม่พบรายการชำระเงิน';
+      $this->error = 'ไม่พบรายการชำระเงิน';
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -165,49 +201,93 @@ class Order_payment extends PS_Controller
     {
       $this->load->model('orders/orders_model');
       $this->load->model('orders/order_state_model');
+      $this->load->model('account/payment_receive_model');
       $id = $this->input->post('id');
       $detail = $this->order_payment_model->get_detail($id);
-      $arr = array(
-        'order_code' => $detail->order_code,
-        'state' => 2,
-        'update_user' => get_cookie('uname')
-      );
+      $order = $this->orders_model->get($detail->order_code);
+      if($order->state < 8)
+      {
+        $arr = array(
+          'order_code' => $detail->order_code,
+          'state' => 2,
+          'update_user' => get_cookie('uname')
+        );
 
-      //--- start transection
-      $this->db->trans_start();
+        //--- start transection
+        $this->db->trans_begin();
 
-      //--- mark payment as unpaid
-      $this->order_payment_model->un_valid_payment($id);
+        //--- mark payment as unpaid
+        if( ! $this->order_payment_model->un_valid_payment($id) )
+        {
+          $sc = FALSE;
+          $this->error = 'เปลี่ยนสถานะรายการไม่สำเร็จ';
+        }
 
-      //--
-      update_order_total_amount($detail->order_code);
 
-      //--- mark order as unpaid
-      $this->orders_model->paid($detail->order_code, FALSE);
+        //--- เพิ่มรายการเช้า payment_receive
+        $payment = array(
+          'reference' => $order->code,
+          'customer_code' => $order->customer_code,
+          'pay_date' => now(),
+          'amount' => (-1) * $detail->pay_amount,
+          'payment_type' => 'TR',
+          'valid' => 1
+        );
 
-      //--- change state to waiting for payment
-      $this->orders_model->change_state($detail->order_code, 2);
+        if(! $this->payment_receive_model->add($payment) )
+        {
+          $sc = FALSE;
+          $this->error = 'เพิ่มรายการเงินเข้าไม่สำเร็จ';
+        }
 
-      //--- add state event
-      $this->order_state_model->add_state($arr);
+        if($detail->is_deposit == 1 && $order->deposit >= $detail->pay_amount)
+        {
+          $this->orders_model->update_deposit($detail->order_code, (-1) * $detail->pay_amount);
+        }
+        //--
+        update_order_total_amount($detail->order_code);
 
-      //--- complete transecrtion with commit or rollback if any error
-      $this->db->trans_complete();
+        //--- mark order as unpaid
+        if( ! $this->orders_model->paid($detail->order_code, FALSE) )
+        {
+          $sc = FALSE;
+          $this->error = 'เปลี่ยนสถานะการชำระเงินไม่สำเร็จ';
+        }
 
-      //--- check for any error
-      if($this->db->trans_status() === FALSE)
+        // //--- change state to waiting for payment
+        // if(! $this->orders_model->change_state($detail->order_code, 2) )
+        // {
+        //   $sc = FALSE;
+        //   $this->error = 'เปลี่ยนสถานะออเดอร์กลับเป็นรอชำระเงินไม่สำเร็จ';
+        // }
+
+        //--- add state event
+        $this->order_state_model->add_state($arr);
+
+        //--- complete transecrtion with commit or rollback if any error
+        if($sc === TRUE)
+        {
+          $this->db->trans_commit();
+        }
+        else
+        {
+          $this->db->trans_rollback();
+        }
+      }
+      else
       {
         $sc = FALSE;
-        $message = $this->db->error();
+        $this->error = 'ไม่อนุญาติให้ยกเลิกการชำระเงินในสถานะนี้';
       }
+
     }
     else
     {
       $sc = FALSE;
-      $message = 'ไม่พบรายการชำระเงิน';
+      $this->error = 'ไม่พบรายการชำระเงิน';
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -220,67 +300,90 @@ class Order_payment extends PS_Controller
       $this->load->model('orders/order_state_model');
       $id = $this->input->post('id');
       $detail = $this->order_payment_model->get_detail($id);
-      if(!empty($detail))
+      $order = $this->orders_model->get($detail->order_code);
+      if($order->state >= 8)
       {
-        //--- start transection
-        $this->db->trans_start();
-
-        //--- mark order as unpaid
-        $this->orders_model->paid($detail->order_code, FALSE);
-
-        //--- change deposit
-        $this->orders_model->update_deposit($detail->order_code, ($detail->pay_amount * -1));
-
-        //---
-        update_order_total_amount($detail->order_code);
-
-        //--- change state to pending
-        $this->orders_model->change_state($detail->order_code, 1);
-
-        //--- add state event
-        $arr = array(
-          'order_code' => $detail->order_code,
-          'state' => 1,
-          'update_user' => get_cookie('uname')
-        );
-        $this->order_state_model->add_state($arr);
-
-        //--- now remove payment row
-        $this->order_payment_model->delete($id);
-
-        //--- end transection commit if all success or rollback if any error
-        $this->db->trans_complete();
-
-        //--- check for any error
-        if($this->db->trans_status() === FALSE)
-        {
-          $sc = FALSE;
-          $message = $this->db->error();
-        }
-
-        if($sc === TRUE)
-        {
-          $file = $this->config->item('image_file_path').'payments/'.$detail->img.'.jpg';
-          if(file_exists($file))
-          {
-            unlink($file);
-          }
-
-        }
+        $sc = FALSE;
+        $this->error = 'ไม่อนุญาติให้ลบการชำระเงินในสถานะออเดอร์นี้';
       }
       else
       {
-        $sc = FALSE;
-        $message = 'ไม่พบรายการชำระเงิน';
+        if(! empty($detail) && $detail->valid == 0)
+        {
+          //--- start transection
+          $this->db->trans_begin();
+
+          //--- mark order as unpaid
+          if(! $this->orders_model->paid($detail->order_code, FALSE))
+          {
+            $sc = FALSE;
+            $this->error = 'ย้อนสถานะการชำระเงินไม่สำเร็จ';
+          }
+
+          // //--- change deposit
+          // if(! $this->orders_model->update_deposit($detail->order_code, ($detail->pay_amount * -1)) )
+          // {
+          //   $sc = FALSE;
+          //   $this->error = 'ปรับปรุงยอดเงินมัดจำไม่สำเร็จ';
+          // }
+
+          //---
+          update_order_total_amount($detail->order_code);
+
+          //--- change state to pending
+          // if( ! $this->orders_model->change_state($detail->order_code, 1) )
+          // {
+          //   $sc = FALSE;
+          //   $this->error = 'ย้อนสถานะออเดอร์ไม่สำเร็จ';
+          // }
+
+          //--- add state event
+          $arr = array(
+            'order_code' => $detail->order_code,
+            'state' => 1,
+            'update_user' => get_cookie('uname')
+          );
+
+          $this->order_state_model->add_state($arr);
+
+          //--- now remove payment row
+          $this->order_payment_model->delete($id);
+
+          //--- end transection commit if all success or rollback if any error
+          if($sc === TRUE)
+          {
+            $this->db->trans_commit();
+          }
+          else
+          {
+            $this->db->trans_rollback();
+          }
+
+          if($sc === TRUE)
+          {
+            $file = $this->config->item('image_file_path').'payments/'.$detail->img.'.jpg';
+            if(file_exists($file))
+            {
+              unlink($file);
+            }
+
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $this->error = 'ไม่พบรายการชำระเงิน';
+        }
       }
+
     }
     else
     {
       $sc = FALSE;
-      $message = 'ไม่พบตัวแปร id กรุณา reload หน้าเว็บแล้วลองใหม่';
+      $this->error = 'ไม่พบตัวแปร id กรุณา reload หน้าเว็บแล้วลองใหม่';
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 

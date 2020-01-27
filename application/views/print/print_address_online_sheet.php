@@ -3,12 +3,25 @@ $paid		= $order->is_paid == 1 ? 'จ่ายแล้ว' : 'รอชำระ
 
 /*********  Sender  ***********/
 $sender	 = '<div class="col-sm-12" style="font-size:14px; font-weight: bold; border:solid 2px #ccc; border-radius:10px; padding:10px;">';
-$sender	.=  '<span style="display:block; font-size: 20px; font-weight:bold; padding-bottom:10px; border-bottom:solid 2px #ccc; margin-bottom:15px;">ผู้ส่ง</span>';
-$sender	.=  '<span style="display:block;">'.$cName.'</span>';
-$sender	.=  '<span style="display:block;">'.$cAddress.' '.$cPostCode.'</span>';
+$sender	.= '<span style="display:block; font-size: 20px; font-weight:bold; padding-bottom:10px; border-bottom:solid 2px #ccc; margin-bottom:15px;">ผู้ส่ง &nbsp; |  &nbsp; ';
+$sender .= '<span style="font-size:16px; font-weight:500">โทร. '.$cPhone.'</span></span>';
+$sender	.= '<span style="display:block;">'.$cName.'</span>';
+$sender	.= '<span style="display:block;">'.$cAddress.' '.$cPostCode.'</span>';
 $sender	.= '</div>';
 /********* / Sender *************/
+$cod = '';
+if($order->payment_role == 4)
+{
+  $cod .= '<div class="col-sm-12" style="font-size:35px; text-align:center; vertical-align:text-middle; font-weight: bold;">';
+  $cod .= 'COD  : '.number($order->balance, 2).'.-';
+  $cod .= '</div>';
+}
 
+$shipper = '';
+if($order->sender_name !== NULL)
+{
+  $sender .= '<span style="padding:10px; border:solid 1px #ccc; position:relative; top:25px;">'.$order->sender_name.'</span>';
+}
 /*********** Receiver  **********/
 $receiver	 = '<div class="col-sm-12" style="font-size:24px; border:solid 2px #ccc; border-radius:10px; padding:10px;">';
 $receiver	.=  '<span style="display:block; font-size: 20px; font-weight:bold; padding-bottom:10px; border-bottom:solid 2px #ccc; margin-bottom:15px;">ผู้รับ &nbsp; |  &nbsp; ';
@@ -108,7 +121,7 @@ if(!empty($details))
   $totalDisc += $order->bDiscAmount;
 
   //--- ถ้ามีค่าบริการอื่นๆ ต้องเพิ่มอีก 1 บรรทัด
-  $rowSpan = $order->service_fee > 0 ? 5 : 4;
+  $rowSpan = 6;
 
   $rightCol	.= '<tr style="font-size:10px;">';
   $rightCol .=  '<td colspan="3" rowspan="'.$rowSpan.'"> หมายเหตุ : '.$order->remark.'</td>';
@@ -118,13 +131,19 @@ if(!empty($details))
 
   $rightCol	.= '<tr style="font-size:10px;">';
   $rightCol .=  '<td align="right">ส่วนลด</td>';
-  $rightCol .=  '<td align="right">'.number_format($totalDisc, 2).'</td>';
+  $rightCol .=  '<td align="right"> -'.number_format($totalDisc, 2).'</td>';
   $rightCol .= '</tr>';
 
-  $rightCol	.= '<tr style="font-size:10px;">';
-  $rightCol .=  '<td align="right">ค่าจัดส่ง</td>';
-  $rightCol .=  '<td align="right">'.number_format($shipping_fee, 2).'</td>';
-  $rightCol .= '</tr>';
+
+
+  if($order->shipping_fee > 0)
+  {
+    $rightCol	.= '<tr style="font-size:10px;">';
+    $rightCol .=  '<td align="right">ค่าจัดส่ง</td>';
+    $rightCol .=  '<td align="right">'.number_format($shipping_fee, 2).'</td>';
+    $rightCol .= '</tr>';
+  }
+
 
   if( $order->service_fee > 0)
   {
@@ -134,6 +153,13 @@ if(!empty($details))
     $rightCol .= '</tr>';
   }
 
+  if($order->deposit > 0)
+  {
+    $rightCol	.= '<tr style="font-size:10px;">';
+    $rightCol .=  '<td align="right">ชำระแล้ว</td>';
+    $rightCol .=  '<td align="right">-'.number_format($shipping_fee, 2).'</td>';
+    $rightCol .= '</tr>';
+  }
 
   $rightCol	.= '<tr style="font-size:10px;">';
   $rightCol .=  '<td align="right">รวมสุทธิ</td>';
@@ -165,7 +191,7 @@ $config   = array(
 $this->printer->config($config);
 
 $barcode	= "<img src='".base_url()."assets/barcode/barcode.php?text=".$order->code."' style='height:15mm;' />";
-$shipBarcode =  $order->shipping_code == '' ? '' : "<img src='".base_url()."assets/barcode/barcode.php?text=".$order->shipping_code."' style='height:15mm;' />";
+
 $Page .= $this->printer->doc_header();
 $Page .= $this->printer->page_start();
 $Page .= $this->printer->content_start();
@@ -177,7 +203,7 @@ $Page .=		'<td valign="top" style="padding:10px; white-space:normal;">'.$receive
 $Page .= 	'</tr>';
 
 $Page	 .= '<tr>';
-$Page  .=   '<td style="padding:10px;" align="center">'.$shipBarcode.'</td>';
+$Page  .=   '<td style="padding:10px;" align="center">'.$cod.'</td>';
 $Page  .=   '<td style="padding:10px;" align="center">'.$barcode.'</td>';
 $Page  .= '</tr>';
 
