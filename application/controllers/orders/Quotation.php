@@ -1,25 +1,23 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Orders extends PS_Controller
+class Quotation extends PS_Controller
 {
-  public $menu_code = 'SOODSO';
+  public $menu_code = 'SOODQT';
 	public $menu_group_code = 'SO';
   public $menu_sub_group_code = 'ORDER';
-	public $title = 'ออเดอร์';
+	public $title = 'ใบเสนอราคา';
   public $filter;
   public $error;
   public function __construct()
   {
     parent::__construct();
-    $this->home = base_url().'orders/orders';
-    $this->load->model('orders/orders_model');
+    $this->home = base_url().'orders/quotation';
+    $this->load->model('orders/quotation_model');
     $this->load->model('masters/channels_model');
     $this->load->model('masters/payment_methods_model');
     $this->load->model('masters/customers_model');
-    $this->load->model('orders/order_state_model');
     $this->load->model('masters/product_tab_model');
-    $this->load->model('stock/stock_model');
     $this->load->model('masters/product_style_model');
     $this->load->model('masters/products_model');
     $this->load->model('orders/discount_model');
@@ -33,8 +31,6 @@ class Orders extends PS_Controller
     $this->load->helper('state');
     $this->load->helper('product_images');
     $this->load->helper('discount');
-
-    $this->filter = getConfig('STOCK_FILTER');
   }
 
 
@@ -45,12 +41,9 @@ class Orders extends PS_Controller
       'customer'      => get_filter('customer', 'customer', ''),
       'user'          => get_filter('user', 'user', ''),
       'reference'     => get_filter('reference', 'reference', ''),
-      'ship_code'     => get_filter('shipCode', 'shipCode', ''),
       'channels'      => get_filter('channels', 'channels', ''),
-      'payment'       => get_filter('payment', 'payment', ''),
       'from_date'     => get_filter('fromDate', 'fromDate', ''),
       'to_date'       => get_filter('toDate', 'toDate', ''),
-      'is_paid'       => get_filter('is_paid', 'is_paid', 'all')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า

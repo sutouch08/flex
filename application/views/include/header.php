@@ -56,7 +56,7 @@
 				<div class="navbar-header pull-left">
 					<a href="<?php echo base_url(); ?>" class="navbar-brand">
 						<small>
-							FLEX
+							<?php echo getConfig('COMPANY_NAME'); ?>
 						</small>
 					</a>
 				</div>

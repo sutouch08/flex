@@ -99,16 +99,15 @@
 				<tr>
 					<th class="width-5 middle text-center">ลำดับ</th>
 					<th class="width-5 middle text-center">รูปภาพ</th>
-					<th class="width-20 middle">รหัส</th>
-					<th class="width-10 middle">ราคา</th>
+					<th class="width-15 middle">รหัส</th>
+					<th class="width-15 middle">สินค้า</th>
+					<th class="width-8 middle">ราคา</th>
 					<th class="width-10 middle">กลุ่ม</th>
 					<th class="width-10 middle">หมวดหมู่</th>
 					<th class="width-10 middle">ประเภท</th>
 					<th class="width-10 middle">ชนิด</th>
-					<th class="width-5 middle text-center">ปี</th>
 					<th class="width-5 middle text-center">ขาย</th>
 					<th class="width-5 middle text-center">ใช้งาน</th>
-					<th class="width-5 middle text-center">API</th>
 					<th class=""></th>
 				</tr>
 			</thead>
@@ -122,15 +121,14 @@
 							<img src="<?php echo get_cover_image($rs->code, 'mini'); ?>" />
 						</td>
 						<td class="middle"><?php echo $rs->code; ?></td>
+						<td class="middle"><?php echo $rs->name; ?></td>
 						<td class="middle"><?php echo number($rs->price, 2); ?></td>
 						<td class="middle"><?php echo $rs->group; ?></td>
 						<td class="middle"><?php echo $rs->category; ?></td>
 						<td class="middle"><?php echo $rs->kind; ?></td>
 						<td class="middle"><?php echo $rs->type; ?></td>
-						<td class="middle text-center"><?php echo $rs->year; ?></td>
 						<td class="middle text-center"><?php echo is_active($rs->sell); ?></td>
 						<td class="middle text-center"><?php echo is_active($rs->active); ?></td>
-						<td class="middle text-center"><?php echo is_active($rs->api); ?></td>
 						<td class="middle text-right">
 							<?php if($this->pm->can_edit) : ?>
 								<button type="button" class="btn btn-mini btn-warning" onclick="getEdit('<?php echo $rs->code; ?>')">

@@ -88,7 +88,7 @@ $btn_credit_no  = $CONTROL_CREDIT == 0 ? 'btn-danger' : '';
 			<input type="hidden" name="ALLOW_EDIT_PRICE" id="allow-edit-price" value="<?php echo $ALLOW_EDIT_PRICE; ?>" />
 		</div>
 		<div class="divider-hidden"></div>
-
+<!--
 		<div class="col-sm-3"><span class="form-control left-label">รหัสนำหน้าเลขที่จัดส่ง</span></div>
     <div class="col-sm-9">
       <input type="text" class="form-control input-sm input-small text-center" name="PREFIX_SHIPPING_NUMBER" value="<?php echo $PREFIX_SHIPPING_NUMBER; ?>" />
@@ -100,7 +100,7 @@ $btn_credit_no  = $CONTROL_CREDIT == 0 ? 'btn-danger' : '';
       <input type="text" class="form-control input-sm input-small text-center" name="DHL_DEFAULT_WEIGHT" value="<?php echo $DHL_DEFAULT_WEIGHT; ?>" />
       <span class="help-block">น้ำหนักเหมารวมในการจัดส่ง 1 แพ็คเกจ(กรัม)</span>
     </div>
-
+-->
 
     <div class="col-sm-9 col-sm-offset-3">
 			<button type="button" class="btn btn-sm btn-success" onClick="updateConfig('orderForm')"><i class="fa fa-save"></i> บันทึก</button>

@@ -19,8 +19,10 @@
 	<li class="li-block"><a href="#inventory" data-toggle="tab">คลังสินค้า</a></li>
   <li class="li-block"><a href="#order" data-toggle="tab">ออเดอร์</a></li>
   <li class="li-block"><a href="#document" data-toggle="tab">เลขที่เอกสาร</a></li>
+	<!--
 	<li class="li-block"><a href="#bookcode" data-toggle="tab">เล่มเอกสาร</a></li>
 	<li class="li-block"><a href="#SAP" data-toggle="tab">ข้อมูล SAP</a></li>
+-->
 </ul>
 </div>
 <div class="col-sm-10" style="padding-top:15px; border-left:solid 1px #ccc; min-height:600px; max-height:1500px;">
@@ -45,22 +47,11 @@
 <!---  ตั้งค่าเอกสาร  --------------------------------------------------->
 <?php $this->load->view('setting/setting_document'); ?>
 
-<?php $this->load->view('setting/setting_bookcode'); ?>
+<?php //$this->load->view('setting/setting_bookcode'); ?>
 
-<?php $this->load->view('setting/setting_sap'); ?>
+<?php //$this->load->view('setting/setting_sap'); ?>
 
 <?php $this->load->view('setting/setting_inventory'); ?>
-
-
-<!---  ตั้งค่า Interface path ในการนำเข้าข้อมูลจาก formula  --------------------------------------------------->
-<?php //include 'include/setting/setting_import.php'; ?>
-
-<!---  ตั้งค่า path สำหรับเก็บไฟล์ที่นำเข้าข้อมูลเรียบร้อยแล้ว  --------------------------------------------------->
-<?php //include 'include/setting/setting_move.php'; ?>
-
-<!---  ตั้งค่าเอกสาร  --------------------------------------------------->
-<?php //include 'include/setting/setting_bookcode.php'; ?>
-
 
 
 </div>

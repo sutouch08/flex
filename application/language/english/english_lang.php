@@ -194,6 +194,7 @@ $lang['CHECK'] = 'Movement';
 $lang['CUSTOMER'] = 'Customer master';
 $lang['PRODUCT'] = 'Product Master';
 $lang['WAREHOUSE'] = 'Inventory Master';
+$lang['TRANSPORT'] = 'Transport Master';
 
 //---- Menu
 $lang['ACCSOD'] = 'Consign sales record';
@@ -266,6 +267,7 @@ $lang['SOPRIC'] = 'Price Edit';
 $lang['SORECT'] = 'Unbill finished order';
 $lang['SOREST'] = 'Change order state';
 $lang['SOREUP'] = 'Allow unpaid order';
+$lang['SOVIEW'] = 'Available stock';
 $lang['POPURC'] = 'Purchase Order';
 $lang['REINVT'] = 'Inventory Report';
 $lang['RESOOD'] = 'Sales Report';

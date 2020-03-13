@@ -150,6 +150,21 @@ class Warehouse_model extends CI_Model
     return FALSE;
   }
 
+
+
+  //--- เอาเฉพาะคลังซื้อขาย
+  public function get_sell_warehouse_list()
+  {
+    $rs = $this->db->where('role', 1)->where('active', 1)->where('sell', 1)->get('warehouse');
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return FALSE;
+  }
+
+  
   public function get_warehouses()
   {
     $rs = $this->db->get('warehouse');

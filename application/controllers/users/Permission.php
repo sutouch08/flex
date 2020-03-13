@@ -86,7 +86,7 @@ class Permission extends PS_Controller{
           'menu' => ''
         );
 
-        $menus = $this->menu->get_menus_by_group($group->code);
+        $menus = $this->menu->get_menus_by_group($group->code, TRUE);
 
         if(!empty($menus))
         {

@@ -18,8 +18,8 @@ class Product_brand extends PS_Controller
 
   public function index()
   {
-		$code = get_filter('code', 'code', '');
-		$name = get_filter('name', 'name', '');
+		$code = get_filter('code', 'brand_code', '');
+		$name = get_filter('name', 'brand_name', '');
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_filter('set_rows', 'rows', 20);
@@ -222,9 +222,9 @@ class Product_brand extends PS_Controller
 
   public function clear_filter()
 	{
-		$this->session->unset_userdata('code');
-    $this->session->unset_userdata('name');
-		echo 'done';
+    $filter = array('brand_code', 'brand_name');
+    clear_filter($filter);
+    echo 'done';
 	}
 
 }//--- end class

@@ -12,7 +12,7 @@ $btn_qc_no = $USE_QC == 0 ? 'btn-danger' : '';
         <input type="text" class="form-control input-sm input-small" name="RECEIVE_OVER_PO"  value="<?php echo $RECEIVE_OVER_PO; ?>" />
       </div>
       <div class="divider-hidden"></div>
-
+<!--
       <div class="col-sm-3">
         <span class="form-control left-label">รหัสคลังสินค้าระหว่างทำ</span>
       </div>
@@ -27,6 +27,7 @@ $btn_qc_no = $USE_QC == 0 ? 'btn-danger' : '';
       <div class="col-sm-9">
         <input type="text" class="form-control input-sm input-small" name="LEND_WAREHOUSE" value="<?php echo $LEND_WAREHOUSE; ?>" />
       </div>
+    -->
       <div class="divider-hidden"></div>
 			<div class="col-sm-3"><span class="form-control left-label">ใช้งานระบบ QC</span></div>
 			<div class="col-sm-9">

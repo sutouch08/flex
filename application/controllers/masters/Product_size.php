@@ -18,8 +18,8 @@ class Product_size extends PS_Controller
 
   public function index()
   {
-		$code = get_filter('code', 'code', '');
-		$name = get_filter('name', 'name', '');
+		$code = get_filter('code', 'size_code', '');
+		$name = get_filter('name', 'size_name', '');
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_filter('set_rows', 'rows', 20);
@@ -249,8 +249,7 @@ class Product_size extends PS_Controller
 
   public function clear_filter()
 	{
-		$this->session->unset_userdata('code');
-    $this->session->unset_userdata('name');
+		clear_filter(array('size_code', 'size_name'));
 		echo 'done';
 	}
 

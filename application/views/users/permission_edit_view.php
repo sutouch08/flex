@@ -38,7 +38,7 @@
 	<?php foreach($menus as $groups) : ?>
 	<?php 	$g_code = $groups['group_code']; ?>
 				<tr class="font-size-14" style="background-color:#428bca73;">
-					<td class="middle"><?php label($g_code); ?></td>
+					<td class="middle"><?php echo $groups['group_name']; ?></td>
 					<td class="middle text-center">
 						<input id="view-group-<?php echo $g_code; ?>" type="checkbox" class="ace" onchange="groupViewCheck($(this), '<?php echo $g_code; ?>')" />
 						<span class="lbl"></span>
@@ -72,7 +72,7 @@
 						<?php $pm = $menu['permission']; ?>
 						<tr>
 							<td class="middle" style="padding-left:20px;"> -
-								<?php label($code); ?>
+								<?php echo $menu['menu_name']; ?>
 								<input type="hidden" name="menu[<?php echo $code; ?>]" value="<?php echo $code; ?>"  />
 							</td>
 							<td class="middle text-center">

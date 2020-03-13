@@ -22,12 +22,16 @@ function active_menu($menu, $code)
 function side_menu($menu_code, $code, $url, $name)
 {
   $menu = '';
-  $menu .= '<li class="'.active_menu($menu_code, $code).'">';
-  $menu .= '<a href="'.base_url().$url.'">';
-  $menu .= '<span class="menu-text">'.$name.'</span>';
-  $menu .= '</a>';
-  $menu .= '</li>';
-
+  $ci =& get_instance();
+  $ci->load->model('menu');
+  if($ci->menu->is_active($code))
+  {
+    $menu .= '<li class="'.active_menu($menu_code, $code).'">';
+    $menu .= '<a href="'.base_url().$url.'">';
+    $menu .= '<span class="menu-text">'.$name.'</span>';
+    $menu .= '</a>';
+    $menu .= '</li>';
+  }
   return $menu;
 }
 

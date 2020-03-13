@@ -182,6 +182,7 @@ class Products extends PS_Controller
 
   public function edit($code, $tab = 'styleTab')
   {
+    $code = urldecode($code);
     $style = $this->product_style_model->get($code);
     if(!empty($style))
     {
@@ -311,8 +312,8 @@ class Products extends PS_Controller
             'type_code' => $type,
             'brand_code' => $brand,
             'year' => $year,
-            'cost' => ($cost === NULL ? 0.00 : $cost),
-            'price' => ($price === NULL ? 0.00 : $price),
+            // 'cost' => ($cost === NULL ? 0.00 : $cost),
+            // 'price' => ($price === NULL ? 0.00 : $price),
             'unit_code' => $unit,
             'count_stock' => ($count === NULL ? 0 : 1),
             'can_sell' => ($sell === NULL ? 0 : 1),

@@ -18,8 +18,8 @@ class Product_kind extends PS_Controller
 
   public function index()
   {
-		$code = get_filter('code', 'code', '');
-		$name = get_filter('name', 'name', '');
+		$code = get_filter('code', 'king_code', '');
+		$name = get_filter('name', 'kind_name', '');
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_filter('set_rows', 'rows', 20);
@@ -222,8 +222,7 @@ class Product_kind extends PS_Controller
 
   public function clear_filter()
 	{
-		$this->session->unset_userdata('code');
-    $this->session->unset_userdata('name');
+		clear_filter(array('kind_code', 'kind_name'));
 		echo 'done';
 	}
 

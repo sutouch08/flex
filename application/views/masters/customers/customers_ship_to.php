@@ -22,10 +22,14 @@
       <tbody id="adrs">
 <?php if(!empty($addr)) : ?>
 <?php 	foreach($addr as $rs) : ?>
+  <?php  $tumbon = !empty($rs->sub_district) ? ' ต.'.$rs->sub_district : ''; ?>
+  <?php  $aumphor = !empty($rs->district) ? ' อ.'.$rs->district : ''; ?>
+  <?php  $province = !empty($rs->province) ? ' จ.'.$rs->province : ''; ?>
+  <?php  $postcode = !empty($rs->postcode) ? ' '.$rs->postcode : ''; ?>
         <tr style="font-size:12px;" id="<?php echo $rs->id; ?>">
           <td align="center"><?php echo $rs->alias; ?></td>
           <td><?php echo $rs->name; ?></td>
-          <td><?php echo $rs->address.' '. $rs->sub_district.' '.$rs->district.' '.$rs->province.' '. $rs->postcode; ?></td>
+          <td><?php echo $rs->address . $tumbon . $aumphor . $province . $postcode; ?></td>
           <td><?php echo $rs->email; ?></td>
           <td><?php echo $rs->phone; ?></td>
           <td align="right">
