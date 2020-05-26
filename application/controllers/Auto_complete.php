@@ -81,7 +81,7 @@ public function get_style_code()
   }
   else
   {
-    $sc[] = label_value('no_content');
+    $sc[] = "not found";
   }
 
 	echo json_encode($sc);
@@ -112,7 +112,7 @@ public function get_item_code()
   }
   else
   {
-    $sc[] = label_value('no_content');
+    $sc[] = "not found";
   }
 
   echo json_encode($sc);

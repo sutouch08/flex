@@ -84,7 +84,7 @@ class Transport_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
-    $qr  = "SELECT COUNT(id) AS rows FROM address_transport AS t ";
+    $qr  = "SELECT COUNT(id) AS row FROM address_transport AS t ";
     $qr .= "LEFT JOIN customers AS c ON t.customer_code = c.code ";
     $qr .= "WHERE t.id != 0 ";
 
@@ -101,7 +101,7 @@ class Transport_model extends CI_Model
 
     $rs = $this->db->query($qr);
 
-    return $rs->row()->rows;
+    return $rs->row()->row;
   }
 
 

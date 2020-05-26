@@ -3,7 +3,7 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right"><?php label('code'); ?></label>
     <div class="col-xs-12 col-sm-4">
-      <input type="text" name="code" id="code" class="form-control input-sm" value="<?php echo $ds->code; ?>" />
+      <input type="text" name="code" id="code" class="form-control input-sm code" value="<?php echo $ds->code; ?>" />
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" id="code-error"></div>
   </div>

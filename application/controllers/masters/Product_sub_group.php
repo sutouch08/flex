@@ -18,8 +18,11 @@ class Product_sub_group extends PS_Controller
 
   public function index()
   {
-		$code = get_filter('code', 'sub_code', '');
-		$name = get_filter('name', 'sub_name', '');
+    $filter = array(
+      'code' => get_filter('code', 'sub_code', ''),
+      'name' => get_filter('name', 'sub_name', '')
+    );
+
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_filter('set_rows', 'rows', 20);
@@ -30,10 +33,10 @@ class Product_sub_group extends PS_Controller
 		}
 
 		$segment = 4; //-- url segment
-		$rows = $this->product_sub_group_model->count_rows($code, $name);
+		$rows = $this->product_sub_group_model->count_rows($filter);
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$group = $this->product_sub_group_model->get_data($code, $name, $perpage, $this->uri->segment($segment));
+		$group = $this->product_sub_group_model->get_data($filter, $perpage, $this->uri->segment($segment));
 
     $data = array();
 
@@ -50,15 +53,10 @@ class Product_sub_group extends PS_Controller
       }
     }
 
-
-    $ds = array(
-      'code' => $code,
-      'name' => $name,
-			'data' => $data
-    );
+    $filter['data'] = $data;
 
 		$this->pagination->initialize($init);
-    $this->load->view('masters/product_sub_group/product_sub_group_view', $ds);
+    $this->load->view('masters/product_sub_group/product_sub_group_view', $filter);
   }
 
 
@@ -222,7 +220,8 @@ class Product_sub_group extends PS_Controller
 
   public function clear_filter()
 	{
-		clear_filter(array('sub_code', 'sub_name'));
+    $filter = array('sub_code', 'sub_name');
+		clear_filter($filter);
 		echo 'done';
 	}
 

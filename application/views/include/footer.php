@@ -2,8 +2,6 @@
 							</div><!-- /.col -->
 						</div><!-- /.row -->
 					</div><!-- /.page-content -->
-				</div>
-			</div><!-- /.main-content -->
 
 			<div class="footer">
 				<div class="footer-inner">
@@ -20,6 +18,7 @@
 			<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
 				<i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
 			</a>
+		</div> <!--/ footer -->
 		</div><!-- /.main-container -->
 
 		<div id="loader" style="position:fixed; padding: 15px 25px 15px 25px; background-color:#fff; opacity:0.0; box-shadow: 0px 0px 25px #CCC; top:-20px; display:none;">

@@ -1,12 +1,12 @@
 <?php
 $allProduct = $rule->all_product == 0 ? 'N' : 'Y';
 $id = $rule->id;
-/*
+
 //--- ระบุชื่อสินค้า
-$pdList = getRuleProductId($id);
-$pdListNo = count($cusList);
-$product_id = ($allProduct == 'N' && $pdListNo > 0 ) ? 'Y' : 'N';
-*/
+$pdList = $this->discount_rule_model->getRuleProductItem($id);
+$pdListNo = count($pdList);
+$product_item = ($allProduct == 'N' && $pdListNo > 0 ) ? 'Y' : 'N';
+
 
 //--- กำหนดรุ่นสินค้า
 $pdStyle = $this->discount_rule_model->getRuleProductStyle($id);
@@ -70,6 +70,36 @@ $product_brand = ($pdBrandNo > 0 && $allProduct == 'N' && $product_style == 'N')
           </div>
         </div>
 				<div class="divider-hidden"></div>
+
+        <div class="col-sm-2">
+					<span class="form-control left-label text-right">รายการสินค้า</span>
+				</div>
+        <div class="col-sm-2">
+					<div class="btn-group width-100">
+						<button type="button" class="not-pd-all btn btn-sm width-50" id="btn-item-id-yes" onclick="toggleItem('Y')" disabled>YES</button>
+						<button type="button" class="not-pd-all btn btn-sm width-50 btn-primary" id="btn-item-id-no" onclick="toggleItem('N')" disabled>NO</button>
+					</div>
+        </div>
+				<div class="col-sm-3 padding-5">
+					<input type="text" class="option form-control input-sm text-center" id="txt-item-id-box" placeholder="ค้นหารหัสสินค้า" disabled />
+					<input type="hidden" id="item_code" />
+				</div>
+        <div class="col-sm-1 padding-5">
+          <button type="button" class="option btn btn-xs btn-info btn-block" id="btn-items-id-add" onclick="getProductGrid()">แสดง</button>
+        </div>
+				<div class="col-sm-1 padding-5">
+					<button type="button" class="option btn btn-xs btn-info btn-block" id="btn-item-id-add" onclick="addItemId()" disabled><i class="fa fa-plus"></i> เพิ่ม</button>
+				</div>
+				<div class="col-sm-2 padding-5">
+					<span class="form-control input-sm text-center"><span id="itemCount"><?php echo $pdListNo; ?></span>  รายการ</span>
+				</div>
+				<div class="col-sm-1 padding-5">
+					<button type="button" class="option btn btn-xs btn-primary btn-block" id="btn-show-item-name" onclick="showItemList()">
+						แสดง
+					</button>
+				</div>
+				<div class="divider-hidden"></div>
+
 
 
         <div class="col-sm-2">
@@ -215,7 +245,7 @@ $product_brand = ($pdBrandNo > 0 && $allProduct == 'N' && $product_style == 'N')
         </div>
 				<div class="col-sm-2 col-2-harf padding-5">
 					<button type="button" class="option btn btn-xs btn-info btn-block padding-right-5" id="btn-select-pd-year" onclick="showProductYear()" disabled>
-						เลือกยี่ห้อสินค้า <span class="badge pull-right" id="badge-pd-year"><?php echo $pdBrandNo; ?></span>
+						เลือกปีสินค้า <span class="badge pull-right" id="badge-pd-year"><?php echo $pdYearNo; ?></span>
 					</button>
 				</div>
         <div class="divider-hidden"></div>
@@ -228,7 +258,7 @@ $product_brand = ($pdBrandNo > 0 && $allProduct == 'N' && $product_style == 'N')
     </div>
 
 		<input type="hidden" id="all_product" value="<?php echo $allProduct; ?>" />
-		<!-- <input type="hidden" id="product_id" value="<?php //echo $product_id; ?>" /> -->
+    <input type="hidden" id="product_item" value="<?php echo $product_item; ?>" />
     <input type="hidden" id="product_style" value="<?php echo $product_style; ?>" />
 		<input type="hidden" id="product_group" value="<?php echo $product_group; ?>" />
     <input type="hidden" id="product_sub" value="<?php echo $product_sub_group; ?>" />
@@ -239,4 +269,5 @@ $product_brand = ($pdBrandNo > 0 && $allProduct == 'N' && $product_style == 'N')
     <input type="hidden" id="product_year" value="<?php echo $product_year; ?>" />
 
 </div><!--- Tab-pane --->
+
 <?php $this->load->view('discount/rule/product_rule_modal'); ?>

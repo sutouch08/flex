@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 class Stock_balance extends PS_Controller
 {
-  public $menu_code = 'REINVT';
+  public $menu_code = 'RICSTB';
 	public $menu_group_code = 'RE';
   public $menu_sub_group_code = 'REINVT';
 	public $title = 'รายงานสินค้าคงเหลือ';

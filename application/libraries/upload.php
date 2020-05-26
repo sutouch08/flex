@@ -603,7 +603,7 @@
  * @package   cmf
  * @subpackage external
  */
-class upload {
+class Upload {
 
 
     /**

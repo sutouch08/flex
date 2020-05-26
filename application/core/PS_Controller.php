@@ -22,13 +22,16 @@ class PS_Controller extends CI_Controller
     {
       redirect('setting/maintenance');
     }
+    else
+    {
+      //--- get permission for user
+      $this->pm = get_permission($this->menu_code, get_cookie('uid'), get_cookie('id_profile'));
+      //$language = getConfig('LANGUAGE');
+      $display_lang = get_cookie('display_lang');
+      $this->language = empty($display_lang) ? 'thai' : $display_lang;
+      $this->lang->load($this->language, $this->language);
+    }
 
-    //--- get permission for user
-    $this->pm = get_permission($this->menu_code, get_cookie('uid'), get_cookie('id_profile'));
-    //$language = getConfig('LANGUAGE');
-    $display_lang = get_cookie('display_lang');
-    $this->language = empty($display_lang) ? 'thai' : $display_lang;
-    $this->lang->load($this->language, $this->language);
   }
 }
 

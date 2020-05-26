@@ -33,6 +33,7 @@
       <div class="col-sm-1 col-1-harf padding-5"><span class="form-control left-label width-100 text-right">Run digit</span></div>
       <div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center digit" name="RUN_DIGIT_RECEIVE_PO" required value="<?php echo $RUN_DIGIT_RECEIVE_PO; ?>" /></div>
       <div class="divider-hidden"></div>
+
 <!--
       <div class="col-sm-3"><span class="form-control left-label">รับสินค้าเข้าจากการแปรสภาพ</span></div>
       <div class="col-sm-2">
@@ -102,6 +103,13 @@
       <div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center prefix" name="PREFIX_MOVE" required value="<?php echo $PREFIX_MOVE; ?>" /></div>
       <div class="col-sm-1 col-1-harf padding-5"><span class="form-control left-label width-100 text-right">Run digit</span></div>
       <div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center digit" name="RUN_DIGIT_MOVE" required value="<?php echo $RUN_DIGIT_MOVE; ?>" /></div>
+      <div class="divider-hidden"></div>
+
+
+			<div class="col-sm-3"><span class="form-control left-label">ปรับยอดสต็อก</span></div>
+      <div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center prefix" name="PREFIX_ADJUST" required value="<?php echo $PREFIX_ADJUST; ?>" /></div>
+      <div class="col-sm-1 col-1-harf padding-5"><span class="form-control left-label width-100 text-right">Run digit</span></div>
+      <div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center digit" name="RUN_DIGIT_ADJUST" required value="<?php echo $RUN_DIGIT_ADJUST; ?>" /></div>
       <div class="divider-hidden"></div>
 
 

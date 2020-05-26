@@ -500,7 +500,9 @@ class Orders_model extends CI_Model
         $this->db->where('date_add <=', to_date($ds['to_date']));
       }
 
-      $this->db->order_by('code', 'DESC');
+      $order_by = empty($ds['order_by']) ? "orders.code" : "orders.{$ds['order_by']}";
+      $sort_by = empty($ds['sort_by']) ? "ASC" : $ds['sort_by'];
+      $this->db->order_by($order_by, $sort_by);
 
       if($perpage != '')
       {

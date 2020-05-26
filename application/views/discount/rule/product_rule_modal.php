@@ -1,4 +1,58 @@
 <?php $id = $rule->id; ?>
+
+<div class="modal fade" id="productGrid" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog" id="modal" style="min-width:250px;">
+		<div class="modal-content">
+  			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="modalTitle">title</h4>
+			 </div>
+			 <div class="modal-body" id="modalBody"></div>
+			 <div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
+				<button type="button" class="btn btn-primary" onClick="addToList()" >เพิ่มรายการ</button>
+			 </div>
+		</div>
+	</div>
+</div>
+
+
+<div class="modal fade" id="items-list-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" style="width:600px;">
+    <div class="modal-content">
+      <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h4 class="modal-title">สินค้าที่กำหนด</h4>
+      </div>
+      <div class="modal-body" id="items-list-body">
+        <ul style="list-style-type:none;" id="items-list">
+<?php
+      $qr  = "SELECT ps.code FROM discount_rule_product AS sr ";
+      $qr .= "LEFT JOIN products AS ps ON sr.product_code = ps.code ";
+      $qr .= "WHERE sr.id_rule = ".$id;
+?>
+<?php $qs = $this->db->query($qr); ?>
+<?php if($qs->num_rows() > 0) : ?>
+<?php   foreach($qs->result() as $rs) : ?>
+          <li style="min-height:15px; padding:5px;" id="item-id-<?php echo $rs->code; ?>">
+            <a href="#" class="paddint-5" onclick="removeItemId('<?php echo $rs->code; ?>')">
+              <i class="fa fa-times red"></i>
+            </a>
+            <span style="margin-left:10px;"><?php echo $rs->code ?></span>
+          </li>
+          <input type="hidden" name="itemId[<?php echo $rs->code; ?>]" id="itemId-<?php echo $rs->code; ?>" class="itemId" value="<?php echo $rs->code; ?>" />
+<?php endforeach; ?>
+<?php endif; ?>
+        </ul>
+      </div>
+      <div class="modal-footer">
+      <button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <div class="modal fade" id="style-list-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog" style="width:600px;">
     <div class="modal-content">

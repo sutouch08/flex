@@ -9,10 +9,7 @@
     <div class="col-sm-6">
     	<p class="pull-right top-p">
       <?php if($this->pm->can_add) : ?>
-				<?php //if($can_upload == 1) : ?>
-					<!--<button type="button" class="btn btn-sm btn-purple" onclick="getUploadFile()">นำเข้าออเดอร์</button> -->
-				<?php //endif;?>
-        <button type="button" class="btn btn-sm btn-success" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
+        <button type="button" class="btn btn-sm btn-success" onclick="addNew()"><i class="fa fa-plus"></i> สร้างใหม่</button>
       <?php endif; ?>
 
       </p>
@@ -21,45 +18,29 @@
 <hr class=""/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-2 padding-5 first">
+  <div class="col-sm-1 col-1-harf padding-5 first">
     <label>เลขที่เอกสาร</label>
-    <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
+    <input type="text" class="form-control input-sm search code" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-sm-2 padding-5">
+  <div class="col-sm-1 col-1-harf padding-5">
     <label>ลูกค้า</label>
-    <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
+    <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer_code; ?>" />
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-sm-1 col-1-harf padding-5">
+    <label>ผู้ติดต่อ</label>
+    <input type="text" class="form-control input-sm search" name="contact" value="<?php echo $contact; ?>" />
+  </div>
+
+	<div class="col-sm-1 col-1-harf padding-5">
     <label>พนักงาน</label>
     <input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
   </div>
 
-	<div class="col-sm-2 padding-5">
-    <label>เลขที่อ้างอิง</label>
+	<div class="col-sm-1 col-1-harf padding-5">
+    <label>อ้างอิง</label>
 		<input type="text" class="form-control input-sm search" name="reference" value="<?php echo $reference; ?>" />
-  </div>
-
-	<div class="col-sm-2 padding-5">
-    <label>เลขที่จัดส่ง</label>
-		<input type="text" class="form-control input-sm search" name="shipCode" value="<?php echo $ship_code; ?>" />
-  </div>
-
-	<div class="col-sm-2 padding-5 last">
-    <label>ช่องทางการขาย</label>
-		<select class="form-control input-sm" name="channels" onchange="getSearch()">
-			<option value="">ทั้งหมด</option>
-			<?php echo select_channels($channels); ?>
-		</select>
-  </div>
-
-	<div class="col-sm-2 padding-5 first">
-    <label>ช่องทางการชำระเงิน</label>
-		<select class="form-control input-sm" name="payment" onchange="getSearch()">
-			<option value="">ทั้งหมด</option>
-			<?php echo select_payment_method($payment); ?>
-		</select>
   </div>
 
 	<div class="col-sm-2 padding-5">
@@ -70,20 +51,11 @@
     </div>
   </div>
 
-	<div class="col-sm-1 col-1-harf padding-5">
-		<label>สถานะการชำระเงิน</label>
-		<select class="form-control input-sm" name="is_paid" onchange="getSearch()">
-			<option value="all" <?php echo is_selected('all', $is_paid); ?>>ทั้งหมด</option>
-			<option value="paid" <?php echo is_selected('paid', $is_paid); ?>>จ่ายแล้ว</option>
-			<option value="not_paid" <?php echo is_selected('not_paid', $is_paid); ?>>ยังไม่จ่าย</option>
-		</select>
-	</div>
-
   <div class="col-sm-1 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-sm-1 padding-5">
+	<div class="col-sm-1 padding-5 last">
     <label class="display-block not-show">buton</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
@@ -93,50 +65,60 @@
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
 	<div class="col-sm-12 table-responsive">
-		<table class="table table-striped table-bordered table-hover">
+		<p  class="pull-right top-p">
+			ว่างๆ = ปกติ, &nbsp; <span class="blue">NC</span> = ยังไม่บันทึก, &nbsp; <span class="red">CN</span> = ยกเลิก
+		</p>
+		<table class="table table-striped table-hover border-1">
 			<thead>
 				<tr>
 					<th class="width-5 middle text-center">ลำดับ</th>
 					<th class="width-10 middle text-center">วันที่</th>
 					<th class="width-15 middle">เลขที่เอกสาร</th>
 					<th class="middle">ลูกค้า</th>
-					<th class="width-10 middle">ยอดเงิน</th>
-					<th class="width-10 middle">ช่องทางขาย</th>
-					<th class="width-10 middle">การชำระเงิน</th>
+					<th class="width-10 middle">ยอดรวม</th>
 					<th class="width-10 middle">สถานะ</th>
+					<th class="width-10 middle"></th>
 				</tr>
 			</thead>
 			<tbody>
-        <?php if(!empty($orders)) : ?>
-          <?php $no = $this->uri->segment(4) + 1; ?>
-          <?php foreach($orders as $rs) : ?>
-						<?php $cod_txt = ($rs->payment_role == 4 && $rs->state != 9) ? ($rs->is_paid == 1 ? '' : '<span class="label label-danger">รอเงินเข้า</span>') : ''; ?>
-						<?php $ref = empty($rs->reference) ? '' :' ['.$rs->reference.']'; ?>
-						<?php $c_ref = empty($rs->customer_ref) ? '' : ' ['.$rs->customer_ref.']'; ?>
-            <tr id="row-<?php echo $rs->code; ?>" style="<?php echo state_color($rs->state, $rs->status, $rs->is_expired); ?>">
-              <td class="middle text-center pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $no; ?></td>
-              <td class="middle text-center pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo thai_date($rs->date_add); ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->code.$ref . $cod_txt; ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->customer_name . $c_ref; ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo number($rs->total_amount, 2); ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->channels_name; ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->payment_name; ?></td>
-              <td class="middle pointer" onclick="editOrder('<?php echo $rs->code; ?>')"><?php echo $rs->state_name; ?></td>
-              </td>
-            </tr>
-            <?php $no++; ?>
-          <?php endforeach; ?>
-        <?php endif; ?>
+	<?php if(!empty($data)) : ?>
+		<?php $no = $this->uri->segment(4) + 1; ?>
+		<?php foreach($data as $rs) : ?>
+			<tr>
+				<td class="middle text-center no"><?php echo $no; ?></td>
+				<td class="middle text-center"><?php echo thai_date($rs->date_add); ?></td>
+				<td class="middle"><?php echo $rs->code; ?></td>
+				<td class="middle"><?php echo $rs->customer_name; ?></td>
+				<td class="middle text-right"><?php echo number($rs->amount, 2); ?></td>
+				<td class="middle text-center">
+					<?php if($rs->status == 2) : ?>
+						<span class="red">CN</span>
+					<?php endif; ?>
+					<?php if($rs->status == 0) : ?>
+						<span class="blue">NC</span>
+					<?php endif; ?>
+				</td>
+				<td class="middle text-right">
+					<button type="button" class="btn btn-minier btn-info" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
+					<?php if($rs->status == 0 && $this->pm->can_edit) : ?>
+						<button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
+					<?php endif; ?>
+					<?php if($rs->status != 2 && $this->pm->can_delete) : ?>
+						<button type="button" class="btn btn-minier btn-danger" onclick="goDelete('<?php echo $rs->code; ?>', <?php echo $rs->status; ?>)"><i class="fa fa-trash"></i></button>
+					<?php endif; ?>
+				</td>
+			</tr>
+		<?php endforeach; ?>
+	<?php else : ?>
+			<tr>
+				<td colspan="7" class="text-center">--- ไม่พบข้อมูล ---</td>
+			</tr>
+	<?php endif; ?>
 			</tbody>
 		</table>
 	</div>
 </div>
 
-<?php
-if($can_upload == 1) :
-	 $this->load->view('orders/import_order');
-endif;
-?>
-<script src="<?php echo base_url(); ?>scripts/orders/orders.js"></script>
+<script src="<?php echo base_url(); ?>scripts/quotation/quotation.js"></script>
 
 <?php $this->load->view('include/footer'); ?>

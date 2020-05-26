@@ -23,18 +23,30 @@ $hide = $order->status == 1 ? 'hide' : '';
 
 <!--  Search Product -->
 <div class="row">
-	<div class="col-sm-3 padding-5 first">
+	<div class="col-sm-2 col-2-harf padding-5 first">
     <input type="text" class="form-control input-sm text-center" id="pd-box" placeholder="ค้นรหัสสินค้า" />
   </div>
-  <div class="col-sm-2 padding-5">
+  <div class="col-sm-1 col-1-harf padding-5">
   	<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductGrid()"><i class="fa fa-tags"></i> แสดงสินค้า</button>
   </div>
-    <div class="col-sm-5"></div>
-    <div class="col-sm-2">
-    	<button type="button" class="btn btn-xs btn-info btn-block" onclick="recalDiscount()">
-        	<i class="fa fa-calculator"></i> คำนวณส่วนลดใหม่</button>
-        </button>
-    </div>
+  <div class="col-sm-2 col-2-harf padding-5">
+    <input type="text" class="form-control input-sm text-center" id="item-code" placeholder="ค้นหารหัสสินค้า">
+  </div>
+  <div class="col-sm-1 padding-5">
+    <input type="number" class="form-control input-sm text-center" id="stock-qty" disabled>
+  </div>
+  <div class="col-sm-1 padding-5">
+    <input type="number" class="form-control input-sm text-center" id="input-qty">
+  </div>
+  <div class="col-sm-1 padding-5">
+    <button type="button" class="btn btn-xs btn-primary btn-block" onclick="addItemToOrder()">เพิ่ม</button>
+  </div>
+
+  <div class="col-sm-2 col-2-harf padding-5 last">
+    <button type="button" class="btn btn-xs btn-info btn-block" onclick="recalDiscount()">
+        <i class="fa fa-calculator"></i> คำนวณส่วนลดใหม่</button>
+      </button>
+  </div>
 </div>
 <hr class="margin-top-15 margin-bottom-0" />
 <!--- Category Menu ---------------------------------->
@@ -60,12 +72,11 @@ $hide = $order->status == 1 ? 'hide' : '';
 
 <form id="orderForm">
 <div class="modal fade" id="orderGrid" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog" id="modal">
+	<div class="modal-dialog" id="modal" style="min-width:250px;">
 		<div class="modal-content">
   			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h4 class="modal-title" id="modalTitle">title</h4>
-        <center><span style="color: red;">ใน ( ) = ยอดคงเหลือทั้งหมด   ไม่มีวงเล็บ = สั่งได้ทันที</span></center>
+				<h4 class="modal-title" id="modalTitle" style="font-size:24px; font-weight:bolder;">title</h4>
 			 </div>
 			 <div class="modal-body" id="modalBody"></div>
 			 <div class="modal-footer">
@@ -76,7 +87,7 @@ $hide = $order->status == 1 ? 'hide' : '';
 	</div>
 </div>
 </form>
-
+<input type="hidden" id="auz" value="<?php echo getConfig('ALLOW_UNDER_ZERO'); ?>">
 <script src="<?php echo base_url(); ?>scripts/orders/orders.js"></script>
 <script src="<?php echo base_url(); ?>scripts/orders/order_add.js"></script>
 <script src="<?php echo base_url(); ?>scripts/orders/product_tab_menu.js"></script>

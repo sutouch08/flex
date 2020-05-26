@@ -6,6 +6,7 @@ class Discount_rule extends PS_Controller
   public $menu_code = 'SCRULE';
 	public $menu_group_code = 'SC';
 	public $title = 'เพิ่ม/แก้ไข เงือนไขส่วนลด';
+  public $error;
 
   public function __construct()
   {
@@ -303,7 +304,10 @@ class Discount_rule extends PS_Controller
     //--- all product ?
     $all = $this->input->post('all_product') == 'Y' ? TRUE : FALSE;
 
-    //--- product name ?
+    //--- item code
+    $item = $this->input->post('product_item') == 'Y' ? TRUE : FALSE;
+
+    //--- product model ?
     $style = $this->input->post('product_style') == 'Y' ? TRUE : FALSE;
 
     //--- product group ?
@@ -338,6 +342,16 @@ class Discount_rule extends PS_Controller
     {
       //--- เปลี่ยนเงื่อนไข set all_product = 0
       $this->discount_rule_model->set_all_product($id_rule, 0);
+
+      //--- กรณีระบุรหัสสินค้า
+      if($item === TRUE)
+      {
+        $itemList = $this->input->post('itemId');
+        $rs = $this->discount_rule_model->set_product_item($id_rule, $itemList);
+        echo $rs->status === TRUE ? 'success' : $rs->message;
+        exit;
+      }
+
 
       //--- กรณีระบุรุ่นสินค้า
       if($style === TRUE)
@@ -461,6 +475,40 @@ class Discount_rule extends PS_Controller
 
 
 
+  public function delete_rule()
+  {
+    $sc = TRUE;
+    //--- check before delete
+    $id = $this->input->post('id_rule');
+    $rule = $this->discount_rule_model->get($id);
+    if(!empty($rule))
+    {
+      if(!empty($rule->id_policy))
+      {
+        $policy_code = $this->discount_policy_model->get_code($rule->id_policy);
+        $sc = FALSE;
+        $this->error = "มีการเชื่อมโยงเงื่อนไขไว้กับนโยบายเลขที่ : {$policy_code} กรุณาลบการเชื่อมโยงก่อนลบเงื่อนไขนี้";
+      }
+      else
+      {
+        if(! $this->discount_rule_model->delete_rule($id))
+        {
+          $sc = FALSE;
+          $this->error = "ลบรายการไม่สำเร็จ";
+        }
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Not found";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
+
   public function view_rule_detail($id)
   {
     $this->load->library('printer');
@@ -495,6 +543,236 @@ class Discount_rule extends PS_Controller
   }
 
 
+
+  //--- Po
+  public function get_product_grid()
+  {
+    $rs = TRUE;
+    $style_code = $this->input->get('style_code');
+    if(!empty($style_code))
+    {
+      $this->load->model('masters/products_model');
+      if($this->products_model->is_exists_style($style_code))
+      {
+        $sc = $this->getProductGrid($style_code);
+      	$tableWidth	= $this->products_model->countAttribute($style_code) == 1 ? 600 : $this->getTableWidth($style_code);
+      	$sc .= ' | '.$tableWidth;
+      	$sc .= ' | ' . $style_code;
+      	$sc .= ' | ' . $style_code;
+      }
+      else
+      {
+        $rs = FALSE;
+        $this->error = "รหัสไม่ถูกต้อง";
+      }
+    }
+    else
+    {
+      $rs = FALSE;
+      $this->error = "ไม่พบรหัสสินค้า";
+    }
+
+
+  	echo $sc;
+  }
+
+
+
+  public function getProductGrid($style_code)
+	{
+    $this->load->model('masters/product_style_model');
+		$sc = '';
+    $style = $this->product_style_model->get($style_code);
+		$attrs = $this->getAttribute($style->code);
+
+		if( count($attrs) == 1  )
+		{
+			$sc .= $this->productGridOneAttribute($style, $attrs[0]);
+		}
+		else if( count( $attrs ) == 2 )
+		{
+			$sc .= $this->productGridTwoAttribute($style);
+		}
+		return $sc;
+	}
+
+
+
+  public function productGridOneAttribute($style, $attr)
+	{
+    $this->load->model('masters/products_model');
+		$sc 		= '';
+		$data 	= $attr == 'color' ? $this->getAllColors($style->code) : $this->getAllSizes($style->code);
+		$items	= $this->products_model->get_style_items($style->code);
+		$sc 	 .= "<table class='table table-bordered'>";
+		$i 		  = 0;
+
+    foreach($items as $item )
+    {
+      $id_attr	= $item->size_code === NULL OR $item->size_code === '' ? $item->color_code : $item->size_code;
+      $sc 	.= $i%2 == 0 ? '<tr>' : '';
+
+      $code = $attr == 'color' ? $item->color_code : $item->size_code;
+
+			$sc 	.= '<td class="middle text-center width-25" style="border-right:0px;">';
+			$sc 	.= '<strong>' .	$code. '</strong>';
+			$sc 	.= '</td>';
+			$sc 	.= '<td class="middle width-25" class="one-attribute">';
+      $sc   .= '<label>';
+      $sc   .= '<input type="checkbox" class="ace check-item" value="'.$item->code.'"/>';
+      $sc   .= '<span class="lbl"></span>';
+      $sc   .= '</label>';
+			$sc 	.= '</td>';
+
+			$i++;
+
+			$sc 	.= $i%2 == 0 ? '</tr>' : '';
+
+    }
+
+		$sc	.= "</table>";
+
+		return $sc;
+	}
+
+
+  public function productGridTwoAttribute($style)
+	{
+    $this->load->model('masters/products_model');
+		$colors	= $this->getAllColors($style->code);
+		$sizes 	= $this->getAllSizes($style->code);
+		$sc 		= '';
+		$sc 		.= '<table class="table table-bordered">';
+		$sc 		.= $this->gridHeader($colors);
+
+		foreach( $sizes as $size_code => $size )
+		{
+			$sc 	.= '<tr style="font-size:12px;">';
+			$sc 	.= '<td class="text-center middle" style="width:70px;"><strong>'.$size_code.'</strong></td>';
+
+			foreach( $colors as $color_code => $color )
+			{
+        $item = $this->products_model->get_item_by_color_and_size($style->code, $color_code, $size_code);
+
+				if( !empty($item) )
+				{
+					$sc 	.= '<td class="order-grid">';
+          $sc   .= '<label>';
+          $sc   .= '<input type="checkbox" class="ace check-item check-'.$size_code.'" value="'.$item->code.'"/>';
+          $sc   .= '<span class="lbl"></span>';
+          $sc   .= '</label>';
+    			$sc 	.= '</td>';
+				}
+				else
+				{
+					$sc .= '<td class="order-grid">N/A</td>';
+				}
+			} //--- End foreach $colors
+
+      $sc 	.= '<td class="order-grid">';
+      $sc   .= '<label>';
+      $sc   .= '<input type="checkbox" class="ace" onChange="toggleSelect($(this),\''.$size_code.'\')"/>';
+      $sc   .= '<span class="lbl"></span>';
+      $sc   .= '</label>';
+      $sc 	.= '</td>';
+
+
+			$sc .= '</tr>';
+		} //--- end foreach $sizes
+	$sc .= '</table>';
+	return $sc;
+	}
+
+
+
+
+  public function getTableWidth($style_code)
+  {
+    $sc = 800; //--- ชั้นต่ำ
+    $tdWidth = 50;  //----- แต่ละช่อง
+    $padding = 60; //----- สำหรับช่องแสดงไซส์
+    $color = $this->products_model->count_color($style_code);
+    if($color > 0)
+    {
+      $sc = $color * $tdWidth + $padding;
+    }
+
+    return $sc;
+  }
+
+
+  public function getAttribute($style_code)
+  {
+    $this->load->model('masters/products_model');
+    $sc = array();
+    $color = $this->products_model->count_color($style_code);
+    $size  = $this->products_model->count_size($style_code);
+    if( $color > 0 )
+    {
+      $sc[] = "color";
+    }
+
+    if( $size > 0 )
+    {
+      $sc[] = "size";
+    }
+    return $sc;
+  }
+
+
+
+
+
+  public function gridHeader(array $colors)
+  {
+    $sc = '<tr class="font-size-12"><td>&nbsp;</td>';
+    foreach( $colors as $code => $name )
+    {
+      $sc .= '<td class="text-center middle"><strong>'.$code .'</strong></td>';
+    }
+
+    $sc .= '<td class="text-center middle">ทั้งหมด</td>';
+    $sc .= '</tr>';
+    return $sc;
+  }
+
+
+
+
+
+  public function getAllColors($style_code)
+	{
+    $this->load->model('masters/products_model');
+		$sc = array();
+    $colors = $this->products_model->get_all_colors($style_code);
+    if($colors !== FALSE)
+    {
+      foreach($colors as $color)
+      {
+        $sc[$color->code] = $color->name;
+      }
+    }
+
+    return $sc;
+	}
+
+
+
+
+  public function getAllSizes($style_code)
+	{
+    $this->load->model('masters/products_model');
+		$sc = array();
+		$sizes = $this->products_model->get_all_sizes($style_code);
+		if( $sizes !== FALSE )
+		{
+      foreach($sizes as $size)
+      {
+        $sc[$size->code] = $size->name;
+      }
+		}
+		return $sc;
+	}
 
 
   public function clear_filter()

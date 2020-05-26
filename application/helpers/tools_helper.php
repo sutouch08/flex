@@ -226,7 +226,26 @@ function label_value($content)
 //--- return null if blank value
 function get_null($value)
 {
-	return $value === '' ? NULL : $value;
+	return ($value === '0' OR $value === 0 OR $value === '') ? NULL : $value;
+}
+
+
+//--- return TRUE if value ==  1 else return FALSE;
+function is_true($value)
+{
+	if($value == 1 OR $value === TRUE)
+	{
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+
+function get_auz()
+{
+	$auz = getConfig('ALLOW_UNDER_ZERO') == 1 ? TRUE : FALSE;
+	return $auz;
 }
 
 function pagination_config( $base_url, $total_rows = 0, $perpage = 20, $segment = 3)

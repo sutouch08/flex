@@ -13,7 +13,7 @@ function _check_login()
 function get_permission($menu, $uid = NULL, $id_profile = NULL)
 {
   $CI =& get_instance();
-  
+
   $uid = $uid === NULL ? get_cookie('uid') : $uid;
   $id_profile = $id_profile === NULL ? get_cookie('id_profile') : $id_profile;
 
@@ -72,6 +72,14 @@ function user_in($txt)
   }
 
   return $sc;
+}
+
+
+function get_display_name($uname)
+{
+  $CI =& get_instance();
+  $name = $CI->user_model->get_name($uname);
+  return $name;
 }
 
 

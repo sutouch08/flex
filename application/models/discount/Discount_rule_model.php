@@ -105,6 +105,13 @@ class Discount_rule_model extends CI_Model
     return $this->db->query($qr);
   }
 
+  public function getProductItemRule($id)
+  {
+    $qr = "SELECT product_code AS code FROM discount_rule_product WHERE id_rule = {$id}";
+
+    return $this->db->query($qr);
+  }
+
 
   public function getProductStyleRule($id)
   {
@@ -309,6 +316,23 @@ class Discount_rule_model extends CI_Model
     return $sc;
   }
 
+
+
+
+  public function getRuleProductItem($id)
+  {
+    $sc = array();
+    $rs = $this->db->where('id_rule', $id)->get('discount_rule_product');
+    if($rs->num_rows() > 0)
+    {
+      foreach($rs->result() as $rd)
+      {
+        $sc[$rd->product_code] = $rd->product_code;
+      }
+    }
+
+    return $sc;
+  }
 
 
   public function getRuleProductStyle($id)
@@ -760,6 +784,71 @@ class Discount_rule_model extends CI_Model
 
 
 
+  public function set_product_item($id, $items)
+  {
+    $result = new stdClass();
+    $result->status = TRUE;
+    $result->message = 'success';
+
+    //---- start transection
+    $this->db->trans_start();
+
+    //--- 1.
+    $this->db->query("UPDATE discount_rule SET all_product = 0 WHERE id = $id");
+
+    //--- 2 ลบข้อมูลเก่าก่อน
+    $this->db->query("DELETE FROM discount_rule_product WHERE id_rule = $id");
+
+    if(!empty($items))
+    {
+      foreach($items as $code)
+      {
+        if(!empty($code))
+        {
+          $this->db->query("INSERT INTO discount_rule_product (id_rule, product_code) VALUES ($id, '{$code}')");
+        }
+      }
+    }
+
+    //--- 3
+    $this->db->query("DELETE FROM discount_rule_product_style WHERE id_rule = $id");
+
+    //--- 3
+    $this->db->query("DELETE FROM discount_rule_product_group WHERE id_rule = $id");
+
+    //--- 4
+    $this->db->query("DELETE FROM discount_rule_product_sub_group WHERE id_rule = $id");
+
+    //--- 5
+    $this->db->query("DELETE FROM discount_rule_product_category WHERE id_rule = $id");
+
+    //--- 6
+    $this->db->query("DELETE FROM discount_rule_product_type WHERE id_rule = $id");
+
+    //--- 7
+    $this->db->query("DELETE FROM discount_rule_product_kind WHERE id_rule = $id");
+
+    //--- 8
+    $this->db->query("DELETE FROM discount_rule_product_brand WHERE id_rule = $id");
+
+    //--- 9
+    $this->db->query("DELETE FROM discount_rule_product_year WHERE id_rule = $id");
+
+    //--- end transection
+    $this->db->trans_complete();
+
+    if($this->db->trans_status() === FALSE)
+    {
+      $result->status = FALSE;
+      $result->message = 'กำหนดเงื่อนไขรุ่นสินค้าไม่สำเร็จ';
+    }
+
+    return $result;
+  }
+
+
+
+
   public function set_product_style($id, $style)
   {
     $result = new stdClass();
@@ -774,6 +863,7 @@ class Discount_rule_model extends CI_Model
 
     //--- 2 ลบข้อมูลเก่าก่อน
     $this->db->query("DELETE FROM discount_rule_product_style WHERE id_rule = $id");
+
     if(!empty($style))
     {
       foreach($style as $code)
@@ -781,6 +871,9 @@ class Discount_rule_model extends CI_Model
         $this->db->query("INSERT INTO discount_rule_product_style (id_rule, style_code) VALUES ($id, '$code')");
       }
     }
+
+    //--- 3
+    $this->db->query("DELETE FROM discount_rule_product WHERE id_rule = $id");
 
     //--- 3
     $this->db->query("DELETE FROM discount_rule_product_group WHERE id_rule = $id");
@@ -825,7 +918,10 @@ class Discount_rule_model extends CI_Model
 
     $this->db->trans_start();
 
-    //--- ลบเงื่อนไขรุ่นสินค้าก่อน
+    //--- ลบเงื่อนไขสินค้า
+    $this->db->where('id_rule', $id)->delete('discount_rule_product');
+
+    //--- ลบเงื่อนไขรุ่นสินค้า
     $this->db->where('id_rule', $id)->delete('discount_rule_product_style');
 
     //--- กลุ่มสินค้า
@@ -1191,6 +1287,45 @@ class Discount_rule_model extends CI_Model
     }
 
     return array();
+  }
+
+
+  public function delete_rule($id)
+  {
+    //--- start transection
+    $this->db->trans_start();
+
+    //--- 1.
+    $this->db->where('id_rule', $id)->delete('discount_rule_product_style');
+
+    //--- 2.
+    $this->db->where('id_rule', $id)->delete('discount_rule_product_group');
+
+    //--- 3
+    $this->db->where('id_rule', $id)->delete('discount_rule_product_sub_group');
+
+    //--- 4
+    $this->db->where('id_rule', $id)->delete('discount_rule_product_category');
+
+    //--- 5
+    $this->db->where('id_rule', $id)->delete('discount_rule_product_type');
+
+    //--- 6
+    $this->db->where('id_rule', $id)->delete('discount_rule_product_kind');
+
+    //--- 7
+    $this->db->where('id_rule', $id)->delete('discount_rule_product_brand');
+
+    //--- 8
+    $this->db->where('id_rule', $id)->delete('discount_rule_product_year');
+
+    //--- 9
+    $this->db->where('id', $id)->delete('discount_rule');
+
+    //--- end transection
+    $this->db->trans_complete();
+
+    return $this->db->trans_status();
   }
 
 } //--- end class

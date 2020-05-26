@@ -210,6 +210,7 @@ class Product_color extends PS_Controller
 
   public function delete($code)
   {
+    $code = urldecode($code);
     if($code != '')
     {
       if($this->product_color_model->delete($code))

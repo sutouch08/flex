@@ -15,5 +15,8 @@ function goEdit(id){
 
 
 function viewDetail(id){
-  window.location.href = HOME + 'view_detail/'+id;
+  var target = BASE_URL + 'discount/discount_rule/view_rule_detail/' + id;
+  var wid = $(document).width();
+	var left = (wid - 900) /2;
+	window.open(target, "_blank", "width=900, height=1000, left="+left+", location=no, scrollbars=yes");
 }

@@ -85,7 +85,7 @@
     <label class="col-sm-3 control-label no-padding-right">พนักงานขาย</label>
     <div class="col-xs-12 col-sm-3">
 			<span class="input-icon input-icon-right width-100">
-      <select class="form-control" name="sale_id" id="sale_id">
+      <select class="form-control" name="sale_code" id="sale_code">
         <option value="">พนักงานขาย(ถ้าเป็น)</option>
         <?php echo select_saleman(); ?>
       </select>

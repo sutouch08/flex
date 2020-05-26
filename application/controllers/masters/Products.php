@@ -463,6 +463,7 @@ class Products extends PS_Controller
 
   public function item_gen($code)
   {
+    $code = urldecode($code);
     $style = $this->product_style_model->get($code);
     $data = array(
       'style' => $style,

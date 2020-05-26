@@ -18,7 +18,7 @@ $phone = $em ? '' : $bill->phone;
 	<div class="form-group">
     <label class="col-sm-2 control-label no-padding-right">รหัสสาขา</label>
     <div class="col-xs-6 col-sm-1 col-1-harf">
-      <input type="text" name="branch_code" id="bill_branch_code" class="form-control input-sm" placeholder="0000" value="<?php echo $branch_code; ?>" />
+      <input type="text" name="branch_code" id="bill_branch_code" class="form-control input-sm code" placeholder="0000" value="<?php echo $branch_code; ?>" />
     </div>
   </div>
 

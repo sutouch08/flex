@@ -50,7 +50,9 @@ class Orders extends PS_Controller
       'payment'       => get_filter('payment', 'payment', ''),
       'from_date'     => get_filter('fromDate', 'fromDate', ''),
       'to_date'       => get_filter('toDate', 'toDate', ''),
-      'is_paid'       => get_filter('is_paid', 'is_paid', 'all')
+      'is_paid'       => get_filter('is_paid', 'is_paid', 'all'),
+      'order_by'      => get_filter('order_by', 'order_by', 'code'),
+      'sort_by'       => get_filter('sort_by', 'sort_by', 'DESC')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -172,6 +174,7 @@ class Orders extends PS_Controller
   {
     $result = TRUE;
     $err = "";
+    $auz = get_auz(); //--- Allow under zero stock : return TRUE or FALSE;
     $err_qty = 0;
     $data = $this->input->post('data');
     $order = $this->orders_model->get($order_code);
@@ -185,14 +188,14 @@ class Orders extends PS_Controller
 
         if( $qty > 0 )
         {
-          $qty = ceil($qty);
+          //$qty = ceil($qty);
 
           //---- ยอดสินค้าที่่สั่งได้
           $sumStock = $this->get_sell_stock($code);
 
 
-          //--- ถ้ามีสต็อกมากว่าที่สั่ง หรือ เป็นสินค้าไม่นับสต็อก
-          if( $sumStock >= $qty OR $item->count_stock == 0 )
+          //--- ถ้ามีสต็อกมากว่าที่สั่ง หรือ เป็นสินค้าไม่นับสต็อก หรือ ติดลบได้
+          if( $sumStock >= $qty OR $item->count_stock == 0 OR $auz)
           {
 
             //---- ถ้ายังไม่มีรายการในออเดอร์
@@ -421,8 +424,11 @@ class Orders extends PS_Controller
       $recal = $this->input->post('recal');
       $has_term = $this->payment_methods_model->has_term($this->input->post('payment_code'));
       $sale_code = $this->customers_model->get_sale_code($this->input->post('customer_code'));
+
       //--- check over due
-      $overDue = $this->invoice_model->is_over_due($this->input->post('customer_code'));
+      $is_strict = is_true(getConfig('STRICT_OVER_DUE'));
+      $overDue = $is_strict ? $this->invoice_model->is_over_due($this->input->post('customerCode')) : FALSE;
+
 
       //--- ถ้ามียอดค้างชำระ และ เป็นออเดอร์แบบเครดิต
       //--- ไม่ให้เพิ่มออเดอร์
@@ -627,6 +633,7 @@ class Orders extends PS_Controller
   {
     //----- Attribute Grid By Clicking image
     $style_code = $this->input->get('style_code');
+    $style = $this->product_style_model->get($style_code);
     $warehouse = get_null($this->input->get('warehouse_code'));
     $zone = get_null($this->input->get('zone_code'));
   	$sc = 'not exists';
@@ -636,6 +643,8 @@ class Orders extends PS_Controller
   	$sc .= ' | '.$tableWidth;
   	$sc .= ' | ' . $style_code;
   	$sc .= ' | ' . $style_code;
+    $sc .= ' | ' . get_cover_image($style_code, 'mini');
+    $sc .= ' | ' . number($style->price, 2);
   	echo $sc;
   }
 
@@ -662,6 +671,28 @@ class Orders extends PS_Controller
 
 
 
+  public function get_item_grid()
+  {
+    $sc = "";
+    $item_code = $this->input->get('itemCode');
+    $warehouse_code = get_null($this->input->get('warehouse_code'));
+    $filter = getConfig('MAX_SHOW_STOCK');
+    $item = $this->products_model->get($item_code);
+    if(!empty($item))
+    {
+      $qty = $item->count_stock == 1 ? ($item->active == 1 ? $this->showStock($this->get_sell_stock($item->code, $warehouse_code)) : 0) : 1000000;
+      $sc = "success | {$item_code} | {$qty}";
+    }
+    else
+    {
+      $sc = "Error | ไม่พบสินค้า | {$item_code}";
+    }
+
+    echo $sc;
+  }
+
+
+
   //--- Po
   public function get_product_grid()
   {
@@ -685,17 +716,18 @@ class Orders extends PS_Controller
 	{
 		$sc = '';
     $style = $this->product_style_model->get($style_code);
-		$isVisual = TRUE;
+		$isVisual = $style->count_stock == 1 ? FALSE : TRUE;
+    $showStock = TRUE;
     $view = FALSE;
 		$attrs = $this->getAttribute($style->code);
 
 		if( count($attrs) == 1  )
 		{
-			$sc .= $this->orderGridOneAttribute($style, $attrs[0], $isVisual, $view);
+			$sc .= $this->orderGridOneAttribute($style, $attrs[0], $isVisual, $view, $showStock);
 		}
 		else if( count( $attrs ) == 2 )
 		{
-			$sc .= $this->orderGridTwoAttribute($style, $isVisual, $view);
+			$sc .= $this->orderGridTwoAttribute($style, $isVisual, $view, $showStock);
 		}
 		return $sc;
 	}
@@ -708,13 +740,14 @@ class Orders extends PS_Controller
 
 
 
-  public function orderGridOneAttribute($style, $attr, $isVisual, $view, $id_branch = 0)
+  public function orderGridOneAttribute($style, $attr, $isVisual, $view, $is_po = FALSE)
 	{
 		$sc 		= '';
 		$data 	= $attr == 'color' ? $this->getAllColors($style->code) : $this->getAllSizes($style->code);
 		$items	= $this->products_model->get_style_items($style->code);
 		$sc 	 .= "<table class='table table-bordered'>";
 		$i 		  = 0;
+    $auz = getConfig('ALLOW_UNDER_ZERO') == 1 ? TRUE : FALSE;
 
     foreach($items as $item )
     {
@@ -723,34 +756,50 @@ class Orders extends PS_Controller
       $active	= $item->active == 0 ? 'Disactive' : ( $item->can_sell == 0 ? 'N/S' : ( $item->is_deleted == 1 ? 'Deleted' : TRUE ) );
       //$stock	= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->stock_model->get_stock($item->code) )  : 0 ) : 0; //---- สต็อกทั้งหมดทุกคลัง
 			$qty 		= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->get_sell_stock($item->code) ) : 0 ) : FALSE; //--- สต็อกที่สั่งซื้อได้
-			$disabled  = $isVisual === TRUE  && $active == TRUE ? '' : ( ($active !== TRUE OR $qty < 1 ) ? 'disabled' : '');
+			//$disabled  = $isVisual === TRUE  && $active == TRUE ? '' : ( ($active !== TRUE OR $qty < 1 ) ? 'disabled' : '');
+      $disabled  = ($isVisual === TRUE OR $auz === TRUE OR $is_po === TRUE) && $active == TRUE ? '' : ( ($active !== TRUE OR $qty < 1 ) ? 'disabled' : '');
 
       if( $qty < 1 && $active === TRUE )
-			{
-				$txt = '<p class="pull-right red">Sold out</p>';
-			}
-			else if( $qty > 0 && $active === TRUE )
-			{
-				$txt = '<p class="pull-right green">'. $qty .'  in stock</p>';
-			}
-			else
-			{
-				$txt = $active === TRUE ? '' : '<p class="pull-right blue">'.$active.'</p>';
-			}
+      {
+        $txt = $auz === TRUE ? '<span class="font-size-12 red">'.$qty.'</span>' : '<span class="font-size-12 red">Sold out</span>';
+        $txt = $qty == 0 ? '<span class="font-size-12 red">Sold out</span>' : $txt;
+      }
+      else
+      {
+        $txt = $active === TRUE ? '' : '<span class="font-size-12 blue">'.$active.'</span>';
+      }
 
-      $limit		= $qty === FALSE ? 1000000 : $qty;
+      $available = $qty === FALSE && $active === TRUE ? '' : ( ($qty < 1 || $active !== TRUE ) ? $txt : $qty);
+      $limit = $qty === FALSE ? 1000000 : (($auz === TRUE OR $is_po === TRUE) ? 1000000 : $qty);
+
+      // if( $qty < 1 && $active === TRUE )
+			// {
+			// 	//$txt = '<p class="pull-right red">Sold out</p>';
+      //   $txt = $auz === TRUE ? '<span class="font-size-12 red">'.$qty.'</span>' : '<span class="font-size-12 red">Sold out</span>';
+      //   $txt = $qty == 0 ? '<span class="font-size-12 red">Sold out</span>' : $txt;
+			// }
+			// else if( $qty > 0 && $active === TRUE )
+			// {
+			// 	$txt = '<p class="pull-right green">'. $qty .'  in stock</p>';
+			// }
+			// else
+			// {
+			// 	$txt = $active === TRUE ? '' : '<p class="pull-right blue">'.$active.'</p>';
+			// }
+
+      //$limit		= $qty === FALSE ? 1000000 : $qty;
       $code = $attr == 'color' ? $item->color_code : $item->size_code;
 
-			$sc 	.= '<td class="middle" style="border-right:0px;">';
-			$sc 	.= '<strong>' .	$code.' ('.$data[$code].')' . '</strong>';
+			$sc 	.= '<td class="middle text-center width-25" style="border-right:0px;">';
+			$sc 	.= '<strong>' .	$code. '</strong>';
 			$sc 	.= '</td>';
 
-			$sc 	.= '<td class="middle" class="one-attribute">';
+			$sc 	.= '<td class="middle width-25" class="one-attribute">';
 			//$sc 	.= $isVisual === FALSE ? '<center><span class="font-size-10 blue">('.($stock < 0 ? 0 : $stock).')</span></center>':'';
 
       if( $view === FALSE )
 			{
-			$sc 	.= '<input type="number" class="form-control input-sm order-grid display-block" name="qty[0]['.$item->code.']" id="'.$item->code.'" onkeyup="valid_qty($(this), '.($qty === FALSE ? 1000000 : $qty).')" '.$disabled.' />';
+			$sc 	.= '<input type="number" class="form-control input-sm order-grid input-qty display-block text-center" name="qty[0]['.$item->code.']" id="'.$item->code.'" onkeyup="valid_qty($(this), '.($qty === FALSE ? 1000000 : $qty).')" '.$disabled.' />';
 			}
 
       $sc 	.= 	'<center>';
@@ -774,9 +823,9 @@ class Orders extends PS_Controller
 
 
 
-  public function orderGridTwoAttribute($style, $isVisual, $view)
+  public function orderGridTwoAttribute($style, $isVisual = FALSE, $view = FALSE, $is_po = FALSE)
 	{
-
+    $auz = getConfig('ALLOW_UNDER_ZERO') == 1 ? TRUE : FALSE;
 		$colors	= $this->getAllColors($style->code);
 		$sizes 	= $this->getAllSizes($style->code);
 		$sc 		= '';
@@ -797,10 +846,11 @@ class Orders extends PS_Controller
 					$active	= $item->active == 0 ? 'Disactive' : ( $item->can_sell == 0 ? 'N/S' : ( $item->is_deleted == 1 ? 'Deleted' : TRUE ) );
 					//$stock	= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->stock_model->get_stock($item->code) )  : 0 ) : 0; //---- สต็อกทั้งหมดทุกคลัง
 					$qty 		= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->get_sell_stock($item->code) ) : 0 ) : FALSE; //--- สต็อกที่สั่งซื้อได้
-					$disabled  = $isVisual === TRUE  && $active == TRUE ? '' : ( ($active !== TRUE OR $qty < 1 ) ? 'disabled' : '');
+					$disabled  = ($isVisual === TRUE OR $auz === TRUE OR $is_po === TRUE) && $active == TRUE ? '' : ( ($active !== TRUE OR $qty < 1 ) ? 'disabled' : '');
 					if( $qty < 1 && $active === TRUE )
 					{
-						$txt = '<span class="font-size-12 red">Sold out</span>';
+						$txt = $auz === TRUE ? '<span class="font-size-12 red">'.$qty.'</span>' : '<span class="font-size-12 red">Sold out</span>';
+            $txt = $qty == 0 ? '<span class="font-size-12 red">Sold out</span>' : $txt;
 					}
 					else
 					{
@@ -808,16 +858,17 @@ class Orders extends PS_Controller
 					}
 
 					$available = $qty === FALSE && $active === TRUE ? '' : ( ($qty < 1 || $active !== TRUE ) ? $txt : $qty);
-					$limit		= $qty === FALSE ? 1000000 : $qty;
+					$limit = $qty === FALSE ? 1000000 : (($auz === TRUE OR $is_po === TRUE) ? 1000000 : $qty);
 
 
 					$sc 	.= '<td class="order-grid">';
 					//$sc 	.= $isVisual === FALSE ? '<center><span class="font-size-10 blue">('.$stock.')</span></center>' : '';
 					if( $view === FALSE )
 					{
-						$sc 	.= '<input type="number" min="1" max="'.$limit.'" class="form-control order-grid input-qty" name="qty['.$item->color_code.']['.$item->code.']" id="'.$item->code.'" onkeyup="valid_qty($(this), '.$limit.')" '.$disabled.' />';
+						$sc 	.= '<input type="number" min="1" max="'.$limit.'" class="form-control order-grid input-qty text-center" name="qty['.$item->color_code.']['.$item->code.']" id="'.$item->code.'" onkeyup="valid_qty($(this), '.$limit.')" '.$disabled.' />';
 					}
-					$sc 	.= $isVisual === FALSE ? '<center>'.$available.'</center>' : '';
+
+					$sc 	.= ($isVisual === FALSE OR $is_po === TRUE) ? '<center style="font-weight:bold; color:#0F00FF"><strong>'.$available.'</strong></center>' : '';
 					$sc 	.= '</td>';
 				}
 				else
@@ -864,7 +915,7 @@ class Orders extends PS_Controller
     $sc = '<tr class="font-size-12"><td>&nbsp;</td>';
     foreach( $colors as $code => $name )
     {
-      $sc .= '<td class="text-center middle"><strong>'.$code . '<br/>'. $name.'</strong></td>';
+      $sc .= '<td class="text-center middle"><strong>'.$code .'</strong></td>';
     }
     $sc .= '</tr>';
     return $sc;
@@ -972,10 +1023,11 @@ class Orders extends PS_Controller
 
   public function get_sell_stock($item_code)
   {
+    $auz = getConfig('ALLOW_UNDER_ZERO') == 1 ? TRUE : FALSE;
     $sell_stock = $this->stock_model->get_sell_stock($item_code);
     $reserv_stock = $this->orders_model->get_reserv_stock($item_code);
     $availableStock = $sell_stock - $reserv_stock;
-		return $availableStock < 0 ? 0 : $availableStock;
+		return $auz === TRUE ? $availableStock : ($availableStock < 0 ? 0 : $availableStock);
   }
 
 
@@ -2057,7 +2109,9 @@ class Orders extends PS_Controller
       'payment',
       'fromDate',
       'toDate',
-      'is_paid'
+      'is_paid',
+      'order_by',
+      'sort_by'
     );
 
     clear_filter($filter);

@@ -291,3 +291,19 @@ function parseDiscount(discount_label, price)
 
 	return discLabel;
 }
+
+$(".code").keypress(function(event) {
+    var character = String.fromCharCode(event.keyCode);
+    return isValid(character);
+});
+
+function isValid(str) {
+    return !/[~`!@#$%\^&*+=\\[\]\\';,/{}|\\":<>\?]/g.test(str);
+}
+
+// $('.code').keypress(function(e){
+//   var key = e.key;
+//   if(key === "/" || key === "'" || key === '"'){
+//     return false;
+//   }
+// })

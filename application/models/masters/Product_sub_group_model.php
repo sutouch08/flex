@@ -37,23 +37,19 @@ class Product_sub_group_model extends CI_Model
   }
 
 
-  public function count_rows($code = '', $name = '')
+  public function count_rows(array $ds = array())
   {
-    $this->db->select('code');
-
-    if($code != '')
+    if(! empty($ds['code']))
     {
-      $this->db->like('code', $code);
+      $this->db->like('code', $ds['code']);
     }
 
-    if($name != '')
+    if(! empty($ds['name']))
     {
-      $this->db->like('name', $name);
+      $this->db->like('name', $ds['name']);
     }
 
-    $rs = $this->db->get('product_sub_group');
-
-    return $rs->num_rows();
+    return $this->db->count_all_results('product_sub_group');
   }
 
 
@@ -81,16 +77,16 @@ class Product_sub_group_model extends CI_Model
 
 
 
-  public function get_data($code = '', $name = '', $perpage = '', $offset = '')
+  public function get_data(array $ds = array(), $perpage = '', $offset = '')
   {
-    if($code != '')
+    if(! empty($ds['code']))
     {
-      $this->db->like('code', $code);
+      $this->db->like('code', $ds['code']);
     }
 
-    if($name != '')
+    if(! empty($ds['name']))
     {
-      $this->db->like('name', $name);
+      $this->db->like('name', $ds['name']);
     }
 
     if($perpage != '')

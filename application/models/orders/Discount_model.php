@@ -49,6 +49,9 @@ class Discount_model extends CI_Model
 			//----- รายการกฏต่างๆ
 			$qr .= "LEFT JOIN discount_rule AS r ON p.id = r.id_policy ";
 
+      //---
+      $qr .= "LEFT JOIN discount_rule_product AS pd ON r.id = pd.id_rule ";
+
 			//--- เลือกรายการตาม รุ่นสินค้า
 			$qr .= "LEFT JOIN discount_rule_product_style AS ps ON r.id = ps.id_rule ";
 
@@ -102,6 +105,7 @@ class Discount_model extends CI_Model
 
 			//----- now check product
 			$qr .= "AND (r.all_product = 1 OR r.all_product = 0) ";
+      $qr .= "AND (pd.product_code IS NULL OR pd.product_code = '".$pd->code."') ";
 			$qr .= "AND (ps.style_code IS NULL OR ps.style_code = '".$pd->style_code."') ";
 			$qr .= "AND (pg.group_code IS NULL OR pg.group_code = '".$pd->group_code."') ";
 			$qr .= "AND (psg.sub_group_code IS NULL OR psg.sub_group_code = '".$pd->sub_group_code."') ";
@@ -294,6 +298,9 @@ class Discount_model extends CI_Model
 			//----- รายการกฏต่างๆ
 			$qr .= "LEFT JOIN discount_rule AS r ON p.id = r.id_policy ";
 
+      //---
+      $qr .= "LEFT JOIN discount_rule_product AS pd ON r.id = pd.id_rule ";
+
 			//--- เลือกรายการตาม รุ่นสินค้า
 			$qr .= "LEFT JOIN discount_rule_product_style AS ps ON r.id = ps.id_rule ";
 
@@ -347,6 +354,7 @@ class Discount_model extends CI_Model
 
 			//----- now check product
 			$qr .= "AND (r.all_product = 1 OR r.all_product = 0) ";
+      $qr .= "AND (pd.product_code IS NULL OR pd.product_code = '".$pd->code."') ";
 			$qr .= "AND (ps.style_code IS NULL OR ps.style_code = '".$pd->style_code."') ";
 			$qr .= "AND (pg.group_code IS NULL OR pg.group_code = '".$pd->group_code."') ";
 			$qr .= "AND (psg.sub_group_code IS NULL OR psg.sub_group_code = '".$pd->sub_group_code."') ";

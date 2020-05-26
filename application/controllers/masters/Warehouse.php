@@ -19,9 +19,9 @@ class Warehouse extends PS_Controller
   public function index()
   {
     $filter = array(
-      'code' => get_filter('code', 'code', ''),
-      'name' => get_filter('name', 'name', ''),
-      'role' => get_filter('role', 'role', '')
+      'code' => get_filter('code', 'wh_code', ''),
+      'name' => get_filter('name', 'wh_name', ''),
+      'role' => get_filter('role', 'wh_role', '')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -217,7 +217,7 @@ class Warehouse extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('code', 'name', 'role');
+    $filter = array('wh_code', 'wh_name', 'wh_role');
     clear_filter($filter);
   }
 

@@ -50,9 +50,9 @@
 	<div class="modal-dialog" id="modal">
 		<div class="modal-content" style="position:relative; max-height:900px; max-width:1200px; overflow-x:scroll; overflow-y:scroll;">
   			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h4 class="modal-title" id="modalTitle">title</h4>
-        <center><span style="color: red;">ใน ( ) = ยอดคงเหลือทั้งหมด   ไม่มีวงเล็บ = สั่งได้ทันที</span></center>
+				<!--<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>-->
+				<h4 class="modal-title inline margin-left-15" id="modalTitle" style="font-size:28px; font-weight:bolder; width:50%">title</h4>
+				<div class="pull-right margin-right-15 margin-bottom-10" id="image-cover"></id>
 			 </div>
 			 <div class="modal-body" id="modalBody"></div>
 			 <div class="modal-footer">

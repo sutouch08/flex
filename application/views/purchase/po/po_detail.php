@@ -8,7 +8,8 @@
           <th class=""><?php label('item_name'); ?></th>
           <th class="width-10 text-center"><?php label('price'); ?></th>
           <th class="width-10 text-center"><?php label('qty'); ?></th>
-          <th colspan="2" class="width-20 text-center"><?php label('amount'); ?></th>
+          <th class="width-20 text-center"><?php label('amount'); ?></th>
+          <th class="width-5 text-center"></th>
         </tr>
       </thead>
       <tbody id="detail-table">
@@ -39,7 +40,7 @@
             <span id="amount-<?php echo $rs->id; ?>"><?php echo number($rs->total_amount, 2); ?></span>
           </td>
           <td class="width-5 text-center">
-            <?php if($po->status < 0) : ?>
+            <?php if($po->status == 0 OR ($this->pm->can_edit && $rs->received == 0 )) : ?>
             <button type="button" class="btn btn-minier btn-danger" onclick="removeDetail(<?php echo $rs->id; ?>, '<?php echo $rs->product_code; ?>')">
             <i class="fa fa-trash"></i>
             <?php endif ?>

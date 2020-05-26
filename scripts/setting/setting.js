@@ -43,23 +43,6 @@ function closeSystem()
 }
 
 
-function toggleQC(option)
-{
-	$('#use_qc').val(option);
-	if(option == 1)
-	{
-		$('#btn-qc-yes').addClass('btn-success');
-		$('#btn-qc-no').removeClass('btn-danger')
-		return;
-	}
-
-	if(option == 0)
-	{
-		$('#btn-qc-yes').removeClass('btn-success');
-		$('#btn-qc-no').addClass('btn-danger');
-		return;
-	}
-}
 
 function toggleManualCode(option)
 {
@@ -72,6 +55,22 @@ function toggleManualCode(option)
 	if(option == 0){
 		$('#btn-manual-yes').removeClass('btn-success');
 		$('#btn-manual-no').addClass('btn-danger');
+		return;
+	}
+}
+
+
+
+//--- เปิด/ปิด การ sync ข้อมูลระหว่างเว็บไซต์กับระบบหลัก
+function toggleWebApi(option){
+	$('#web-api').val(option);
+	if(option == 1){
+		$('#btn-api-yes').addClass('btn-success');
+		$('#btn-api-no').removeClass('btn-danger');
+		return;
+	}else if(option == 0){
+		$('#btn-api-yes').removeClass('btn-success');
+		$('#btn-api-no').addClass('btn-danger');
 		return;
 	}
 }
@@ -143,6 +142,8 @@ function toggleReceiveDue(option)
 		return;
 	}
 }
+
+
 
 function toggleEditDiscount(option)
 {

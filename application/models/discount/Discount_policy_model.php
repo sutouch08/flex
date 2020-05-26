@@ -212,6 +212,21 @@ class Discount_policy_model extends CI_Model
     return array();
   }
 
+
+  public function is_exists($code)
+  {
+    if(!empty($code))
+    {
+      $rs = $this->db->where('code', $code)->get('discount_policy');
+      if($rs->num_rows() === 1)
+      {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
 } //--- end class
 
  ?>

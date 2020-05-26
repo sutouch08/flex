@@ -17,9 +17,9 @@ $currency = getConfig('CURRENTCY');
       </tr>
       <tr>
         <td class="middle text-right"><strong>รหัสนโยบาย</strong></td>
-        <td class="middle"><?php echo $policy->code; ?></td>
+        <td class="middle"><?php echo (empty($policy->code) ? '':$policy->code); ?></td>
         <td class="middle text-right"><strong>ชื่อนโยบาย</strong></td>
-        <td class="middle" ><?php echo $policy->name; ?></td>
+        <td class="middle" ><?php echo (empty($policy->name) ? '' : $policy->name); ?></td>
       </tr>
       <tr class="">
         <td class="middle text-right"><strong>วันที่เพิ่ม</strong></td>
@@ -167,6 +167,22 @@ $currency = getConfig('CURRENTCY');
 
       <!------------ ถ้าไม่ได้เลือกสินค้าทั้งหมด แต่เลือกเป็นรุ่น --------->
       <?php if($rule->all_product == 0) : ?>
+
+        <?php   $qs = $this->discount_rule_model->getProductItemRule($id_rule); ?>
+        <?php   if($qs->num_rows() > 0) : ?>
+          <tr class="">
+            <td class="middle text-right"><strong>สินค้า</strong></td>
+            <td class="middle" colspan="3" style="white-space:normal;">
+            <?php $i = 1; ?>
+          <?php   foreach($qs->result() as $rs) : ?>
+            <?php echo $i == 1 ? $rs->code : ', '.$rs->code; ?>
+            <?php $i++; ?>
+          <?php endforeach; ?>
+            </td>
+          </tr>
+          <?php endif; ?>
+        <!----------- จบรายการสินค้า  ------------>
+
       <?php   $qs = $this->discount_rule_model->getProductStyleRule($id_rule); ?>
       <?php   if($qs->num_rows() > 0) : ?>
         <tr class="">

@@ -15,7 +15,7 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right"><?php label('code'); ?></label>
     <div class="col-xs-12 col-sm-3">
-      <input type="text" class="form-control input-sm" name="code" id="code" value="" required/>
+      <input type="text" class="form-control input-sm code" name="code" id="code" value="" required/>
     </div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="code-error"></div>
   </div>
