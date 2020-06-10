@@ -75,7 +75,7 @@ class Permission extends PS_Controller{
     $this->title = 'กำหนดสิทธิ์ - '.$profile->name;
     $data['data'] = $profile;
     $data['menus'] = array();
-    $groups = $this->menu->get_menu_groups();
+    $groups = $this->menu->get_valid_menu_groups();
     if(!empty($groups))
     {
       foreach($groups as $group)
@@ -86,7 +86,7 @@ class Permission extends PS_Controller{
           'menu' => ''
         );
 
-        $menus = $this->menu->get_menus_by_group($group->code, TRUE);
+        $menus = $this->menu->get_valid_menus_by_group($group->code, TRUE);
 
         if(!empty($menus))
         {

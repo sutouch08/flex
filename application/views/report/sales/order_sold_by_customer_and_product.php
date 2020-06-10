@@ -107,5 +107,5 @@
   </table>
 </script>
 
-<script src="<?php echo base_url(); ?>scripts/report/sales/Order_sold_by_customer_and_product.js"></script>
+<script src="<?php echo base_url(); ?>scripts/report/sales/order_sold_by_customer_and_product.js"></script>
 <?php $this->load->view('include/footer'); ?>

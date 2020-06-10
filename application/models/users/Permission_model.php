@@ -15,7 +15,7 @@ class Permission_model extends CI_Model
     }
   }
 
-  
+
   public function get_permission($menu, $id_profile)
   {
     $this->db->where('menu', $menu)->where('id_profile', $id_profile);

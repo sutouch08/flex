@@ -16,7 +16,7 @@ class Order_sold_by_customer_and_product extends PS_Controller
 
   public function index()
   {
-    $this->load->view('report/sales/Order_sold_by_customer_and_product');
+    $this->load->view('report/sales/order_sold_by_customer_and_product');
   }
 
 

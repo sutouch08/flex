@@ -24,6 +24,14 @@ class Menu extends CI_Model{
   }
 
 
+  public function get_valid_menu_groups()
+  {
+    $this->db->order_by('position', 'ASC');
+    $rs = $this->db->where('valid', 1)->get('menu_group');
+    return $rs->result();
+  }
+
+
 
   public function get_menus_sub_group($group_code)
   {
@@ -72,6 +80,28 @@ class Menu extends CI_Model{
 
     $this->db->order_by('position', 'ASC');
     $rs = $this->db->get('menu');
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+    return FALSE;
+
+  }
+
+
+  public function get_valid_menus_by_group($group_code, $all = TRUE)
+  {
+    $this->db
+    ->where('group_code', $group_code)
+    ->where('active', 1);
+    if($all === FALSE)
+    {
+      $this->db->where('sub_group IS NULL', NULL, FALSE)
+      ->where('url IS NOT NULL');
+    }
+
+    $this->db->order_by('position', 'ASC');
+    $rs = $this->db->where('valid', 1)->get('menu');
     if($rs->num_rows() > 0)
     {
       return $rs->result();

@@ -50,35 +50,38 @@ class Order_sold_by_customer_and_payment extends PS_Controller
     if(!empty($result))
     {
       $no = 1;
-      $totalQty = 0;
       $totalAmount = 0;
       $totalPaid = 0;
       $totalBalance = 0;
       foreach($result as $rs)
       {
         $paid = ($rs->paid === NULL && $rs->balance === NULL) ? $rs->total_amount : $rs->paid;
+        $balance = $rs->total_amount - $paid;
+        $cusName = empty($rs->customer_ref) ? $rs->customer_name : $rs->customer_name . "({$rs->customer_ref})";
         $arr = array(
           'no' => number($no),
           'date_upd' => thai_date($rs->date_upd, FALSE, '/'),
           'reference' => $rs->reference,
-          'cusName' => $rs->customer_name,
+          'cusName' => $cusName,
+          'channels' => $rs->channels,
+          'payments' => $rs->payment,
           'amount' => number($rs->total_amount, 2),
-          'paid' =>  ? number($paid, 2),
+          'paid' =>  number($paid, 2),
           'balance' => number($rs->balance, 2)
         );
 
         array_push($bs, $arr);
         $no++;
 
-        $totalQty += $rs->qty;
         $totalAmount += $rs->total_amount;
-        $totalPaid += $rs->paid;
-        $totalBalance += $rs->balance;
+        $totalPaid += $paid;
+        $totalBalance += $balance;
       }
 
       $arr = array(
-        'totalQty' => number($totalQty),
-        'totalAmount' => number($totalAmount, 2)
+        'totalAmount' => number($totalAmount, 2),
+        'totalPaid' => number($totalPaid, 2),
+        'totalBalance' => number($totalBalance, 2)
       );
 
       array_push($bs, $arr);

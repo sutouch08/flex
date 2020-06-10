@@ -68,7 +68,7 @@
     </tr>
     <tr class="font-size-12">
       <th class="width-5 middle text-center">ลำดับ</th>
-      <th class="width-10 middle text-center">วันที่</th>
+      <th class="width-10 middle text-center">Update</th>
       <th class="width-20 middle">ลูกค้า</th>
       <th class="width-10 middle">เลขที่เอกสาร</th>
 			<th class="width-15 middle">ช่องทาง</th>
@@ -76,6 +76,7 @@
       <th class="width-10 text-right middle">มูลค่า</th>
 			<th class="width-10 text-right middle">รับแล้ว</th>
 			<th class="width-10 text-right middle">ค้างรับ</th>
+
     </tr>
 {{#each bs}}
   {{#if nodata}}
@@ -86,8 +87,9 @@
     {{#if @last}}
     <tr class="font-size-14">
       <td colspan="6" class="text-right">รวม</td>
-      <td class="text-right">{{ totalQty }}</td>
       <td class="text-right">{{ totalAmount }}</td>
+      <td class="text-right">{{ totalPaid }}</td>
+			<td class="text-right">{{ totalBalance }}</td>
     </tr>
     {{else}}
     <tr class="font-size-12">
@@ -95,11 +97,11 @@
       <td class="middle text-center">{{ date_upd }}</td>
       <td class="middle">{{ cusName }}</td>
       <td class="middle">{{ reference }}</td>
-      <td class="middle">{{ pdCode }}</td>
-      <td class="middle text-right">{{ price }}</td>
-      <td class="middle text-right">{{ discount }}</td>
-      <td class="middle text-right">{{ qty }}</td>
+      <td class="middle">{{ channels }}</td>
+      <td class="middle">{{ payments }}</td>
       <td class="middle text-right">{{ amount }}</td>
+      <td class="middle text-right">{{ paid }}</td>
+      <td class="middle text-right">{{ balance }}</td>
     </tr>
     {{/if}}
   {{/if}}
@@ -107,5 +109,5 @@
   </table>
 </script>
 
-<script src="<?php echo base_url(); ?>scripts/report/sales/Order_sold_by_customer_and_product.js"></script>
+<script src="<?php echo base_url(); ?>scripts/report/sales/order_sold_by_customer_and_payment.js"></script>
 <?php $this->load->view('include/footer'); ?>
