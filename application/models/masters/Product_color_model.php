@@ -37,28 +37,38 @@ class Product_color_model extends CI_Model
   }
 
 
-  public function count_rows($code = '', $name = '', $status = 2)
+  public function count_rows(array $ds = array())
   {
-    $this->db->select('code');
+    $this->db
+    ->from('product_color AS co')
+    ->join('product_color_group AS cg', 'co.group_code = cg.code', 'left');
 
-    if($status != 2)
+    if($ds['status'] !== 'all')
     {
-      $this->db->where('active', $status);
+      $this->db->where('co.active', $ds['status']);
     }
 
-    if($code != '')
+    if(!empty($ds['code']))
     {
-      $this->db->like('code', $code);
+      $this->db->like('co.code', $ds['code']);
     }
 
-    if($name != '')
+    if(!empty($ds['name']))
     {
-      $this->db->like('name', $name);
+      $this->db->like('co.name', $ds['name']);
     }
 
-    $rs = $this->db->get('product_color');
+    if(!empty($ds['group_code']))
+    {
+      $this->db->where('co.group_code', $ds['group_code']);
+    }
 
-    return $rs->num_rows();
+    if(!empty($ds['gen_code']))
+    {
+      $this->db->like('co.gen_code', $ds['gen_code']);
+    }
+
+    return $this->db->count_all_results();
   }
 
 
@@ -86,32 +96,66 @@ class Product_color_model extends CI_Model
 
 
 
-  public function get_data($code = '', $name = '', $status = 1, $perpage = '', $offset = '')
+  public function get_data(array $ds = array(), $perpage = NULL, $offset = NULL)
   {
-    if($status != 2)
+    $this->db
+    ->select('co.*, cg.name AS group_name')
+    ->from('product_color AS co')
+    ->join('product_color_group AS cg', 'co.group_code = cg.code', 'left');
+
+    if($ds['status'] !== 'all')
     {
-      $this->db->where('active', $status);
+      $this->db->where('co.active', $ds['status']);
     }
 
-    if($code != '')
+    if(!empty($ds['code']))
     {
-      $this->db->like('code', $code);
+      $this->db->like('co.code', $ds['code']);
     }
 
-    if($name != '')
+    if(!empty($ds['name']))
     {
-      $this->db->like('name', $name);
+      $this->db->like('co.name', $ds['name']);
     }
 
-    if($perpage != '')
+    if(!empty($ds['group_code']))
+    {
+      $this->db->where('co.group_code', $ds['group_code']);
+    }
+
+    if(!empty($ds['gen_code']))
+    {
+      $this->db->like('co.gen_code', $ds['gen_code']);
+    }
+
+    if(!empty($perpage))
     {
       $offset = $offset === NULL ? 0 : $offset;
       $this->db->limit($perpage, $offset);
     }
 
-    $rs = $this->db->get('product_color');
+    $rs = $this->db->get();
 
-    return $rs->result();
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_all_color()
+  {
+    $rs = $this->db
+    ->order_by('code', 'ASC')
+    ->get('product_color');
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 
@@ -167,6 +211,17 @@ class Product_color_model extends CI_Model
     return $rs->num_rows();
   }
 
+
+  public function get_color_group_list()
+  {
+    $rs = $this->db->get('product_color_group');
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
 
 }
 ?>

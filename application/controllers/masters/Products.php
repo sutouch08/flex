@@ -467,7 +467,7 @@ class Products extends PS_Controller
     $style = $this->product_style_model->get($code);
     $data = array(
       'style' => $style,
-      'colors' => $this->product_color_model->get_data(),
+      'colors' => $this->product_color_model->get_all_color(),
       'sizes' => $this->product_size_model->get_data(),
       'images' => $this->product_image_model->get_style_images($code)
     );
@@ -547,37 +547,42 @@ class Products extends PS_Controller
     $sc = TRUE;
     foreach($colors as $color)
     {
-      foreach($sizes as $size)
+      $colorx = $this->product_color_model->get($color);
+      if(!empty($colorx))
       {
-        $code = $style . '-' . $color . '-' . $size;
-        //--- duplicate basic data from product style
-        $ds = $this->product_style_model->get($style);
-        $data = array(
-          'code' => $code,
-          'name' => ($ds->name.' '.$code),
-          'style_code' => $style,
-          'color_code' => $color,
-          'size_code' => $size,
-          'group_code' => $ds->group_code,
-          'sub_group_code' => $ds->sub_group_code,
-          'category_code' => $ds->category_code,
-          'kind_code' => $ds->kind_code,
-          'type_code' => $ds->type_code,
-          'brand_code' => $ds->brand_code,
-          'year' => $ds->year,
-          'cost' => (isset($cost[$size]) ? $cost[$size] :$ds->cost),
-          'price' => (isset($price[$size]) ? $price[$size] : $ds->price),
-          'unit_code' => $ds->unit_code,
-          'count_stock' => $ds->count_stock,
-          'can_sell' => $ds->can_sell,
-          'active' => $ds->active,
-          'update_user' => get_cookie('uname')
-        );
-
-        $rs = $this->products_model->add($data);
-        if($rs === FALSE)
+        $color_code = empty($colorx->gen_code) ? $colorx->code : $colorx->gen_code;
+        foreach($sizes as $size)
         {
-          $this->error .= 'Insert fail : '.$code.' /n' ;
+          $code = $style . '-' . $color_code . '-' . $size;
+          //--- duplicate basic data from product style
+          $ds = $this->product_style_model->get($style);
+          $data = array(
+            'code' => $code,
+            'name' => ($ds->name.' '.$code),
+            'style_code' => $style,
+            'color_code' => $colorx->code,
+            'size_code' => $size,
+            'group_code' => $ds->group_code,
+            'sub_group_code' => $ds->sub_group_code,
+            'category_code' => $ds->category_code,
+            'kind_code' => $ds->kind_code,
+            'type_code' => $ds->type_code,
+            'brand_code' => $ds->brand_code,
+            'year' => $ds->year,
+            'cost' => (isset($cost[$size]) ? $cost[$size] :$ds->cost),
+            'price' => (isset($price[$size]) ? $price[$size] : $ds->price),
+            'unit_code' => $ds->unit_code,
+            'count_stock' => $ds->count_stock,
+            'can_sell' => $ds->can_sell,
+            'active' => $ds->active,
+            'update_user' => get_cookie('uname')
+          );
+
+          $rs = $this->products_model->add($data);
+          if($rs === FALSE)
+          {
+            $this->error .= 'Insert fail : '.$code.' /n' ;
+          }
         }
       }
     }
@@ -593,37 +598,43 @@ class Products extends PS_Controller
     $sc = TRUE;
     foreach($colors as $color)
     {
-      $code = $style . '-' . $color;
-      //--- duplicate basic data from product style
-      $ds = $this->product_style_model->get($style);
-      $data = array(
-        'code' => $code,
-        'name' => ($ds->name.' '.$code),
-        'style_code' => $style,
-        'color_code' => $color,
-        'size_code' => NULL,
-        'group_code' => $ds->group_code,
-        'sub_group_code' => $ds->sub_group_code,
-        'category_code' => $ds->category_code,
-        'kind_code' => $ds->kind_code,
-        'type_code' => $ds->type_code,
-        'brand_code' => $ds->brand_code,
-        'year' => $ds->year,
-        'cost' => $ds->cost,
-        'price' => $ds->price,
-        'unit_code' => $ds->unit_code,
-        'count_stock' => $ds->count_stock,
-        'can_sell' => $ds->can_sell,
-        'active' => $ds->active,
-        'update_user' => get_cookie('uname')
-      );
-
-      $rs = $this->products_model->add($data);
-
-      if($rs === FALSE)
+      $colorx = $this->product_color_model->get($color);
+      if(!empty($colorx))
       {
-        $this->error .= 'Insert fail : '.$code.' /n' ;
+        $color_code = empty($colorx->gen_code) ? $colorx->code : $colorx->gen_code;
+        $code = $style . '-' . $color_code;
+        //--- duplicate basic data from product style
+        $ds = $this->product_style_model->get($style);
+        $data = array(
+          'code' => $code,
+          'name' => ($ds->name.' '.$code),
+          'style_code' => $style,
+          'color_code' => $colorx->code,
+          'size_code' => NULL,
+          'group_code' => $ds->group_code,
+          'sub_group_code' => $ds->sub_group_code,
+          'category_code' => $ds->category_code,
+          'kind_code' => $ds->kind_code,
+          'type_code' => $ds->type_code,
+          'brand_code' => $ds->brand_code,
+          'year' => $ds->year,
+          'cost' => $ds->cost,
+          'price' => $ds->price,
+          'unit_code' => $ds->unit_code,
+          'count_stock' => $ds->count_stock,
+          'can_sell' => $ds->can_sell,
+          'active' => $ds->active,
+          'update_user' => get_cookie('uname')
+        );
+
+        $rs = $this->products_model->add($data);
+
+        if($rs === FALSE)
+        {
+          $this->error .= 'Insert fail : '.$code.' /n' ;
+        }
       }
+
     }
   }
 

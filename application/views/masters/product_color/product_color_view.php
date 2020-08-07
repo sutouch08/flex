@@ -16,30 +16,42 @@
 <hr class="title-block"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-2">
+  <div class="col-sm-2 col-xs-4 padding-5 first">
     <label>รหัส</label>
     <input type="text" class="form-control input-sm" name="code" id="code" value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-sm-2">
-    <label>ชื่อ</label>
+  <div class="col-sm-2 col-xs-4 padding-5">
+    <label>สี</label>
     <input type="text" class="form-control input-sm" name="name" id="name" value="<?php echo $name; ?>" />
   </div>
 
-	<div class="col-sm-2">
+	<div class="col-sm-2 col-xs-4 padding-5">
+    <label>Gen code</label>
+    <input type="text" class="form-control input-sm" name="gen_code" value="<?php echo $gen_code; ?>" />
+  </div>
+	<div class="col-sm-2 col-xs-4 padding-5">
+		<label>กลุ่มสี</label>
+		<select class="form-control input-sm" name="color_group" onchange="getSearch()">
+			<option value="">ทั้งหมด</option>
+			<?php echo select_color_group($group_code); ?>
+		</select>
+	</div>
+
+	<div class="col-sm-2 col-xs-4 padding-5">
     <label>สถานะ</label>
-    <select class="form-control inpupt-sm" name="status" id="status" onchange="getSearch()">
-			<option value="2">ทั้งหมด</option>
-			<option value="1" <?php echo is_selected(1, $status); ?>>ใช้งาน</option>
-			<option value="0" <?php echo is_selected(0, $status); ?>>ไม่ใช้งาน</option>
+    <select class="form-control input-sm" name="status" id="status" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="1" <?php echo is_selected('1', $status); ?>>ใช้งาน</option>
+			<option value="0" <?php echo is_selected('0', $status); ?>>ไม่ใช้งาน</option>
 		</select>
   </div>
 
-  <div class="col-sm-2">
+  <div class="col-sm-1 col-xs-6 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-sm btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-sm-2">
+	<div class="col-sm-1 col-xs-6 padding-5 last">
     <label class="display-block not-show">buton</label>
     <button type="button" class="btn btn-sm btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
@@ -55,7 +67,9 @@
 				<tr>
 					<th class="width-5 middle text-center">ลำดับ</th>
 					<th class="width-15 middle">รหัส</th>
-					<th class="width-40 middle">ชื่อ</th>
+					<th class="width-15 middle">สี</th>
+					<th class="width-15 middle">กลุ่มสี</th>
+					<th class="width-15 middle">Gen code</th>
 					<th class="width-15 middle text-center">สินค้า</th>
 					<th class="width-5 middle text-center">สถานะ</th>
 					<th class=""></th>
@@ -69,6 +83,8 @@
 						<td class="middle text-center"><?php echo $no; ?></td>
 						<td class="middle"><?php echo $rs->code; ?></td>
 						<td class="middle"><?php echo $rs->name; ?></td>
+						<td class="middle"><?php echo $rs->group_name; ?></td>
+						<td class="middle"><?php echo $rs->gen_code; ?></td>
 						<td class="middle text-center"><?php echo number($rs->menber); ?></td>
 						<td class="middle text-center" id="<?php echo $rs->code; ?>">
 							<?php if($this->pm->can_edit): ?>

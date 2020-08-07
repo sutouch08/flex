@@ -13,7 +13,7 @@
 <form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/update"; ?>">
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">Code</label>
+    <label class="col-sm-3 control-label no-padding-right">รหัส</label>
     <div class="col-xs-12 col-sm-3">
       <input type="text" name="code" id="code" class="width-100 code" value="<?php echo $code; ?>" autofocus required />
     </div>
@@ -23,9 +23,29 @@
 
 
   <div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">Name</label>
+    <label class="col-sm-3 control-label no-padding-right">สี</label>
     <div class="col-xs-12 col-sm-3">
 			<input type="text" name="name" id="name" class="width-100" value="<?php echo $name; ?>" required />
+    </div>
+    <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
+  </div>
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">Gen code</label>
+    <div class="col-xs-12 col-sm-3">
+			<input type="text" name="gen_code" id="gen-code" class="width-100 code" value="<?php echo $gen_code; ?>" placeholder="รหัสสำหรับใช้ gen รหัสสินค้า" />
+    </div>
+    <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
+  </div>
+
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">กลุ่มสี</label>
+    <div class="col-xs-12 col-sm-3">
+			<select class="form-control input-sm" name="group_code" id="group_code">
+				<option value="">ไม่ระบุ</option>
+				<?php echo select_color_group($group_code); ?>
+			</select>
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
   </div>

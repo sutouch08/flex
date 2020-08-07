@@ -834,8 +834,8 @@ class Orders extends PS_Controller
 
 		foreach( $sizes as $size_code => $size )
 		{
-			$sc 	.= '<tr style="font-size:12px;">';
-			$sc 	.= '<td class="text-center middle" style="width:70px;"><strong>'.$size_code.'</strong></td>';
+			$sc 	.= '<tr style="font-size:14px;">';
+			$sc 	.= '<td class="text-center middle" style="width:80px;"><strong>'.$size_code.'</strong></td>';
 
 			foreach( $colors as $color_code => $color )
 			{
@@ -843,14 +843,14 @@ class Orders extends PS_Controller
 
 				if( !empty($item) )
 				{
-					$active	= $item->active == 0 ? 'Disactive' : ( $item->can_sell == 0 ? 'N/S' : ( $item->is_deleted == 1 ? 'Deleted' : TRUE ) );
+					$active	= $item->active == 0 ? 'ปิด' : ( $item->can_sell == 0 ? 'ไม่มี' : ( $item->is_deleted == 1 ? 'Deleted' : TRUE ) );
 					//$stock	= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->stock_model->get_stock($item->code) )  : 0 ) : 0; //---- สต็อกทั้งหมดทุกคลัง
 					$qty 		= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->get_sell_stock($item->code) ) : 0 ) : FALSE; //--- สต็อกที่สั่งซื้อได้
 					$disabled  = ($isVisual === TRUE OR $auz === TRUE OR $is_po === TRUE) && $active == TRUE ? '' : ( ($active !== TRUE OR $qty < 1 ) ? 'disabled' : '');
 					if( $qty < 1 && $active === TRUE )
 					{
-						$txt = $auz === TRUE ? '<span class="font-size-12 red">'.$qty.'</span>' : '<span class="font-size-12 red">Sold out</span>';
-            $txt = $qty == 0 ? '<span class="font-size-12 red">Sold out</span>' : $txt;
+						$txt = $auz === TRUE ? '<span class="font-size-12 red">'.$qty.'</span>' : '<span class="font-size-12 red">หมด</span>';
+            $txt = $qty == 0 ? '<span class="font-size-12 red">หมด</span>' : $txt;
 					}
 					else
 					{
@@ -915,7 +915,7 @@ class Orders extends PS_Controller
     $sc = '<tr class="font-size-12"><td>&nbsp;</td>';
     foreach( $colors as $code => $name )
     {
-      $sc .= '<td class="text-center middle"><strong>'.$code .'</strong></td>';
+      $sc .= '<td class="text-center middle"><strong>'.$code.'<br>'. $name.'</strong></td>';
     }
     $sc .= '</tr>';
     return $sc;

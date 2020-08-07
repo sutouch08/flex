@@ -23,9 +23,30 @@
 
 
   <div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
+    <label class="col-sm-3 control-label no-padding-right">สี</label>
     <div class="col-xs-12 col-sm-3">
 			<input type="text" name="name" id="name" class="width-100 code" value="<?php echo $name; ?>" required />
+    </div>
+    <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
+  </div>
+
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">Gen code</label>
+    <div class="col-xs-12 col-sm-3">
+			<input type="text" name="gen_code" id="gen-code" class="width-100 code" value="<?php echo $gen_code; ?>" placeholder="รหัสสำหรับใช้ gen รหัสสินค้า" />
+    </div>
+    <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
+  </div>
+
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">กลุ่มสี</label>
+    <div class="col-xs-12 col-sm-3">
+			<select class="form-control input-sm" name="group_code" id="group_code">
+				<option value="">ไม่ระบุ</option>
+				<?php echo select_color_group($group_code); ?>
+			</select>
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
   </div>

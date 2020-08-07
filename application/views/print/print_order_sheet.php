@@ -26,7 +26,7 @@ $subtotal_row = 4 + $shipping_row + $service_row + $deposit_row;
 
 $config 		= array(
                 "total_row" => $total_row,
-                "font_size" => 10,
+                "font_size" => 12,
                 "header_rows" => 3,
                 "sub_total_row" => $subtotal_row
             );

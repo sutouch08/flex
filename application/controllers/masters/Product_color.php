@@ -13,14 +13,19 @@ class Product_color extends PS_Controller
     parent::__construct();
     $this->home = base_url().'masters/product_color';
     $this->load->model('masters/product_color_model');
+    $this->load->helper('product_color');
   }
 
 
   public function index()
   {
-		$code = get_filter('code', 'color_code', '');
-		$name = get_filter('name', 'color_name', '');
-    $status = get_filter('status', 'status', 2);
+    $filter = array(
+      'code' => get_filter('code', 'color_code', ''),
+      'name' => get_filter('name', 'color_name', ''),
+      'group_code' => get_filter('gen_code', 'gen_code', ''),
+      'gen_code' => get_filter('group_code', 'color_group_code', ''),
+      'status' => get_filter('status', 'status', 'all')
+    );
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_filter('set_rows', 'rows', 20);
@@ -31,37 +36,24 @@ class Product_color extends PS_Controller
 		}
 
 		$segment = 4; //-- url segment
-		$rows = $this->product_color_model->count_rows($code, $name, $status);
+		$rows = $this->product_color_model->count_rows($filter);
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$color = $this->product_color_model->get_data($code, $name, $status, $perpage, $this->uri->segment($segment));
-
-    $data = array();
+		$color = $this->product_color_model->get_data($filter, $perpage, $this->uri->segment($segment));
 
     if(!empty($color))
     {
       foreach($color as $rs)
       {
-        $arr = new stdClass();
-        $arr->code = $rs->code;
-        $arr->name = $rs->name;
-        $arr->active = $rs->active;
-        $arr->menber = $this->product_color_model->count_members($rs->code);
-
-        $data[] = $arr;
+        $rs->menber = $this->product_color_model->count_members($rs->code);
       }
     }
 
 
-    $ds = array(
-      'code' => $code,
-      'name' => $name,
-      'status' => $status,
-			'data' => $data
-    );
+    $filter['data'] = $color;
 
 		$this->pagination->initialize($init);
-    $this->load->view('masters/product_color/product_color_view', $ds);
+    $this->load->view('masters/product_color/product_color_view', $filter);
   }
 
 
@@ -88,6 +80,8 @@ class Product_color extends PS_Controller
   {
     $data['code'] = $this->session->flashdata('code');
     $data['name'] = $this->session->flashdata('name');
+    $data['gen_code'] = $this->session->flashdata('gen_code');
+    $data['group_code'] = $this->session->flashdata('group_code');
     $this->title = 'เพิ่ม สีสินค้า';
     $this->load->view('masters/product_color/product_color_add_view', $data);
   }
@@ -98,11 +92,11 @@ class Product_color extends PS_Controller
     if($this->input->post('code'))
     {
       $sc = TRUE;
-      $code = $this->input->post('code');
-      $name = $this->input->post('name');
       $ds = array(
-        'code' => $code,
-        'name' => $name
+        'code' => trim($this->input->post('code')),
+        'name' => trim($this->input->post('name')),
+        'group_code' => get_null($this->input->post('group_code')),
+        'gen_code' => get_null($this->input->post('gen_code'))
       );
 
       if($this->product_color_model->is_exists($code) === TRUE)
@@ -126,10 +120,10 @@ class Product_color extends PS_Controller
         }
       }
 
+
       if($sc === FALSE)
       {
-        $this->session->set_flashdata('code', $code);
-        $this->session->set_flashdata('name', $name);
+        $this->session->set_flashdata($ds);
       }
     }
     else
@@ -148,7 +142,9 @@ class Product_color extends PS_Controller
     $rs = $this->product_color_model->get($code);
     $data = array(
       'code' => $rs->code,
-      'name' => $rs->name
+      'name' => $rs->name,
+      'group_code' => $rs->group_code,
+      'gen_code' => $rs->gen_code
     );
 
     $this->load->view('masters/product_color/product_color_edit_view', $data);
@@ -166,10 +162,15 @@ class Product_color extends PS_Controller
       $old_name = $this->input->post('product_color_name');
       $code = $this->input->post('code');
       $name = $this->input->post('name');
+      $group_code = $this->input->post('group_code');
+      $gen_code = $this->input->post('gen_code');
+
 
       $ds = array(
         'code' => $code,
-        'name' => $name
+        'name' => $name,
+        'group_code' => $group_code,
+        'gen_code' => $gen_code
       );
 
       if($this->product_color_model->is_exists($code, $old_code) === TRUE)
@@ -253,7 +254,7 @@ class Product_color extends PS_Controller
 
   public function clear_filter()
 	{
-		clear_filter(array('color_code', 'color_name'));
+		clear_filter(array('color_code', 'color_name', 'color_group_code', 'color_gen_code'));
 		echo 'done';
 	}
 

@@ -28,14 +28,29 @@ $('#items-wizard')
 
 
 
+// $('.colorBox').change(function(){
+//   var color = $(this).val();
+//   if($(this).is(':checked') === true){
+//     var text = $('#co-'+color).text();
+//     $('#colorBox').append('<input type="hidden" id="col-'+color+'" class="color" value="'+color+'" />');
+//     $('.imageBox').append('<option value="'+color+'">'+text+'</option>');
+//   }else{
+//     $('#col-'+color).remove();
+//     $(".imageBox option[value='"+color+"']").remove();
+//   }
+//
+//   preGen();
+// });
+
 $('.colorBox').change(function(){
   var color = $(this).val();
+  var genCode = this.dataset.id;
   if($(this).is(':checked') === true){
-    var text = $('#co-'+color).text();
-    $('#colorBox').append('<input type="hidden" id="col-'+color+'" class="color" value="'+color+'" />');
+    var text = $(".lbl[name='"+color+"']").text();
+    $('#colorBox').append('<input type="hidden" id="col-'+genCode+'" class="color" value="'+genCode+'" />');
     $('.imageBox').append('<option value="'+color+'">'+text+'</option>');
   }else{
-    $('#col-'+color).remove();
+    $('#col-'+genCode).remove();
     $(".imageBox option[value='"+color+"']").remove();
   }
 
@@ -114,7 +129,7 @@ function genSizeOnly(style){
 function addItemRow(itemCode, color, size)
 {
   var row = '<tr id="'+itemCode+'">'+
-            '<td class="middle text-center td-'+color+'">img</td>'+
+            '<td class="middle text-center td" name="'+color+'">img</td>'+
             '<td class="middle">'+itemCode+'</td>'+
             '</tr>';
   $('#preGen').append(row);
@@ -127,7 +142,7 @@ $('.imageBox').change(function(){
   var url = $('#img-'+ id).attr('src');
   var img = '<img src="'+url+'" id="se-'+id+'" class="se-'+id+'" style="width:50px;" />';
   if(color !== ''){
-    $('.td-'+color).html(img);
+    $('.td[name="'+color+'"]').html(img);
   }else{
     $('.se-'+id).remove();
   }

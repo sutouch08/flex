@@ -1,6 +1,6 @@
 <?php
 	$use_delivery_bill = getConfig('USE_DELIVERY_BILL') == 1 ? TRUE : FALSE;
-	
+
 	/*********  Sender  ***********/
 	$sender			= '<div class="col-lg-12" style="font-size:14px; padding-top:15px; padding-bottom:30px;">';
 	$sender			.= '<span style="display:block; margin-bottom:10px;">'.$cName.'</span>';
@@ -12,7 +12,7 @@
 
 
 	/*********** Receiver  **********/
-	$receiver		= '<div class="col-lg-12" style="font-size:18px; padding-left: 250px; padding-top:15px; padding-bottom:40px;">';
+	$receiver		= '<div class="col-lg-12" style="font-size:30px; padding-left: 250px; padding-top:15px; padding-bottom:40px;">';
 	$receiver		.= '<span style="display:block; margin-bottom:10px;">'.$ad->name.'</span>';
 	$receiver		.= '<span style="display:block;">'.$ad->address.'</span>';
 	$receiver		.= '<span style="display:block;"> ต. '.$ad->sub_district.' อ. '.$ad->district.'</span>';
@@ -26,9 +26,9 @@
 	if( $sd !== FALSE )
 	{
 		$transport	= '<table style="width:100%; border:0px; margin-left: 30px; position: relative; bottom:1px;">';
-		$transport	.= '<tr style="font-18px;"><td>'. $sd->name .'</td></tr>';
-		$transport	.= '<tr style="font-18px;"><td>'. $sd->address1 .' '.$sd->address2.'</td></tr>';
-		$transport	.= '<tr style="font-18px;"><td>โทร. '. $sd->phone.' เวลาทำการ : '.date('H:i', strtotime($sd->open)).' - '.date('H:i', strtotime($sd->close)).' น. - ( '.$sd->type.')</td></tr>';
+		$transport	.= '<tr style="font-size:24px;"><td>'. $sd->name .'</td></tr>';
+		$transport	.= '<tr style="font-size:18px;"><td>'. $sd->address1 .' '.$sd->address2.'</td></tr>';
+		$transport	.= '<tr style="font-size:18px;"><td>โทร. '. $sd->phone.' เวลาทำการ : '.date('H:i', strtotime($sd->open)).' - '.date('H:i', strtotime($sd->close)).' น. - ( '.$sd->type.')</td></tr>';
 		$transport 	.= '</table>';
 	}
 

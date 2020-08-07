@@ -55,10 +55,15 @@
   										<div class="widget-main" style="height: 350px; overflow:scroll;">
               <?php  if(!empty($colors)) : ?>
                 <?php foreach($colors as $color) : ?>
+									<?php $color_code = empty($color->gen_code) ? $color->code : $color->gen_code; ?>
                   <div class="col-sm-12">
                     <label>
-                      <input type="checkbox" class="ace colorBox" name="colors[]" value="<?php echo $color->code; ?>" />
-                      <span class="lbl" id="co-<?php echo $color->code; ?>">   <?php echo $color->code; ?> | <?php echo $color->name; ?></span>
+                      <input type="checkbox"
+											class="ace colorBox"
+											name="colors[]"
+											data-id="<?php echo $color_code; ?>"
+											value="<?php echo $color->code; ?>" />
+                      <span class="lbl" name="<?php echo $color->code; ?>"><?php echo $color->code; ?> | <?php echo $color->name; ?></span>
                     </label>
                   </div>
 
