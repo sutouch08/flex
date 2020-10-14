@@ -85,7 +85,7 @@
     <label class="col-sm-3 control-label no-padding-right">พนักงานขาย</label>
     <div class="col-xs-12 col-sm-3">
 			<span class="input-icon input-icon-right width-100">
-      <select class="form-control" name="sale_code" id="sale_code">
+      <select class="form-control" name="sale_code" id="sale_id">
         <option value="">พนักงานขาย(ถ้าเป็น)</option>
         <?php echo select_saleman(); ?>
       </select>
@@ -108,6 +108,23 @@
 				<label>
 					<input type="radio" class="ace" name="status" value="0" />
 					<span class="lbl">  Suspend</span>
+				</label>
+			</div>
+    </div>
+    <div class="help-block col-xs-12 col-sm-reset inline red"></div>
+  </div>
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">ดูสต็อกอย่างเดียว</label>
+    <div class="col-xs-12 col-sm-3">
+			<div class="radio">
+				<label>
+					<input type="radio" class="ace" name="is_viewer" value="1" />
+					<span class="lbl padding-5">  Yes</span>
+				</label>
+				<label>
+					<input type="radio" class="ace" name="is_viewer" value="0" checked />
+					<span class="lbl">  No</span>
 				</label>
 			</div>
     </div>

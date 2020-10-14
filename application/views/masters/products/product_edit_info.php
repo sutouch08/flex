@@ -1,3 +1,4 @@
+<?php $required = getConfig('REQUIRED_ALL_ATTRIBUTE') == 1 ? 'required' : ''; ?>
 <form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/update_style"; ?>">
 <div class="row">
 	<div class="form-group">
@@ -19,24 +20,37 @@
 
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ทุน</label>
-		<div class="col-xs-12 col-sm-3">
-			<input type="number" name="cost" id="cost" class="width-100" value="<?php echo $style->cost; ?>" required />
+		<div class="col-xs-8 col-sm-3">
+			<input type="number" step="any" name="cost" id="cost" class="width-100" value="<?php echo $style->cost; ?>" />
 		</div>
-		<div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
+		<div class="col-sm-3 col-xs-3">
+			<label>
+				<input type="checkbox" class="ace" id="cost-update" name="cost_update" value="Y"/>
+				<span class="lbl">  อัพเดตทุนในรายการด้วย</span>
+			</label>
+		</div>
+		<div class="help-block col-xs-12 col-sm-reset inline red" id="cost-error"></div>
 	</div>
 
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ราคา</label>
 		<div class="col-xs-12 col-sm-3">
-			<input type="number" name="price" id="price" class="width-100" value="<?php echo $style->price; ?>" required />
+			<input type="number" step="any" name="price" id="price" class="width-100" value="<?php echo $style->price; ?>" />
 		</div>
-		<div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
+		<div class="col-sm-3 col-xs-3">
+			<label>
+				<input type="checkbox" class="ace" id="price-update" name="price_update" value="Y"/>
+				<span class="lbl">  อัพเดตราคาในรายการด้วย</span>
+			</label>
+		</div>
+		<div class="help-block col-xs-12 col-sm-reset inline red" id="price-error"></div>
+
 	</div>
 
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ยี่ห้อ</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="brand_code" id="brand" class="form-control" required>
+			<select name="brand_code" id="brand" class="form-control" <?php echo $required; ?>>
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_brand($style->brand_code); ?>
 			</select>
@@ -47,7 +61,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">กลุ่มสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="group_code" id="group" class="form-control" required>
+			<select name="group_code" id="group" class="form-control" <?php echo $required; ?>>
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_group($style->group_code); ?>
 			</select>
@@ -58,7 +72,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">กลุ่มย่อยสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="sub_group_code" id="subGroup" class="form-control" required>
+			<select name="sub_group_code" id="subGroup" class="form-control" <?php echo $required; ?>>
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_sub_group($style->sub_group_code); ?>
 			</select>
@@ -69,7 +83,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">หมวดหมู่สินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="category_code" id="category" class="form-control" required>
+			<select name="category_code" id="category" class="form-control" <?php echo $required; ?>>
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_category($style->category_code); ?>
 			</select>
@@ -80,7 +94,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ประเภทสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="kind_code" id="kind" class="form-control" required>
+			<select name="kind_code" id="kind" class="form-control" <?php echo $required; ?>>
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_kind($style->kind_code); ?>
 			</select>
@@ -91,7 +105,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ชนิดสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="type_code" id="type" class="form-control" required>
+			<select name="type_code" id="type" class="form-control" <?php echo $required; ?>>
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_type($style->type_code); ?>
 			</select>
@@ -103,7 +117,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ปีสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="year" id="year" class="form-control" required>
+			<select name="year" id="year" class="form-control" <?php echo $required; ?>>
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_years($style->year); ?>
 			</select>

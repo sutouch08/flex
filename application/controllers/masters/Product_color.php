@@ -22,8 +22,8 @@ class Product_color extends PS_Controller
     $filter = array(
       'code' => get_filter('code', 'color_code', ''),
       'name' => get_filter('name', 'color_name', ''),
-      'group_code' => get_filter('gen_code', 'gen_code', ''),
-      'gen_code' => get_filter('group_code', 'color_group_code', ''),
+      'id_group' => get_filter('id_group', 'color_id_group', ''),
+      'gen_code' => get_filter('gen_code', 'color_gen_code', ''),
       'status' => get_filter('status', 'status', 'all')
     );
 
@@ -81,7 +81,7 @@ class Product_color extends PS_Controller
     $data['code'] = $this->session->flashdata('code');
     $data['name'] = $this->session->flashdata('name');
     $data['gen_code'] = $this->session->flashdata('gen_code');
-    $data['group_code'] = $this->session->flashdata('group_code');
+    $data['id_group'] = $this->session->flashdata('id_group');
     $this->title = 'เพิ่ม สีสินค้า';
     $this->load->view('masters/product_color/product_color_add_view', $data);
   }
@@ -95,7 +95,7 @@ class Product_color extends PS_Controller
       $ds = array(
         'code' => trim($this->input->post('code')),
         'name' => trim($this->input->post('name')),
-        'group_code' => get_null($this->input->post('group_code')),
+        'id_group' => get_null($this->input->post('id_group')),
         'gen_code' => get_null($this->input->post('gen_code'))
       );
 
@@ -143,7 +143,7 @@ class Product_color extends PS_Controller
     $data = array(
       'code' => $rs->code,
       'name' => $rs->name,
-      'group_code' => $rs->group_code,
+      'id_group' => $rs->id_group,
       'gen_code' => $rs->gen_code
     );
 
@@ -162,14 +162,14 @@ class Product_color extends PS_Controller
       $old_name = $this->input->post('product_color_name');
       $code = $this->input->post('code');
       $name = $this->input->post('name');
-      $group_code = $this->input->post('group_code');
+      $id_group = $this->input->post('id_group');
       $gen_code = $this->input->post('gen_code');
 
 
       $ds = array(
         'code' => $code,
         'name' => $name,
-        'group_code' => $group_code,
+        'id_group' => $id_group,
         'gen_code' => $gen_code
       );
 
@@ -254,7 +254,7 @@ class Product_color extends PS_Controller
 
   public function clear_filter()
 	{
-		clear_filter(array('color_code', 'color_name', 'color_group_code', 'color_gen_code'));
+		clear_filter(array('color_code', 'color_name', 'color_id_group', 'color_gen_code'));
 		echo 'done';
 	}
 

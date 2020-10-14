@@ -9,13 +9,13 @@
       <div class="col-sm-1 col-1-harf padding-5"><span class="form-control left-label width-100 text-right">Run digit</span></div>
       <div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center digit" required name="RUN_DIGIT_ORDER" value="<?php echo $RUN_DIGIT_ORDER; ?>" /></div>
       <div class="divider-hidden"></div>
-			<!--
+
       <div class="col-sm-3"><span class="form-control left-label">ฝากขาย[โอนคลัง]</span></div>
       <div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center prefix" name="PREFIX_CONSIG_TR" required value="<?php echo $PREFIX_CONSIGN_TR; ?>" /></div>
       <div class="col-sm-1 col-1-harf padding-5"><span class="form-control left-label width-100 text-right">Run digit</span></div>
       <div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center digit" name="RUN_DIGIT_CONSIGN_TR" required value="<?php echo $RUN_DIGIT_CONSIGN_TR; ?>" /></div>
       <div class="divider-hidden"></div>
-		-->
+
       <div class="col-sm-3"><span class="form-control left-label">ฝากขาย[ใบกำกับ]</span></div>
       <div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center prefix" name="PREFIX_CONSIGN_SO" required value="<?php echo $PREFIX_CONSIGN_SO; ?>" /></div>
       <div class="col-sm-1 col-1-harf padding-5"><span class="form-control left-label width-100 text-right">Run digit</span></div>
@@ -34,7 +34,7 @@
       <div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center digit" name="RUN_DIGIT_RECEIVE_PO" required value="<?php echo $RUN_DIGIT_RECEIVE_PO; ?>" /></div>
       <div class="divider-hidden"></div>
 
-<!--
+
       <div class="col-sm-3"><span class="form-control left-label">รับสินค้าเข้าจากการแปรสภาพ</span></div>
       <div class="col-sm-2">
       	<input type="text" class="form-control input-sm input-small text-center prefix" name="PREFIX_RECEIVE_TRANSFORM" required value="<?php echo $PREFIX_RECEIVE_TRANSFORM; ?>" />
@@ -74,19 +74,19 @@
       <div class="col-sm-1 col-1-harf padding-5"><span class="form-control left-label width-100 text-right">Run digit</span></div>
       <div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center digit" name="RUN_DIGIT_SUPPORT" required value="<?php echo $RUN_DIGIT_SUPPORT; ?>" /></div>
       <div class="divider-hidden"></div>
--->
+
       <div class="col-sm-3"><span class="form-control left-label">คืนสินค้าจากการขาย</span></div>
       <div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center prefix" name="PREFIX_RETURN_ORDER" required value="<?php echo $PREFIX_RETURN_ORDER; ?>" /></div>
       <div class="col-sm-1 col-1-harf padding-5"><span class="form-control left-label width-100 text-right">Run digit</span></div>
       <div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center digit" name="RUN_DIGIT_RETURN_ORDER" required value="<?php echo $RUN_DIGIT_RETURN_ORDER; ?>" /></div>
       <div class="divider-hidden"></div>
-<!--
+
       <div class="col-sm-3"><span class="form-control left-label">คืนสินค้าจากการยืม</span></div>
       <div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center prefix" name="PREFIX_RETURN_LEND" required value="<?php echo $PREFIX_RETURN_LEND; ?>" /></div>
       <div class="col-sm-1 col-1-harf padding-5"><span class="form-control left-label width-100 text-right">Run digit</span></div>
       <div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center digit" name="RUN_DIGIT_RETURN_LEND" required value="<?php echo $RUN_DIGIT_RETURN_LEND; ?>" /></div>
       <div class="divider-hidden"></div>
--->
+
       <div class="col-sm-3"><span class="form-control left-label">กระทบยอด</span></div>
       <div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center prefix" name="PREFIX_CONSIGN_CHECK" required value="<?php echo $PREFIX_CONSIGN_CHECK; ?>" /></div>
       <div class="col-sm-1 col-1-harf padding-5"><span class="form-control left-label width-100 text-right">Run digit</span></div>

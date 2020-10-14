@@ -6,14 +6,14 @@
     </h3>
     </div>
     <div class="col-sm-6">
-    	<p class="pull-right">
+    	<p class="pull-right top-p">
       <?php if($this->pm->can_add) : ?>
         <button type="button" class="btn btn-sm btn-success" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
       <?php endif; ?>
       </p>
     </div>
 </div><!-- End Row -->
-<hr class="title-block"/>
+<hr/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
   <div class="col-sm-2 col-xs-4 padding-5 first">
@@ -32,9 +32,9 @@
   </div>
 	<div class="col-sm-2 col-xs-4 padding-5">
 		<label>กลุ่มสี</label>
-		<select class="form-control input-sm" name="color_group" onchange="getSearch()">
+		<select class="form-control input-sm" name="id_group" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
-			<?php echo select_color_group($group_code); ?>
+			<?php echo select_color_group($id_group); ?>
 		</select>
 	</div>
 

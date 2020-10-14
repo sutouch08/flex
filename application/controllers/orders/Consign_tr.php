@@ -106,7 +106,7 @@ class Consign_tr extends PS_Controller
           'user' => get_cookie('uname'),
           'remark' => $this->input->post('remark'),
           'zone_code' => $zone->code,
-          'warehouse_code' => $zone->warehouse_code
+          'warehouse_code' => NULL
         );
 
         if($this->orders_model->add($ds) === TRUE)
@@ -216,7 +216,7 @@ class Consign_tr extends PS_Controller
           'date_add' => db_date($this->input->post('date_add')),
           'remark' => $this->input->post('remark'),
           'zone_code' => $zone->code,
-          'warehouse_code' => $zone->warehouse_code
+          'warehouse_code' => NULL
         );
 
         $rs = $this->orders_model->update($code, $ds);

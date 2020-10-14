@@ -5,7 +5,7 @@
   </div>
 	<div class="col-sm-6">
 		<p class="pull-right top-p">
-			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> <?php label('back'); ?></button>
+			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> Back</button>
 		</p>
 	</div>
 </div><!-- End Row -->
@@ -14,15 +14,22 @@
 	<form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/update/{$code}"; ?>">
 	<div class="row">
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('code'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">รหัส</label>
 			<div class="col-xs-12 col-sm-3">
-				<input type="text" name="code" id="code" class="width-100 code" value="<?php echo $code; ?>" autofocus required />
+				<input type="text" class="width-100" value="<?php echo $code; ?>" disabled />
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red" id="code-error"></div>
 		</div>
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('name'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">รหัสเก่า</label>
+			<div class="col-xs-12 col-sm-3">
+				<input type="text" name="old_code" id="old_code" class="width-100" value="<?php echo $old_code; ?>" placeholder="รหัสเก่า (ไม่บังคับ)" />
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
 			<div class="col-xs-12 col-sm-3">
 				<input type="text" name="name" id="name" class="width-100" value="<?php echo $name; ?>" required />
 			</div>
@@ -30,16 +37,23 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('style'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">รุ่น</label>
 			<div class="col-xs-12 col-sm-3">
 				<input type="text" name="style" id="style" class="width-100" value="<?php echo $style_code; ?>" required />
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red" id="style-error"></div>
 		</div>
 
+		<div class="form-group">
+			<label class="col-sm-3 control-label no-padding-right">รุ่นเก่า</label>
+			<div class="col-xs-12 col-sm-3">
+				<input type="text" name="old_style" id="old_style" class="width-100" value="<?php echo $old_style; ?>" placeholder="รหัสรุ่นเก่า (ไม่บังคับ)"/>
+			</div>
+		</div>
+
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('color'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">สี</label>
 			<div class="col-xs-12 col-sm-3">
 				<input type="text" name="color" id="color" class="width-100" value="<?php echo $color_code; ?>" required />
 			</div>
@@ -48,7 +62,7 @@
 
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('size'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">ไซส์</label>
 			<div class="col-xs-12 col-sm-3">
 				<input type="text" name="size" id="size" class="width-100" value="<?php echo $size_code; ?>" required />
 			</div>
@@ -57,7 +71,7 @@
 
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('barcode'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">บาร์โค้ด</label>
 			<div class="col-xs-12 col-sm-3">
 				<input type="text" name="barcode" id="barcode" class="width-100" value="<?php echo $barcode; ?>" />
 			</div>
@@ -66,7 +80,7 @@
 
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('cost'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">ราคาทุน</label>
 			<div class="col-xs-12 col-sm-3">
 				<input type="number" step="any" name="cost" id="cost" class="width-100" value="<?php echo $cost; ?>" required />
 			</div>
@@ -74,7 +88,7 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('price'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">ราคาขาย</label>
 			<div class="col-xs-12 col-sm-3">
 				<input type="number" step="any" name="price" id="price" class="width-100" value="<?php echo $price; ?>" required />
 			</div>
@@ -82,10 +96,10 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('unit'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">หน่วยนับ</label>
 			<div class="col-xs-12 col-sm-3">
 				<select class="form-control input-sm" name="unit_code" id="unit_code" required>
-					<option value=""><?php label('please_select'); ?></option>
+					<option value="">โปรดเลือก</option>
 					<?php echo select_unit($unit_code); ?>
 				</select>
 			</div>
@@ -93,10 +107,10 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('brand'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">ยี่ห้อ</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="brand_code" id="brand" class="form-control" required>
-					<option value=""><?php label('please_select'); ?></option>
+				<select name="brand_code" id="brand" class="form-control">
+					<option value="">โปรดเลือก</option>
 				<?php echo select_product_brand($brand_code); ?>
 				</select>
 			</div>
@@ -104,10 +118,10 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('group'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">กลุ่มสินค้า</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="group_code" id="group" class="form-control input-sm" required>
-					<option value=""><?php label('please_select'); ?></option>
+				<select name="group_code" id="group" class="form-control input-sm" >
+					<option value="">โปรดเลือก</option>
 				<?php echo select_product_group($group_code); ?>
 				</select>
 			</div>
@@ -115,10 +129,10 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('sub_group'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">กลุ่มย่อย</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="sub_group_code" id="subGroup" class="form-control" required>
-					<option value=""><?php label('please_select'); ?></option>
+				<select name="sub_group_code" id="subGroup" class="form-control">
+					<option value="">โปรดเลือก</option>
 				<?php echo select_product_sub_group($sub_group_code); ?>
 				</select>
 			</div>
@@ -126,10 +140,10 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('category'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">หมวดหมู่</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="category_code" id="category" class="form-control" required>
-					<option value=""><?php label('please_select'); ?></option>
+				<select name="category_code" id="category" class="form-control" >
+					<option value="">โปรดเลือก</option>
 				<?php echo select_product_category($category_code); ?>
 				</select>
 			</div>
@@ -137,10 +151,10 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('kind'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">ประเภท</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="kind_code" id="kind" class="form-control" required>
-					<option value=""><?php label('please_select'); ?></option>
+				<select name="kind_code" id="kind" class="form-control" >
+					<option value="">โปรดเลือก</option>
 				<?php echo select_product_kind($kind_code); ?>
 				</select>
 			</div>
@@ -148,10 +162,10 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('type'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">ชนิด</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="type_code" id="type" class="form-control" required>
-					<option value=""><?php label('please_select'); ?></option>
+				<select name="type_code" id="type" class="form-control" >
+					<option value="">โปรดเลือก</option>
 				<?php echo select_product_type($type_code); ?>
 				</select>
 			</div>
@@ -160,10 +174,10 @@
 
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('year'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">ปี</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="year" id="year" class="form-control" required>
-					<option value=""><?php label('please_select'); ?></option>
+				<select name="year" id="year" class="form-control">
+					<option value="">โปรดเลือก</option>
 				<?php echo select_years($year); ?>
 				</select>
 			</div>
@@ -171,7 +185,7 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('count_stock'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">นับสต็อก</label>
 			<div class="col-xs-12 col-sm-3">
 				<label style="padding-top:5px;">
 					<input name="count_stock" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($count_stock,1); ?> />
@@ -182,7 +196,7 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('allow_sell'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">อนุญาติให้ขาย</label>
 			<div class="col-xs-12 col-sm-3">
 				<label style="padding-top:5px;">
 					<input name="can_sell" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($can_sell,1); ?> />
@@ -205,7 +219,7 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right"><?php label('active'); ?></label>
+			<label class="col-sm-3 control-label no-padding-right">ใช้งาน</label>
 			<div class="col-xs-12 col-sm-3">
 				<label style="padding-top:5px;">
 					<input name="active" class="ace ace-switch ace-switch-7" type="checkbox" value="1" <?php echo is_checked($active,1); ?> />
@@ -218,13 +232,12 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label not-show">บันทึก</label>
 			<div class="col-xs-12 col-sm-3">
-				<button type="button" class="btn btn-sm btn-success btn-block" onclick="checkUpdate()"><i class="fa fa-save"></i> <?php label('save'); ?></button>
-				<button type="submit" class="btn btn-sm btn-success hide" id="btn-submit"><i class="fa fa-save"></i> <?php label('save'); ?></button>
+				<button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> บันทึก</button>
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red"></div>
 		</div>
 
-		<input type="hidden" name="old_code" id="old_code" value="<?php echo $code; ?>"/>
+		<input type="hidden" name="code" id="code" value="<?php echo $code; ?>"/>
 	</div>
 	</form>
 </div><!--/ row  -->

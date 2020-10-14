@@ -158,90 +158,102 @@ class Adjust_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
+    $this->db->from('adjust AS adj')
+    ->join('user AS user', 'adj.user = user.uname', 'left');
+
     if(!empty($ds))
     {
       if(!empty($ds['code']))
       {
-        $this->db->like('code', $ds['code']);
+        $this->db->like('adj.code', $ds['code']);
       }
 
       if(!empty($ds['reference']))
       {
-        $this->db->like('reference', $ds['reference']);
+        $this->db->like('adj.reference', $ds['reference']);
       }
 
       if(!empty($ds['user']))
       {
-        $uname = user_in($ds['user']);
-        $this->db->where_in($user_in);
+        $this->db->group_start();
+        $this->db->like('user.uname', $ds['user']);
+        $this->db->or_like('user.name', $ds['user']);
+        $this->db->group_end();
       }
 
       if(!empty($ds['from_date']) && !empty($ds['to_date']))
       {
-        $this->db->where('date_add >=', from_date($ds['from_date']));
-        $this->db->where('date_add <=', to_date($ds['to_date']));
+        $this->db->where('adj.date_add >=', from_date($ds['from_date']));
+        $this->db->where('adj.date_add <=', to_date($ds['to_date']));
       }
 
       if(!empty($ds['remark']))
       {
-        $this->db->like('remark', $ds['remark']);
+        $this->db->like('adj.remark', $ds['remark']);
       }
 
 
       if($ds['status'] !== 'all')
       {
-        $this->db->where('status', $ds['status']);
+        $this->db->where('adj.status', $ds['status']);
       }
 
-      return $this->db->count_all_results('adjust');
+      return $this->db->count_all_results();
     }
 
-    return FALSE;
+    return 0;
   }
 
 
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
+    $this->db
+    ->select('adj.*, user.name AS display_name')
+    ->from('adjust AS adj')
+    ->join('user AS user', 'adj.user = user.uname', 'left');
+
     if(!empty($ds))
     {
       if(!empty($ds['code']))
       {
-        $this->db->like('code', $ds['code']);
+        $this->db->like('adj.code', $ds['code']);
       }
 
       if(!empty($ds['reference']))
       {
-        $this->db->like('reference', $ds['reference']);
+        $this->db->like('ajd.reference', $ds['reference']);
       }
 
       if(!empty($ds['user']))
       {
-        $uname = user_in($ds['user']);
-        $this->db->where_in($user_in);
+        $this->db->group_start();
+        $this->db->like('user.uname', $ds['user']);
+        $this->db->or_like('user.name', $ds['user']);
+        $this->db->group_end();
       }
 
       if(!empty($ds['from_date']) && !empty($ds['to_date']))
       {
-        $this->db->where('date_add >=', from_date($ds['from_date']));
-        $this->db->where('date_add <=', to_date($ds['to_date']));
+        $this->db->where('adj.date_add >=', from_date($ds['from_date']));
+        $this->db->where('adj.date_add <=', to_date($ds['to_date']));
       }
 
       if(!empty($ds['remark']))
       {
-        $this->db->like('remark', $ds['remark']);
+        $this->db->like('adj.remark', $ds['remark']);
       }
 
 
       if($ds['status'] !== 'all')
       {
-        $this->db->where('status', $ds['status']);
+        $this->db->where('adj.status', $ds['status']);
       }
 
-      $this->db->order_by('code', 'ASC');
+      $this->db->order_by('adj.code', 'ASC');
 
       $this->db->limit($perpage, $offset);
 
-      $rs = $this->db->get('adjust');
+      $rs = $this->db->get();
 
       if($rs->num_rows() > 0)
       {

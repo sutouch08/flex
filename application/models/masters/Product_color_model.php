@@ -41,7 +41,7 @@ class Product_color_model extends CI_Model
   {
     $this->db
     ->from('product_color AS co')
-    ->join('product_color_group AS cg', 'co.group_code = cg.code', 'left');
+    ->join('product_color_group AS cg', 'co.id_group = cg.id', 'left');
 
     if($ds['status'] !== 'all')
     {
@@ -58,9 +58,9 @@ class Product_color_model extends CI_Model
       $this->db->like('co.name', $ds['name']);
     }
 
-    if(!empty($ds['group_code']))
+    if(!empty($ds['id_group']))
     {
-      $this->db->where('co.group_code', $ds['group_code']);
+      $this->db->where('co.id_group', $ds['id_group']);
     }
 
     if(!empty($ds['gen_code']))
@@ -101,7 +101,7 @@ class Product_color_model extends CI_Model
     $this->db
     ->select('co.*, cg.name AS group_name')
     ->from('product_color AS co')
-    ->join('product_color_group AS cg', 'co.group_code = cg.code', 'left');
+    ->join('product_color_group AS cg', 'co.id_group = cg.id', 'left');
 
     if($ds['status'] !== 'all')
     {
@@ -118,9 +118,9 @@ class Product_color_model extends CI_Model
       $this->db->like('co.name', $ds['name']);
     }
 
-    if(!empty($ds['group_code']))
+    if(!empty($ds['id_group']))
     {
-      $this->db->where('co.group_code', $ds['group_code']);
+      $this->db->where('co.id_group', $ds['id_group']);
     }
 
     if(!empty($ds['gen_code']))

@@ -190,6 +190,7 @@ class Products extends PS_Controller
         'style'  => $style,
         'items'   => $this->products_model->get_style_items($code),
         'images'  => $this->product_image_model->get_style_images($code),
+        'sizes' => $this->products_model->get_style_sizes_cost_price($code),
         'tab'     => $tab
       );
 
@@ -268,6 +269,9 @@ class Products extends PS_Controller
       $active = $this->input->post('active');
       $user = get_cookie('uname');
 
+      $flag_cost = $this->input->post('cost_update');
+      $flag_price = $this->input->post('price_update');
+
       $tabs = $this->input->post('tabs');
 
       $ds = array(
@@ -312,8 +316,6 @@ class Products extends PS_Controller
             'type_code' => $type,
             'brand_code' => $brand,
             'year' => $year,
-            // 'cost' => ($cost === NULL ? 0.00 : $cost),
-            // 'price' => ($price === NULL ? 0.00 : $price),
             'unit_code' => $unit,
             'count_stock' => ($count === NULL ? 0 : 1),
             'can_sell' => ($sell === NULL ? 0 : 1),
@@ -322,6 +324,18 @@ class Products extends PS_Controller
             'update_user' => get_cookie('uname')
           );
 
+          //--- ถ้าติกให้ updte cost มาด้วย
+          if(!empty($flag_cost))
+          {
+            $ds['cost'] = ($cost === NULL ? 0.00 : $cost);
+          }
+
+          //--- ถ้าติกให้ updte price มาด้วย
+          if(!empty($flag_price))
+          {
+            $ds['price'] = ($price === NULL ? 0.00 : $price);
+          }
+          
           foreach($items as $item)
           {
             $this->products_model->update($item->code, $ds);
@@ -347,66 +361,87 @@ class Products extends PS_Controller
 
 
 
-  //---- update style data
-  public function update()
+
+  public function update_cost_price_by_size()
   {
     $sc = TRUE;
-
-    if($this->input->post('code'))
+    if($this->input->post('style_code'))
     {
-      $old_code = $this->input->post('products_code');
-      $old_name = $this->input->post('products_name');
-      $code = $this->input->post('code');
-      $name = $this->input->post('name');
+      $code = $this->input->post('style_code');
+      $size = $this->input->post('size');
+      $cost = empty($this->input->post('cost')) ? 0 : $this->input->post('cost');
+      $price = empty($this->input->post('price')) ? 0 : $this->input->post('price');
 
-      $ds = array(
-        'code' => $code,
-        'name' => $name,
-        'group_code' => $this->input->post('group'),
-        'kind_code' => $this->input->post('kind'),
-        'type_code' => $this->input->post('type'),
-        'class_code' => $this->input->post('class'),
-        'area_code' => $this->input->post('area')
-      );
-
-      if($sc === TRUE && $this->products_model->is_exists($code, $old_code) === TRUE)
+      if(!empty($size))
       {
-        $sc = FALSE;
-        set_error("'".$code."' มีอยู่ในระบบแล้ว โปรดใช้รหัสอื่น");
-      }
-
-      if($sc === TRUE && $this->products_model->is_exists_name($name, $old_name) === TRUE)
-      {
-        $sc = FALSE;
-        set_error("'".$name."' มีอยู่ในระบบแล้ว โปรดใช้ชื่ออื่น");
-      }
-
-      if($sc === TRUE)
-      {
-        if($this->products_model->update($old_code, $ds) === TRUE)
-        {
-          set_message('ปรับปรุงข้อมูลเรียบร้อยแล้ว');
-        }
-        else
+        $rs = $this->products_model->update_cost_price_by_size($code, $size, $cost, $price);
+        if(!$rs)
         {
           $sc = FALSE;
-          set_error('ปรับปรุงข้อมูลไม่สำเร็จ');
+          $this->error = "Update failed";
         }
       }
-
+      else
+      {
+        $sc = FALSE;
+        $this->error = "ไม่พบไซส์";
+      }
     }
     else
     {
       $sc = FALSE;
-      set_error('ไม่พบข้อมูล');
+      $this->error = "ไม่พบรหัสสินค้า";
     }
 
-    if($sc === FALSE)
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
+  public function update_all_cost_price_by_size()
+  {
+    $sc = TRUE;
+    $this->error = "Update failed : ";
+    if(!empty($this->input->post('style_code')))
     {
-      $code = $this->input->post('products_code');
+      $code = $this->input->post('style_code');
+      $sizes = $this->input->post('size'); //--- array
+      $cost = $this->input->post('cost'); //--- array
+      $price = $this->input->post('price'); //--- array
+
+      if(!empty($sizes))
+      {
+        foreach($sizes as $no => $size)
+        {
+          $rs = $this->products_model->update_cost_price_by_size($code, $size, $cost[$no], $price[$no]);
+          if(!$rs)
+          {
+            $sc = FALSE;
+            $this->error .= ", {$size}";
+          }
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $this->error = "ไม่พบไซส์";
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "ไม่พบรหัสสินค้า";
     }
 
-    redirect($this->home.'/edit/'.$code);
+    if($sc === TRUE)
+    {
+      set_message('success');
+    }
+    else
+    {
+      set_error($this->error);
+    }
+
+    redirect($this->home.'/edit/'.$code.'/priceTab');
   }
 
 
@@ -1004,6 +1039,44 @@ class Products extends PS_Controller
   }
 
 
+
+  public function export_barcode($code, $token)
+  {
+    $products = $this->products_model->get_style_items($code);
+
+    //--- load excel library
+    $this->load->library('excel');
+
+    $this->excel->setActiveSheetIndex(0);
+    $this->excel->getActiveSheet()->setTitle('Barcode Products');
+
+    //--- set report title header
+    $this->excel->getActiveSheet()->setCellValue('A1', 'Barcode');
+    $this->excel->getActiveSheet()->setCellValue('B1', 'Item Code');
+
+
+    $row = 2;
+    if(!empty($products))
+    {
+      foreach($products as $rs)
+      {
+        $this->excel->getActiveSheet()->setCellValue('A'.$row, $rs->barcode);
+        $this->excel->getActiveSheet()->setCellValue('B'.$row, $rs->code);
+        $row++;
+      }
+
+      $this->excel->getActiveSheet()->getStyle('A2:A'.$row)->getNumberFormat()->setFormatCode('0');
+    }
+
+    setToken($token);
+
+    $file_name = "{$code}_barcode.xlsx";
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
+    header('Content-Disposition: attachment;filename="'.$file_name.'"');
+    $writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
+    $writer->save('php://output');
+
+  }
 
 
   public function clear_filter()

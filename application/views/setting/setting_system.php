@@ -20,6 +20,11 @@
 
     <?php endif; ?>
 
+    <div class="col-sm-3"><span class="form-control left-label">อัพโหลดออเดอร์(รายการ)/ครั้ง</span></div>
+    <div class="col-sm-9">
+      <input type="text" class="form-control input-sm input-small text-center" name="IMPORT_ROWS_LIMIT" value="<?php echo $IMPORT_ROWS_LIMIT; ?>" />
+      <span class="help-block">จำกัดจำนวนรายการที่ออเดอร์ที่สามารถนำเข้าระบบได้ครั้งละไม่เกินรายการที่กำหนด เพื่อไม่ให้ระบบเกิดข้อผิดพลาด</span>
+    </div>
 
       <div class="col-sm-9 col-sm-offset-3">
       	<button type="button" class="btn btn-sm btn-success" onClick="updateConfig('systemForm')"><i class="fa fa-save"></i> บันทึก</button>

@@ -78,28 +78,6 @@ function checkAdd(){
 }
 
 
-function checkUpdate(){
-  var code = $('#code').val();
-  var old_code = $('#old_code').val();
-  if(code.length > 0){
-    $.ajax({
-      url:HOME + 'is_exists_code/' + code + '/' + old_code,
-      type:'GET',
-      cache:false,
-      success:function(rs){
-        if(rs != 'ok'){
-          set_error($('#code'), $('#code-error'), rs);
-          return false;
-        }else{
-          clear_error($('#code'), $('#code-error'));
-          $('#btn-submit').click();
-        }
-      }
-    })
-  }
-}
-
-
 
 function clearFilter(){
   var url = HOME + 'clear_filter';
@@ -122,7 +100,7 @@ function getDelete(code){
 		closeOnConfirm: false
   },function(){
     $.ajax({
-      url: BASE_URL + 'masters/products/delete_style/' + code,
+      url: BASE_URL + 'masters/items/delete_item/' + code,
       type:'GET',
       cache:false,
       success:function(rs){
@@ -148,7 +126,11 @@ function getDelete(code){
   })
 }
 
-
+function getTemplate(){
+  var token	= new Date().getTime();
+	get_download(token);
+	window.location.href = BASE_URL + 'masters/items/download_template/'+token;
+}
 
 function getSearch(){
   $('#searchForm').submit();

@@ -118,13 +118,15 @@ class Users extends PS_Controller{
 			$id_profile = $this->input->post('profile') === '' ? NULL : $this->input->post('profile');
 			$sale_code = $this->input->post('sale_code') === '' ? NULL : $this->input->post('sale_code');
 			$status = $this->input->post('status');
+			$is_viewer = $this->input->post('is_viewer');
 
 			$data = array(
 				'uname' => $uname,
 				'name' => $dname,
 				'id_profile' => $id_profile,
 				'sale_code' => $sale_code,
-				'active' => $status
+				'active' => $status,
+				'is_viewer' => $is_viewer
 			);
 
 			$rs = $this->user_model->update_user($id, $data);
@@ -160,6 +162,7 @@ class Users extends PS_Controller{
 			$id_profile = $this->input->post('profile') === '' ? NULL : $this->input->post('profile');
 			$sale_code = $this->input->post('sale_code') === '' ? NULL : $this->input->post('sale_code');
 			$status = $this->input->post('status');
+			$is_viewer = $this->input->post('is_viewer');
 
 			$data = array(
 				'uname' => $uname,
@@ -168,7 +171,8 @@ class Users extends PS_Controller{
 				'uid' => $uid,
 				'id_profile' => $id_profile,
 				'sale_code' => $sale_code,
-				'active' => $status
+				'active' => $status,
+				'is_viewer' => $is_viewer
 			);
 
 			$rs = $this->user_model->new_user($data);

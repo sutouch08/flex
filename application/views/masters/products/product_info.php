@@ -1,11 +1,13 @@
+<?php $required = getConfig('REQUIRED_ALL_ATTRIBUTE') == 1 ? 'required' : ''; ?>
+
 <form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/add_style"; ?>">
 <div class="row">
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">รหัสรุ่นสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<input type="text" name="code" id="code" class="width-100 code" value="" autofocus required />
+			<input type="text" name="code" id="code" class="width-100 code" value="" onkeyup="validCode(this)" autofocus required />
 		</div>
-		<div class="help-block col-xs-12 col-sm-reset inline red" id="code-error"></div>
+		<div class="help-block col-xs-12 col-sm-reset inline grey" id="code-error">Allow only [a-z, A-Z, 0-9, "-", "_" ]</div>
 	</div>
 
 	<div class="form-group">
@@ -45,7 +47,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ยี่ห้อ</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="brand_code" id="brand" class="form-control" required>
+			<select name="brand_code" id="brand" class="form-control" <?php echo $required; ?>>
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_brand(); ?>
 			</select>
@@ -56,7 +58,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">กลุ่มสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="group_code" id="group" class="form-control" required>
+			<select name="group_code" id="group" class="form-control" <?php echo $required; ?>>
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_group(); ?>
 			</select>
@@ -67,7 +69,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">กลุ่มย่อยสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="sub_group_code" id="subGroup" class="form-control" required>
+			<select name="sub_group_code" id="subGroup" class="form-control" <?php echo $required; ?>>
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_sub_group(); ?>
 			</select>
@@ -78,7 +80,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">หมวดหมู่สินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="category_code" id="category" class="form-control" required>
+			<select name="category_code" id="category" class="form-control" <?php echo $required; ?>>
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_category(); ?>
 			</select>
@@ -89,7 +91,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ประเภทสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="kind_code" id="kind" class="form-control" required>
+			<select name="kind_code" id="kind" class="form-control" <?php echo $required; ?>>
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_kind(); ?>
 			</select>
@@ -100,7 +102,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ชนิดสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="type_code" id="type" class="form-control" required>
+			<select name="type_code" id="type" class="form-control" <?php echo $required; ?>>
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_type(); ?>
 			</select>
@@ -112,7 +114,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ปีสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="year" id="year" class="form-control" required>
+			<select name="year" id="year" class="form-control" <?php echo $required; ?>>
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_years(date('Y')); ?>
 			</select>

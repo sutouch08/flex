@@ -1,5 +1,5 @@
 <?php
-function select_color_group($code = NULL)
+function select_color_group($id = NULL)
 {
   $CI =& get_instance();
   $CI->load->model('masters/product_color_model');
@@ -9,7 +9,7 @@ function select_color_group($code = NULL)
   {
     foreach($result as $rs)
     {
-      $ds .= '<option value="'.$rs->code.'" '.is_selected($rs->code, $code).'>'.$rs->name.'</option>';
+      $ds .= '<option value="'.$rs->id.'" '.is_selected($rs->id, $id).'>'.$rs->code .' : '.$rs->name.'</option>';
     }
   }
 

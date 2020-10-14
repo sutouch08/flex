@@ -44,7 +44,36 @@ class User_model extends CI_Model
   public function get_user($id)
   {
     $rs = $this->db->where('id', $id)->get('user');
-    return $rs->row();
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return FALSE;
+  }
+
+
+  public function get_user_by_uid($uid)
+  {
+    $rs = $this->db->where('uid', $uid)->get('user');
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return FALSE;
+  }
+
+
+  public function get($uname)
+  {
+    $rs = $this->db->where('uname', $uname)->get('user');
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return FALSE;
   }
 
 
@@ -64,7 +93,8 @@ class User_model extends CI_Model
   public function get_users($uname = '', $dname = '', $profile = '', $perpage = 50, $offset = 0)
   {
     $offset = $offset === NULL ? 0 : $offset;
-    $qr = "SELECT u.id AS id, u.uname AS uname, u.name AS dname, p.name AS pname, u.date_add, u.active ";
+    $qr  = "SELECT u.id AS id, u.id_profile AS id_profile, u.uname AS uname, u.name AS dname, ";
+    $qr .= "p.name AS pname, u.date_add, u.active ";
     $qr .= "FROM user AS u ";
     $qr .= "LEFT JOIN profile AS p ON u.id_profile = p.id ";
     $qr .= "WHERE u.id != 0 ";
@@ -138,12 +168,6 @@ class User_model extends CI_Model
       {
         if($rs->row()->valid == 1)
         {
-          $user_pm = $this->get_user_permission($menu, $uid);
-          if($user_pm !== FALSE)
-          {
-            return $user_pm;
-          }
-
           return $this->get_profile_permission($menu, $id_profile);
         }
         else
@@ -249,6 +273,18 @@ class User_model extends CI_Model
 
 
 
+  public function is_skey_exists($skey, $uid)
+  {
+    $rs = $this->db->where('skey', $skey)->where('uid !=', $uid)->get('user');
+    if($rs->num_rows() > 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
 
   public function get_user_credentials($uname)
   {
@@ -276,6 +312,18 @@ class User_model extends CI_Model
     $this->db->where('uid', $uid);
     $this->db->where('active', 1);
     $rs = $this->db->get('user');
+
+    return $rs->num_rows() === 1 ? TRUE : FALSE;
+  }
+
+
+  public function is_viewer($uid)
+  {
+    $rs = $this->db
+    ->select('uid')
+    ->where('uid', $uid)
+    ->where('is_viewer', 1)
+    ->get('user');
 
     return $rs->num_rows() === 1 ? TRUE : FALSE;
   }

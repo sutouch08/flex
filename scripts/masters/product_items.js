@@ -67,6 +67,7 @@ function updateItem(code)
 }
 
 
+
 function check_size(code, barcode, color, size, cost, price){
   //--- check color code
   $.ajax({
@@ -139,6 +140,7 @@ function do_update_item(code, barcode, color, size, cost, price)
 }
 
 
+
 $('.barcode').focusout(function(){
   let bc = $(this).val();
   if(bc.length > 0){
@@ -160,12 +162,11 @@ function checkBarcode(barcode, item)
     success:function(rs){
       if(rs === 'exists'){
       el.addClass('has-error');
-      el.prop('title', 'บาร์โค้ดซ้ำ');
+      el.attr('data-original-title', 'บาร์โค้ดซ้ำ');
       el.tooltip();
       }else{
         el.removeClass('has-error');
-        el.prop('title', '');
-        el.prototype.func = null;
+        el.attr('data-original-title', '');
       }
     }
   })
@@ -192,6 +193,63 @@ function setImages()
 			}
 		}
 	});
+}
+
+
+function checkOldCode(style_code, old_style){
+  if(old_style != ""){
+    confirmGenOldCode(style_code, old_style);
+  }else{
+    swal({
+      title:"ไม่พบรหัสรุ่นเก่า !!",
+      text:"กรุณาระบุรหัสรุ่นเก่าในแถบข้อมูลแล้วบันทึกก่อนใช้งานปุ่มนี้",
+      type:"warning"
+    });
+  }
+}
+
+
+function confirmGenOldCode(style_code){
+  swal({
+    title:'สร้างรหัสเก่า',
+    text:'รหัส(เก่า)เดิม จะถูกแทนที่ด้วยรหัส(เก่า)ที่ถูกสร้างใหม่ ต้องการดำเนินการต่อหรือไม่ ?',
+    type:'warning',
+    showCancelButton: true,
+		confirmButtonColor: '#FA5858',
+		confirmButtonText: 'ใช่, ฉันต้องการ',
+		cancelButtonText: 'ยกเลิก',
+		closeOnConfirm: false
+  },function(){
+    $.ajax({
+      url: BASE_URL + 'masters/products/generate_old_code_item',
+      type:'POST',
+      cache:false,
+      data:{
+        'style_code' : style_code
+      },
+      success:function(rs){
+        if(rs === 'success'){
+          swal({
+            title:'Success',
+            text:'สร้างรหัส(เก่า)เรียบร้อยแล้ว',
+            type:'success',
+            timer:1000
+          });
+
+          setTimeout(function(){
+            window.location.reload();
+          }, 1500);
+
+        }else{
+          swal({
+            title:'Error!',
+            text:rs,
+            type:'error'
+          });
+        }
+      }
+    })
+  })
 }
 
 
@@ -348,5 +406,42 @@ function deleteItem(item){
         }
       }
     })
+  })
+}
+
+function downloadBarcode(code)
+{
+	var token	= new Date().getTime();
+	get_download(token);
+	window.location.href = BASE_URL + 'masters/products/export_barcode/'+code+'/'+token;
+}
+
+
+function sendToWeb(code)
+{
+  load_in();
+  $.ajax({
+    url:BASE_URL + 'masters/products/export_products_to_web',
+    type:'POST',
+    cache:false,
+    data:{
+      'style_code' : code
+    },
+    success:function(rs){
+      load_out();
+      if(rs === 'success'){
+        swal({
+          title:'Success',
+          type:'success',
+          timer:1000
+        });
+      }else{
+        swal({
+          title:'Error',
+          text:rs,
+          type:'error'
+        });
+      }
+    }
   })
 }

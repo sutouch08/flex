@@ -32,7 +32,7 @@ function limitText($str, $length)
 
 function is_selected($val, $select)
 {
-  return $val == $select ? 'selected' : '';
+  return $val === $select ? 'selected' : '';
 }
 
 
@@ -151,27 +151,70 @@ function getConfig($code)
 
 
 
-function get_vat_amount($amount)
+function get_vat_amount($amount, $vat = NULL)
 {
-	$vat = getConfig('SALE_VAT_RATE');
-	if($vat != 0)
+	if($vat === NULL)
 	{
-		$re_vat = $vat * 0.01;
-		return $amount * $re_vat;
+		$vat = getConfig('SALE_VAT_RATE');
 	}
 
-	return $amount;
+	if($vat != 0)
+	{
+		$re_vat = ($amount * $vat) / (100+$vat);
+		return round($re_vat,2);
+	}
+
+	return round($amount, 2);
 }
 
 
 
-function remove_vat($amount)
+function remove_vat($amount, $vat = NULL)
 {
-	$vat = getConfig('SALE_VAT_RATE'); //-- 7
+	if($vat === NULL)
+	{
+		$vat = getConfig('SALE_VAT_RATE'); //-- 7
+	}
+
 	if( $vat != 0 )
 	{
 		$re_vat	= ($vat + 100) / 100;
-		return $amount/$re_vat;
+		return round($amount/$re_vat, 2);
+	}
+
+	return round($amount, 2);
+}
+
+//---- remove discount percent return price after discount
+function get_price_after_discount($price, $disc = 0)
+{
+	$find = array('%', ' ');
+	$replace = array('', '');
+	$disc = str_replace($find, $replace, $disc);
+
+	if($disc > 0 && $disc <= 100)
+	{
+		$price = $price - ($price *($disc * 0.01));
+	}
+
+	return $price;
+}
+
+
+//--- return discount amount calculate from price and discount percentage
+function get_discount_amount($price, $disc = 0)
+{
+	$find = array('%', ' ');
+	$replace = array('', '');
+	$disc = str_replace($find, $replace, $disc);
+
+	if($disc > 0 && $disc <= 100)
+	{
+		$amount = $price * ($disc * 0.01);
+	}
+	else
+	{
+		$amount = 0;
 	}
 
 	return $amount;
@@ -180,18 +223,20 @@ function remove_vat($amount)
 
 
 
-
-
-function add_vat($amount)
+function add_vat($amount, $vat = NULL)
 {
-	$vat = getConfig('SALE_VAT_RATE');
+	if($vat === NULL)
+	{
+		$vat = getConfig('SALE_VAT_RATE'); //-- 7
+	}
+
 	if( $vat != 0 )
 	{
 		$re_vat = $vat * 0.01;
-		return ($amount * $re_vat) + $amount;
+		return round(($amount * $re_vat) + $amount, 2);
 	}
 
-	return $amount;
+	return round($amount, 2);
 }
 
 
@@ -223,17 +268,18 @@ function label_value($content)
 	return $ci->lang->line($content);
 }
 
+
+
 //--- return null if blank value
 function get_null($value)
 {
-	return ($value === '0' OR $value === 0 OR $value === '') ? NULL : $value;
+	return $value === '' ? NULL : $value;
 }
-
 
 //--- return TRUE if value ==  1 else return FALSE;
 function is_true($value)
 {
-	if($value == 1 OR $value === TRUE)
+	if($value === 1 OR $value === '1' OR $value === TRUE)
 	{
 		return TRUE;
 	}
@@ -248,18 +294,19 @@ function get_auz()
 	return $auz;
 }
 
+
 function pagination_config( $base_url, $total_rows = 0, $perpage = 20, $segment = 3)
 {
     $rows = get_rows();
     $input_rows  = '<p class="pull-right pagination hidden-xs">';
-    $input_rows .= label_value('all').' '.$total_rows.' '.label_value('rows').' | '.label_value('show');
+    $input_rows .= 'ทั้งหมด '.number($total_rows).' รายการ | แสดง';
     $input_rows .= '<input type="number" name="set_rows" id="set_rows" class="input-mini text-center margin-left-15 margin-right-10" value="'.$rows.'" />';
-    $input_rows .= label_value('perpage').' ';
-    $input_rows .= '<buton class="btn btn-success btn-xs" type="button" onClick="set_rows()">'.label_value('show').'</button>';
+    $input_rows .= 'ต่อหน้า ';
+    $input_rows .= '<buton class="btn btn-success btn-xs" type="button" onClick="set_rows()">แสดง</button>';
     $input_rows .= '</p>';
 
-		$config['full_tag_open'] 		= '<nav><ul class="pagination hidden-print">';
-		$config['full_tag_close'] 		= '</ul>'.$input_rows.'</nav><hr class="hidden-print">';
+		$config['full_tag_open'] 		= '<nav><ul class="pagination">';
+		$config['full_tag_close'] 		= '</ul>'.$input_rows.'</nav><hr>';
 		$config['first_link'] 				= 'First';
 		$config['first_tag_open'] 		= '<li>';
 		$config['first_tag_close'] 		= '</li>';
@@ -283,6 +330,12 @@ function pagination_config( $base_url, $total_rows = 0, $perpage = 20, $segment 
 		return $config;
 }
 
+
+function convert($txt)
+{
+	//return iconv('UTF-8', 'CP850', $txt);
+	return $txt;
+}
 
 
  ?>

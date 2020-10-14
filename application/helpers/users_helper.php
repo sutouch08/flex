@@ -15,21 +15,55 @@ function get_permission($menu, $uid = NULL, $id_profile = NULL)
   $CI =& get_instance();
 
   $uid = $uid === NULL ? get_cookie('uid') : $uid;
-  $id_profile = $id_profile === NULL ? get_cookie('id_profile') : $id_profile;
+  $user = $CI->user_model->get_user_by_uid($uid);
+  if(empty($user))
+  {
+    return reject_permission();
+  }
 
-  $pm = $CI->user_model->get_permission($menu, $uid, $id_profile);
-  if(empty($pm))
+  //--- If super admin
+  if($user->id_profile == -987654321)
   {
     $pm = new stdClass();
-    $pm->can_view = 0;
-    $pm->can_add = 0;
-    $pm->can_edit = 0;
-    $pm->can_delete = 0;
-    $pm->can_approve = 0;
+    $pm->can_view = 1;
+    $pm->can_add = 1;
+    $pm->can_edit = 1;
+    $pm->can_delete = 1;
+    $pm->can_approve = 1;
+  }
+  else
+  {
+    $pm = $CI->user_model->get_permission($menu, $uid, $user->id_profile);
+    if(empty($pm))
+    {
+      return reject_permission();
+    }
+    else
+    {
+      if($CI->close_system == 2)
+      {
+        $pm->can_add = 0;
+        $pm->can_edit = 0;
+        $pm->can_delete = 0;
+        $pm->can_approve = 0;
+      }
+    }
   }
 
   return $pm;
+}
 
+
+function reject_permission()
+{
+  $pm = new stdClass();
+  $pm->can_view = 0;
+  $pm->can_add = 0;
+  $pm->can_edit = 0;
+  $pm->can_delete = 0;
+  $pm->can_approve = 0;
+
+  return $pm;
 }
 
 
@@ -81,7 +115,6 @@ function get_display_name($uname)
   $name = $CI->user_model->get_name($uname);
   return $name;
 }
-
 
 
  ?>

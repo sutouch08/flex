@@ -182,7 +182,7 @@ public function get_item_code()
     }
     else
     {
-      $sc[] = label_value('no_content');
+      $sc[] = 'no_content';
     }
 
     echo json_encode($sc);
@@ -253,7 +253,40 @@ public function get_item_code()
     }
     else
     {
-      $sc[] = label_value('no_content');
+      $sc[] = 'no_content';
+    }
+
+    echo json_encode($sc);
+  }
+
+
+  public function get_all_po_code($vendor = FALSE)
+  {
+    $sc = array();
+    $txt = $_REQUEST['term'];
+    $this->db->select('code')->where_in('status', array('1', '2', '3'));
+    if($vendor !== FALSE)
+    {
+      $this->db->where('vender_code', $vendor);
+    }
+
+    if($txt != '*')
+    {
+      $this->db->like('code', $txt);
+    }
+
+    $po = $this->db->get('po');
+
+    if($po->num_rows() > 0)
+    {
+      foreach($po->result() as $rs)
+      {
+        $sc[] = $rs->code;
+      }
+    }
+    else
+    {
+      $sc[] = 'no_content';
     }
 
     echo json_encode($sc);
@@ -290,7 +323,7 @@ public function get_item_code()
     }
     else
     {
-      $sc[] = label_value('no_content');
+      $sc[] = 'no_content';
     }
 
     echo json_encode($sc);
@@ -350,7 +383,7 @@ public function get_item_code()
     }
     else
     {
-      $sc[] = label_value('no_content');
+      $sc[] = 'no_content';
     }
 
     echo json_encode($sc);
@@ -412,7 +445,7 @@ public function get_item_code()
     }
     else
     {
-      $sc[] = label_value('no_content');
+      $sc[] = 'no_content';
     }
 
     echo json_encode($sc);
@@ -454,7 +487,7 @@ public function get_item_code()
       }
       else
       {
-        $sc[] = label_value('no_content');
+        $sc[] = 'no_content';
       }
     }
     else

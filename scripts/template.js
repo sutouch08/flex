@@ -1,3 +1,8 @@
+function go_to(page){
+	window.location.href = BASE_URL + page;
+}
+
+
 function checkError(){
 	if($('#error').length){
 		swal({
@@ -292,18 +297,30 @@ function parseDiscount(discount_label, price)
 	return discLabel;
 }
 
-$(".code").keypress(function(event) {
-    var character = String.fromCharCode(event.keyCode);
-    return isValid(character);
-});
+function sort(field){
+	var sort_by = "";
+	if(field === 'date_add'){
+		el = $('#sort_date_add');
+		sort_by = el.hasClass('sorting_desc') ? 'ASC' : 'DESC';
+		sort_class = el.hasClass('sorting_desc') ? 'sorting_asc' : 'sorting_desc';
+	}else{
+		el = $('#sort_code');
+		sort_by = el.hasClass('sorting_desc') ? 'ASC' : 'DESC';
+		sort_class = el.hasClass('sorting_desc') ? 'sorting_asc' : 'sorting_desc';
+	}
 
-function isValid(str) {
-    return !/[~`!@#$%\^&*+=\\[\]\\';,/{}|\\":<>\?]/g.test(str);
+	$('.sorting').removeClass('sorting_desc');
+	$('.sorting').removeClass('sorting_asc');
+
+	el.addClass(sort_class);
+	$('#sort_by').val(sort_by);
+	$('#order_by').val(field);
+
+	getSearch();
 }
 
-// $('.code').keypress(function(e){
-//   var key = e.key;
-//   if(key === "/" || key === "'" || key === '"'){
-//     return false;
-//   }
-// })
+
+function validCode(input){
+  var regex = /[^a-z0-9-_]+/gi;
+  input.value = input.value.replace(regex, '');
+}

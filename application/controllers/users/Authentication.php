@@ -5,7 +5,7 @@ class Authentication extends CI_Controller
   public function __construct()
 	{
 		parent::__construct();
-		//$this->home = base_url()."authentication";
+		$this->home = base_url()."users/authentication";
 	}
 
 
@@ -59,11 +59,19 @@ class Authentication extends CI_Controller
 
     if($sc === TRUE)
     {
-      redirect('welcome');
+      if($rs->is_viewer == 1)
+      {
+        redirect(base_url().'view_stock');
+      }
+      else
+      {
+        redirect(base_url().'main');
+      }
+
     }
     else
     {
-      redirect('users/authentication');
+      redirect($this->home);
     }
 	}
 
@@ -97,7 +105,7 @@ class Authentication extends CI_Controller
 		delete_cookie('uid');
     delete_cookie('displayName');
     delete_cookie('id_profile');
-    redirect('users/authentication');
+    redirect($this->home);
 	}
 
 

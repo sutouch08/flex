@@ -104,7 +104,7 @@
 
           <td class="middle"><?php echo $rs->reference; ?></td>
 
-          <td class="middle hide-text"><?php echo get_display_name($rs->user); ?></td>
+          <td class="middle hide-text"><?php echo $rs->display_name; ?></td>
 
           <td class="middle hide-text"><?php echo $rs->remark; ?></td>
 

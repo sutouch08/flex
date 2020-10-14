@@ -43,9 +43,9 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">กลุ่มสี</label>
     <div class="col-xs-12 col-sm-3">
-			<select class="form-control input-sm" name="group_code" id="group_code">
+			<select class="form-control input-sm" name="id_group" id="id_group">
 				<option value="">ไม่ระบุ</option>
-				<?php echo select_color_group($group_code); ?>
+				<?php echo select_color_group($id_group); ?>
 			</select>
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>

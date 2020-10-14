@@ -5,6 +5,7 @@
 		<button type="button" class="btn btn-sm btn-primary" onclick="newItems()">สร้างรายการสินค้า</button>
 		<button type="button" class="btn btn-sm btn-info" onclick="setImages()">เชื่อมโยงรูปภาพ</button>
 		<button type="button" class="btn btn-sm btn-warning" onclick="setBarcodeForm()">Generate Barcode</button>
+		<button type="button" class="btn btn-sm btn-purple" onclick="downloadBarcode('<?php echo $style->code; ?>')">Download Barcode</button>
 		<?php endif; ?>
 	</div>
 </div>

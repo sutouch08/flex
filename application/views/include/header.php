@@ -15,7 +15,7 @@
 		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/ace-fonts.css" />
 		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/ace.css" class="ace-main-stylesheet" id="main-ace-style" />
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/jquery-ui-1.10.4.custom.min.css " />
-		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/template.css"/>
+		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/template.css?v=2"/>
 		<!-- ace settings handler -->
 		<script src="<?php echo base_url(); ?>assets/js/ace-extra.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/jquery.min.js"></script>
@@ -27,12 +27,13 @@
     <script src="<?php echo base_url(); ?>assets/js/sweet-alert.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/handlebars-v3.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/chosen.jquery.js"></script>
-		<script src="<?php echo base_url(); ?>scripts/header.js"></script>
-
 	  <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/sweet-alert.css">
     <style> .ui-helper-hidden-accessible { display:none; } </style>
 	</head>
 	<body class="no-skin" onload="checkError()">
+		<div id="loader" style="position:absolute; padding: 15px 25px 15px 25px; background-color:#fff; opacity:0.0; box-shadow: 0px 0px 25px #CCC; top:-20px; display:none; z-index:10;">
+        <center><i class="fa fa-spinner fa-5x fa-spin blue"></i></center><center>กำลังทำงาน....</center>
+		</div>
 		<?php if($this->session->flashdata('error')) : ?>
 							<input type="hidden" id="error" value="<?php echo $this->session->flashdata('error'); ?>" />
 		<?php endif; ?>
@@ -43,9 +44,9 @@
 		<div id="navbar" class="navbar navbar-default">
 			<script type="text/javascript">
 				var BASE_URL = '<?php echo base_url(); ?>';
-				var language = getCookie('display_lang');
 			</script>
 			<div class="navbar-container" id="navbar-container">
+				<?php if(! isset($_GET['nomenu'])) : ?>
 				<!-- #section:basics/sidebar.mobile.toggle -->
 				<button type="button" class="navbar-toggle menu-toggler pull-left" id="menu-toggler" data-target="#sidebar">
 					<span class="sr-only">Toggle sidebar</span>
@@ -53,23 +54,30 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
+				<?php endif; ?>
 				<div class="navbar-header pull-left">
-					<a href="<?php echo base_url(); ?>" class="navbar-brand">
+					<a href="<?php echo ((empty($approve_view) && !isset($_GET['nomenu']) && !$this->isViewer) ? base_url() : '#'); ?>" class="navbar-brand">
 						<small>
 							<?php echo getConfig('COMPANY_NAME'); ?>
 						</small>
 					</a>
 				</div>
+				<?php if(! isset($_GET['nomenu'])) : ?>
+					<?php
+
+					if(!$this->isViewer)
+					{
+						$this->load->view('include/approve_form');
+						$this->load->view('include/top_menu');
+					}
+					 ?>
+
 				<div class="navbar-buttons navbar-header pull-right" role="navigation">
 					<ul class="nav ace-nav">
+						
 						<li class="light-blue">
 							<a data-toggle="dropdown" href="#" class="dropdown-toggle">
-								<img class="nav-user-photo"
-                              src="<?php if(file_exists("assets/avatars/".get_cookie('uname').".jpg")){
-															echo base_url()."assets/avatars/".get_cookie('uname').".jpg";
-														}else{
-															echo base_url()."assets/avatars/avatar.png";
-														} ?>" alt="<?php echo get_cookie('displayName'); ?> " />
+
 								<span class="user-info">
 									<small>Welcome</small>
 									<?php echo get_cookie('displayName'); ?>
@@ -79,32 +87,15 @@
 							</a>
 
 							<ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+								<?php if(!$this->isViewer) : ?>
 								<li>
-									<a href="#">
-										<i class="ace-icon fa fa-cog"></i>
-										ตั้งค่า
+									<a href="JavaScript:void(0)" onclick="changeUserPwd('<?php echo get_cookie('uname'); ?>')">
+										<i class="ace-icon fa fa-keys"></i>
+										เปลี่ยนรหัสผ่าน
 									</a>
 								</li>
-
-								<li>
-									<a href="<?php echo base_url()."admin/profile"; ?>">
-										<i class="ace-icon fa fa-user"></i>
-										โปรไฟล์
-									</a>
-								</li>
-								<li>
-									<a href="javascript:void(0)" onclick="changeLanguage('<?php echo $this->language; ?>')">
-										<i class="ace-icon fa fa-flag"></i>
-										<?php if($this->language === 'thai') : ?>
-											Use English
-										<?php else : ?>
-											ใช้ภาษาไทย
-										<?php endif; ?>
-									</a>
-								</li>
-
 								<li class="divider"></li>
-
+								<?php endif; ?>
 								<li>
 									<a href="<?php echo base_url(); ?>users/authentication/logout">
 										<i class="ace-icon fa fa-power-off"></i>
@@ -115,6 +106,9 @@
 						</li>
 					</ul>
 				</div>
+			<?php else : ?>
+					<button type="button" class="close margin-top-10" onclick="window.close()"><i class="fa fa-times"></i></button>
+				<?php endif; ?>
 
 				<!-- /section:basics/navbar.dropdown -->
 			</div><!-- /.navbar-container -->
@@ -125,13 +119,16 @@
 			<script type="text/javascript">
 				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
 			</script>
+			<?php if(! isset($_GET['nomenu'])) : ?>
 			<!-- #section:basics/sidebar -->
 			<div id="sidebar" class="sidebar responsive <?php echo get_cookie('sidebar_layout'); ?>" data-sidebar="true" data-sidebar-scoll="true" data-sidebar-hover="true">
 				<script type="text/javascript">
 					try{ace.settings.check('sidebar' , 'fixed')}catch(e){}
 				</script>
 						<!--- side menu  ------>
+				<?php if($this->isViewer === FALSE) : ?>
 				<?php $this->load->view("include/side_menu"); ?>
+				<?php endif; ?>
 
 				<!-- #section:basics/sidebar.layout.minimize -->
 				<div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse" onclick="toggle_layout()">
@@ -139,7 +136,7 @@
 				</div>
 
 			</div>
-
+			<?php endif; ?>
 			<!-- /section:basics/sidebar -->
 			<div class="main-content">
 				<div class="main-content-inner">
