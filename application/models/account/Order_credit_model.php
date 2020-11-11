@@ -12,8 +12,10 @@ class Order_credit_model extends CI_Model
     $this->db
     ->select('oc.*')
     ->select('cs.name AS customer_name')
+    ->select('od.customer_ref')
     ->from('order_credit AS oc')
-    ->join('customers AS cs', 'oc.customer_code = cs.code', 'left');
+    ->join('customers AS cs', 'oc.customer_code = cs.code', 'left')
+    ->join('orders AS od', 'oc.order_code = od.code', 'left');
 
     if(!empty($ds['code']))
     {
@@ -25,6 +27,7 @@ class Order_credit_model extends CI_Model
       $this->db->group_start();
       $this->db->like('cs.code', $ds['customer']);
       $this->db->or_like('cs.name', $ds['customer']);
+      $this->db->or_like('od.customer_ref', $ds['customer']);
       $this->db->group_end();
     }
 
@@ -68,7 +71,8 @@ class Order_credit_model extends CI_Model
   {
     $this->db
     ->from('order_credit AS oc')
-    ->join('customers AS cs', 'oc.customer_code = cs.code', 'left');
+    ->join('customers AS cs', 'oc.customer_code = cs.code', 'left')
+    ->join('orders AS od', 'oc.order_code = od.code', 'left');
 
     if(!empty($ds['code']))
     {
@@ -80,6 +84,7 @@ class Order_credit_model extends CI_Model
       $this->db->group_start();
       $this->db->like('cs.code', $ds['customer']);
       $this->db->or_like('cs.name', $ds['customer']);
+      $this->db->or_like('od.customer_ref', $ds['customer']);
       $this->db->group_end();
     }
 
@@ -103,7 +108,7 @@ class Order_credit_model extends CI_Model
     return $this->db->count_all_results();
   }
 
-  
+
 
   public function get($order_code)
   {

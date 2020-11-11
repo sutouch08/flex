@@ -123,6 +123,15 @@
   </div>
 
 
+  <div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">หมายเหตุ</label>
+    <div class="col-xs-12 col-sm-3">
+      <textarea class="form-control input-sm" name="note" id="note" rows="10"><?php echo $note; ?></textarea>
+			
+    </div>
+  </div>
+
+
 
 
 	<div class="divider-hidden"></div>

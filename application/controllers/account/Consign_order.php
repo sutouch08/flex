@@ -374,6 +374,9 @@ class Consign_order extends PS_Controller
     $this->load->model('inventory/delivery_order_model');
     $this->load->model('account/payment_receive_model');
     $this->load->model("masters/warehouse_model");
+    $this->load->model('masters/customers_model');
+    $this->load->model('account/order_credit_model');
+
     $doc = $this->consign_order_model->get($code);
     if(!empty($doc))
     {
@@ -382,6 +385,9 @@ class Consign_order extends PS_Controller
       $auz = $g_auz === TRUE ? TRUE : $this->warehouse_model->is_auz($doc->warehouse_code);
       //--- ยอดเงินรวมสำหรับบันทึกรับเงิน
       $pay_amount = 0;
+
+      //--- customer data
+      $customer = $this->customers_model->get($doc->customer_code);
 
       $this->db->trans_begin();
 
@@ -499,20 +505,25 @@ class Consign_order extends PS_Controller
         {
           if($pay_amount != 0)
           {
-            //--- 4. บันทึกรับเงิน
-            $payment = array(
-              'reference' => $doc->code,
+            //--- 4. ตั้งหนี้
+            $arr = array(
+              'order_code' => $doc->code,
               'customer_code' => $doc->customer_code,
-              'pay_date' => $doc->date_add,
+              'delivery_date' => date('Y-m-d'),
+              'due_date' => added_date(date('Y-m-d'), $customer->credit_term),
+              'over_due_date' => added_date(date('Y-m-d'), $customer->credit_term + getConfig('OVER_DUE_DATE')),
               'amount' => $pay_amount,
-              'payment_type' => 'CA', //-- เงินสด
-              'valid' => 1
+              'paid' => 0,
+              'balance' => $pay_amount
             );
 
-            if(! $this->payment_receive_model->add($payment))
+            if($this->order_credit_model->is_exists($doc->code))
             {
-              $sc = FALSE;
-              $this->error = "บันทึกรับเงินไม่สำเร็จ";
+              $this->order_credit_model->update($doc->code, $arr);
+            }
+            else
+            {
+              $this->order_credit_model->add($arr);
             }
           }
         }
@@ -562,8 +573,9 @@ class Consign_order extends PS_Controller
     $this->load->model("stock/stock_model");
     $this->load->model('inventory/movement_model');
     $this->load->model('inventory/invoice_model');
-    $this->load->model('account/payment_receive_model');
+    $this->load->model('account/order_credit_model');
     $this->load->model("masters/warehouse_model");
+
     $doc = $this->consign_order_model->get($code);
     if(!empty($doc))
     {
@@ -640,21 +652,27 @@ class Consign_order extends PS_Controller
           {
             if($pay_amount != 0)
             {
-              //--- 4. บันทึกรับเงิน
-              $payment = array(
-                'reference' => $doc->code,
-                'customer_code' => $doc->customer_code,
-                'pay_date' => $doc->date_add,
-                'amount' => $pay_amount,
-                'payment_type' => 'CA', //-- เงินสด
-                'valid' => 1
-              );
-
-              if(! $this->payment_receive_model->add($payment))
+              //--- 4. ลบรายการตั้งหนี้
+              if(! $this->order_credit_model->delete($doc->code))
               {
                 $sc = FALSE;
-                $this->error = "บันทึกรับเงินไม่สำเร็จ";
+                $this->error = "ลบรายการตั้งหนี้ไม่สำเร็จ";
               }
+
+              // $payment = array(
+              //   'reference' => $doc->code,
+              //   'customer_code' => $doc->customer_code,
+              //   'pay_date' => $doc->date_add,
+              //   'amount' => $pay_amount,
+              //   'payment_type' => 'CA', //-- เงินสด
+              //   'valid' => 1
+              // );
+              //
+              // if(! $this->payment_receive_model->add($payment))
+              // {
+              //   $sc = FALSE;
+              //   $this->error = "บันทึกรับเงินไม่สำเร็จ";
+              // }
             }
           }
 

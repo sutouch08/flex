@@ -18,22 +18,22 @@
 <?php else : ?>
 
   <div class="row">
-    <div class="col-sm-2 padding-5 first">
+    <div class="col-sm-2 col-xs-12 padding-5 first">
       <label>เลขที่ : <?php echo $order->code; ?></label>
     </div>
-    <div class="col-sm-5 padding-5">
+    <div class="col-sm-5 col-xs-12 padding-5">
       <label>ลูกค้า/ผู้เบิก/ผู้ยืม : &nbsp;
     <?php echo ($order->customer_ref == '' ? $order->customer_name : $order->customer_ref);  ?>
       </label>
     </div>
-    <div class="col-sm-3">
+    <div class="col-sm-3 col-xs-12 padding-5">
       <label>ช่องทาง : <?php echo $order->channels_name; ?></label>
     </div>
-    <div class="col-sm-2 padding-5 last text-right">
+    <div class="col-sm-2 col-xs-12 padding-5 last">
       <label>วันที่ : <?php echo thai_date($order->date_add); ?></label>
     </div>
   <?php if($order->remark != '') : ?>
-    <div class="col-sm-12 margin-top-10">
+    <div class="col-sm-12 col-xs-12 padding-5 margin-top-10">
       <label>หมายเหตุ : <?php echo $order->remark; ?></label>
     </div>
   <?php endif; ?>

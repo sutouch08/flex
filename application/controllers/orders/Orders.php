@@ -111,6 +111,7 @@ class Orders extends PS_Controller
       $has_term = $this->payment_methods_model->has_term($this->input->post('payment'));
       $sale_code = $this->customers_model->get_sale_code($this->input->post('customerCode'));
       $sender_id = get_null($this->input->post('sender_id'));
+			$quotation_no = trim($this->input->post('qt_no')); //-- ใบเสนราคา
 
       //--- check over due
       $is_strict = getConfig('STRICT_OVER_DUE') == 1 ? TRUE : FALSE;
@@ -129,6 +130,7 @@ class Orders extends PS_Controller
           'code' => $code,
           'role' => $role,
           'bookcode' => $book_code,
+					'qt_no' => $quotation_no,
           'reference' => $this->input->post('reference'),
           'customer_code' => $this->input->post('customerCode'),
           'customer_ref' => $this->input->post('cust_ref'),
@@ -143,6 +145,13 @@ class Orders extends PS_Controller
 
         if($this->orders_model->add($ds) === TRUE)
         {
+					//----- ถ้าระบุใบเสนอราคามา โหลดรายการใบเสนอราคาเข้าออเดอร์ด้วย(ข้ามการตรวจสอบสต็อก)
+					if(!empty($quotation_no))
+					{
+						$this->load_quotation($code, $quotation_no);
+					}
+
+
           $arr = array(
             'order_code' => $code,
             'state' => 1,
@@ -166,6 +175,222 @@ class Orders extends PS_Controller
       redirect($this->home.'/add_new');
     }
   }
+
+
+
+
+	//---- load quotation
+	public function load_quotation($order_code, $quotation_no)
+	{
+		if(!empty($quotation_no))
+		{
+			//--- load model
+			$this->load->model('orders/quotation_model');
+
+			$quotation = $this->quotation_model->get_details($quotation_no);
+			if(!empty($quotation))
+			{
+				foreach($quotation as $qt)
+				{
+					$arr = array(
+						'order_code' => $order_code,
+						'style_code' => $qt->style_code,
+						'product_code' => $qt->product_code,
+						'product_name' => $qt->product_name,
+						'cost' => $qt->cost,
+						'price' => $qt->price,
+						'qty' => $qt->qty,
+						'unit_code' => $qt->unit_code,
+						'discount1' => $qt->discount1,
+						'discount2' => $qt->discount2,
+						'discount3' => $qt->discount3,
+						'discount_amount' => $qt->discount_amount,
+						'total_amount' => $qt->total_amount,
+						'is_count' => $qt->count_stock
+					);
+
+					$this->orders_model->add_detail($arr);
+				}
+			}
+
+			//--- update reference
+			$arr = array(
+				'reference' => $order_code
+			);
+
+			$this->quotation_model->update($quotation_no, $arr);
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+
+
+	public function reload_quotation()
+	{
+		$sc = TRUE;
+
+		$code = $this->input->get('order_code');
+		$qt_no = $this->input->get('qt_no');
+
+		if(!empty($code))
+		{
+			//--- load model
+			$this->load->model('orders/quotation_model');
+			$order = $this->orders_model->get($code);
+			if(!empty($order))
+			{
+				//---- order state ต้องยังไม่ถูกดึงไปจัด
+				if($order->state <= 3)
+				{
+
+					//---- start transection
+					$this->db->trans_begin();
+					//--- มีอยู่แต่ต้องการเอาออก
+					if(empty($qt_no) && !empty($order->qt_no))
+					{
+						//--- 2. ลบรายการที่มีในออเดอร์แก่า
+						if($this->orders_model->clear_order_detail($code))
+						{
+							//---- update qt no on order
+							$arr = array(
+								'qt_no' => NULL,
+								'status' => 0
+							);
+
+							if(! $this->orders_model->update($code, $arr))
+							{
+								$sc = FALSE;
+								$this->error = "ลบเลขที่ใบเสนอราคาไม่สำเร็จ";
+							}
+							else
+							{
+								//--- update reference quotation
+								$arr = array(
+									'reference' => NULL,
+									'is_closed' => 0
+								);
+
+								if(! $this->quotation_model->update($order->qt_no, $arr))
+								{
+									$sc = FALSE;
+									$this->error = "แก้ไขเลขที่อ้างอิงในใบเสนอราคาไม่สำเร็จ";
+								}
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "ลบรายการไม่สำเร็จ";
+						}
+					}
+					else
+					{
+						if(!empty($qt_no))
+						{
+							//--- ยังไม่มี หรือ มีแล้วต้องการเปลี่ยน
+							$qt = $this->quotation_model->get($qt_no);
+
+							if(! empty($qt))
+							{
+								//---- 1. ดึงรายการในใบเสนอราคามาเช็คก่อนว่ามีรายการหรือไม่
+								$is_exists = $this->quotation_model->is_exists_details($qt_no);
+
+								if($is_exists === TRUE)
+								{
+									//--- 2. ลบรายการที่มีในออเดอร์แก่า
+									if($this->orders_model->clear_order_detail($code))
+									{
+										//--- 3. เพิ่มรายการใหม่
+										$rs = $this->load_quotation($code, $qt_no);
+										if($rs)
+										{
+											//---4. เปลี่ยนเลขที่ qt_no ใน ตาราง orders
+											$arr = array(
+												'qt_no' => $qt_no,
+												'status' => 0
+											);
+
+											if($this->orders_model->update($code, $arr))
+											{
+												//--- 5. update order no ในตาราง order_quotation
+												$arr = array(
+													'reference' => $code
+												);
+
+												if(! $this->quotation_model->update($qt_no, $arr))
+												{
+													$sc = FALSE;
+													$this->error = "Update order no failed";
+												}
+											}
+											else
+											{
+												$sc = FALSE;
+												$this->error = "Update Quotation no failed";
+											}
+										}
+										else
+										{
+											$sc = FALSE;
+											$this->error = "โหลดรายการใหม่ไม่สำเร็จ";
+										}
+									}
+									else
+									{
+										$sc = FALSE;
+										$this->error = "ลบรายการเก่าไม่สำเร็จ";
+									}
+								}
+								else
+								{
+									$sc = FALSE;
+									$this->error = "ไม่พบรายการในใบเสนอราคา";
+								}
+							}
+							else
+							{
+								$sc = FALSE;
+								$this->error = "ใบเสนอราคาไม่ถูกต้อง";
+							} //--- end if empty qt
+						}
+						
+					} //--- end if empty qt_no
+
+
+					if($sc === TRUE)
+					{
+						$this->db->trans_commit();
+					}
+					else
+					{
+						$this->db->trans_rollback();
+					}
+
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "ออเดอร์อยุ๋ในสถานะที่ไม่สามารถแก้ไขรายการได้";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "ไม่พบข้อมูลออเดอร์";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "ไม่พบเลขที่เอกสาร";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
 
 
 
@@ -450,6 +675,7 @@ class Orders extends PS_Controller
           'sender_id' => get_null($this->input->post('sender_id')),
           'date_add' => db_date($this->input->post('date_add')),
           'remark' => $this->input->post('remark'),
+					'qt_no' => $this->input->post('qt_no'),
           'status' => 0
         );
 
@@ -571,6 +797,20 @@ class Orders extends PS_Controller
         $sc = FALSE;
         $message = 'บันทึกออเดอร์ไม่สำเร็จ';
       }
+			else
+			{
+				if(! empty($order->qt_no))
+				{
+					//--- load model
+					$this->load->model('orders/quotation_model');
+					//--- close quotation
+					$ar = array(
+						'is_closed' => 1
+					);
+
+					$this->quotation_model->update($order->qt_no, $ar);
+				}
+			}
     }
 
     echo $sc === TRUE ? 'success' : $message;
@@ -865,7 +1105,17 @@ class Orders extends PS_Controller
 					//$sc 	.= $isVisual === FALSE ? '<center><span class="font-size-10 blue">('.$stock.')</span></center>' : '';
 					if( $view === FALSE )
 					{
-						$sc 	.= '<input type="number" min="1" max="'.$limit.'" class="form-control order-grid input-qty text-center" name="qty['.$item->color_code.']['.$item->code.']" id="'.$item->code.'" onkeyup="valid_qty($(this), '.$limit.')" '.$disabled.' />';
+						$sc 	.= '<input
+						type="number"
+						min="1"
+						max="'.$limit.'"
+						class="form-control order-grid input-qty text-center"
+						name="qty['.$item->color_code.']['.$item->code.']"
+						id="'.$item->code.'"
+						data-pdcode="'.$item->code.'"
+						data-pdname="'.$item->name.'"
+						data-price="'.$item->price.'"
+						onkeyup="valid_qty($(this), '.$limit.')" '.$disabled.' />';
 					}
 
 					$sc 	.= ($isVisual === FALSE OR $is_po === TRUE) ? '<center style="font-weight:bold; color:#0F00FF"><strong>'.$available.'</strong></center>' : '';
@@ -1002,11 +1252,15 @@ class Orders extends PS_Controller
   public function print_order_sheet($code, $barcode = '')
   {
     $this->load->model('masters/products_model');
-
+		$this->load->model('address/customer_address_model');
     $this->load->library('printer');
+
     $order = $this->orders_model->get($code);
-    $order->customer_name = $this->customers_model->get_name($order->customer_code);
+		$customer = $this->customers_model->get($order->customer_code);
+		$customer_address = $this->customer_address_model->get_customer_bill_to_address($order->customer_code);
+		$order->emp_name = $this->user_model->get_employee_name($order->user);
     $details = $this->orders_model->get_order_details($code);
+
     if(!empty($details))
     {
       foreach($details as $rs)
@@ -1015,8 +1269,11 @@ class Orders extends PS_Controller
       }
     }
 
-    $ds['order'] = $order;
+		$ds['order'] = $order;
     $ds['details'] = $details;
+		$ds['customer'] = $customer;
+		$ds['address'] = $customer_address;
+    $ds['title'] = "ใบสั่งขาย";
     $ds['is_barcode'] = $barcode != '' ? TRUE : FALSE;
     $this->load->view('print/print_order_sheet', $ds);
   }
@@ -1526,15 +1783,21 @@ class Orders extends PS_Controller
           //--- ถ้าเปิดบิลแล้ว
           if($sc === TRUE && $order->state == 8)
           {
+            $this->load->model('account/order_credit_model');
             if($state < 8)
             {
               $this->roll_back_action($order);
+              //--- ลบรายการตั้งหนี้ออก
+              $this->order_credit_model->delete($code);
             }
 
             if($state == 9)
             {
               $this->roll_back_action($order);
+              //--- ยกเลิกออเดอร์
               $this->cancle_order($code, $order->role);
+              //--- ลบรายการตั้งหนี้ออก
+              $this->order_credit_model->delete($code);
             }
           }
 
@@ -1668,10 +1931,6 @@ class Orders extends PS_Controller
           $this->lend_model->drop_backlogs_list($order->code);
         }
 
-        if($order->role === 'N' OR $order->role === 'C')
-        {
-
-        }
       } //--- end foreach
     } //---- end sold
 

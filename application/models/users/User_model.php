@@ -90,6 +90,24 @@ class User_model extends CI_Model
   }
 
 
+	public function get_employee_name($uname)
+	{
+		$rs = $this->db
+		->select('emp.name')
+		->from('user')
+		->join('employee AS emp', 'user.emp_code = emp.code', 'left')
+		->where('user.uname', $uname)
+		->get();
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row()->name;
+		}
+
+		return NULL;
+	}
+
+
   public function get_users($uname = '', $dname = '', $profile = '', $perpage = 50, $offset = 0)
   {
     $offset = $offset === NULL ? 0 : $offset;

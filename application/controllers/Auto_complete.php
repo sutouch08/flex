@@ -8,10 +8,39 @@ class Auto_complete extends CI_Controller
   {
     parent::__construct();
     //$language = getConfig('LANGUAGE');
-    $display_lang = get_cookie('display_lang');
-    $this->language = empty($display_lang) ? 'thai' : $display_lang;
-    $this->lang->load($this->language, $this->language);
+    // $display_lang = get_cookie('display_lang');
+    // $this->language = empty($display_lang) ? 'thai' : $display_lang;
+    // $this->lang->load($this->language, $this->language);
   }
+
+  public function get_quotation()
+  {
+    $txt = $_REQUEST['term'];
+    $sc = array();
+    $this->db
+		->select('code, customer_name')
+		->where('status', 1)
+		->where('is_closed', 0);
+
+		if($txt != '*')
+		{
+			$this->db->like('code', $txt);
+		}
+
+		$this->db->order_by('code', 'DESC')->limit(20);
+		$rs = $this->db->get('order_quotation');
+
+		if($rs->num_rows() > 0)
+		{
+			foreach($rs->result() as $rd)
+			{
+				$sc[] = $rd->code.' | '.$rd->customer_name;
+			}
+		}
+
+		echo json_encode($sc);
+  }
+
 
 
   public function get_sender()
@@ -56,6 +85,7 @@ class Auto_complete extends CI_Controller
     }
 
     echo json_encode($sc);
+
   }
 
 

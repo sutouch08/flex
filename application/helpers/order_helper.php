@@ -49,13 +49,13 @@ function paymentLabel($payments=NULL)
 		{
 			if($rs->valid ==1)
 			{
-				$sc .= '<button type="button" class="btn btn-sm btn-success margin-5" onClick="viewPaymentDetail('.$rs->id.')">';
+				$sc .= '<button type="button" class="btn btn-sm btn-success" onClick="viewPaymentDetail('.$rs->id.')">';
 				$sc .= 'จ่ายเงินแล้ว | '.number($rs->pay_amount,2);
 				$sc .= '</button>';
 			}
 			else
 			{
-				$sc .= '<button type="button" class="btn btn-sm btn-primary margin-5" onClick="viewPaymentDetail('.$rs->id.')">';
+				$sc .= '<button type="button" class="btn btn-sm btn-primary" onClick="viewPaymentDetail('.$rs->id.')">';
 				$sc .= 'แจ้งชำระแล้ว | '.number($rs->pay_amount,2);
 				$sc .= '</button>';
 			}

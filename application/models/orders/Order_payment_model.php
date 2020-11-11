@@ -8,7 +8,7 @@ class Order_payment_model extends CI_Model
 
   public function count_rows(array $ds = array())
   {
-    $this->db->select('order_payment.valid')
+    $this->db
     ->from('order_payment')
     ->join('orders', 'orders.code = order_payment.order_code', 'left')
     ->join('customers', 'customers.code = orders.customer_code', 'left')
@@ -47,10 +47,7 @@ class Order_payment_model extends CI_Model
       $this->db->where('pay_date <=', to_date($ds['to_date']));
     }
 
-    $rs = $this->db->get();
-
-
-    return $rs->num_rows();
+    return $this->db->count_all_results();
   }
 
 
@@ -166,6 +163,7 @@ class Order_payment_model extends CI_Model
   }
 
 
+
   public function valid_payment($id)
   {
     return $this->db->set('valid', 1)->where('id', $id)->update('order_payment');
@@ -189,6 +187,9 @@ class Order_payment_model extends CI_Model
     return $this->db->where('order_code', $code)->delete('order_payment');
   }
 
+
+
+
   public function is_exists($code)
   {
     $rs = $this->db->select('order_code')
@@ -201,6 +202,22 @@ class Order_payment_model extends CI_Model
 
     return FALSE;
   }
+
+
+
+
+	//---- for check transection
+	public function has_account_transection($id_account)
+	{
+		$rs = $this->db->where('id_account', $id_account)->count_all_results('order_payment');
+
+		if($rs > 0)
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
 
 } //--- end class
 ?>

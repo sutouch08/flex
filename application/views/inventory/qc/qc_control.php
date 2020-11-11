@@ -1,20 +1,11 @@
 <!--  Control -->
 <div class="row">
 
-  <div class="col-sm-2 padding-5 first">
+  <div class="col-sm-2 col-xs-8 padding-5 first">
     <label>บาร์โค้ดกล่อง</label>
     <input type="text" class="form-control input-sm text-center zone" id="barcode-box" autofocus />
   </div>
-
-  <div class="col-sm-2 padding-5">
-    <label>บาร์โค้ดสินค้า</label>
-    <input type="text" class="form-control input-sm text-center item" id="barcode-item" disabled />
-  </div>
-  <div class="col-sm-1 padding-5">
-    <label class="display-block not-show">submit</label>
-    <button type="button" class="btn btn-xs btn-default btn-block item" id="btn-submit" onclick="qcProduct()" disabled>ตกลง</button>
-  </div>
-  <div class="col-sm-2 ">
+  <div class="col-sm-2 col-xs-4 padding-5">
     <label class="display-block not-show">change box</label>
     <button
       type="button"
@@ -25,18 +16,27 @@
       <i class="fa fa-refresh"></i> เปลี่ยนกล่อง
     </button>
   </div>
+  <div class="col-sm-2 col-xs-8 padding-5">
+    <label>บาร์โค้ดสินค้า</label>
+    <input type="text" class="form-control input-sm text-center item" id="barcode-item" disabled />
+  </div>
+  <div class="col-sm-1 col-xs-4 padding-5">
+    <label class="display-block not-show">submit</label>
+    <button type="button" class="btn btn-xs btn-default btn-block item" id="btn-submit" onclick="qcProduct()" disabled>ตกลง</button>
+  </div>
 
-  <div class="col-sm-2">
+
+  <div class="col-sm-2 col-xs-12 padding-5">
     <label class="display-block not-show">submit</label>
     <button type="button" class="btn btn-xs btn-success btn-block item" onclick="saveQc(0)">
       <i class="fa fa-save"></i> บันทึก
     </button>
   </div>
-  <div class="col-sm-1 padding-5">
+  <div class="col-sm-1 col-xs-12 padding-5">
     <label class="display-block not-show">print</label>
     <button type="button" class="btn btn-xs btn-primary hide" id="btn-print-address" onclick="printAddress()">พิมพ์ใบปะหน้า</button>
   </div>
-  <div class="col-sm-2">
+  <div class="col-sm-2 col-xs-12 padding-5">
     <div class="title middle text-center" style="height:55px; background-color:black; color:white; padding-top:20px; margin-top:0px;">
       <h4 id="all_qty" style="display:inline;">
         <?php echo number($qc_qty); ?>

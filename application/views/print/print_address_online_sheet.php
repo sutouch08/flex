@@ -2,7 +2,7 @@
 $paid		= $order->is_paid == 1 ? 'จ่ายแล้ว' : 'รอชำระเงิน';
 
 /*********  Sender  ***********/
-$sender	 = '<div class="col-sm-12" style="font-size:14px; font-weight: bold; border:solid 2px #ccc; border-radius:10px; padding:10px;">';
+$sender	 = '<div class="col-sm-12" style="font-size:12px; font-weight: bold; border:solid 2px #ccc; border-radius:10px; padding:10px;">';
 $sender	.= '<span style="display:block; font-size: 20px; font-weight:bold; padding-bottom:10px; border-bottom:solid 2px #ccc; margin-bottom:15px;">ผู้ส่ง &nbsp; |  &nbsp; ';
 $sender .= '<span style="font-size:16px; font-weight:500">โทร. '.$cPhone.'</span></span>';
 $sender	.= '<span style="display:block;">'.$cName.'</span>';
@@ -12,6 +12,7 @@ $sender	.= '</div>';
 $cod = '';
 if($order->payment_role == 4)
 {
+
   $cod .= '<div class="col-sm-12" style="font-size:35px; text-align:center; vertical-align:text-middle; font-weight: bold;">';
   $cod .= 'COD  : '.number($order->balance, 2).'.-';
   $cod .= '</div>';

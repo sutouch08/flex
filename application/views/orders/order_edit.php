@@ -1,14 +1,17 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-3">
-    <h3 class="title">
+	<div class="col-sm-3 col-xs-12 padding-5">
+    <h3 class="title hidden-xs">
+      <?php echo $this->title; ?>
+    </h3>
+		<h3 class="title text-center visible-xs margin-bottom-10">
       <?php echo $this->title; ?>
     </h3>
     </div>
-    <div class="col-sm-9">
+    <div class="col-sm-9 col-xs-12 padding-5">
     	<p class="pull-right" style="margin-bottom:1px;">
 				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
-				<?php if($order->is_term == 0 && ($this->pm->can_add OR $this->pm->can_edit) && $order->status == 1 && $order->is_paid == 0) : ?>
+				<?php if(($this->pm->can_add OR $this->pm->can_edit) && $order->status == 1 && $order->is_paid == 0) : ?>
 				<button type="button" class="btn btn-sm btn-info" onclick="payOrder()"><i class="fa fa-credit-card"></i> แจ้งชำระเงิน</button>
 				<?php endif; ?>
 				<?php if(($this->pm->can_add OR $this->pm->can_edit) && $order->status == 1) : ?>
@@ -38,7 +41,7 @@
       </p>
     </div>
 </div><!-- End Row -->
-<hr/>
+<hr class="padding-5"/>
 <input type="hidden" id="order_code" value="<?php echo $order->code; ?>" />
 <?php $this->load->view('orders/order_edit_header'); ?>
 <?php $this->load->view('orders/order_panel'); ?>

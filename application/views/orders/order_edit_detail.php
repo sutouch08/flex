@@ -6,10 +6,10 @@ $delete = $this->pm->can_delete;
 $hide = $order->status == 1 ? 'hide' : '';
  ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 col-xs-12 padding-5">
     	<h4 class="title"><?php echo $this->title; ?></h4>
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-6 col-xs-12 padding-5">
     	<p class="pull-right top-p">
         	<button type="button" class="btn btn-sm btn-warning" onClick="editOrder('<?php echo $order->code; ?>')"><i class="fa fa-arrow-left"></i> กลับ</button>
       <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
@@ -18,48 +18,53 @@ $hide = $order->status == 1 ? 'hide' : '';
         </p>
     </div>
 </div>
-<hr class="margin-bottom-15" />
+<hr class="margin-bottom-15 padding-5" />
 <?php $this->load->view('orders/order_edit_header'); ?>
 
 <!--  Search Product -->
 <div class="row">
-	<div class="col-sm-2 col-2-harf padding-5 first">
+	<div class="col-sm-2 col-2-harf col-xs-8 padding-5 margin-bottom-10">
     <input type="text" class="form-control input-sm text-center" id="pd-box" placeholder="ค้นรหัสสินค้า" />
   </div>
-  <div class="col-sm-1 col-1-harf padding-5">
+  <div class="col-sm-1 col-1-harf col-xs-4 padding-5 margin-bottom-10">
   	<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductGrid()"><i class="fa fa-tags"></i> แสดงสินค้า</button>
   </div>
-  <div class="col-sm-2 col-2-harf padding-5">
+
+	<div class="divider padding-5 visible-xs"></div>
+
+  <div class="col-sm-2 col-2-harf col-xs-8 padding-5 margin-bottom-10">
     <input type="text" class="form-control input-sm text-center" id="item-code" placeholder="ค้นหารหัสสินค้า">
   </div>
-  <div class="col-sm-1 padding-5">
+  <div class="col-sm-1 col-xs-4 padding-5 margin-bottom-10">
     <input type="number" class="form-control input-sm text-center" id="stock-qty" disabled>
   </div>
-  <div class="col-sm-1 padding-5">
+  <div class="col-sm-1 col-xs-8 padding-5 margin-bottom-10">
     <input type="number" class="form-control input-sm text-center" id="input-qty">
   </div>
-  <div class="col-sm-1 padding-5">
+  <div class="col-sm-1 col-xs-4 padding-5 margin-bottom-10">
     <button type="button" class="btn btn-xs btn-primary btn-block" onclick="addItemToOrder()">เพิ่ม</button>
   </div>
 
-  <div class="col-sm-2 col-2-harf padding-5 last">
+	<div class="divider padding-5 visible-xs"></div>
+
+  <div class="col-sm-2 col-2-harf col-xs-12 padding-5">
     <button type="button" class="btn btn-xs btn-info btn-block" onclick="recalDiscount()">
         <i class="fa fa-calculator"></i> คำนวณส่วนลดใหม่</button>
       </button>
   </div>
 </div>
-<hr class="margin-top-15 margin-bottom-0" />
+<hr class="margin-top-15 margin-bottom-0 padding-5" />
 <!--- Category Menu ---------------------------------->
 <div class='row'>
-	<div class='col-sm-12'>
-		<ul class='nav navbar-nav' role='tablist' style='background-color:#EEE'>
+	<div class='col-sm-12 col-xs-12 padding-5'>
+		<ul class='nav navbar-nav' role='tablist' style='width: 100%; margin-left: 0px; margin-right: 0px; background-color:#EEE'>
 		<?php echo productTabMenu('order'); ?>
 		</ul>
 	</div><!---/ col-sm-12 ---->
 </div><!---/ row -->
-<hr style='border-color:#CCC; margin-top: 0px; margin-bottom:0px;' />
+<hr class="padding-5" />
 <div class='row'>
-	<div class='col-sm-12'>
+	<div class='col-sm-12 col-xs-12 padding-5'>
 		<div class='tab-content' style="min-height:1px; padding:0px; border:0px;">
 		<?php echo getProductTabs(); ?>
 		</div>

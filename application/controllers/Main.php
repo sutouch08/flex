@@ -52,7 +52,6 @@ class Main extends PS_Controller
         {
           $arr = array(
             'pdCode' => $rs->product_code,
-						'oldCode' => $rs->old_code,
             'reference' => $rs->code,
             'qty' => number($rs->qty),
             'state' => $rs->state,

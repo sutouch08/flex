@@ -86,6 +86,7 @@ class Customers extends PS_Controller
     $data['sale'] = $this->session->flashdata('sale');
     $data['credit'] = $this->session->flashdata('credit');
     $data['credit_term'] = $this->session->flashdata('credit_term');
+    $data['note'] = $this->session->flashdata('note');
 
     $this->load->view('masters/customers/customers_add_view', $data);
   }
@@ -112,7 +113,8 @@ class Customers extends PS_Controller
         'area_code' => $this->input->post('area'),
         'sale_code' => $this->input->post('sale'),
         'credit_term' => empty($credit_term) ? 0 : $credit_term,
-        'amount' => empty($credit) ? 0 : $credit
+        'amount' => empty($credit) ? 0 : $credit,
+        'note' => get_null($this->input->post('note'))
       );
 
       if($this->customers_model->is_exists($code) === TRUE)
@@ -309,7 +311,8 @@ class Customers extends PS_Controller
         'area_code' => $this->input->post('area'),
         'sale_code' => $this->input->post('sale'),
         'amount' => $credit,
-        'credit_term' => $credit_term
+        'credit_term' => $credit_term,
+        'note' => get_null($this->input->post('note'))
       );
 
       if($sc === TRUE && $this->customers_model->is_exists($code, $old_code) === TRUE)

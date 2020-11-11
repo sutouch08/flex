@@ -91,10 +91,13 @@ class Quotation extends PS_Controller
           $arr = array(
             'code' => $code,
             'customer_code' => $customer->code,
+						'customer_name' => $customer->name,
             'contact' => get_null($this->input->post('contact')),
             'is_term' => $this->input->post('is_term'),
             'credit_term' => $this->input->post('credit_term'),
+						'valid_days' => intval($this->input->post('valid_days')),
             'user' => get_cookie('uname'),
+						'title' => $this->input->post('title'),
             'remark' => $this->input->post('remark'),
             'date_add' => $date
           );
@@ -146,6 +149,74 @@ class Quotation extends PS_Controller
   }
 
 
+	public function get_details_table()
+	{
+		$sc = TRUE;
+		$code = $this->input->get('code');
+		if(empty($code))
+		{
+			$sc = FALSE;
+			$this->error = "ไม่พบค่าตัวแปรของเลขที่เอกสาร";
+		}
+		else
+		{
+			$ds = array();
+			$details = $this->quotation_model->get_details($code);
+			if(!empty($details))
+			{
+				$no = 1;
+				$total_qty = 0;
+				$total_amount = 0;
+				$total_discount = 0;
+
+				foreach($details as $rs)
+				{
+					$arr = array(
+						'no' => $no,
+						'id' => $rs->id,
+						'product_code' => $rs->product_code,
+						'product_name' => $rs->product_name,
+						'price' => $rs->price,
+						'qty' => $rs->qty,
+						'discount_label' => discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
+						'discount_amount' => number($rs->discount_amount,2),
+						'amount' => number($rs->total_amount, 2),
+						'err' => $rs->total_amount < 0 ? 'has-error' : '',
+						'hilight' => $rs->total_amount < 0 ? 'red' : '',
+						'cando' => $this->pm->can_edit ? true : false
+					);
+
+					array_push($ds, $arr);
+					$no++;
+					$total_qty += $rs->qty;
+					$total_discount += $rs->discount_amount;
+					$total_amount += $rs->total_amount;
+				}
+
+				$arr = array(
+					'subtotal' => true,
+					'total_qty' => number($total_qty),
+					'total_amount' => number($total_amount, 2),
+					'total_discount' => number($total_discount, 2),
+					'net_amount' => number(($total_amount - $total_discount), 2)
+				);
+
+				array_push($ds, $arr);
+			}
+			else
+			{
+				$arr = array(
+					'nodata' => true
+				);
+
+				array_push($ds, $arr);
+			}
+		}
+
+		echo $sc === TRUE ? json_encode($ds) : $this->error;
+	}
+
+
   public function update()
   {
     $sc = TRUE;
@@ -165,10 +236,13 @@ class Quotation extends PS_Controller
         {
           $arr = array(
             'customer_code' => $customer->code,
+						'customer_name' => $customer->name,
             'contact' => get_null($this->input->post('contact')),
             'is_term' => $this->input->post('is_term'),
             'credit_term' => $this->input->post('credit_term'),
+						'valid_days' => intval($this->input->post('valid_days')),
             'update_user' => get_cookie('uname'),
+						'title' => $this->input->post('title'),
             'remark' => $this->input->post('remark'),
             'date_add' => $date
           );
@@ -197,7 +271,7 @@ class Quotation extends PS_Controller
   }
 
 
-  public function add_details()
+  public function save()
   {
     $sc = TRUE;
     if($this->input->post('data'))
@@ -205,24 +279,173 @@ class Quotation extends PS_Controller
       $this->load->helper('discount');
       $data = json_decode($this->input->post('data'));
       $code = $this->input->post('code');
-      $discLabel = $this->input->post('discountLabel');
       $qt = $this->quotation_model->get($code);
       if(!empty($data))
       {
-        foreach($data as $rs)
-        {
-          $pd_code = $rs->product_code; //-- รหัสสินค้า
-          $qty = $rs->qty;
-          $item = $this->products_model->get($pd_code);
-          if($qty > 0)
-          {
-            //---
-            $ds = $this->quotation_model->get_detail($code, $item->code);
-            $disc = parse_discount_text($discLabel, $item->price);
-            if(!empty($ds))
+				if(!empty($qt))
+				{
+					if($qt->status != 2 && $qt->is_closed == 0)
+					{
+						$this->db->trans_begin();
+						//--- delete all current details
+						if(! $this->quotation_model->delete_details($code))
+						{
+							$sc = FALSE;
+							$this->error = "ลบรายการเก่าไม่สำเร็จ";
+						}
+						else
+						{
+							foreach($data as $rs)
+			        {
+			          $qty = $rs->qty;
+			          $item = $this->products_model->get($rs->product_code);
+								if(!empty($item))
+								{
+									if($qty > 0)
+				          {
+				            //---
+				            $ds = $this->quotation_model->get_detail_by_item_code($code, $item->code);
+				            $disc = parse_discount_text($rs->discount_label, $rs->price);
+
+				            if(!empty($ds))
+				            {
+				              $new_qty = $ds->qty + $qty;
+				              $final_price = $rs->price - $disc['discount_amount'];
+				              $discount_amount = $disc['discount_amount'] * $new_qty;
+				              $total_amount = $final_price * $new_qty;
+
+				              $arr = array(
+				                'qty' => $new_qty,
+				                'discount1' => $disc['discount1'],
+				                'discount2' => $disc['discount2'],
+				                'discount3' => $disc['discount3'],
+				                'discount_amount' => $discount_amount,
+				                'total_amount' => $total_amount
+				              );
+
+				              //--- Update
+				              if(! $this->quotation_model->update_detail($ds->id, $arr))
+				              {
+				                $sc = FALSE;
+				                $this->error = "Update failed";
+				              }
+				            }
+				            else
+				            {
+				              $arr = array(
+				                'quotation_code' => $code,
+				                'style_code' => $item->style_code,
+				                'product_code' => $item->code,
+				                'product_name' => $item->name,
+												'cost' => $item->cost,
+				                'price' => $rs->price,
+				                'qty' => $qty,
+												'unit_code' => $item->unit_code,
+				                'discount1' => $disc['discount1'],
+				                'discount2' => $disc['discount2'],
+				                'discount3' => $disc['discount3'],
+				                'discount_amount' => $disc['discount_amount'] * $qty,
+				                'total_amount' => ($rs->price - $disc['discount_amount']) * $qty,
+												'count_stock' => $item->count_stock,
+				                'date_add' => $qt->date_add
+				              );
+				              //---- add
+				              if(! $this->quotation_model->add_detail($arr))
+				              {
+				                $sc = FALSE;
+				                $this->error = "Insert failed : {$item->code}";
+				              }
+				            }
+				          } //--- end if qty
+								}
+								else
+								{
+									$sc = FALSE;
+									$this->error = "รหัสสินค้าไม่ถูกต้อง : {$rs->product_code}";
+								} //--- end if item
+
+			        } //--- end foreach
+
+							//--- set document status to 1 (saved)
+							$arr = array(
+								'status' => 1
+							);
+
+							if($sc === TRUE)
+							{
+								if(! $this->quotation_model->update($code, $arr))
+								{
+									$sc = FALSE;
+									$this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
+								}
+							}
+
+
+							if($sc === TRUE)
+							{
+								$this->db->trans_commit();
+							}
+							else
+							{
+								$this->db->trans_rollback();
+							}
+						}
+
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = $qt->is_closed == 0 ?"เอกสารถูกปิดไปแล้ว" : "เอกสารถูกยกเลิกไปแล้ว";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "เลขที่เอกสารไม่ถูกต้อง";
+				}
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "ไม่พบข้อมูล";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
+
+	public function add_detail()
+  {
+    $sc = TRUE;
+		$code = $this->input->post('code');
+    if(!empty($code))
+    {
+      $this->load->helper('discount');
+			$product_code = $this->input->post('product_code');
+			$price = $this->input->post('price');
+      $discLabel = $this->input->post('discountLabel');
+			$qty = $this->input->post('qty');
+
+      $doc = $this->quotation_model->get($code);
+
+      if(!empty($doc))
+      {
+				if($qty > 0)
+				{
+					$item = $this->products_model->get($product_code);
+					if(!empty($item))
+					{
+						//---- get current item if exists
+						$ds = $this->quotation_model->get_detail_by_item_code($code, $product_code);
+						//---- get discount
+            $disc = parse_discount_text($discLabel, $price);
+
+						if(!empty($ds))
             {
               $new_qty = $ds->qty + $qty;
-              $final_price = $item->price - $disc['discount_amount'];
+              $final_price = $price - $disc['discount_amount'];
               $discount_amount = $disc['discount_amount'] * $new_qty;
               $total_amount = $final_price * $new_qty;
 
@@ -249,14 +472,17 @@ class Quotation extends PS_Controller
                 'style_code' => $item->style_code,
                 'product_code' => $item->code,
                 'product_name' => $item->name,
-                'price' => $item->price,
+								'cost' => $item->cost,
+                'price' => $price,
                 'qty' => $qty,
+								'unit_code' => $item->unit_code,
                 'discount1' => $disc['discount1'],
                 'discount2' => $disc['discount2'],
                 'discount3' => $disc['discount3'],
                 'discount_amount' => $disc['discount_amount'] * $qty,
-                'total_amount' => ($item->price - $disc['discount_amount']) * $qty,
-                'date_add' => $qt->date_add
+                'total_amount' => ($price - $disc['discount_amount']) * $qty,
+								'count_stock' => $item->count_stock,
+                'date_add' => $doc->date_add
               );
               //---- add
               if(! $this->quotation_model->add_detail($arr))
@@ -265,9 +491,24 @@ class Quotation extends PS_Controller
                 $this->error = "Insert failed";
               }
             }
-          }
-        }
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "รหัสสินค้าไม่ถูกต้อง";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "จำนวนไม่ถูกต้อง";
+				}
       }
+			else
+			{
+				$sc = FALSE;
+				$this->error = "เลขที่เอกสารไม่ถูกต้อง";
+			}
     }
     else
     {
@@ -275,181 +516,44 @@ class Quotation extends PS_Controller
       $this->error = "ไม่พบข้อมูล";
     }
 
-    echo $sc === TRUE ? 'success' : $this->error;    
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
 
-  public function add_detail($code)
+	public function view_detail($code)
   {
-    $sc = TRUE;
-    $data = $this->input->post('data');
-    $disc = $this->input->post('discountLabel');
-    $order = $this->orders_model->get($order_code);
-    if(!empty($data))
-    {
-      foreach($data as $rs)
-      {
-        $code = $rs['code']; //-- รหัสสินค้า
-        $qty = $rs['qty'];
-        $item = $this->products_model->get($code);
+		$data = $this->quotation_model->get($code);
+		$data->customer_name = $this->customers_model->get_name($data->customer_code);
+		$ds = array(
+			'data' => $data,
+			'details' => $this->quotation_model->get_details($code)
+		);
 
-        if( $qty > 0 )
-        {
-          //$qty = ceil($qty);
+		$this->load->view('quotation/quotation_view_detail', $ds);
 
-          //---- ยอดสินค้าที่่สั่งได้
-          $sumStock = $this->get_sell_stock($code);
-
-
-          //--- ถ้ามีสต็อกมากว่าที่สั่ง หรือ เป็นสินค้าไม่นับสต็อก หรือ ติดลบได้
-          if( $sumStock >= $qty OR $item->count_stock == 0 OR $auz)
-          {
-
-            //---- ถ้ายังไม่มีรายการในออเดอร์
-            if( $this->orders_model->is_exists_detail($order_code, $code) === FALSE )
-            {
-              //---- คำนวณ ส่วนลดจากนโยบายส่วนลด
-              $discount = array(
-                'amount' => 0,
-                'id_rule' => NULL,
-                'discLabel1' => 0,
-                'discLabel2' => 0,
-                'discLabel3' => 0
-              );
-
-              if($order->role == 'S')
-              {
-                $discount = $this->discount_model->get_item_discount($item->code, $order->customer_code, $qty, $order->payment_code, $order->channels_code, $order->date_add);
-              }
-
-              if($order->role == 'C' OR $order->role == 'N')
-              {
-                $gp = $order->gp;
-                //------ คำนวณส่วนลดใหม่
-      					$step = explode('+', $gp);
-      					$discAmount = 0;
-      					$discLabel = array(0, 0, 0);
-      					$price = $item->price;
-      					$i = 0;
-      					foreach($step as $discText)
-      					{
-      						if($i < 3) //--- limit ไว้แค่ 3 เสต็ป
-      						{
-      							$disc = explode('%', $discText);
-      							$disc[0] = trim($disc[0]); //--- ตัดช่องว่างออก
-      							$amount = count($disc) == 1 ? $disc[0] : $price * ($disc[0] * 0.01); //--- ส่วนลดต่อชิ้น
-      							$discLabel[$i] = count($disc) == 1 ? $disc[0] : $disc[0].'%';
-      							$discAmount += $amount;
-      							$price -= $amount;
-      						}
-
-      						$i++;
-      					}
-
-                $total_discount = $qty * $discAmount; //---- ส่วนลดรวม
-      					//$total_amount = ( $qty * $price ) - $total_discount; //--- ยอดรวมสุดท้าย
-                $discount['amount'] = $total_discount;
-                $discount['discLabel1'] = $discLabel[0];
-                $discount['discLabel2'] = $discLabel[1];
-                $discount['discLabel3'] = $discLabel[2];
-              }
-
-              $arr = array(
-                      "order_code"	=> $order_code,
-                      "style_code"		=> $item->style_code,
-                      "product_code"	=> $item->code,
-                      "product_name"	=> addslashes($item->name),
-                      "cost"  => $item->cost,
-                      "price"	=> $item->price,
-                      "qty"		=> $qty,
-                      "discount1"	=> $discount['discLabel1'],
-                      "discount2" => $discount['discLabel2'],
-                      "discount3" => $discount['discLabel3'],
-                      "discount_amount" => $discount['amount'],
-                      "total_amount"	=> ($item->price * $qty) - $discount['amount'],
-                      "id_rule"	=> $discount['id_rule'],
-                      "is_count" => $item->count_stock
-                    );
-
-              if( $this->orders_model->add_detail($arr) === FALSE )
-              {
-                $result = FALSE;
-                $error = "Error : Insert fail";
-                $err_qty++;
-              }
-              else
-              {
-                if($item->count_stock == 1 && $item->is_api == 1)
-                {
-                  $this->update_api_stock($item->code);
-                }
-              }
-
-            }
-            else  //--- ถ้ามีรายการในออเดอร์อยู่แล้ว
-            {
-              $detail 	= $this->orders_model->get_order_detail($order_code, $item->code);
-              $qty			= $qty + $detail->qty;
-
-              $discount = array(
-                'amount' => 0,
-                'id_rule' => NULL,
-                'discLabel1' => 0,
-                'discLabel2' => 0,
-                'discLabel3' => 0
-              );
-
-              //---- คำนวณ ส่วนลดจากนโยบายส่วนลด
-              if($order->role == 'S')
-              {
-                $discount 	= $this->discount_model->get_item_discount($item->code, $order->customer_code, $qty, $order->payment_code, $order->channels_code, $order->date_add);
-              }
-
-
-              $arr = array(
-                        "qty"		=> $qty,
-                        "discount1"	=> $discount['discLabel1'],
-                        "discount2" => $discount['discLabel2'],
-                        "discount3" => $discount['discLabel3'],
-                        "discount_amount" => $discount['amount'],
-                        "total_amount"	=> ($item->price * $qty) - $discount['amount'],
-                        "id_rule"	=> $discount['id_rule'],
-                        "valid" => 0
-                        );
-
-              if( $this->orders_model->update_detail($detail->id, $arr) === FALSE )
-              {
-                $result = FALSE;
-                $error = "Error : Update Fail";
-                $err_qty++;
-              }
-              else
-              {
-                if($item->count_stock == 1 && $item->is_api == 1)
-                {
-                  $this->update_api_stock($item->code);
-                }
-              }
-
-            }	//--- end if isExistsDetail
-          }
-          else 	// if getStock
-          {
-            $result = FALSE;
-            $error = "Error : สินค้าไม่เพียงพอ";
-          } 	//--- if getStock
-        }	//--- if qty > 0
-      }
-
-      if($result === TRUE)
-      {
-        $this->orders_model->set_status($order_code, 0);
-      }
-    }
-
-    echo $result === TRUE ? 'success' : ( $err_qty > 0 ? $error.' : '.$err_qty.' item(s)' : $error);
   }
+
+	public function delete_detail()
+	{
+		$sc = TRUE;
+		$id = $this->input->post('id');
+		if(!empty($id))
+		{
+			if(! $this->quotation_model->delete_detail($id))
+			{
+				$sc = FALSE;
+				$this->error = "ลบรายการไม่สำเร็จ";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "ไม่พบ Item ID";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 
 
 
@@ -477,26 +581,24 @@ class Quotation extends PS_Controller
 
 
 
-  public function print_order_sheet($code, $barcode = '')
+  public function print_quotation($code)
   {
-    $this->load->model('masters/products_model');
 
+		$this->load->model('address/customer_address_model');
     $this->load->library('printer');
-    $order = $this->orders_model->get($code);
-    $order->customer_name = $this->customers_model->get_name($order->customer_code);
-    $details = $this->orders_model->get_order_details($code);
-    if(!empty($details))
-    {
-      foreach($details as $rs)
-      {
-        $rs->barcode = $this->products_model->get_barcode($rs->product_code);
-      }
-    }
+
+    $order = $this->quotation_model->get($code);
+    $customer = $this->customers_model->get($order->customer_code);
+		$customer_address = $this->customer_address_model->get_customer_bill_to_address($order->customer_code);
+		$order->emp_name = $this->user_model->get_employee_name($order->user);
+    $details = $this->quotation_model->get_details($code);
 
     $ds['order'] = $order;
     $ds['details'] = $details;
-    $ds['is_barcode'] = $barcode != '' ? TRUE : FALSE;
-    $this->load->view('print/print_order_sheet', $ds);
+		$ds['customer'] = $customer;
+		$ds['address'] = $customer_address;
+    $ds['title'] = "ใบเสนอราคา";
+    $this->load->view('print/print_quotation', $ds);
   }
 
   public function get_sell_stock($item_code)
@@ -510,462 +612,181 @@ class Quotation extends PS_Controller
 
 
 
-  public function get_detail_table($order_code)
-  {
-    $sc = "no data found";
-    $order = $this->orders_model->get($order_code);
-    $details = $this->orders_model->get_order_details($order_code);
-    if($details != FALSE )
-    {
-      $no = 1;
-      $total_qty = 0;
-      $total_discount = 0;
-      $total_amount = 0;
-      $total_order = 0;
-      $ds = array();
-      foreach($details as $rs)
-      {
-        $arr = array(
-                "id"		=> $rs->id,
-                "no"	=> $no,
-                "imageLink"	=> get_product_image($rs->product_code, 'mini'),
-                "productCode"	=> $rs->product_code,
-                "productName"	=> $rs->product_name,
-                "cost"				=> $rs->cost,
-                "price"	=> number_format($rs->price, 2),
-                "qty"	=> number_format($rs->qty),
-                "discount"	=> discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
-                "amount"	=> number_format($rs->total_amount, 2)
-                );
-        array_push($ds, $arr);
-        $total_qty += $rs->qty;
-        $total_discount += $rs->discount_amount;
-        $total_amount += $rs->total_amount;
-        $total_order += $rs->qty * $rs->price;
-        $no++;
-      }
-
-      $netAmount = ( $total_amount - $order->bDiscAmount ) + $order->shipping_fee + $order->service_fee;
-
-      $arr = array(
-            "total_qty" => number($total_qty),
-            "order_amount" => number($total_order, 2),
-            "total_discount" => number($total_discount, 2),
-            "shipping_fee"	=> number($order->shipping_fee,2),
-            "service_fee"	=> number($order->service_fee, 2),
-            "total_amount" => number($total_amount, 2),
-            "net_amount"	=> number($netAmount,2)
-          );
-      array_push($ds, $arr);
-      $sc = json_encode($ds);
-    }
-    echo $sc;
-
-  }
-
-
-  public function get_pay_amount()
-  {
-    $pay_amount = 0;
-
-    if($this->input->get('order_code'))
-    {
-      $code = $this->input->get('order_code');
-
-      //--- ยอดรวมหลังหักส่วนลด ตาม item
-      // $amount = $this->orders_model->get_order_total_amount($code);
-      // //--- ส่วนลดท้ายบิล
-      // $bDisc = $this->orders_model->get_bill_discount($code);
-      // $pay_amount = $amount - $bDisc;
-
-      $pay_amount = $this->orders_model->get_order_balance($code);
-    }
-
-    echo $pay_amount;
-  }
-
-
-
-  public function get_account_detail($id)
-  {
-    $sc = 'fail';
-    $this->load->model('masters/bank_model');
-    $this->load->helper('bank');
-    $rs = $this->bank_model->get_account_detail($id);
-    if($rs !== FALSE)
-    {
-      $ds = bankLogoUrl($rs->bank_code).' | '.$rs->bank_name.' สาขา '.$rs->branch.'<br/>เลขที่บัญชี '.$rs->acc_no.'<br/> ชื่อบัญชี '.$rs->acc_name;
-      $sc = $ds;
-    }
-
-    echo $sc;
-  }
-
-
-
-  public function confirm_payment()
+  public function cancle_quotation()
   {
     $sc = TRUE;
+    $code = $this->input->get('code');
+		if(!empty($code))
+		{
+			$qt = $this->quotation_model->get($code);
+			if(!empty($qt))
+			{
+				if($qt->status == 0)
+				{
+					$this->db->trans_begin();
 
-    if($this->input->post('order_code'))
-    {
-      $this->load->helper('bank');
-      $this->load->model('orders/order_payment_model');
+					//---- cancle quotation details
+					if($this->quotation_model->cancle_details($code))
+					{
+						if(! $this->quotation_model->cancle_quotation($code))
+						{
+							$sc = FALSE;
+							$this->error = "ยกเลิกเอกสารไม่สำเร็จ";
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "ยกเลิกรายการในใบเสนอราคาไม่สำเร็จ";
+					}
 
-      $file = isset( $_FILES['image'] ) ? $_FILES['image'] : FALSE;
-      $order_code = $this->input->post('order_code');
-      $date = $this->input->post('payDate');
-      $h = $this->input->post('payHour');
-      $m = $this->input->post('payMin');
-      $dhm = $date.' '.$h.':'.$m.':00';
-      $pay_date = date('Y-m-d H:i:s', strtotime($dhm));
-      $img_name = $order_code.'-'.date('Ymdhis');
-      $arr = array(
-        'order_code' => $order_code,
-        'order_amount' => $this->input->post('orderAmount'),
-        'pay_amount' => $this->input->post('payAmount'),
-        'pay_date' => $pay_date,
-        'id_account' => $this->input->post('id_account'),
-        'acc_no' => $this->input->post('acc_no'),
-        'user' => get_cookie('uname'),
-        'is_deposit' => $this->input->post('is_deposit'),
-        'img' => $img_name
-      );
+					if($sc === TRUE)
+					{
+						$this->db->trans_commit();
+					}
+					else
+					{
+						$this->db->trans_rollback();
+					}
+				}
+				else if($qt->status == 1)
+				{
+					$sc = FALSE;
+					$this->error = "ใบเสนอราคาถูกปิดแล้วไม่สามารถยกเลิกได้";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "เลขที่เอกสารไม่ถูกต้อง";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "ไม่พบเลขที่เอกสาร";
+		}
 
-      //--- บันทึกรายการ
-      if($this->order_payment_model->add($arr))
-      {
-        $arr = array(
-          'order_code' => $order_code,
-          'state' => 2,
-          'update_user' => get_cookie('uname')
-        );
-        $this->order_state_model->add_state($arr);
-      }
-      else
-      {
-        $sc = FALSE;
-        $message = 'บันทึกรายการไม่สำเร็จ';
-      }
-
-      if($file !== FALSE)
-      {
-        $rs = $this->do_upload($file, $img_name);
-        if($rs !== TRUE)
-        {
-          $sc = FALSE;
-          $message = $sc;
-        }
-      }
-    }
-
-    echo $sc === TRUE ? 'success' : $message;
+		echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
 
-  public function do_upload($file, $img_name)
+	public function update_row()
 	{
-    $this->load->library('upload');
-    $sc = TRUE;
+		$sc = TRUE;
+		$id = $this->input->post('id');
+		if(!empty($id))
+		{
+			$price = $this->input->post('price');
+			$qty = $this->input->post('qty');
+			$discountLabel = $this->input->post('discountLabel');
 
-		$image_path = $this->config->item('image_path').'payments/';
-    $image 	= new upload($file);
-    if( $image->uploaded )
-    {
-      $image->file_new_name_body = $img_name; 		//--- เปลี่ยนชือ่ไฟล์ตาม order_code
-      $image->image_resize			 = TRUE;		//--- อนุญาติให้ปรับขนาด
-      $image->image_retio_fill	 = TRUE;		//--- เติกสีให้เต็มขนาดหากรูปภาพไม่ได้สัดส่วน
-      $image->file_overwrite		 = TRUE;		//--- เขียนทับไฟล์เดิมได้เลย
-      $image->auto_create_dir		 = TRUE;		//--- สร้างโฟลเดอร์อัตโนมัติ กรณีที่ไม่มีโฟลเดอร์
-      $image->image_x					   = 500;		//--- ปรับขนาดแนวนอน
-      //$image->image_y					   = 800;		//--- ปรับขนาดแนวตั้ง
-      $image->image_ratio_y      = TRUE;  //--- ให้คงสัดส่วนเดิมไว้
-      $image->image_background_color	= "#FFFFFF";		//---  เติมสีให้ตามี่กำหนดหากรูปภาพไม่ได้สัดส่วน
-      $image->image_convert			= 'jpg';		//--- แปลงไฟล์
+			//--- ได้ Obj มา
+			$detail = $this->quotation_model->get_detail($id);
 
-      $image->process($image_path);						//--- ดำเนินการตามที่ได้ตั้งค่าไว้ข้างบน
+			//--- ถ้ารายการนี้มีอยู่
+			if( $detail !== FALSE )
+			{
+				//------ คำนวณส่วนลดใหม่
+				$step = explode('+', $discountLabel);
+				$discAmount = 0;
+				$discLabel = array(0, 0, 0);
+				$pricex = $price;
+				$i = 0;
+				if(!empty($step[0]))
+				{
+					foreach($step as $discText)
+					{
+						if($i < 3) //--- limit ไว้แค่ 3 เสต็ป
+						{
+							$disc = explode('%', $discText);
+							$disc[0] = trim($disc[0]); //--- ตัดช่องว่างออก
+							$discount = count($disc) == 1 ? $disc[0] : $pricex * ($disc[0] * 0.01); //--- ส่วนลดต่อชิ้น
+							$discLabel[$i] = count($disc) == 1 ? $disc[0] : $disc[0].'%';
+							$discAmount += $discount;
+							$pricex -= $discount;
+						}
+						$i++;
+					}
+				}
 
-      if( ! $image->processed )	//--- ถ้าไม่สำเร็จ
-      {
-        $sc 	= $image->error;
-      }
-    } //--- end if
 
-    $image->clean();	//--- เคลียร์รูปภาพออกจากหน่วยความจำ
+				$total_discount = $qty * $discAmount; //---- ส่วนลดรวม
+				$total_amount = ( $qty * $price ) - $total_discount; //--- ยอดรวมสุดท้าย
 
-		return $sc;
+				$arr = array(
+							"qty" => $qty,
+							"price" => $price,
+							"discount1" => $discLabel[0],
+							"discount2" => $discLabel[1],
+							"discount3" => $discLabel[2],
+							"discount_amount"	=> $total_discount,
+							"total_amount" => $total_amount ,
+							"update_user" => get_cookie('uname')
+						);
+
+
+				if(! $this->quotation_model->update_detail($id, $arr))
+				{
+					$sc = FALSE;
+					$this->error = "Update failed";
+				}
+
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid Id for qoutation detail";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Quotation detail's id was not found";
+		}
+
+
+		echo $sc === TRUE ? 'success' : $this->error;
 	}
 
 
 
-
-  public function view_payment_detail($id)
+  //---- get item price
+  public function get_item()
   {
-    $this->load->model('orders/order_payment_model');
-    $this->load->model('masters/bank_model');
     $sc = TRUE;
-    $code = $this->input->post('order_code');
-    $rs = $this->order_payment_model->get($id);
+		$ds = array();
+		$code = $this->input->get('item_code');
+		if(!empty($code))
+		{
+			$rs = $this->products_model->get($code);
+			if(!empty($rs))
+			{
+				$ds = array(
+					"product_code" => $rs->code,
+					"product_name" => $rs->name,
+					"price" => $rs->price
+				);
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "รหัสสินค้าไม่ถูกต้อง";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "ไม่พบรหัสสินค้า";
+		}
 
-    if(!empty($rs))
-    {
-      $bank = $this->bank_model->get_account_detail($rs->id_account);
-      $img  = payment_image_url($rs->img); //--- order_helper
-      $ds   = array(
-        'order_code' => $code,
-        'orderAmount' => number($rs->order_amount, 2),
-        'payAmount' => number($rs->pay_amount, 2),
-        'payDate' => thai_date($rs->pay_date, TRUE, '/'),
-        'bankName' => $bank->bank_name,
-        'branch' => $bank->branch,
-        'accNo' => $bank->acc_no,
-        'accName' => $bank->acc_name,
-        'date_add' => thai_date($rs->date_upd, TRUE, '/'),
-        'imageUrl' => $img === FALSE ? '' : $img,
-        'valid' => "no"
-      );
-    }
-    else
-    {
-      $sc = FALSE;
-    }
 
-    echo $sc === TRUE ? json_encode($ds) : 'fail';
+		echo $sc === TRUE ? json_encode($ds) : $this->error;
   }
 
 
-  public function update_shipping_code()
-  {
-    $order_code = $this->input->post('order_code');
-    $ship_code  = $this->input->post('shipping_code');
-    if($order_code && $ship_code)
-    {
-      $rs = $this->orders_model->update_shipping_code($order_code, $ship_code);
-      echo $rs === TRUE ? 'success' : 'fail';
-    }
-  }
-
-
-  public function update_discount()
-  {
-    $code = $this->input->post('order_code');
-    $discount = $this->input->post('discount');
-    $approver = $this->input->post('approver');
-    $order = $this->orders_model->get($code);
-    $user = get_cookie('uname');
-    $this->load->model('orders/discount_logs_model');
-  	if(!empty($discount))
-  	{
-  		foreach( $discount as $id => $value )
-  		{
-  			//----- ข้ามรายการที่ไม่ได้กำหนดค่ามา
-  			if( $value != "")
-  			{
-  				//--- ได้ Obj มา
-  				$detail = $this->orders_model->get_detail($id);
-
-  				//--- ถ้ารายการนี้มีอยู่
-  				if( $detail !== FALSE )
-  				{
-  					//------ คำนวณส่วนลดใหม่
-  					$step = explode('+', $value);
-  					$discAmount = 0;
-  					$discLabel = array(0, 0, 0);
-  					$price = $detail->price;
-  					$i = 0;
-  					foreach($step as $discText)
-  					{
-  						if($i < 3) //--- limit ไว้แค่ 3 เสต็ป
-  						{
-  							$disc = explode('%', $discText);
-  							$disc[0] = trim($disc[0]); //--- ตัดช่องว่างออก
-  							$discount = count($disc) == 1 ? $disc[0] : $price * ($disc[0] * 0.01); //--- ส่วนลดต่อชิ้น
-  							$discLabel[$i] = count($disc) == 1 ? $disc[0] : $disc[0].'%';
-  							$discAmount += $discount;
-  							$price -= $discount;
-  						}
-  						$i++;
-  					}
-
-  					$total_discount = $detail->qty * $discAmount; //---- ส่วนลดรวม
-  					$total_amount = ( $detail->qty * $detail->price ) - $total_discount; //--- ยอดรวมสุดท้าย
-
-  					$arr = array(
-  								"discount1" => $discLabel[0],
-  								"discount2" => $discLabel[1],
-  								"discount3" => $discLabel[2],
-  								"discount_amount"	=> $total_discount,
-  								"total_amount" => $total_amount ,
-  								"id_rule"	=> NULL,
-                  "update_user" => $user
-  							);
-
-  					$cs = $this->orders_model->update_detail($id, $arr);
-            if($cs)
-            {
-              $log_data = array(
-    												"order_code"		=> $code,
-    												"product_code"	=> $detail->product_code,
-    												"old_discount"	=> discountLabel($detail->discount1, $detail->discount2, $detail->discount3),
-    												"new_discount"	=> discountLabel($discLabel[0], $discLabel[1], $discLabel[2]),
-    												"user"	=> $user,
-    												"approver"		=> $approver
-    												);
-    					$this->discount_logs_model->logs_discount($log_data);
-            }
-
-  				}	//--- end if detail
-  			} //--- End if value
-  		}	//--- end foreach
-
-      $this->orders_model->set_status($code, 0);
-  	}
-    echo 'success';
-  }
-
-
-  public function update_non_count_price()
-  {
-    $code = $this->input->post('order_code');
-    $id = $this->input->post('id_order_detail');
-    $price = $this->input->post('price');
-    $user = get_cookie('uname');
-
-    $order = $this->orders_model->get($code);
-    if($order->state == 8) //--- ถ้าเปิดบิลแล้ว
-    {
-      echo 'ไม่สามารถแก้ไขราคาได้ เนื่องจากออเดอร์ถูกเปิดบิลไปแล้ว';
-    }
-    else
-    {
-        //----- ข้ามรายการที่ไม่ได้กำหนดค่ามา
-        if( $price != "" )
-        {
-          //--- ได้ Obj มา
-          $detail = $this->orders_model->get_detail($id);
-
-          //--- ถ้ารายการนี้มีอยู่
-          if( $detail !== FALSE )
-          {
-            //------ คำนวณส่วนลดใหม่
-            $price_c = $price;
-  					$discAmount = 0;
-            $step = array($detail->discount1, $detail->discount2, $detail->discount3);
-            foreach($step as $discount)
-            {
-              $disc 	= explode('%', $discount);
-              $disc[0] = trim($disc[0]); //--- ตัดช่องว่างออก
-              $discount = count($disc) == 1 ? $disc[0] : $price_c * ($disc[0] * 0.01); //--- ส่วนลดต่อชิ้น
-              $discAmount += $discount;
-              $price_c -= $discount;
-            }
-
-            $total_discount = $detail->qty * $discAmount; //---- ส่วนลดรวม
-  					$total_amount = ( $detail->qty * $price ) - $total_discount; //--- ยอดรวมสุดท้าย
-
-            $arr = array(
-                  "price"	=> $price,
-                  "discount_amount"	=> $total_discount,
-                  "total_amount" => $total_amount,
-                  "update_user" => $user
-                );
-            $cs = $this->orders_model->update_detail($id, $arr);
-          }	//--- end if detail
-        } //--- End if value
-
-        $this->orders_model->set_status($code, 0);
-
-      echo 'success';
-    }
-  }
-
-
-
-  public function update_price()
-  {
-    $code = $this->input->post('order_code');
-    $ds = $this->input->post('price');
-  	$approver	= $this->input->post('approver');
-  	$user = get_cookie('uname');
-    $this->load->model('orders/discount_logs_model');
-  	foreach( $ds as $id => $value )
-  	{
-  		//----- ข้ามรายการที่ไม่ได้กำหนดค่ามา
-  		if( $value != "" )
-  		{
-  			//--- ได้ Obj มา
-  			$detail = $this->orders_model->get_detail($id);
-
-  			//--- ถ้ารายการนี้มีอยู่
-  			if( $detail !== FALSE )
-  			{
-          if($detail->price != $value)
-          {
-            //------ คำนวณส่วนลดใหม่
-    				$price 	= $value;
-            $discAmount = 0;
-            $step = array($detail->discount1, $detail->discount2, $detail->discount3);
-            foreach($step as $discount_text)
-            {
-              $disc 	= explode('%', $discount_text);
-              $disc[0] = trim($disc[0]); //--- ตัดช่องว่างออก
-              $discount = count($disc) == 1 ? $disc[0] : $price * ($disc[0] * 0.01); //--- ส่วนลดต่อชิ้น
-              $discAmount += $discount;
-              $price -= $discount;
-            }
-
-            $total_discount = $detail->qty * $discAmount; //---- ส่วนลดรวม
-  					$total_amount = ( $detail->qty * $value ) - $total_discount; //--- ยอดรวมสุดท้าย
-
-            $arr = array(
-              'price' => $value,
-              'discount_amount' => $total_discount,
-              'total_amount' => $total_amount,
-              'update_user' => $user
-            );
-
-            $cs = $this->orders_model->update_detail($id, $arr);
-            if($cs)
-            {
-              $log_data = array(
-                "order_code"		=> $code,
-                "product_code"	=> $detail->product_code,
-                "old_price"	=> $detail->price,
-                "new_price"	=> $value,
-                "user"	=> $user,
-                "approver"		=> $approver
-              );
-              $this->discount_logs_model->logs_price($log_data);
-            }
-          }
-
-  			}	//--- end if detail
-  		} //--- End if value
-  	}	//--- end foreach
-
-    $this->orders_model->set_status($code, 0);
-
-  	echo 'success';
-  }
-
-
-
-
-  public function get_summary()
-  {
-    $this->load->model('masters/bank_model');
-    $code = $this->input->post('order_code');
-    $order = $this->orders_model->get($code);
-    $details = $this->orders_model->get_order_details($code);
-    $bank = $this->bank_model->get_active_bank();
-    if(!empty($details))
-    {
-      echo get_summary($order, $details, $bank); //--- order_helper;
-    }
-  }
-
-
+	//------- OLD code
 
   public function clear_filter()
   {

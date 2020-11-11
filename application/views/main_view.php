@@ -10,47 +10,43 @@
   </div>
 
 </div>
-<hr/>
+<hr class="padding-5"/>
 <?php endif; ?>
 <div class="row" style="margin-top:30px;">
-  <div class="col-sm-12">
-    <div class="row">
-      <div class="col-sm-3 padding-5 first">
-        <label>รหัสสินค้า</label>
-        <input type="text" class="form-control input-sm text-center" id="search-text" placeholder="พิมพ์รหัสสินค้า 4 ตัวอักษรขึ้นไป" />
-      </div>
+	<div class="col-sm-3 col-xs-6 padding-5">
+		<label>รหัสสินค้า</label>
+		<input type="text" class="form-control input-sm text-center" id="search-text" placeholder="พิมพ์รหัสสินค้า 4 ตัวอักษรขึ้นไป" />
+	</div>
 
-      <div class="col-sm-2 col-xs-12 padding-5">
-        <label>คลัง</label>
-        <select class="form-control input-sm" id="warehouse" name="warehouse">
-          <option value="">ทั้งหมด</option>
-          <?php echo select_warehouse(); ?>
-        </select>
-      </div>
+	<div class="col-sm-2 col-xs-6 padding-5">
+		<label>คลัง</label>
+		<select class="form-control input-sm" id="warehouse" name="warehouse">
+			<option value="">ทั้งหมด</option>
+			<?php echo select_warehouse(); ?>
+		</select>
+	</div>
 
-      <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-        <label class="display-block not-show">stock</label>
-        <button type="button" class="btn btn-xs btn-primary btn-block" onclick="getSearch()">ตรวจสอบสต็อก</button>
-      </div>
-      <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-        <label class="display-block not-show">stock</label>
-        <button type="button" class="btn btn-xs btn-info btn-block" onclick="findOrder()">ตรวจสอบออเดอร์</button>
-      </div>
-    </div>
-  </div>
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+		<label class="display-block not-show">stock</label>
+		<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getSearch()">ตรวจสอบสต็อก</button>
+	</div>
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+		<label class="display-block not-show">stock</label>
+		<button type="button" class="btn btn-xs btn-info btn-block" onclick="findOrder()">ตรวจสอบออเดอร์</button>
+	</div>
 
 </div>
 
-<hr class="margin-top-15 margin-bottom-15"/>
+<hr class="margin-top-15 margin-bottom-15 padding-5"/>
 
 <div class="row">
-  <div class="col-sm-12" id="result">
+  <div class="col-sm-12 table-responsive" id="result">
 
   </div>
 </div>
 
 <script id="order-template" type="text/x-handlebarsTemplate">
-<table class="table table-bordered">
+<table class="table table-bordered border-1">
 	<thead>
 		<tr class="font-size-12">
 			<th class="width-20">รหัสสินค้า</th>
@@ -90,7 +86,7 @@
 
 
 <script id="stock-template" type="text/x-handlebarsTemplate">
-<table class="table table-bordered">
+<table class="table table-bordered border-1">
 	<thead>
 		<tr class="font-size-12">
 			<th class="width-10 text-center">รูปภาพ</th>

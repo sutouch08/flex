@@ -5,7 +5,7 @@
 	?>
 <form id="discount-form">
 <div class="row">
-	<div class="col-sm-12">
+	<div class="col-sm-12 col-xs-12 padding-5">
 		<div class="table-responsive">
 			<table class="table table-striped border-1">
         <thead>
@@ -158,7 +158,7 @@
 {{#each this}}
 	{{#if @last}}
     <tr class="font-size-12">
-    	<td colspan="6" rowspan="4"></td>
+    	<td colspan="6" rowspan="7"></td>
       <td style="border-left:solid 1px #CCC;"><b>จำนวนรวม</b></td>
       <td class="text-right"><b>{{ total_qty }}</b></td>
       <td class="text-center"><b>Pcs.</b></td>
@@ -175,6 +175,25 @@
       <td class="text-right"><b>{{ total_discount }}</b></td>
       <td class="text-center"><b>THB.</b></td>
     </tr>
+
+		<tr class="font-size-12">
+				<td style="border-left:solid 1px #CCC;"><b>ค่าจัดส่ง</b></td>
+				<td class="text-right" id="discount-td" style="font-weight:bold;">{{ shipping_fee }}</td>
+				<td class="text-center"><b>THB.</b></td>
+		</tr>
+
+		<tr class="font-size-12">
+				<td style="border-left:solid 1px #CCC;"><b>อื่นๆ</b></td>
+				<td class="text-right" id="discount-td" style="font-weight:bold;">{{ service_fee }}</td>
+				<td class="text-center"><b>THB.</b></td>
+		</tr>
+
+		<tr class="font-size-12">
+				<td style="border-left:solid 1px #CCC;"><b>ชำระแล้ว</b></td>
+				<td class="text-right" id="deposit-td" style="font-weight:bold;">- {{ deposit }}</td>
+				<td class="text-center"><b>THB.</b></td>
+		</tr>
+
 
     <tr class="font-size-12">
       <td style="border-left:solid 1px #CCC;"><b>สุทธิ</b></td>

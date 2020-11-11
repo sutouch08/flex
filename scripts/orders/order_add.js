@@ -40,11 +40,48 @@ $("#customer").autocomplete({
 		if( arr.length == 2 ){
 			var code = arr[0];
 			var name = arr[1];
+			$(this).val(code);
 			$("#customerCode").val(code);
-			$("#customer").val(name);
+			$("#customerName").val(name);
 		}else{
 			$("#customerCode").val('');
+			$('#customerName').val('');
 			$(this).val('');
+		}
+	}
+});
+
+
+$("#customerName").autocomplete({
+	source: BASE_URL + 'auto_complete/get_customer_code_and_name',
+	autoFocus: true,
+	close: function(){
+		var rs = $.trim($(this).val());
+		var arr = rs.split(' | ');
+		if( arr.length == 2 ){
+			var code = arr[0];
+			var name = arr[1];
+			$(this).val(name);
+			$("#customerCode").val(code);
+			$("#customer").val(code);
+		}else{
+			$("#customerCode").val('');
+			$("#customer").val('');
+			$(this).val('');
+		}
+	}
+});
+
+
+$('#qt_no').autocomplete({
+	source:BASE_URL + 'auto_complete/get_quotation',
+	autoFocus:true,
+	close:function(){
+		let rs = $(this).val().split(' | ');
+		if(rs.length === 2){
+			let code = rs[0];
+			let name = rs[1];
+			$(this).val(code);
 		}
 	}
 });
@@ -337,6 +374,7 @@ function updateOrder(recal){
 	var reference = $('#reference').val();
   var sender_id = $('#sender_id').val();
 	var remark = $("#remark").val();
+	var qt_no = $('#qt_no').val();
 
 	load_in();
 
@@ -354,6 +392,7 @@ function updateOrder(recal){
   		"reference" : reference,
       "sender_id" : sender_id,
   		"remark" : remark,
+			"qt_no" : qt_no,
       "recal" : recal
     },
 		success: function(rs){
@@ -551,4 +590,51 @@ function unpaid_order(){
       }
     }
   })
+}
+
+
+function checkQuotation()
+{
+	var qt_no = $('#qt_no').val();
+	var code = $('#order_code').val();
+
+	swal({
+		title: "คุณแน่ใจ ?",
+		text: "การทั้งเก่าหมดจะถูกลบและโหลดใหม่  ยืนยันการดึงรายการหรือไม่ ?",
+		type: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#DD6B55",
+		confirmButtonText: 'ยืนยัน',
+		cancelButtonText: 'ยกเลิก',
+		closeOnConfirm: false
+		}, function(){
+			load_in();
+			$.ajax({
+				url: BASE_URL + 'orders/orders/reload_quotation',
+				type:"GET",
+				cache:"false",
+				data:{
+					'order_code' : code,
+					'qt_no' : qt_no
+				},
+				success: function(rs){
+					load_out();
+					var rs = $.trim(rs);
+					if( rs == 'success' ){
+						swal({
+							title:'Success',
+							text:'ดึงรายการใหม่เรียบร้อยแล้ว',
+							type:'success',
+							timer:1000
+						});
+
+						window.location.reload();
+						//updateDetailTable()
+					}else{
+						swal("Error !", rs , "error");
+					}
+				}
+			});
+	});
+	
 }

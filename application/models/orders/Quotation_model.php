@@ -21,7 +21,23 @@ class Quotation_model extends CI_Model
 
 
 
-  public function get_detail($code, $pd_code)
+
+	public function get_detail($id)
+	{
+		$rs = $this->db->where('id', $id)->get('order_quotation_detail');
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
+
+
+
+
+  public function get_detail_by_item_code($code, $pd_code)
   {
     $rs = $this->db
     ->where('quotation_code', $code)
@@ -95,6 +111,54 @@ class Quotation_model extends CI_Model
 
     return FALSE;
   }
+
+
+
+	//---- update every rows from code
+	public function update_details($code, array $ds = array())
+	{
+		if(!empty($ds))
+		{
+			return $this->db->where('quotation_code', $code)->update('order_quotation_detail', $ds);
+		}
+
+		return FALSE;
+	}
+
+
+
+	public function delete_detail($id)
+	{
+		if(!empty($id))
+		{
+			return $this->db->where('id', $id)->delete('order_quotation_detail');
+		}
+
+		return FALSE;
+	}
+
+
+	public function delete_details($code)
+	{
+		return $this->db->where('quotation_code', $code)->delete('order_quotation_detail');
+	}
+
+
+  //---- mark is_cancle to 1 in order_quotation_detail
+  public function cancle_details($code)
+  {
+    return $this->db->set('is_cancle', 1)->where('quotation_code', $code)->update('order_quotation_detail');
+  }
+
+
+
+  //--- mark status to 2 in order_quotation
+  public function cancle_quotation($code)
+  {
+    return $this->db->set('status', 2)->where('code', $code)->update('order_quotation');
+  }
+
+
 
 
   public function count_rows($ds = array())
@@ -227,6 +291,20 @@ class Quotation_model extends CI_Model
 
     return $rs->row()->code;
   }
+
+
+
+	public function is_exists_details($code)
+	{
+		$rs = $this->db->where('quotation_code', $code)->count_all_results('order_quotation_detail');
+
+		if($rs > 0)
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
 
 
 

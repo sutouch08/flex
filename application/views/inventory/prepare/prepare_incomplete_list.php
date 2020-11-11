@@ -9,13 +9,13 @@
       <thead>
         <tr><td colspan="6" align="center">รายการรอจัด</td></tr>
         <tr>
-          <th class="width-15 middle text-center">บาร์โค้ด</th>
+          <th class="width-15 middle text-center hidden-xs">บาร์โค้ด</th>
           <th class="width-30 middle text-center">สินค้า</th>
           <th class="width-10 middle text-center">จำนวน</th>
           <th class="width-10 middle text-center">จัดแล้ว</th>
           <th class="width-10 middle text-center">คงเหลือ</th>
           <th class="text-right">
-            <label><input type="checkbox" id="showZone" style="margin-right:10px;" <?php echo $checked; ?> />แสดงที่เก็บ</label>
+            <label class="hidden-xs"><input type="checkbox" id="showZone" style="margin-right:10px;" <?php echo $checked; ?> />แสดงที่เก็บ</label>
           </th>
         </tr>
       </thead>
@@ -24,8 +24,11 @@
 <?php  if(!empty($uncomplete_details)) : ?>
 <?php   foreach($uncomplete_details as $rs) : ?>
     <tr class="font-size-12 incomplete" id="incomplete-<?php echo $rs->id; ?>">
-      <td class="middle text-center b-click"><?php echo $rs->barcode; ?></td>
-      <td class="middle"><?php echo $rs->product_code .' : '.$rs->product_name; ?></td>
+      <td class="middle text-center b-click hidden-xs"><?php echo $rs->barcode; ?></td>
+      <td class="middle">
+        <span class="hidden-xs"><?php echo $rs->product_code .' : '.$rs->product_name; ?></span>
+        <span class="visible-xs"><?php echo $rs->product_code; ?></span>
+      </td>
       <td class="middle text-center" id="order-qty-<?php echo $rs->id; ?>"><?php echo number($rs->qty); ?></td>
       <td class="middle text-center" id="prepared-qty-<?php echo $rs->id; ?>"><?php echo number($rs->prepared); ?></td>
       <td class="middle text-center" id="balance-qty-<?php echo $rs->id; ?>"><?php echo number($rs->qty - $rs->prepared); ?></td>

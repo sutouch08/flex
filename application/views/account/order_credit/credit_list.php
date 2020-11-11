@@ -100,6 +100,9 @@
           </td>
           <td class="middle">
             <?php echo $rs->customer_name; ?>
+            <?php if(!empty($rs->customer_ref)) : ?>
+              &nbsp;[ <?php echo $rs->customer_ref; ?> ]
+            <?php endif; ?>
           </td>
 
           <td class="middle text-center">

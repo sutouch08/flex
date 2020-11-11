@@ -9,25 +9,9 @@
 		<meta name="description" content="" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 		<link rel="shortcut icon" href="<?php echo base_url(); ?>assets/img/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/chosen.css">
-		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/bootstrap.css" />
-		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/font-awesome.css" />
-		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/ace-fonts.css" />
-		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/ace.css" class="ace-main-stylesheet" id="main-ace-style" />
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/jquery-ui-1.10.4.custom.min.css " />
-		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/template.css?v=2"/>
-		<!-- ace settings handler -->
-		<script src="<?php echo base_url(); ?>assets/js/ace-extra.js"></script>
-    <script src="<?php echo base_url(); ?>assets/js/jquery.min.js"></script>
-  	<script src="<?php echo base_url(); ?>assets/js/jquery-ui-1.10.4.custom.min.js"></script>
-	  <script src="<?php echo base_url(); ?>assets/js/bootstrap.js"></script>
-    <script src="<?php echo base_url(); ?>assets/js/ace/ace.js"></script>
-		<script src="<?php echo base_url(); ?>assets/js/ace-elements.js"></script>
-    <script src="<?php echo base_url(); ?>assets/js/ace/elements.fileinput.js"></script>
-    <script src="<?php echo base_url(); ?>assets/js/sweet-alert.js"></script>
-    <script src="<?php echo base_url(); ?>assets/js/handlebars-v3.js"></script>
-    <script src="<?php echo base_url(); ?>assets/js/chosen.jquery.js"></script>
-	  <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/sweet-alert.css">
+
+		<?php $this->load->view('include/header_include'); ?>
+
     <style> .ui-helper-hidden-accessible { display:none; } </style>
 	</head>
 	<body class="no-skin" onload="checkError()">
@@ -56,7 +40,7 @@
 				</button>
 				<?php endif; ?>
 				<div class="navbar-header pull-left">
-					<a href="<?php echo ((empty($approve_view) && !isset($_GET['nomenu']) && !$this->isViewer) ? base_url() : '#'); ?>" class="navbar-brand">
+					<a href="<?php echo ((empty($approve_view) && !isset($_GET['nomenu']) && !$this->isViewer) ? base_url() : '#'); ?>" class="navbar-brand" style="min-width:167px;">
 						<small>
 							<?php echo getConfig('COMPANY_NAME'); ?>
 						</small>
@@ -64,18 +48,16 @@
 				</div>
 				<?php if(! isset($_GET['nomenu'])) : ?>
 					<?php
-
 					if(!$this->isViewer)
 					{
 						$this->load->view('include/approve_form');
 						$this->load->view('include/top_menu');
 					}
-					 ?>
-
+					?>
 				<div class="navbar-buttons navbar-header pull-right" role="navigation">
 					<ul class="nav ace-nav">
-						
-						<li class="light-blue">
+
+						<li class="salmon">
 							<a data-toggle="dropdown" href="#" class="dropdown-toggle">
 
 								<span class="user-info">
@@ -86,7 +68,7 @@
 								<i class="ace-icon fa fa-caret-down"></i>
 							</a>
 
-							<ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+							<ul class="user-menu dropdown-menu-right dropdown-menu dropdown-caret dropdown-close">
 								<?php if(!$this->isViewer) : ?>
 								<li>
 									<a href="JavaScript:void(0)" onclick="changeUserPwd('<?php echo get_cookie('uname'); ?>')">
@@ -140,6 +122,18 @@
 			<!-- /section:basics/sidebar -->
 			<div class="main-content">
 				<div class="main-content-inner">
+					<div id="sidebar2" class="sidebar h-sidebar navbar-collapse collapse" data-sidebar="true" data-sidebar-scoll="true"
+					data-sidebar-hover="true" aria-expanded="false" style="height:1px;">
+      <!-- second sidebar, horizontal -->
+				<?php
+
+				// if(!$this->isViewer && !isset($_GET['nomenu']))
+				// {
+				// 	$this->load->view('include/approve_form');
+				// 	$this->load->view('include/top_menu');
+				// }
+				 ?>
+    			</div>
                 <?php if($this->session->flashdata("error") != null) :?>
 					<input type="hidden" id="error" value="<?php echo $this->session->flashdata("error"); ?>">
                 <?php elseif( $this->session->flashdata("success") != null ) : ?>

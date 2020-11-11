@@ -6,12 +6,12 @@
       <thead>
         <tr><td colspan="6" align="center">รายการที่ครบแล้ว</td></tr>
         <tr>
-          <th class="width-15 middle text-center">บาร์โค้ด</th>
+          <th class="width-15 middle text-center hidden-xs">บาร์โค้ด</th>
           <th class="width-30 middle text-center">สินค้า</th>
           <th class="width-10 middle text-center">จำนวน</th>
           <th class="width-10 middle text-center">จัดแล้ว</th>
           <th class="width-10 middle text-center">คงเหลือ</th>
-          <th class="text-right">จัดจากโซน</th>
+          <th class="text-right"><span class="hidden-xs">จัดจากโซน</span></th>
         </tr>
       </thead>
       <tbody id="complete-table">
@@ -19,15 +19,18 @@
 <?php  if(!empty($complete_details)) : ?>
 <?php   foreach($complete_details as $rs) : ?>
     <tr class="font-size-12">
-      <td class="middle text-center"><?php echo $rs->barcode; ?></td>
-      <td class="middle"><?php echo $rs->product_code .' : '.$rs->product_name; ?></td>
+      <td class="middle text-center hidden-xs"><?php echo $rs->barcode; ?></td>
+      <td class="middle">
+        <span class="hidden-xs"><?php echo $rs->product_code .' : '.$rs->product_name; ?></span>
+        <span class="visible-xs"><?php echo $rs->product_code; ?></span>
+      </td>
       <td class="middle text-center"><?php echo number($rs->qty); ?></td>
       <td class="middle text-center"><?php echo number($rs->prepared); ?></td>
       <td class="middle text-center"><?php echo number($rs->qty - $rs->prepared); ?></td>
       <td class="middle text-right">
         <button
           type="button"
-          class="btn btn-default btn-xs btn-pop <?php echo $showBtn; ?>"
+          class="btn btn-default btn-minier btn-pop <?php echo $showBtn; ?>"
           data-container="body"
           data-toggle="popover"
           data-placement="left"

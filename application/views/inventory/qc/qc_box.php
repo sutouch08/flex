@@ -1,7 +1,7 @@
 
 <!-- แสดงผลกล่อง  -->
 <div class="row">
-  <div class="col-sm-12" id="box-row">
+  <div class="col-sm-12 col-xs-12 padding-5" id="box-row">
   <?php if(!empty($box_list)) : ?>
   <?php   foreach($box_list as $rs) : ?>
         <button type="button" class="btn btn-sm btn-default" id="btn-box-<?php echo $rs->id; ?>" onclick="printBox(<?php echo $rs->id; ?>)">
@@ -15,7 +15,7 @@
   </div>
 </div>
 
-<hr/>
+<hr class="padding-5"/>
 
 <script id="box-template" type="text/x-handlebars-template">
   {{#each this}}

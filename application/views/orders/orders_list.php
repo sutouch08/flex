@@ -1,12 +1,12 @@
 <?php $this->load->view('include/header'); ?>
 <?php $can_upload = getConfig('ALLOW_UPLOAD_ORDER'); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 col-xs-8 first">
     <h3 class="title">
       <?php echo $this->title; ?>
     </h3>
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-6 col-xs-4 last">
     	<p class="pull-right top-p">
       <?php if($this->pm->can_add) : ?>
 				<?php //if($can_upload == 1) : ?>
@@ -18,7 +18,7 @@
       </p>
     </div>
 </div><!-- End Row -->
-<hr class=""/>
+<hr class="first last"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
   <div class="col-sm-2 padding-5 first">
@@ -62,7 +62,7 @@
 		</select>
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-sm-2 col-xs-6 padding-5">
     <label>วันที่</label>
     <div class="input-daterange input-group">
       <input type="text" class="form-control input-sm width-50 from-date" name="fromDate" id="fromDate" value="<?php echo $from_date; ?>" />
@@ -70,8 +70,8 @@
     </div>
   </div>
 
-	<div class="col-sm-1 col-1-harf padding-5">
-		<label>สถานะการชำระเงิน</label>
+	<div class="col-sm-2 col-xs-6 padding-5">
+		<label>การชำระเงิน</label>
 		<select class="form-control input-sm" name="is_paid" onchange="getSearch()">
 			<option value="all" <?php echo is_selected('all', $is_paid); ?>>ทั้งหมด</option>
 			<option value="paid" <?php echo is_selected('paid', $is_paid); ?>>จ่ายแล้ว</option>
@@ -79,11 +79,11 @@
 		</select>
 	</div>
 
-  <div class="col-sm-1 padding-5">
+  <div class="col-sm-1 col-xs-6 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-sm-1 padding-5">
+	<div class="col-sm-1 col-xs-6 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>

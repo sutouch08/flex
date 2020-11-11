@@ -23,7 +23,7 @@ class Validate_credentials extends CI_Controller
   	}
   	else
   	{
-      $rs = $this->user_model->get_permission($menu, $user->uid, $user->id_profile);
+      $rs = get_permission($menu, $user->uid, $user->id_profile); //$this->user_model->get_permission($menu, $user->uid, $user->id_profile);
 
   		if(!empty($rs))
   		{

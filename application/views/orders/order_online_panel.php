@@ -7,39 +7,77 @@
   $service_update = $order->service_fee > 0 ? 'hide' : '';
 ?>
 <div class="row">
-  <div class="col-sm-4 padding-5 first">
+  <div class="col-sm-6 col-xs-12 padding-5">
   <?php echo paymentLabel($payments); ?>
   <?php if($order->state == 8 && $order->is_paid == 0 && $order->payment_role == 4): ?>
-    <button type="button" class="btn btn-xs btn-yellow" onclick="paid_order()">ทำเครื่องหมายว่าชำระแล้ว</button>
+    <button type="button" class="btn btn-sm btn-yellow" onclick="paid_order()">ทำเครื่องหมายว่าชำระแล้ว</button>
   <?php endif; ?>
   <?php if($order->state == 8 && $order->is_paid == 1 && $order->payment_role == 4): ?>
-    <span class="label label-xlg label-success"><i class="ace-icon fa fa-check"></i> ชำระเงินแล้ว</span>
-    <button type="button" class="btn btn-mini btn-yellow" onclick="unpaid_order()">
+		<button type="button" class="btn btn-sm btn-success"><i class="fa fa-check"></i> ชำระเงินแล้ว</button>
+    <button type="button" class="btn btn-sm btn-yellow" onclick="unpaid_order()">
       <i class="fa fa-times"></i> ทำเครื่องหมายว่ายังไม่ได้รับเงิน
     </button>
   <?php endif; ?>
   </div>
-  <div class="col-sm-8 padding-5 last">
-    <p class="pull-right top-p">
-      <span class="inline padding-10" style="font-weight:normal;">ค่าจัดส่ง</span>
-      <input type="number" class="form-control input-sm input-small inline text-center" id="shippingFee" value="<?php echo $order->shipping_fee; ?>" <?php echo $ship_active;  ?>>
-      <?php if($order->is_paid == 0 && $order->state < 8) : ?>
-      <button type="button" class="btn btn-xs btn-warning <?php echo $ship_edit; ?>" id="btn-edit-shipping-fee" onclick="activeShippingFee()">แก้ไขค่าจัดส่ง</button>
-      <button type="button" class="btn btn-xs btn-success <?php echo $ship_update; ?>" id="btn-update-shipping-fee" onclick="updateShippingFee()">บันทึกค่าจัดส่ง</button>
-      <?php endif; ?>
 
-      <label class="inline padding-10" style="margin-left:5px; font-weight:normal;">ค่าบริการ</label>
-      <input type="number" class="form-control input-sm input-small inline text-center" id="serviceFee" value="<?php echo $order->service_fee; ?>" <?php echo $service_active; ?>>
-      <?php if($order->is_paid == 0 && $order->state < 8) : ?>
-      <button type="button" class="btn btn-xs btn-warning <?php echo $service_edit; ?>" id="btn-edit-service-fee" onclick="activeServiceFee()">แก้ไขค่าบริการ</button>
-      <button type="button" class="btn btn-xs btn-primary <?php echo $service_update; ?>" id="btn-update-service-fee" onclick="updateServiceFee()">บันทึกค่าบริการ</button>
-      <?php endif; ?>
-    </p>
-  </div>
+	<div class="col-sm-2 hidden-xs">&nbsp;</div>
+
+  <div class="col-sm-1 col-xs-8 padding-5">
+		<label>ค่าจัดส่ง</label>
+		<input
+		type="number"
+		class="form-control input-sm inline text-center"
+		id="shippingFee"
+		value="<?php echo $order->shipping_fee; ?>" <?php echo $ship_active;  ?>
+		/>
+	</div>
+	<div class="col-sm-1 col-xs-4 padding-5">
+		<label class="display-block not-show">label</label>
+		<?php if($order->is_paid == 0 && $order->state < 8) : ?>
+		<button
+			type="button"
+			class="btn btn-xs btn-warning btn-block <?php echo $ship_edit; ?>"
+			id="btn-edit-shipping-fee"
+			onclick="activeShippingFee()">แก้ไข
+		</button>
+		<button
+			type="button"
+			class="btn btn-xs btn-success btn-block <?php echo $ship_update; ?>"
+			id="btn-update-shipping-fee"
+			onclick="updateShippingFee()">บันทึก
+		</button>
+		<?php endif; ?>
+	</div>
+	<div class="col-sm-1 col-xs-8 padding-5">
+		<label>ค่าบริการ</label>
+		<input
+		type="number"
+		class="form-control input-sm inline text-center"
+		id="serviceFee"
+		value="<?php echo $order->service_fee; ?>" <?php echo $service_active; ?>
+		/>
+	</div>
+	<div class="col-sm-1 col-xs-4 padding-5">
+		<label class="display-block not-show">label</label>
+		<?php if($order->is_paid == 0 && $order->state < 8) : ?>
+		<button
+			type="button"
+			class="btn btn-xs btn-warning btn-block <?php echo $service_edit; ?>"
+			id="btn-edit-service-fee"
+			onclick="activeServiceFee()">แก้ไข
+		</button>
+		<button
+			type="button"
+			class="btn btn-xs btn-primary btn-block <?php echo $service_update; ?>"
+			id="btn-update-service-fee"
+			onclick="updateServiceFee()">บันทึก
+		</button>
+		<?php endif; ?>
+	</div>
 </div>
-<hr />
+<hr class="padding-5" />
 <div class="row">
-  <div class="col-sm-12">
+  <div class="col-sm-12 col-xs-12 padding-5">
     <div class="tabable">
     	<ul class="nav nav-tabs" role="tablist">
         <li class="active">
@@ -50,12 +88,12 @@
         </li>
       </ul>
           <!-- Tab panes -->
-      <div class="tab-content" style="margin:0px; padding:0px;">
+      <div class="tab-content">
 				<div role="tabpanel" class="tab-pane fade" id="address">
           <div class='row'>
-            <div class="col-sm-12">
+            <div class="col-sm-12 col-xs-12 padding-5">
               <div class="table-responsive">
-                <table class='table table-bordered' style="margin-bottom:0px;">
+                <table class='table' style="margin-bottom:0px;">
                   <thead>
                     <tr>
                       <td colspan="6" align="center">ที่อยู่สำหรับจัดส่ง
@@ -114,4 +152,4 @@
     </div>
 	</div>
 </div>
-<hr>
+<hr class="padding-5">

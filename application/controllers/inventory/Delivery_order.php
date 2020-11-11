@@ -457,12 +457,13 @@ class Delivery_order extends PS_Controller
           //--- set is_complete
           $this->orders_model->set_completed($code);
 
-          //--- ถ้าเป็นออเดอร์แบบขาย และ เป็นเครดิต ให้ตั้งหนี้
-          if($order->role === 'S' && $order->is_term == 1)
+          //--- ถ้าเป็นออเดอร์แบบขาย และ เป็นเครดิต หรือ เป็น COD ให้ตั้งหนี้
+          if($order->role === 'S')
           {
             $this->load->model('account/order_credit_model');
 
             $sold_amount = $this->invoice_model->get_total_sold_amount($code);
+            $dept_amount = ($sold_amount + $order->shipping_fee + $order->service_fee);
             $customer = $this->customers_model->get($order->customer_code);
             $arr = array(
               'order_code' => $code,
@@ -470,7 +471,9 @@ class Delivery_order extends PS_Controller
               'delivery_date' => date('Y-m-d'),
               'due_date' => added_date(date('Y-m-d'), $customer->credit_term),
               'over_due_date' => added_date(date('Y-m-d'), $customer->credit_term + getConfig('OVER_DUE_DATE')),
-              'amount' => $sold_amount
+              'amount' => $dept_amount,
+              'paid' => $order->deposit,
+              'balance' => $dept_amount - $order->deposit
             );
 
             if($this->order_credit_model->is_exists($code))

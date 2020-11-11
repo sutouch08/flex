@@ -1,14 +1,14 @@
 <div class="row">
-  <div class="col-sm-12">
+  <div class="col-sm-12 col-xs-12 padding-5">
     <table class="table table-striped border-1 qc-table">
       <thead>
-        <tr class="font-size-12">
-          <th class="width-15 text-center">บาร์โค้ด</th>
+        <tr class="font-size-12" >
+          <th class="width-15 text-center hidden-xs">บาร์โค้ด</th>
           <th class="width-50">สินค้า</th>
-          <th class="width-8 text-center">จำนวนที่สั่ง</th>
-          <th class="width-8 text-center">จำนวนที่จัด</th>
+          <th class="width-8 text-center">ที่สั่ง</th>
+          <th class="width-8 text-center">นที่จัด</th>
           <th class="width-8 text-center">ตรวจแล้ว</th>
-          <th class="text-right">จากโซน</th>
+          <th class="text-right hidden-xs">จากโซน</th>
         </tr>
       </thead>
       <tbody id="incomplete-table">
@@ -17,12 +17,15 @@
 <?php  if(!empty($uncomplete_details)) : ?>
 <?php   foreach($uncomplete_details as $rs) : ?>
       <tr class="font-size-12 incomplete" id="row-<?php echo $rs->id; ?>">
-        <td class="middle text-center td bc"><?php echo $rs->barcode; ?></td>
-        <td class="middle td"><?php echo $rs->product_code.' : '.$rs->product_name; ?></td>
+        <td class="middle text-center td bc hidden-xs"><?php echo $rs->barcode; ?></td>
+        <td class="middle td">
+          <span class="hidden-xs"><?php echo $rs->product_code.' : '.$rs->product_name; ?></span>
+          <span class="visible-xs"><?php echo $rs->product_code; ?></span>
+        </td>
         <td class="middle text-center td"><?php echo number($rs->order_qty); ?></td>
         <td class="middle text-center td" id="prepared-<?php echo $rs->id; ?>"> <?php echo number($rs->prepared); ?></td>
         <td class="middle text-center td" id="qc-<?php echo $rs->id; ?>"><?php echo number($rs->qc); ?></td>
-        <td class="middle text-right td">
+        <td class="middle text-right td hidden-xs">
           <button
             type="button"
             class="btn btn-default btn-xs btn-pop"
