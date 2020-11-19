@@ -19,6 +19,7 @@ class PS_Controller extends CI_Controller
   public $RR;
   public $WL;
   public $isViewer;
+	public $error;
 
   public function __construct()
   {
@@ -61,6 +62,12 @@ class PS_Controller extends CI_Controller
       $this->WL = get_permission('ICLEND', $uid);
     }
   }
+
+
+	public function response($sc = TRUE)
+	{
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 }
 
 ?>

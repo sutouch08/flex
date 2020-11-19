@@ -44,15 +44,8 @@ function getSearch(){
   $('#searchForm').submit();
 }
 
-
-
-function check(){
-  if($('#term-check').is(":checked")){
-    $('#term').val(1);
-  }else{
-    $('#term').val(0);
-  }
-
-  //console.log($('#term').val());
-  getSearch();
-}
+$('.search').keyup(function(e){
+	if(e.keyCode === 13){
+		getSearch();
+	}
+})

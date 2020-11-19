@@ -8,11 +8,9 @@
 				<div class="footer-inner">
 					<!-- #section:basics/footer -->
 					<div class="footer-content">
-						<span class="bigger-120 orange">
-							Copyright (c) <?php echo date('Y'); ?> Flex-crop. All Rights Reserved.
+						<span class="font-size-10">
+							Copyright (c) <?php echo date('Y'); ?> TR System Innovation Co.,Ltd. All Rights Reserved.
 						</span>
-
-						&nbsp; &nbsp;
                         <!--
 						<span class="action-buttons">
 							<a href="#">

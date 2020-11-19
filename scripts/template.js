@@ -173,8 +173,9 @@ $('#set_rows').keyup(function(e){
 
 
 function reIndex(){
+	let no = parseDefault(parseInt($('#no').val()), 0);
   $('.no').each(function(index, el) {
-    no = index +1;
+    no += 1;
     $(this).text(addCommas(no));
   });
 }

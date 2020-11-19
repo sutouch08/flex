@@ -5,21 +5,24 @@ class Payment_methods extends PS_Controller
 {
   public $menu_code = 'DBPAYM';
 	public $menu_group_code = 'DB';
-	public $title = 'Payment channels';
+	public $title = 'ช่องทางการชำระเงิน';
 
   public function __construct()
   {
     parent::__construct();
     $this->home = base_url().'masters/payment_methods';
     $this->load->model('masters/payment_methods_model');
+		$this->load->helper('payment_method');
   }
 
 
   public function index()
   {
-		$code = get_filter('code', 'code', '');
-		$name = get_filter('name', 'name', '');
-    $term = get_filter('term', 'term', 0);
+		$filter = array(
+			'code' => get_filter('code', 'payment_code', ''),
+			'name' => get_filter('name', 'payment_code', ''),
+			'role' => get_filter('role', 'payment_role', 'all')
+		);
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_filter('set_rows', 'rows', 20);
@@ -30,19 +33,15 @@ class Payment_methods extends PS_Controller
 		}
 
 		$segment = 4; //-- url segment
-		$rows = $this->payment_methods_model->count_rows($code, $name, $term);
+		$rows = $this->payment_methods_model->count_rows($filter);
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$rs = $this->payment_methods_model->get_data($code, $name, $term, $perpage, $this->uri->segment($segment));
-    $ds = array(
-      'code' => $code,
-      'name' => $name,
-      'term' => $term,
-			'data' => $rs
-    );
+		$rs = $this->payment_methods_model->get_list($filter, $perpage, $this->uri->segment($segment));
+		$filter['data'] = $rs;
+
 
 		$this->pagination->initialize($init);
-    $this->load->view('masters/payment_methods/payment_methods_view', $ds);
+    $this->load->view('masters/payment_methods/payment_methods_view', $filter);
   }
 
 
@@ -221,9 +220,8 @@ class Payment_methods extends PS_Controller
 
   public function clear_filter()
 	{
-		$this->session->unset_userdata('code');
-    $this->session->unset_userdata('name');
-    $this->session->unset_userdata('term');
+		$filter = array('payment_code', 'payment_name', 'payment_role');
+		clear_filter($filter);
 		echo 'done';
 	}
 

@@ -1,54 +1,53 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 col-xs-6 padding-5">
     <h3 class="title">
-      <i class="fa fa-users"></i> <?php echo $this->title; ?>
+      <i class="fa fa-bolt"></i> <?php echo $this->title; ?>
     </h3>
     </div>
-    <div class="col-sm-6">
-    	<p class="pull-right">
+    <div class="col-sm-6 col-xs-6 padding-5">
+    	<p class="pull-right top-p">
       <?php if($this->pm->can_add) : ?>
         <button type="button" class="btn btn-sm btn-success" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
       <?php endif; ?>
       </p>
     </div>
 </div><!-- End Row -->
-<hr class="title-block"/>
+<hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-2">
+  <div class="col-sm-2 col-xs-4 padding-5">
     <label>รหัส</label>
-    <input type="text" class="width-100" name="code" id="code" value="<?php echo $code; ?>" />
+    <input type="text" class="form-control input-sm" name="code" id="code" value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-sm-2">
+  <div class="col-sm-2 col-xs-4 padding-5">
     <label>ชื่อ</label>
-    <input type="text" class="width-100" name="name" id="name" value="<?php echo $name; ?>" />
+    <input type="text" class="form-control input-sm" name="name" id="name" value="<?php echo $name; ?>" />
   </div>
 
-  <div class="col-sm-2">
+  <div class="col-sm-1 col-xs-4 padding-5">
     <label class="display-block not-show">buton</label>
-    <button type="submit" class="btn btn-sm btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
+    <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-sm-2">
+	<div class="col-sm-1 col-xs-4 padding-5">
     <label class="display-block not-show">buton</label>
-    <button type="button" class="btn btn-sm btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+    <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
 </div>
-<hr class="margin-top-15">
+<hr class="margin-top-15 padding-5">
 </form>
 <?php echo $this->pagination->create_links(); ?>
 
 <div class="row">
-	<div class="col-sm-12">
-		<table class="table table-striped table-bordered table-hover">
+	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
+		<table class="table table-striped table-hover border-1">
 			<thead>
 				<tr>
 					<th class="width-5 middle text-center">ลำดับ</th>
 					<th class="width-15 middle">รหัส</th>
 					<th class="width-20 middle">ชื่อ</th>
 					<th class="width-30 middle">ลูกค้าเริ่มต้น</th>
-					<th class="width-5 middle text-center">Default</th>
 					<th class="width-15 middle">ปรับปรุง</th>
 					<th></th>
 				</tr>
@@ -62,13 +61,6 @@
 						<td class="middle"><?php echo $rs->code; ?></td>
 						<td class="middle"><?php echo $rs->name; ?></td>
 						<td class="middle"><?php echo $rs->customer_name; ?></td>
-						<td class="middle text-center">
-							<?php if($rs->is_default) : ?>
-								<i class="fa fa-check green"></i>
-							<?php else : ?>
-								<i class="fa fa-times"></i>
-							<?php endif; ?>
-						</td>
             <td class="middle"><?php echo thai_date($rs->date_upd, TRUE, '/'); ?></td>
 						<td class="text-right">
 							<?php if($this->pm->can_edit) : ?>

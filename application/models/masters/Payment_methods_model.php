@@ -37,34 +37,65 @@ class Payment_methods_model extends CI_Model
   }
 
 
-  public function count_rows($c_code = '', $c_name = '', $term = '')
+  public function count_rows(array $ds = array())
   {
-    $this->db->select('payment_method.code')
-    ->from('payment_method')
-    ->join('payment_role', 'payment_method.role = payment_role.id', 'left');
-
-    if($term == 1)
+		if(!empty($ds['code']))
     {
-      $this->db->where('has_term', 1);
+      $this->db->like('code', $ds['code']);
     }
 
-    if(!empty($c_code))
+    if(!empty($ds['name']))
     {
-      $this->db->like('code', $c_code);
+      $this->db->like('name', $ds['name']);
     }
 
-    if(!empty($c_name))
+    if(!empty($ds['role']) && $ds['role'] !== 'all')
     {
-      $this->db->like('name', $c_name);
+      $this->db->where('role', $ds['role']);
     }
 
-    if(!empty($c_role))
+    return $this->db->count_all_results('payment_method');
+
+  }
+
+
+	public function get_list(array $ds = array(), $perpage = NULL, $offset = 0)
+  {
+		$this->db
+		->select('pm.*')
+		->select('pr.name AS role_name')
+		->from('payment_method AS pm')
+		->join('payment_role AS pr', 'pm.role = pr.id', 'left');
+
+    if(!empty($ds['code']))
     {
-      $this->db->where('role', $c_role);
+      $this->db->like('pm.code', $ds['code']);
     }
 
-    return $this->db->count_all_results();
+    if(!empty($ds['name']))
+    {
+      $this->db->like('pm.name', $ds['name']);
+    }
 
+    if(!empty($ds['role']) && $ds['role'] !== 'all')
+    {
+      $this->db->where('pm.role', $ds['role']);
+    }
+
+
+    if(!empty($perpage))
+    {
+      $this->db->limit($perpage, $offset);
+    }
+
+    $rs = $this->db->get();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
   }
 
 
@@ -129,44 +160,7 @@ class Payment_methods_model extends CI_Model
 
 
 
-  public function get_data($c_code = '', $c_name = '', $c_role = '', $term = '', $perpage = '', $offset = '')
-  {
-    $this->db->select('payment_method.code, payment_method.name')
-    ->select('payment_method.has_term, payment_method.is_default')
-    ->select('payment_role.name as role_name, payment_method.date_upd')
-    ->from('payment_method')
-    ->join('payment_role', 'payment_method.role = payment_role.id', 'left');
 
-    if($term == 1)
-    {
-      $this->db->where('has_term', 1);
-    }
-
-    if(!empty($c_code))
-    {
-      $this->db->like('code', $c_code);
-    }
-
-    if(!empty($c_name))
-    {
-      $this->db->like('name', $c_name);
-    }
-
-    if(!empty($c_role))
-    {
-      $this->db->where('role', $c_role);
-    }
-
-    if($perpage != '')
-    {
-      $offset = $offset === NULL ? 0 : $offset;
-      $this->db->limit($perpage, $offset);
-    }
-
-    $rs = $this->db->get();
-
-    return $rs->result();
-  }
 
 
 

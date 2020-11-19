@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 11, 2020 at 05:55 PM
+-- Generation Time: Nov 15, 2020 at 07:49 AM
 -- Server version: 10.1.35-MariaDB
 -- PHP Version: 7.2.9
 
@@ -7752,6 +7752,100 @@ INSERT INTO `barcode_local` (`barcode`, `item_code`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `box_code`
+--
+
+CREATE TABLE `box_code` (
+  `code` varchar(50) NOT NULL,
+  `size_code` varchar(15) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `box_code`
+--
+
+INSERT INTO `box_code` (`code`, `size_code`) VALUES
+('A10001', 'KS001'),
+('A10002', 'KS001'),
+('A10003', 'KS001'),
+('A10004', 'KS001'),
+('A10005', 'KS001'),
+('A10006', 'KS001'),
+('A10007', 'KS001'),
+('A10008', 'KS001'),
+('A10009', 'KS001'),
+('A10010', 'KS001'),
+('A10011', 'KS001'),
+('A10012', 'KS001'),
+('A10013', 'KS001'),
+('A10014', 'KS001'),
+('A10015', 'KS001'),
+('A10016', 'KS001'),
+('A10017', 'KS001'),
+('A10018', 'KS001'),
+('A10019', 'KS001'),
+('A10020', 'KS001'),
+('A10021', 'KS001'),
+('A10022', 'KS001'),
+('A10023', 'KS001'),
+('A10024', 'KS001'),
+('A10025', 'KS001'),
+('A10026', 'KS001'),
+('A10027', 'KS001'),
+('A10028', 'KS001'),
+('A10029', 'KS001'),
+('A10030', 'KS001'),
+('A10031', 'KS001'),
+('A10032', 'KS001'),
+('A10033', 'KS001'),
+('A10034', 'KS001');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `box_size`
+--
+
+CREATE TABLE `box_size` (
+  `code` varchar(15) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `box_width` varchar(10) NOT NULL DEFAULT '0.00' COMMENT 'width(cm)',
+  `box_length` varchar(10) NOT NULL DEFAULT '0.00' COMMENT 'length(cm)',
+  `box_height` varchar(10) NOT NULL DEFAULT '0.00' COMMENT 'heigth(cm)',
+  `box_type` varchar(10) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `box_size`
+--
+
+INSERT INTO `box_size` (`code`, `name`, `box_width`, `box_length`, `box_height`, `box_type`) VALUES
+('KS001', 'Kerry Mini', '11', '20', '6', 'B001'),
+('KS002', 'Kerry S', '14', '24', '11', 'B001');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `box_type`
+--
+
+CREATE TABLE `box_type` (
+  `code` varchar(10) NOT NULL,
+  `name` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `box_type`
+--
+
+INSERT INTO `box_type` (`code`, `name`) VALUES
+('B001', 'กล่องกระดาษ'),
+('B002', 'ซองพลาสติก'),
+('B003', 'ซองกระดาษ');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `buffer`
 --
 
@@ -8961,6 +9055,9 @@ INSERT INTO `menu` (`code`, `name`, `url`, `group_code`, `sub_group`, `active`, 
 ('APOVPO', 'อนุมัติรับสินค้าเกินใบสั่งซื้อ', NULL, 'AP', NULL, 1, 1, 1),
 ('DBADDR', 'เพิ่ม/แก้ไข ที่อยู่ลูกค้า', NULL, 'DB', NULL, 0, 18, 1),
 ('DBBANK', 'เพิ่ม/แก้ไข บัญชีธนาคาร', 'masters/bank', 'DB', NULL, 1, 26, 1),
+('DBBOTY', 'เพิ่ม/แก้ไข ชนิดกล่อง', 'masters/box_type', 'DB', 'WAREHOUSE', 1, 25, 1),
+('DBBOXC', 'เพิ่ม/แก้ไข รหัสกล่อง', 'masters/box_code', 'DB', 'WAREHOUSE', 1, 24, 1),
+('DBBXSI', 'เพิ่ม/แก้ไข ขนาดกล่อง', 'masters/box_size', 'DB', 'WAREHOUSE', 1, 23, 1),
 ('DBCARE', 'เพิ่ม/แก้ไข เขตลูกค้า', 'masters/customer_area', 'DB', 'CUSTOMER', 1, 17, 1),
 ('DBCGRP', 'เพิ่ม/แก้ไข กลุ่มลูกค้า', 'masters/customer_group', 'DB', 'CUSTOMER', 1, 13, 1),
 ('DBCHAN', 'เพิ่ม/แก้ไข ช่องทางขาย', 'masters/channels', 'DB', NULL, 1, 19, 1),
@@ -11360,19 +11457,20 @@ CREATE TABLE `qc_box` (
   `id` int(11) NOT NULL,
   `code` varchar(20) NOT NULL,
   `order_code` varchar(20) NOT NULL,
-  `box_no` int(3) NOT NULL DEFAULT '1'
+  `box_no` int(3) NOT NULL DEFAULT '1',
+  `date_upd` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `qc_box`
 --
 
-INSERT INTO `qc_box` (`id`, `code`, `order_code`, `box_no`) VALUES
-(1, '0000', 'WO-200100004', 1),
-(2, '0000', 'WO-201000001', 1),
-(3, '0000', 'WO-201000002', 1),
-(4, '0000', 'WO-201000003', 1),
-(5, '0000', 'WO-201000005', 1);
+INSERT INTO `qc_box` (`id`, `code`, `order_code`, `box_no`, `date_upd`) VALUES
+(1, '0000', 'WO-200100004', 1, '2020-11-15 06:48:13'),
+(2, '0000', 'WO-201000001', 1, '2020-11-15 06:48:13'),
+(3, '0000', 'WO-201000002', 1, '2020-11-15 06:48:13'),
+(4, '0000', 'WO-201000003', 1, '2020-11-15 06:48:13'),
+(5, '0000', 'WO-201000005', 1, '2020-11-15 06:48:13');
 
 -- --------------------------------------------------------
 
@@ -12417,6 +12515,29 @@ ALTER TABLE `barcode_local`
   ADD KEY `item_code` (`item_code`);
 
 --
+-- Indexes for table `box_code`
+--
+ALTER TABLE `box_code`
+  ADD PRIMARY KEY (`code`),
+  ADD KEY `id_size` (`size_code`);
+
+--
+-- Indexes for table `box_size`
+--
+ALTER TABLE `box_size`
+  ADD PRIMARY KEY (`code`),
+  ADD KEY `box_width` (`box_width`),
+  ADD KEY `box_length` (`box_length`),
+  ADD KEY `box_height` (`box_height`),
+  ADD KEY `box_type` (`box_type`);
+
+--
+-- Indexes for table `box_type`
+--
+ALTER TABLE `box_type`
+  ADD PRIMARY KEY (`code`);
+
+--
 -- Indexes for table `buffer`
 --
 ALTER TABLE `buffer`
@@ -13168,7 +13289,8 @@ ALTER TABLE `qc`
 ALTER TABLE `qc_box`
   ADD PRIMARY KEY (`id`),
   ADD KEY `code` (`code`),
-  ADD KEY `order_code` (`order_code`);
+  ADD KEY `order_code` (`order_code`),
+  ADD KEY `date_upd` (`date_upd`);
 
 --
 -- Indexes for table `receive_product`
@@ -13826,6 +13948,12 @@ ALTER TABLE `adjust_detail`
   ADD CONSTRAINT `fk_adjust_product` FOREIGN KEY (`product_code`) REFERENCES `products` (`code`) ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_adjust_warehouse` FOREIGN KEY (`warehouse_code`) REFERENCES `warehouse` (`code`) ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_adjust_zone` FOREIGN KEY (`zone_code`) REFERENCES `zone` (`code`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `box_size`
+--
+ALTER TABLE `box_size`
+  ADD CONSTRAINT `fk_box_type` FOREIGN KEY (`box_type`) REFERENCES `box_type` (`code`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `buffer`

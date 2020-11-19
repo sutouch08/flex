@@ -276,6 +276,13 @@ function get_null($value)
 	return $value === '' ? NULL : $value;
 }
 
+
+//--- return  0 if blank or NULL
+function get_zero($value)
+{
+	return ($value === '' OR $value === NULL) ? 0 : $value;
+}
+
 //--- return TRUE if value ==  1 else return FALSE;
 function is_true($value)
 {
@@ -306,7 +313,7 @@ function pagination_config( $base_url, $total_rows = 0, $perpage = 20, $segment 
     $input_rows .= '</p>';
 
 		$config['full_tag_open'] 		= '<nav><ul class="pagination">';
-		$config['full_tag_close'] 		= '</ul>'.$input_rows.'</nav><hr>';
+		$config['full_tag_close'] 		= '</ul>'.$input_rows.'</nav><hr class="padding-5">';
 		$config['first_link'] 				= 'First';
 		$config['first_tag_open'] 		= '<li>';
 		$config['first_tag_close'] 		= '</li>';

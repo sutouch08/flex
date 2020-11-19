@@ -9,9 +9,9 @@
     <div class="col-sm-6 col-xs-4 last">
     	<p class="pull-right top-p">
       <?php if($this->pm->can_add) : ?>
-				<?php //if($can_upload == 1) : ?>
-					<!--<button type="button" class="btn btn-sm btn-purple" onclick="getUploadFile()">นำเข้าออเดอร์</button> -->
-				<?php //endif;?>
+				<?php if($can_upload == 1) : ?>
+					<button type="button" class="btn btn-sm btn-purple" onclick="getUploadFile()">นำเข้าออเดอร์</button> 
+				<?php endif;?>
         <button type="button" class="btn btn-sm btn-success" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
       <?php endif; ?>
 
