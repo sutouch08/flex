@@ -182,7 +182,6 @@ class Items extends PS_Controller
               $rs['D'] = str_replace(array("\n", "\r"), '', $rs['D']); //--- เอาตัวขึ้นบรรทัดใหม่ออก
 
               $style = preg_replace($code_pattern, '', get_null(trim($rs['D'])));
-              $old_style = get_null(trim($rs['S'])) === NULL ? $style : trim($rs['S']);
               $color_code = get_null(trim($rs['E']));
               $size_code = get_null(trim($rs['F']));
               $group_code = get_null(trim($rs['G']));
@@ -195,48 +194,35 @@ class Items extends PS_Controller
 
               if(!empty($color_code) && ! $this->product_color_model->is_exists($color_code))
               {
-                $sc = FALSE;
-                $this->error = "Color : {$color_code}  does not exists";
+                $this->addColor($color_code);
               }
               else if(!empty($size_code) && ! $this->product_size_model->is_exists($size_code))
               {
-                $sc = FALSE;
-                $this->error = "Size : {$size_code}  does not exists";
+                $this->addSize($size_code);
               }
               else if(!empty($group_code) && ! $this->product_group_model->is_exists($group_code))
               {
-                $sc = FALSE;
-                $this->error = "Product Group : {$group_code}  does not exists";
+                $this->addGroup($group_code);
               }
               else if(!empty($sub_group_code) && ! $this->product_sub_group_model->is_exists($sub_group_code))
               {
-                $sc = FALSE;
-                $this->error = "Product Sub Group : {$sub_roup_code}  does not exists";
+                $this->addSubGroup($sub_group_code);
               }
               else if(!empty($category_code) && ! $this->product_category_model->is_exists($category_code))
               {
-                $sc = FALSE;
-                $this->error = "Product Category : {$category_code} does not exists";
+                $this->addCategory($category_code);
               }
               else if(!empty($kind_code) && ! $this->product_kind_model->is_exists($kind_code))
               {
-                $sc = FALSE;
-                $this->error = "Product Kind : {$kind_code} does not exists";
+                $this->addKind($kind_code);
               }
               else if(!empty($type_code) && ! $this->product_type_model->is_exists($type_code))
               {
-                $sc = FALSE;
-                $this->error = "Product Type : {$type_code} does not exists";
+                $this->addType($type_code);
               }
               else if(!empty($brand_code) && ! $this->product_brand_model->is_exists($brand_code))
               {
-                $sc = FALSE;
-                $this->error = "Brand : {$brand_code} does not exists";
-              }
-
-              if($sc === FALSE)
-              {
-                break;
+                $this->addBrand($brand_code);
               }
 
               if(!empty($style))
@@ -260,12 +246,13 @@ class Items extends PS_Controller
                     'is_api' => trim($rs['R']) === 'N' ? 0 : 1,
                     'update_user' => get_cookie('uname')
                   );
+
+									$this->product_style_model->add($ds);
                 }
               }
 
               $rs['A'] = str_replace(array("\n", "\r"), '', $rs['A']); //--- เอาตัวขึ้นบรรทัดใหม่ออก
               $code = preg_replace($code_pattern, '', trim($rs['A']));
-              $old_code = get_null(trim($rs['T'])) === NULL ? $code : trim($rs['T']);
               $arr = array(
                 'code' => $code,
                 'name' => trim($rs['B']),
@@ -313,6 +300,92 @@ class Items extends PS_Controller
 
 
 
+	public function addBrand($code)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $code
+		);
+
+		return $this->product_brand_model->add($arr);
+	}
+
+
+	public function addColor($code)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $code
+		);
+
+		return $this->product_color_model->add($arr);
+	}
+
+
+	public function addSize($code)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $code
+		);
+
+		return $this->product_size_model->add($arr);
+	}
+
+
+	public function addCategory($code)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $code
+		);
+
+		return $this->product_category_model->add($arr);
+	}
+
+
+	public function addKind($code)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $code
+		);
+
+		return $this->product_kind_model->add($arr);
+	}
+
+
+	public function addType($code)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $code
+		);
+
+		return $this->product_type_model->add($arr);
+	}
+
+	public function addGroup($code)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $code
+		);
+
+		return $this->product_group_model->add($arr);
+	}
+
+	public function addSubGroup($code)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $code
+		);
+
+		return $this->product_sub_group_model->add($arr);
+	}
+
+
   public function add_new()
   {
     $this->load->view('masters/product_items/items_add_view');
@@ -357,15 +430,12 @@ class Items extends PS_Controller
           'can_sell' => is_null($sell) ? 0 : 1,
           'active' => is_null($active) ? 0 : 1,
           'is_api' => is_null($api) ? 0 : 1,
-          'update_user' => $user,
-          'old_style' => get_null($this->input->post('old_style')),
-          'old_code' => get_null($this->input->post('old_code'))
+          'update_user' => $user
         );
 
         if($this->products_model->add($arr))
         {
           set_message('insert success');
-          $this->do_export($code);
         }
         else
         {
@@ -420,15 +490,12 @@ class Items extends PS_Controller
           'can_sell' => is_null($sell) ? 0 : 1,
           'active' => is_null($active) ? 0 : 1,
           'is_api' => is_null($api) ? 0 : 1,
-          'update_user' => $user,
-          'old_style' => get_null($this->input->post('old_style')),
-          'old_code' => get_null($this->input->post('old_code'))
+          'update_user' => $user
         );
 
         if($this->products_model->add($arr))
         {
           set_message('insert success');
-          $this->do_export($code);
         }
         else
         {
@@ -506,15 +573,12 @@ class Items extends PS_Controller
       'can_sell' => is_null($sell) ? 0 : 1,
       'active' => is_null($active) ? 0 : 1,
       'is_api' => is_null($api) ? 0 : 1,
-      'update_user' => $user,
-      'old_style' => get_null($this->input->post('old_style')),
-      'old_code' => get_null($this->input->post('old_code'))
+      'update_user' => $user
     );
 
     if($this->products_model->update($code, $arr))
     {
       set_message('Update success');
-      $this->do_export($code);
       redirect($this->home.'/edit/'.$code);
     }
     else
@@ -620,85 +684,6 @@ class Items extends PS_Controller
 
 
 
-  public function do_export($code, $method = 'A')
-  {
-    $item = $this->products_model->get($code);
-    //--- เช็คข้อมูลในฐานข้อมูลจริง
-    $exst = $this->products_model->is_sap_exists($item->code);
-
-    $method = $exst === TRUE ? 'U' : $method;
-
-    //--- เช็คข้อมูลในถังกลาง
-    $middle = $this->products_model->get_un_import_middle($item->code);
-    if(!empty($middle))
-    {
-      foreach($middle as $mid)
-      {
-        $this->products_model->drop_middle_item($mid->DocEntry);
-      }
-    }
-
-    $ds = array(
-      'ItemCode' => $item->code, //--- รหัสสินค้า
-      'ItemName' => limitText($item->name, 97),//--- ชื่อสินค้า
-      'FrgnName' => NULL,   //--- ชื่อสินค้าภาษาต่างประเทศ
-      'ItmsGrpCod' => getConfig('ITEM_GROUP_CODE'),  //--- กลุ่มสินค้า (ต้องตรงกับ SAP)
-      'VatGourpSa' => getConfig('SALE_VATE_CODE'), //--- รหัสกลุ่มภาษีขาย
-      'CodeBars' => $item->barcode, //--- บาร์โค้ด
-      'VATLiable' => 'Y', //--- มี vat หรือไม่
-      'PrchseItem' => 'Y', //--- สินค้าสำหรับซื้อหรือไม่
-      'SellItem' => 'Y', //--- สินค้าสำหรับขายหรือไม่
-      'InvntItem' => $item->count_stock == 1 ? 'Y' : 'N', //--- นับสต้อกหรือไม่
-      'SalUnitMsr' => $item->unit_code, //--- หน่วยขาย
-      'BuyUnitMsr' => $item->unit_code, //--- หน่วยซื้อ
-      'CntUnitMsr' => $item->unit_code,
-      'VatGroupPu' => getConfig('PURCHASE_VAT_CODE'), //---- รหัสกลุ่มภาษีซื้อ (ต้องตรงกับ SAP)
-      'ItemType' => 'I', //--- ประเภทของรายการ F=Fixed Assets, I=Items, L=Labor, T=Travel
-      'InvntryUom' => $item->unit_code, //--- หน่วยในการนับสต็อก
-      'validFor' => $item->active == 1 ? 'Y' : 'N',
-      'U_MODEL' => $item->style_code,
-      'U_COLOR' => $item->color_code,
-      'U_SIZE' => $item->size_code,
-      'U_GROUP' => $item->group_code,
-      'U_MAJOR' => $item->sub_group_code,
-      'U_CATE' => $item->category_code,
-      'U_SUBTYPE' => $item->kind_code,
-      'U_TYPE' => $item->type_code,
-      'U_BRAND' => $item->brand_code,
-      'U_YEAR' => $item->year,
-      'U_COST' => $item->cost,
-      'U_PRICE' => $item->price,
-      'U_OLDCODE' => $item->old_code,
-      'F_E_Commerce' => $method,
-      'F_E_CommerceDate' => sap_date(now(), TRUE)
-    );
-
-    return $this->products_model->add_item($ds);
-
-  }
-
-
-
-  public function export_style($style_code)
-  {
-    $style = $this->product_style_model->get($style_code);
-
-    if(!empty($style))
-    {
-      $ext = $this->product_style_model->is_middle_exists($style_code);
-      $flag = $ext === TRUE ? 'U' : 'A';
-      $arr = array(
-        'Code' => $style->code,
-        'Name' => $style->name,
-        'UpdateDate' => sap_date(now(), TRUE),
-        'Flag' => $flag
-      );
-      return $this->product_style_model->add_sap_model($arr);
-    }
-    return FALSE;
-  }
-
-
     public function download_template($token)
     {
       //--- load excel library
@@ -726,8 +711,6 @@ class Items extends PS_Controller
       $this->excel->getActiveSheet()->setCellValue('P1', 'Unit');
       $this->excel->getActiveSheet()->setCellValue('Q1', 'CountStock');
       $this->excel->getActiveSheet()->setCellValue('R1', 'IsAPI');
-      $this->excel->getActiveSheet()->setCellValue('S1', 'OldModel');
-      $this->excel->getActiveSheet()->setCellValue('T1', 'OldCode');
 
 
       setToken($token);

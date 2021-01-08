@@ -15,7 +15,12 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
             	<td class="width-25 middle text-right" style="border:0px; padding:5px;">สถานะ : </td>
                 <td class="width-50" style="border:0px; padding:5px;">
                 	<select class="form-control input-sm" style="padding-top:0px; padding-bottom:0px;" id="stateList">
-                    	<option value="0">เลือกสถานะ</option>
+                    	
+							<?php if($order->status == 0) : ?>
+											<option value="0">กรุณาบันทึกออเดอร์</option>
+							<?php else : ?>
+											<option value="0">เลือกสถานะ</option>
+							<?php endif; ?>
 							<?php if( $order->state != 9 && $order->is_expired == 0 && $order->status == 1) : ?>
 
                  <?php if( $order->state <=3 && $canChange) : ?>

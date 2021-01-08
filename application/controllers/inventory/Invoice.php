@@ -91,13 +91,16 @@ class Invoice extends PS_Controller
 
 
 
-
   public function print_order($code, $barcode = '')
   {
     $this->load->model('masters/products_model');
+		$this->load->model('address/customer_address_model');
     $this->load->library('printer');
     $order = $this->orders_model->get($code);
-    $order->customer_name = $this->customers_model->get_name($order->customer_code);
+		$customer = $this->customers_model->get($order->customer_code);
+		$customer_address = $this->customer_address_model->get_customer_bill_to_address($order->customer_code);
+		$order->emp_name = $this->user_model->get_employee_name($order->user);
+
     $details = $this->invoice_model->get_details($code); //--- รายการที่มีการบันทึกขายไป
     if(!empty($details))
     {
@@ -109,8 +112,39 @@ class Invoice extends PS_Controller
 
     $ds['order'] = $order;
     $ds['details'] = $details;
+		$ds['customer'] = $customer;
+		$ds['address'] = $customer_address;
+    $ds['title'] = "ใบส่งสินค้า";
     $ds['is_barcode'] = $barcode != '' ? TRUE : FALSE;
     $this->load->view('print/print_invoice', $ds);
+  }
+
+
+	public function print_order_no_price($code)
+  {
+    $this->load->model('masters/products_model');
+		$this->load->model('address/customer_address_model');
+    $this->load->library('printer');
+    $order = $this->orders_model->get($code);
+		$customer = $this->customers_model->get($order->customer_code);
+		$customer_address = $this->customer_address_model->get_customer_bill_to_address($order->customer_code);
+		$order->emp_name = $this->user_model->get_employee_name($order->user);
+
+    $details = $this->invoice_model->get_details($code); //--- รายการที่มีการบันทึกขายไป
+    if(!empty($details))
+    {
+      foreach($details as $rs)
+      {
+        $rs->barcode = $this->products_model->get_barcode($rs->product_code);
+      }
+    }
+
+    $ds['order'] = $order;
+    $ds['details'] = $details;
+		$ds['customer'] = $customer;
+		$ds['address'] = $customer_address;
+    $ds['title'] = "ใบส่งสินค้า";
+    $this->load->view('print/print_invoice_no_price', $ds);
   }
 
   public function clear_filter()

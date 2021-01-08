@@ -75,3 +75,10 @@ $('#date').datepicker();
 function getSearch(){
   $('#searchForm').submit();
 }
+
+
+function get_template() {
+	var token	= new Date().getTime();
+	get_download(token);
+	window.location.href = BASE_URL + 'masters/customers/download_template/'+token;
+}

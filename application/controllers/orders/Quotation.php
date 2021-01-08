@@ -279,6 +279,8 @@ class Quotation extends PS_Controller
       $this->load->helper('discount');
       $data = json_decode($this->input->post('data'));
       $code = $this->input->post('code');
+			$bDiscText = $this->input->post('bDiscText');
+			$bDiscAmount = $this->input->post('bDiscAmount');
       $qt = $this->quotation_model->get($code);
       if(!empty($data))
       {
@@ -404,6 +406,16 @@ class Quotation extends PS_Controller
 					$this->error = "เลขที่เอกสารไม่ถูกต้อง";
 				}
       }
+
+			if($sc === TRUE)
+			{
+				$arr = array(
+					'bDiscText' => empty($bDiscText) ? 0 : $bDiscText,
+					'bDiscAmount' => $bDiscAmount
+				);
+
+				$this->quotation_model->update($code, $arr);
+			}
     }
     else
     {
@@ -520,6 +532,28 @@ class Quotation extends PS_Controller
   }
 
 
+
+
+	public function update_bill_discount()
+	{
+		$sc = TRUE;
+		$code = trim($this->input->post('code'));
+		$bDiscText = trim($this->input->post('bDiscText'));
+		$bDiscAmount = trim($this->input->post('bDiscAmount'));
+
+		$arr = array(
+			'bDiscText' => $bDiscText.'%',
+			'bDiscAmount' => $bDiscAmount
+		);
+
+		if(! $this->quotation_model->update($code, $arr))
+		{
+			$sc = FALSE;
+			$this->error = "Update Bill Discount Failed";
+		}
+
+		$this->response($sc);
+	}
 
 	public function view_detail($code)
   {

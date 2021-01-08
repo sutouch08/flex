@@ -7,59 +7,6 @@ class Return_order_model extends CI_Model
   }
 
 
-  //--- เพิ่มเอกสารใหม่เข้าถังกลาง
-  public function add_sap_return_order(array $ds = array())
-  {
-    if(!empty($ds))
-    {
-      return $this->mc->insert('ORDN', $ds);
-    }
-
-    return FALSE;
-  }
-
-
-  //--- เพิ่มรายการรับคืน
-  public function add_sap_return_detail(array $ds = array())
-  {
-    if(!empty($ds))
-    {
-      return $this->mc->insert('RDN1', $ds);
-    }
-
-    return FALSE;
-  }
-
-
-  //---- อัพเดตเอกสารในถังกลาง
-  public function update_sap_return_order($code, $ds = array())
-  {
-    if(! empty($code) && ! empty($ds))
-    {
-      return $this->mc->where('U_ECOMNO', $code)->update('ORDN', $ds);
-    }
-
-    return FALSE;
-  }
-
-
-
-  //---- ดึงข้อมูลจากถังกลางมาเช็คสถานะ
-  public function get_sap_return_order($code)
-  {
-    $rs = $this->mc
-    ->select('U_ECOMNO, DocStatus')
-    ->where('U_ECOMNO', $code)
-    ->get('ORDN');
-    if($rs->num_rows() === 1)
-    {
-      return $rs->row();
-    }
-
-    return FALSE;
-  }
-
-
 
   public function get_total_return($code)
   {
@@ -116,7 +63,7 @@ class Return_order_model extends CI_Model
       return $rs->row();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 
@@ -139,17 +86,30 @@ class Return_order_model extends CI_Model
   }
 
 
+	public function get_valid_invoice($invoice)
+	{
+		$rs = $this->db
+		->select('code')
+		->where_in('role', array('S', 'P', 'U'))
+		->where('state', 8)
+		->where('code', $invoice)
+		->get('orders');
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
+
 
   public function get_invoice_details($invoice)
   {
-    $rs = $this->ms
-    ->select('LineNum, ItemCode AS product_code')
-    ->select('Dscription AS product_name')
-    ->select('Quantity AS qty')
-    ->select('PriceAfVAT AS price')
-    ->select('DiscPrcnt AS discount')
-    ->where('DocEntry', $invoice)
-    ->get('INV1');
+		$rs = $this->db
+		->select('id, product_code, product_name, qty, price, discount_label AS discount')
+		->where('reference', $invoice)
+		->get('order_sold');
 
     if($rs->num_rows() > 0)
     {
@@ -173,15 +133,21 @@ class Return_order_model extends CI_Model
 
 
 
-  public function get_customer_invoice($invoice)
+  public function get_customer_by_invoice($invoice)
   {
-    $rs = $this->ms->select('CardCode AS customer_code, CardName AS customer_name')->where('DocNum', $invoice)->get('OINV');
+		$rs = $this->db
+		->select('c.code AS customer_code, c.name AS customer_name')
+		->from('orders AS o')
+		->join('customers AS c', 'o.customer_code = c.code', 'left')
+		->where('o.code', $invoice)
+		->get();
+
     if($rs->num_rows() === 1)
     {
       return $rs->row();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 

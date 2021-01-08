@@ -76,26 +76,6 @@ function approve(){
 }
 
 
-
-function doExport(){
-	var code = $('#return_code').val();
-	$.get(HOME + 'export_return/'+code, function(rs){
-		if(rs === 'success'){
-			swal({
-				title:'Success',
-				text:'ส่งข้อมูลไป SAP สำเร็จ',
-				type:'success',
-				timer:1000
-			});
-			setTimeout(function(){
-				viewDetail(code);
-			}, 1500);
-		}
-	});
-}
-
-
-
 function editHeader(){
 	$('.edit').removeAttr('disabled');
 	$('#btn-edit').addClass('hide');
@@ -195,7 +175,6 @@ function addNew()
   var date_add = $('#dateAdd').val();
 	var invoice = $('#invoice').val();
 	var customer_code = $('#customer_code').val();
-	//var warehouse_code = $('#warehouse_code').val();
 	var zone_code = $('#zone_code').val();
 
   if(!isDate(date_add)){
@@ -213,17 +192,30 @@ function addNew()
 		return false;
 	}
 
-	// if(warehouse_code.length == 0){
-	// 	swal('กรุณาระบุคลังสินค้า');
-	// 	return false;
-	// }
-
 	if(zone_code.length == 0){
 		swal('กรุณาระบุโซนรับสินค้า');
 		return false;
 	}
 
-  $('#addForm').submit();
+	$.ajax({
+		url:HOME + 'check_invoice',
+		type:'GET',
+		cache:false,
+		data:{
+			'invoice_code' : invoice
+		},
+		success:function(rs) {
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				$('#addForm').submit();
+			}
+			else {
+				swal('เลขที่บิลไม่ถูกต้อง');
+				return false;
+			}
+		}
+	})
+
 }
 
 
@@ -252,36 +244,28 @@ $('#customer').autocomplete({
 		var arr = $(this).val().split(' | ');
 		if(arr.length == 2){
 			$('#customer_code').val(arr[0]);
-			$('#customer').val(arr[1]);
+			$('#customer').val(arr[0]);
+			$('#customerName').val(arr[1]);
 		}else{
-			$('#customer_code').val('');
 			$('#customer').val('');
+			$('#customer_code').val('');
+			$('#customerName').val('');
 		}
 	}
 });
 
 
-// function zoneInit(){
-// 	$('#zone_code').val('');
-// 	$('#zone').val('');
-// 	var warehouse = $('#warehouse_code').val();
-// 	if(warehouse.length > 0){
-// 		$('#zone').autocomplete({
-// 			source : BASE_URL + 'auto_complete/get_zone_code_and_name/'+warehouse,
-// 			autoFocus:true,
-// 			close:function(){
-// 				var arr = $(this).val().split(' | ');
-// 				if(arr.length == 2){
-// 					$(this).val(arr[1]);
-// 					$('#zone_code').val(arr[0]);
-// 				}else{
-// 					$(this).val('');
-// 					$('#zone_code').val('');
-// 				}
-// 			}
-// 		})
-// 	}
-// }
+$('#customer').focusout(function(){
+	if($(this).val() == '') {
+		$('#customer').val('');
+		$('#customer_code').val('');
+		$('#customerName').val('');
+	}
+})
+
+
+
+
 
 $('#zone').autocomplete({
 	source : BASE_URL + 'auto_complete/get_zone_code_and_name',
@@ -317,23 +301,6 @@ function inputQtyInit(){
 	});
 }
 
-//
-// function inputPriceInit(){
-// 	$('.input-price').keyup(function(index) {
-// 		var arr = $(this).attr('id').split('_');
-// 		var code = arr[1];
-// 		var inv = arr[2];
-// 		var price = parseFloat($('#qty_'+code+'_'+inv).val());
-// 		var qty = parseFloat($(this).val());
-// 		price = isNaN(price) ? 0 : price;
-// 		qty = isNaN(qty) ? 0 : qty;
-// 		var amount = (qty * price).toFixed(2);
-// 		$('#amount_'+code+'_'+inv).text(addCommas(amount));
-// 		recalTotal();
-// 	});
-// }
-
-
 
 $(document).ready(function(){
 	inputQtyInit();
@@ -356,7 +323,7 @@ function recalTotal(){
 	});
 
 	$('#total-qty').text(addCommas(totalQty));
-	$('#total-amount').text(addCommas(totalAmount));
+	$('#total-amount').text(addCommas(totalAmount.toFixed(2)));
 }
 
 
@@ -387,4 +354,40 @@ function removeRow(rowCode, id){
 		reIndex();
 		recalTotal();
 	}
+}
+
+
+$('#invoice').autocomplete({
+	source:BASE_URL + 'auto_complete/get_invoice_code',
+	autoFocus:true,
+	close:function(){
+		var rs = $(this).val();
+		if(rs.length === 0 || rs === 'Not found'){
+			$(this).val('');
+		}
+		else {
+			get_customer_by_invoice(rs);
+		}
+	}
+})
+
+
+function get_customer_by_invoice(invoice_code) {
+	$.ajax({
+		url:HOME + 'get_customer_by_invoice',
+		type:'GET',
+		cache:false,
+		data:{
+			'invoice_code' : invoice_code
+		},
+		success:function(rs) {
+			var rs = $.trim(rs);
+			if(isJson(rs)) {
+				var ds = $.parseJSON(rs);
+				$('#customer_code').val(ds.code);
+				$('#customer').val(ds.code);
+				$('#customerName').val(ds.name);
+			}
+		}
+	})
 }

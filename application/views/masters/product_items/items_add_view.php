@@ -21,12 +21,7 @@
 			<div class="help-block col-xs-12 col-sm-reset inline grey" id="code-error">Allow only [a-z, A-Z, 0-9, "-", "_" ]</div>
 		</div>
 
-		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right">รหัสเก่า</label>
-			<div class="col-xs-12 col-sm-3">
-				<input type="text" name="old_code" id="old_code" class="width-100" value="" placeholder="รหัสเก่า (ไม่บังคับ)" />
-			</div>
-		</div>
+
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
 			<div class="col-xs-12 col-sm-3">
@@ -43,18 +38,11 @@
 			<div class="help-block col-xs-12 col-sm-reset inline red" id="style-error"></div>
 		</div>
 
-		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right">รุ่นเก่า</label>
-			<div class="col-xs-12 col-sm-3">
-				<input type="text" name="old_style" id="old_style" class="width-100" value="" placeholder="รหัสรุ่นเก่า (ไม่บังคับ)"/>
-			</div>
-		</div>
-
 
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">สี</label>
 			<div class="col-xs-12 col-sm-3">
-				<input type="text" name="color" id="color" class="width-100" value="" required />
+				<input type="text" name="color" id="color" class="width-100" value="" />
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red" id="color-error"></div>
 		</div>
@@ -63,7 +51,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ไซส์</label>
 			<div class="col-xs-12 col-sm-3">
-				<input type="text" name="size" id="size" class="width-100" value="" required />
+				<input type="text" name="size" id="size" class="width-100" value="" />
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red" id="size-error"></div>
 		</div>
@@ -81,7 +69,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ราคาทุน</label>
 			<div class="col-xs-12 col-sm-3">
-				<input type="number" step="any" name="cost" id="cost" class="width-100" value="" required />
+				<input type="number" step="any" name="cost" id="cost" class="width-100" value="" />
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red" id="cost-error"></div>
 		</div>
@@ -89,7 +77,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ราคาขาย</label>
 			<div class="col-xs-12 col-sm-3">
-				<input type="number" step="any" name="price" id="price" class="width-100" value="" required />
+				<input type="number" step="any" name="price" id="price" class="width-100" value="" />
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red" id="price-error"></div>
 		</div>
@@ -97,7 +85,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">หน่วยนับ</label>
 			<div class="col-xs-12 col-sm-3">
-				<select class="form-control input-sm" name="unit_code" id="unit_code" required>
+				<select class="form-control input-sm" name="unit_code" id="unit_code">
 					<option value="">โปรดเลือก</option>
 					<?php echo select_unit(); ?>
 				</select>
@@ -119,7 +107,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">กลุ่มสินค้า</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="group_code" id="group" class="form-control input-sm" required>
+				<select name="group_code" id="group" class="form-control input-sm">
 					<option value="">โปรดเลือก</option>
 				<?php echo select_product_group(); ?>
 				</select>
@@ -141,7 +129,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">หมวดหมู่สินค้า</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="category_code" id="category" class="form-control" required>
+				<select name="category_code" id="category" class="form-control">
 					<option value="">โปรดเลือก</option>
 				<?php echo select_product_category(); ?>
 				</select>
@@ -152,7 +140,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ประเภทสินค้า</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="kind_code" id="kind" class="form-control" required>
+				<select name="kind_code" id="kind" class="form-control" >
 					<option value="">โปรดเลือก</option>
 				<?php echo select_product_kind(); ?>
 				</select>
@@ -163,7 +151,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ชนิดสินค้า</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="type_code" id="type" class="form-control" required>
+				<select name="type_code" id="type" class="form-control" >
 					<option value="">โปรดเลือก</option>
 				<?php echo select_product_type(); ?>
 				</select>
@@ -175,7 +163,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ปี</label>
 			<div class="col-xs-12 col-sm-3">
-				<select name="year" id="year" class="form-control" required>
+				<select name="year" id="year" class="form-control">
 				<?php echo select_years(date('Y')); ?>
 				</select>
 			</div>

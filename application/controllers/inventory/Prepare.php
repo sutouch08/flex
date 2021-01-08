@@ -30,6 +30,7 @@ class Prepare extends PS_Controller
       'to_date'       => get_filter('to_date', 'to_date', '')
     );
 
+		$this->title = "ออเดอร์รอจัด";
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = ''; //get_rows();
 		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
@@ -66,6 +67,7 @@ class Prepare extends PS_Controller
       'to_date'       => get_filter('to_date', 'to_date', '')
     );
 
+		$this->title = "ออเดอร์กำลังจัด";
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = ''; //get_rows();
 		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300

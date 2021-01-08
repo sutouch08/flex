@@ -344,8 +344,8 @@ class Qc extends PS_Controller
     $ds['details'] = $details;
     $ds['box_no'] = $box_no;
     $ds['all_box'] = $all_box;
-
-    $this->load->view('inventory/qc/packing_list', $ds);
+		$this->load->view('print/packing_list', $ds);
+    // $this->load->view('inventory/qc/packing_list', $ds);
   }
 
 

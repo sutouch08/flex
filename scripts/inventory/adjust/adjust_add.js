@@ -3,6 +3,11 @@ $('#date_add').datepicker({
 });
 
 
+function getDiffList(){
+  load_in();
+  $('#diffForm').submit();
+}
+
 
 function saveAdjust(){
   let code = $('#code').val();
@@ -181,17 +186,41 @@ $('#pd-code').autocomplete({
   }
 });
 
+
 $('#pd-code').keyup(function(e){
   if(e.keyCode === 13){
     let code = $(this).val();
+    let zone = $('#zone_code').val();
     if(code.length === 0 || code === 'not found'){
       $(this).val('');
       return false;
     }
 
+    if(zone.length === 0){
+      return false;
+    }
+
+    $.ajax({
+      url:HOME + '/get_stock_zone',
+      type:'GET',
+      cache:false,
+      data:{
+        'zone_code' : zone,
+        'product_code' : code
+      },
+      success:function(rs){
+        var stock = parseInt(rs);
+        if(isNaN(stock)){
+          swal(rs);
+        }else{
+          $('#stock-qty').val(stock);
+        }
+      }
+    })
+
     $('#qty-up').focus();
   }
-})
+});
 
 
 $('#qty-up').keyup(function(e){

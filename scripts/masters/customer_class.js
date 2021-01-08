@@ -1,3 +1,4 @@
+var HOME = BASE_URL + 'masters/customer_class/';
 function addNew(){
   window.location.href = BASE_URL + 'masters/customer_class/add_new';
 }

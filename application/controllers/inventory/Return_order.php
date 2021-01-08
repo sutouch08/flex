@@ -67,6 +67,13 @@ class Return_order extends PS_Controller
 
   public function add_details($code)
   {
+
+		//---1. add details to table
+		//---2. บันทึกขาย (ยอดติดลบ)
+		//---3. เพิ่มยอดสต็อก
+		//---4. บันทึก movement
+		//---5.
+
     $sc = TRUE;
 
     if($this->input->post('qty'))
@@ -228,13 +235,12 @@ class Return_order extends PS_Controller
 
   public function approve($code)
   {
+		//--- 1 .
     if($this->pm->can_approve)
     {
       $rs = $this->return_order_model->approve($code);
       if($rs === TRUE)
       {
-        $export = $this->do_export($code);
-
         echo $export === TRUE ? 'success' : $this->error;
       }
       else
@@ -312,15 +318,6 @@ class Return_order extends PS_Controller
       $details = $this->return_order_model->get_invoice_details($doc->invoice);
       if(!empty($details))
       {
-        //--- ถ้าได้รายการ ให้ทำการเปลี่ยนรหัสลูกค้าให้ตรงกับเอกสาร
-        $cust = $this->return_order_model->get_customer_invoice($doc->invoice);
-        if(!empty($cust))
-        {
-          $this->return_order_model->update($doc->code, array('customer_code' => $cust->customer_code));
-        }
-        //--- เปลี่ยนข้อมูลที่จะแสดงให้ตรงกันด้วย
-        $doc->customer_code = $cust->customer_code;
-        $doc->customer_name = $cust->customer_name;
 
         foreach($details as $rs)
         {
@@ -467,6 +464,59 @@ class Return_order extends PS_Controller
   }
 
 
+	//--- get customer code name by invoice code
+	public function get_customer_by_invoice()
+	{
+		$invoice = trim($this->input->get('invoice_code'));
+
+		if(!empty($invoice))
+		{
+			$customer = $this->return_order_model->get_customer_by_invoice($invoice);
+			if(!empty($customer))
+			{
+				$arr = array(
+					'code' => $customer->customer_code,
+					'name' => $customer->customer_name
+				);
+
+				echo json_encode($arr);
+			}
+			else
+			{
+				echo "not found";
+			}
+		}
+		else
+		{
+			echo "not found";
+		}
+	}
+
+
+	//---- check invoice code is valid
+	public function check_invoice()
+	{
+		$sc = TRUE;
+		$invoice = trim($this->input->get('invoice_code'));
+		if(!empty($invoice))
+		{
+			$valid = $this->return_order_model->get_valid_invoice($invoice);
+			if(empty($valid))
+			{
+				$sc = FALSE;
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+		}
+
+		echo $sc === TRUE ? 'success' : "Not found";
+	}
+
+
+
+
   public function get_invoice($invoice)
   {
     $sc = TRUE;
@@ -574,164 +624,6 @@ class Return_order extends PS_Controller
       {
         echo 'not-found';
       }
-    }
-  }
-
-
-
-
-
-  public function do_export($code)
-  {
-    $this->mc = $this->load->database('mc', TRUE);
-    $doc = $this->return_order_model->get($code);
-    $cust = $this->customers_model->get($doc->customer_code);
-    $or = $this->return_order_model->get_sap_return_order($code);
-    if(!empty($doc))
-    {
-      if(empty($or) OR $or->DocStatus == 'O')
-      {
-        if($doc->is_approve == 1 && $doc->status == 1)
-        {
-          $currency = getConfig('CURRENCY');
-          $vat_rate = getConfig('SALE_VAT_RATE');
-          $vat_code = getConfig('SALE_VAT_CODE');
-          $total_amount = $this->return_order_model->get_total_return($code);
-          $ds = array(
-            'DocType' => 'I',
-            'CANCELED' => 'N',
-            'DocDate' => $doc->date_add,
-            'DocDueDate' => $doc->date_add,
-            'CardCode' => $cust->code,
-            'CardName' => $cust->name,
-            'VatSum' => $this->return_order_model->get_total_return_vat($code),
-            'DocCur' => $currency,
-            'DocRate' => 1,
-            'DocTotal' => $total_amount,
-            'DocTotalFC' => $total_amount,
-            'Comments' => $doc->remark,
-            'GroupNum' => $cust->GroupNum,
-            'SlpCode' => $cust->sale_code,
-            'ToWhsCode' => $doc->warehouse_code,
-            'U_ECOMNO' => $doc->code,
-            'U_BOOKCODE' => $doc->bookcode,
-            'F_E_Commerce' => (empty($or) ? 'A' :'U'),
-            'F_E_CommerceDate' => now(),
-            'U_OLDINV' => $doc->invoice
-          );
-
-          $this->mc->trans_start();
-
-          if(!empty($or))
-          {
-            $sc = $this->return_order_model->update_sap_return_order($code, $ds);
-          }
-          else
-          {
-            $sc = $this->return_order_model->add_sap_return_order($ds);
-          }
-
-          if($sc)
-          {
-            if(!empty($or))
-            {
-              $this->return_order_model->drop_sap_exists_details($code);
-            }
-
-            $details = $this->return_order_model->get_details($code);
-            if( ! empty($details))
-            {
-              $line = 0;
-              //--- insert detail to RDN1
-              foreach($details as $rs)
-              {
-                $arr = array(
-                  'U_ECOMNO' => $rs->return_code,
-                  'LineNum' => $line,
-                  'ItemCode' => $rs->product_code,
-                  'Dscription' => $rs->product_name,
-                  'Quantity' => $rs->qty,
-                  'unitMsr' => $this->products_model->get_unit_code($rs->product_code),
-                  'PriceBefDi' => remove_vat($rs->price),
-                  'LineTotal' => remove_vat($rs->amount),
-                  'ShipDate' => $doc->date_add,
-                  'Currency' => $currency,
-                  'Rate' => 1,
-                  'DiscPrcnt' => $rs->discount_percent,
-                  'Price' => remove_vat($rs->price),
-                  'TotalFrgn' => remove_vat($rs->amount),
-                  'WhsCode' => $doc->warehouse_code,
-                  //'BinCode' => $doc->zone_code,
-                  'TaxStatus' => 'Y',
-                  'VatPrcnt' => $vat_rate,
-                  'VatGroup' => $vat_code,
-                  'PriceAfVAT' => $rs->price,
-                  'VatSum' => $rs->vat_amount,
-                  'TaxType' => 'Y',
-                  'F_E_Commerce' => (empty($or) ? 'A' : 'U'),
-                  'F_E_CommerceDate' => now(),
-                  'U_OLDINV' => $rs->invoice_code
-                );
-
-                if( ! $this->return_order_model->add_sap_return_detail($arr))
-                {
-                  $this->error = 'เพิ่มรายการไม่สำเร็จ';
-                }
-
-                $line++;
-              }
-            }
-            else
-            {
-              $this->error = "ไม่พบรายการรับคืน";
-            }
-          }
-          else
-          {
-            $this->error = "เพิ่มเอกสารไม่สำเร็จ";
-          }
-
-          $this->mc->trans_complete();
-
-          if($this->mc->trans_status() === FALSE)
-          {
-            return FALSE;
-          }
-
-          return TRUE;
-
-        }
-        else
-        {
-          $this->error = "{$code} ยังไม่ได้รับการอนุมัติ";
-        }
-      }
-      else
-      {
-        $this->error = "เอกสารถูกปิดไปแล้ว";
-      }
-    }
-    else
-    {
-      $this->error = "ไม่พบเอกสาร {$code}";
-    }
-
-    return FALSE;
-  }
-
-
-
-
-  //---- เรียกใช้จากภายนอก
-  public function export_return($code)
-  {
-    if($this->do_export($code))
-    {
-      echo 'success';
-    }
-    else
-    {
-      echo $this->error;
     }
   }
 

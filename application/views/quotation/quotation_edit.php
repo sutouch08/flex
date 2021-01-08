@@ -169,9 +169,29 @@
 			<?php 	$total_amount += $rs->total_amount; ?>
 			<?php 	endforeach; ?>
 
+
 			<?php endif; ?>
+			<?php $totalBfDisc = $total_amount + $total_discount; ?>
+			<?php $total_discount += $data->bDiscAmount; ?>
+			<?php $total_amount -= $data->bDiscAmount; ?>
 		</tbody>
 		<tfoot>
+			<tr id="billDisc">
+				<td colspan="5" class="middle text-right">ส่วนลดท้ายบิล</td>
+				<td class="middle">
+					<span class="input-icon input-icon-right">
+						<input type="number" id="billDiscPercent" class="form-control input-sm" value="<?php echo $data->bDiscText; ?>"  />
+						<i class="ace-icon fa fa-percent"></i>
+					</span>
+				</td>
+				<td class="middle">
+					<input type="text" class="form-control input-sm text-right" id="billDiscAmount" name="billDiscAmount" value="<?php echo $data->bDiscAmount; ?>"  />
+					<!-- total amount after row discount but before bill disc -->
+					<input type="hidden" id="totalAfDisc" value="0.00" />
+				</td>
+				<td class="middle padding-5">
+				</td>
+			</tr>
 				<tr>
 					<td colspan="5" rowspan="4" style="border-right:solid 1px #cccc;"></td>
 					<td class="">จำนวนรวม</td>
@@ -180,7 +200,7 @@
 				</tr>
 				<tr>
 					<td class="">มูลค่ารวม</td>
-					<td class="text-right" id="total-amount"><?php echo number($total_amount, 2); ?></td>
+					<td class="text-right" id="total-amount"><?php echo number($totalBfDisc, 2); ?></td>
 					<td class="text-center">THB.</td>
 				</tr>
 				<tr>
@@ -190,7 +210,7 @@
 				</tr>
 				<tr>
 					<td class="">สุทธิ</td>
-					<td class="text-right" id="net-amount"><?php echo number($total_amount - $total_discount, 2); ?></td>
+					<td class="text-right" id="net-amount"><?php echo number($total_amount, 2); ?></td>
 					<td class="text-center">THB.</td>
 				</tr>
 			</tfoot>
@@ -203,8 +223,8 @@
 
 <form id="orderForm">
 <div class="modal fade" id="orderGrid" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog" id="modal" style="min-width:250px;">
-		<div class="modal-content">
+	<div class="modal-dialog" id="modal">
+		<div class="modal-content" id="modal-content">
   			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="modalTitle">title</h4>
@@ -346,6 +366,7 @@
 <script src="<?php echo base_url(); ?>scripts/quotation/quotation_add.js"></script>
 <script src="<?php echo base_url(); ?>scripts/print/print_quotation.js"></script>
 <script src="<?php echo base_url(); ?>scripts/orders/product_tab_menu.js"></script>
+
 
 
 <?php $this->load->view('include/footer'); ?>

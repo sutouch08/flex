@@ -34,6 +34,26 @@ class Adjust_model extends CI_Model
   }
 
 
+
+	public function get_not_save_detail($code, $product_code, $zone_code)
+  {
+    $rs = $this->db
+    ->where('adjust_code', $code)
+    ->where('zone_code', $zone_code)
+    ->where('product_code', $product_code)
+    ->where('valid', 0)
+    ->where('is_cancle', 0)
+    ->get('adjust_detail');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+	
   public function get_details($code)
   {
     if(!empty($code))

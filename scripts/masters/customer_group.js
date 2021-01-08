@@ -1,24 +1,24 @@
+var HOME = BASE_URL + 'masters/customer_group/';
+
 function addNew(){
-  window.location.href = BASE_URL + 'masters/customer_group/add_new';
+  window.location.href = HOME + 'add_new';
 }
 
 
 
 function goBack(){
-  window.location.href = BASE_URL + 'masters/customer_group';
+  window.location.href = HOME;
 }
 
 
 function getEdit(code){
-  window.location.href = BASE_URL + 'masters/customer_group/edit/'+code;
+  window.location.href = HOME + 'edit/'+code;
 }
 
 
 function clearFilter(){
-  var url = BASE_URL + 'masters/customer_group/clear_filter';
-  var page = BASE_URL + 'masters/customer_group';
-  $.get(url, function(rs){
-    window.location.href = page;
+  $.get(HOME + 'clear_filter', function(rs){
+    goBack();
   });
 }
 
@@ -34,7 +34,7 @@ function getDelete(code, name){
 		cancelButtonText: 'ยกเลิก',
 		closeOnConfirm: false
   },function(){
-    window.location.href = BASE_URL + 'masters/customer_group/delete/' + code;
+    window.location.href = HOME + 'delete/' + code;
   })
 }
 

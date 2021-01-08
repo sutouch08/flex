@@ -18,8 +18,8 @@ class Customer_area extends PS_Controller
 
   public function index()
   {
-		$code = get_filter('code', 'code', '');
-		$name = get_filter('name', 'name', '');
+		$code = get_filter('code', 'c_area_code', '');
+		$name = get_filter('name', 'c_area_name', '');
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_filter('set_rows', 'rows', 20);
@@ -206,8 +206,7 @@ class Customer_area extends PS_Controller
 
   public function clear_filter()
 	{
-		$this->session->unset_userdata('code');
-    $this->session->unset_userdata('name');
+		clear_filter(array('c_area_code', 'c_area_name'));
 		echo 'done';
 	}
 

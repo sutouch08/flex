@@ -45,7 +45,15 @@ class Order_credit_model extends CI_Model
 
     if($ds['valid'] != 2)
     {
-      $this->db->where('oc.valid', $ds['valid']);
+			if($ds['valid'] == 3)
+			{
+				$this->db->where('oc.valid', 0);
+				$this->db->where('oc.over_due_date <', date('Y-m-d'));
+			}
+			else
+			{
+				$this->db->where('oc.valid', $ds['valid']);
+			}
     }
 
     $this->db->order_by('oc.order_code', 'DESC');
@@ -100,9 +108,17 @@ class Order_credit_model extends CI_Model
       $this->db->where('oc.due_date <=', to_date($ds['due_to_date']));
     }
 
-    if($ds['valid'] != 2)
+		if($ds['valid'] != 2)
     {
-      $this->db->where('oc.valid', $ds['valid']);
+			if($ds['valid'] == 3)
+			{
+				$this->db->where('oc.valid', 0);
+				$this->db->where('oc.over_due_date <', date('Y-m-d'));
+			}
+			else
+			{
+				$this->db->where('oc.valid', $ds['valid']);
+			}
     }
 
     return $this->db->count_all_results();

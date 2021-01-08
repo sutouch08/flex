@@ -1,15 +1,15 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 col-xs-6  padding-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-	<div class="col-sm-6">
-		<p class="pull-right">
-			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> Back</button>
+	<div class="col-sm-6 col-xs-6  padding-5">
+		<p class="pull-right top-p">
+			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 		</p>
 	</div>
 </div><!-- End Row -->
-<hr class="title-block"/>
+<hr class=" padding-5"/>
 <form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/add"; ?>">
 
 	<div class="form-group">

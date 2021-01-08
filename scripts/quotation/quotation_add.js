@@ -4,6 +4,8 @@ function save() {
 		var error = 0;
 		var message = "";
 		var code = $('#code').val();
+		var bDiscText = $('#billDiscPercent').val();
+		var bDiscAmount = removeCommas($('#billDiscAmount').val());
 
 		var items = [];
 
@@ -74,6 +76,8 @@ function save() {
 			cache:false,
 			data:{
 				'code' : code,
+				'bDiscText' : bDiscText,
+				'bDiscAmount' : bDiscAmount,
 				'data' : data
 			},
 			success:function(rs){
@@ -178,6 +182,37 @@ function update(){
 
 
 
+function getOrderGrid(pdCode) {
+	if( pdCode.length > 0  ){
+		load_in();
+		$.ajax({
+			url: BASE_URL + 'orders/orders/get_product_grid',
+			type:"GET",
+			cache:"false",
+			data:{
+				"style_code" : pdCode
+			},
+			success: function(rs){
+				load_out();
+				var rs = rs.split(' | ');
+				if( rs.length == 4 ){
+					var grid = rs[0];
+					var width = rs[1];
+					var pdCode = rs[2];
+					var style = rs[3];
+					$("#modal-content").css("width", width +"px");
+					$("#modalTitle").html(pdCode);
+					$("#id_style").val(style);
+					$("#modalBody").html(grid);
+					$("#orderGrid").modal('show');
+				}else{
+					swal(rs[0]);
+				}
+			}
+		});
+	}
+}
+
 
 function getProductGrid(){
 	var pdCode = $('#pd-box').val();
@@ -199,6 +234,7 @@ function getProductGrid(){
 					var pdCode = rs[2];
 					var style = rs[3];
 					$("#modal").css("width", width +"px");
+					$("#modal-content").css("width", width +"px");
 					$("#modalTitle").html(pdCode);
 					$("#id_style").val(style);
 					$("#modalBody").html(grid);
@@ -357,12 +393,156 @@ function clearFields() {
 	$('#qty').val('');
 }
 
+function active_bdisc() {
+	$('#billDiscPercent').removeAttr('disabled');
+	$('#billDiscAmount').removeAttr('disabled');
+	$('#btn-edit-bdisc').addClass('hide');
+	$('#btn-save-bdisc').removeClass('hide');
+}
+
+
+function updateBillDisc() {
+	var billDisAmount = parseDefault(parseFloat(removeCommas($('#billDiscAmount').val())), 0);
+	var billDisPercent = parseDefault(parseFloat($('#billDiscPercent').val()), 0);
+
+	var code = $('#code').val();
+	load_in();
+
+	$.ajax({
+		url:HOME + 'update_bill_discount',
+		type:'POST',
+		cache:false,
+		data:{
+			"code" : code,
+			"bDiscText" : billDisPercent,
+			"bDiscAmount" : billDisAmount
+		},
+		success:function(rs) {
+			load_out();
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				$('#billDiscPercent').attr('disabled', 'disabled');
+				$('#billDiscAmount').attr('disabled', 'disabled');
+				$('#btn-save-bdisc').addClass('hide');
+				$('#btn-edit-bdisc').removeClass('hide');
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+			}
+		}
+	})
+
+}
+
+//----- คำนวนส่วนลดท้ายบิลย้อนกลับไปเป็น % ในชอง disc billDiscPercent
+$('#billDiscAmount').keyup(function() {
+	var totalAfDisc = parseDefault(parseFloat($('#totalAfDisc').val()), 0);
+	var percent = 0.00;
+	var billDisAmount = parseDefault(parseFloat(removeCommas($(this).val())), 0);
+
+	if(totalAfDisc > 0) {
+		if(billDisAmount >= 0 && billDisAmount <= totalAfDisc) {
+			percent = (billDisAmount/totalAfDisc) * 100;
+		}
+		else {
+			$(this).val(0.00);
+			percent = 0.00;
+		}
+	}
+	else {
+		$(this).val(0.00);
+		percent = 0.00;
+	}
+
+	$('#billDiscPercent').val(percent.toFixed(2));
+
+	// recal();
+})
+
+$('#billDiscAmount').focusout(function(){
+	var totalAfDisc = parseDefault(parseFloat($('#totalAfDisc').val()), 0);
+	var percent = 0.00;
+	var billDisAmount = parseDefault(parseFloat(removeCommas($(this).val())), 0);
+
+	if(totalAfDisc > 0) {
+		if(billDisAmount >= 0 && billDisAmount <= totalAfDisc) {
+			percent = (billDisAmount/totalAfDisc) * 100;
+			$(this).val(billDisAmount.toFixed(2))
+		}
+		else {
+			$(this).val(0.00);
+			percent = 0.00;
+		}
+	}
+	else {
+		$(this).val(0.00);
+		percent = 0.00;
+	}
+
+	$('#billDiscPercent').val(percent.toFixed(2));
+	recal();
+});
+
+
+//------ คำนวนส่วนลดท้ายบิล แล้ว update ช่อง มูลค่าส่วนลดท้ายบิล (discAmount)
+$('#billDiscPercent').keyup(function(){
+	var totalAfDisc = parseDefault(parseFloat($('#totalAfDisc').val()), 0);
+	var percent = parseDefault(parseFloat($(this).val()), 0);
+	var billDisAmount = 0.00;
+
+	if(totalAfDisc > 0) {
+		if(percent >= 0 && percent <= 100) {
+			billDisAmount = totalAfDisc * (percent * 0.01);
+		}
+		else {
+			$(this).val(0.00);
+			billDisAmount = 0.00;
+		}
+	}
+	else {
+		$(this).val(0.00);
+		billDiscAmount = 0.00;
+	}
+
+	$('#billDiscAmount').val(addCommas(billDisAmount.toFixed(2)));
+
+});
+
+$('#billDiscPercent').focusout(function() {
+	var totalAfDisc = parseDefault(parseFloat($('#totalAfDisc').val()), 0);
+	var percent = parseDefault(parseFloat($(this).val()), 0);
+	var billDisAmount = 0.00;
+
+	if(totalAfDisc > 0) {
+		if(percent >= 0 && percent <= 100) {
+			billDisAmount = totalAfDisc * (percent * 0.01);
+			$(this).val(percent.toFixed(2))
+		}
+		else {
+			$(this).val(0.00);
+			billDisAmount = 0.00;
+		}
+	}
+	else {
+		$(this).val(0.00);
+		billDiscAmount = 0.00;
+	}
+
+	$('#billDiscAmount').val(addCommas(billDisAmount.toFixed(2)));
+
+	recal();
+})
 
 function recal(){
 	var total_amount = 0.00;
 	var total_qty = 0.00;
 	var total_discount = 0.00;
 	var net_amount = 0.00;
+	var billDisAmount = parseDefault(parseFloat(removeCommas($('#billDiscAmount').val())), 0);
 
 	$('.row-qty').each(function(){
 		var id = $(this).data('id');
@@ -399,6 +579,11 @@ function recal(){
 
 		$('#amount-'+id).text(amount);
 	});
+
+	$('#totalAfDisc').val(net_amount);
+
+	total_discount += billDisAmount;
+	net_amount -= billDisAmount;
 
 	$('#total-qty').text(addCommas(total_qty.toFixed(2)));
 	$('#total-amount').text(addCommas(total_amount.toFixed(2)));

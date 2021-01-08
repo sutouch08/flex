@@ -157,6 +157,7 @@ function getEdit(){
 }
 
 
+
 //---- เพิ่มรายการสินค้าเช้าออเดอร์
 function addToOrder(){
   var order_code = $('#order_code').val();
@@ -165,8 +166,7 @@ function addToOrder(){
   $(".order-grid").each(function(index, element){
     if($(this).val() != ''){
       var code = $(this).attr('id');
-      var arr = code.split('qty_');
-      data.push({'code' : arr[1], 'qty' : $(this).val()});
+      data.push({'code' : code, 'qty' : $(this).val()});
     }
   });
 

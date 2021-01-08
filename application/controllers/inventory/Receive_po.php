@@ -14,7 +14,7 @@ class Receive_po extends PS_Controller
     parent::__construct();
     $this->home = base_url().'inventory/receive_po';
     $this->load->model('inventory/receive_po_model');
-    $this->title = label_value('receive_title');
+    $this->title = "รับสินค้าจากการซื้อ";
   }
 
 
@@ -169,19 +169,19 @@ class Receive_po extends PS_Controller
         if($this->db->trans_status() === FALSE)
         {
           $sc = FALSE;
-          $this->error = label_value('insert_fail');
+          $this->error = 'insert_fail';
         }
       }
       else
       {
         $sc = FALSE;
-        $this->error = label_value('no_data_found');
+        $this->error = 'no_data_found';
       }
     }
     else
     {
       $sc = FALSE;
-      $this->error = label_value('doc_not_found');
+      $this->error = 'doc_not_found';
     }
 
 
@@ -198,7 +198,7 @@ class Receive_po extends PS_Controller
     }
     else
     {
-      echo label_value('delete_fail');
+      echo 'delete_fail';
     }
   }
 
@@ -211,7 +211,7 @@ class Receive_po extends PS_Controller
     }
     else
     {
-      echo label_value('delete_fail');
+      echo 'delete_fail';
     }
   }
 
@@ -231,13 +231,13 @@ class Receive_po extends PS_Controller
     if(empty($doc))
     {
       $sc = FALSE;
-      $this->error = label_value('doc_not_found');
+      $this->error = 'doc_not_found';
     }
 
     if($sc === TRUE && $doc->status > 0)
     {
       $sc = FALSE;
-      $this->error = label_value('invalid_status');
+      $this->error = 'invalid_status';
     }
 
     if($sc === TRUE)
@@ -330,7 +330,7 @@ class Receive_po extends PS_Controller
       else
       {
         $sc = FALSE;
-        $this->error = label_value('no_data_found');
+        $this->error = 'no_data_found';
       }
     }
 
@@ -353,13 +353,13 @@ class Receive_po extends PS_Controller
     if(empty($doc))
     {
       $sc = FALSE;
-      $this->error = label_value('doc_not_found');
+      $this->error = 'doc_not_found';
     }
 
     if($sc === TRUE && $doc->status != 1)
     {
       $sc = FALSE;
-      $this->error = label_value('invalid_status');
+      $this->error = 'invalid_status';
     }
 
     if($sc === TRUE)
@@ -427,7 +427,7 @@ class Receive_po extends PS_Controller
           else
           {
             $sc = FALSE;
-            $this->error = label_value('stock_not_enough').' : '.$doc->zone_code .' : '.$rs->product_code;
+            $this->error = 'stock_not_enough'.' : '.$doc->zone_code .' : '.$rs->product_code;
           }
 
         } //--- end foreach
@@ -452,7 +452,7 @@ class Receive_po extends PS_Controller
       else
       {
         $sc = FALSE;
-        $this->error = label_value('no_data_found');
+        $this->error = 'no_data_found';
       }
     }
 
@@ -485,9 +485,11 @@ class Receive_po extends PS_Controller
       }
 
       $details = $this->receive_po_model->get_details($code);
+			$this->db->trans_start();
+
       if(!empty($details))
       {
-        $this->db->trans_start();
+
         foreach($details as $ds)
         {
           //--- ลบรายการรับเข้า
@@ -504,20 +506,23 @@ class Receive_po extends PS_Controller
           }
         }
 
-        $this->receive_po_model->set_status($code, 2); //--- 0 = ยังไม่บันทึก 1 = บันทึกแล้ว 2 = ยกเลิก
-
         if(!empty($rs->po_code))
         {
           $po_status = $this->po_model->count_received($rs->po_code) > 0 ? 2 : 1;
           $this->po_model->change_status($rs->po_code, $po_status);
         }
-
-        $this->db->trans_complete();
       }
+
+			
+			$this->receive_po_model->set_status($code, 2); //--- 0 = ยังไม่บันทึก 1 = บันทึกแล้ว 2 = ยกเลิก
+
+
+			$this->db->trans_complete();
+
 
       if($this->db->trans_status() === FALSE)
       {
-        echo label_value('cancle_fail');
+        echo 'cancle_fail';
       }
       else
       {
@@ -526,7 +531,7 @@ class Receive_po extends PS_Controller
     }
     else
     {
-      echo label_value('doc_not_found');
+      echo 'doc_not_found';
     }
 
   }
@@ -545,7 +550,7 @@ class Receive_po extends PS_Controller
       if($po->status == 0 OR $po->status == 3 OR $po->status == 4)
       {
         $sc = FALSE;
-        $this->error = label_value('po_error');
+        $this->error = 'po_error';
       }
       else
       {
@@ -578,7 +583,7 @@ class Receive_po extends PS_Controller
         else
         {
           $sc = FALSE;
-          $this->error = label_value('no_content');
+          $this->error = 'no_content';
         }
       }
 
@@ -586,7 +591,7 @@ class Receive_po extends PS_Controller
     else
     {
       $sc = FALSE;
-      $this->error = label_value('doc_not_found');
+      $this->error = 'doc_not_found';
     }
 
     echo $sc === TRUE ? json_encode($ds) : $this->error;
@@ -692,14 +697,14 @@ class Receive_po extends PS_Controller
         if(!$this->receive_po_model->update($code, $arr))
         {
           $sc = FALSE;
-          $this->error = label_value('update_fail');
+          $this->error = 'update_failed';
         }
       }
     }
     else
     {
       $sc = FALSE;
-      $this->error = label_value('doc_not_found');
+      $this->error = 'doc_not_found';
     }
 
     if($sc === TRUE)
@@ -796,7 +801,7 @@ class Receive_po extends PS_Controller
         if(!$this->receive_po_model->add($arr))
         {
           $sc = FALSE;
-          $this->error = label_value('doc_error');
+          $this->error = 'doc_error';
         }
       }
     }

@@ -191,7 +191,10 @@ class Prepare_model extends CI_Model
 
     if(!empty($ds['code']))
     {
+			$this->db->group_start();
       $this->db->like('orders.code', $ds['code']);
+			$this->db->or_like('orders.reference', $ds['code']);
+			$this->db->group_end();
     }
 
     if(!empty($ds['customer']))
@@ -235,7 +238,10 @@ class Prepare_model extends CI_Model
 
     if(!empty($ds['code']))
     {
+			$this->db->group_start();
       $this->db->like('orders.code', $ds['code']);
+			$this->db->or_like('orders.reference', $ds['code']);
+			$this->db->group_end();
     }
 
     if(!empty($ds['customer']))

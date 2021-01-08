@@ -46,10 +46,12 @@ $header['right']['A'] = array(
 	array('label' => 'ผู้ขาย', 'value' => $order->emp_name)
 );
 
+$payment = $order->is_term == 0 ? 'เงินสด' : 'เครดิต '.$order->credit_term.' วัน';
 
 $header['right']['B'] = array(
 	array('label' => 'ชื่องาน', 'value' => $order->title),
 	array('label' => 'ผู้ติดต่อ', 'value' => $order->contact),
+	array('label' => 'การชำระเงิน', 'value' => $payment),
 	array('label' => 'ยืนราคา', 'value' => intval($order->valid_days).' วัน')
 );
 
@@ -66,7 +68,8 @@ $total_amount 		= 0;  //--- มูลค่ารวม(หลังหักส
 $total_discount 	= 0; //--- ส่วนลดรวม
 $total_order  = 0;    //--- มูลค่าราคารวม
 
-$bill_discount		= $order->bDiscAmount;
+$bill_discount = $order->bDiscAmount;
+$bill_disText =  $order->bDiscText;
 
 
 //**************  กำหนดหัวตาราง  ******************************//
@@ -184,6 +187,8 @@ while($total_page > 0 )
     $total_discount_amount = "- ".number(($total_discount + $bill_discount),2);
     $net_amount = number( ($total_amount - $bill_discount), 2);
 		$baht_text = "(".baht_text($total_amount - $bill_discount).")";
+		$bDiscText = "({$bill_disText} %)";
+		$bDiscAmount = number($bill_discount,2);
     $remark = $order->remark;
   }
   else
@@ -193,6 +198,8 @@ while($total_page > 0 )
     $total_discount_amount = "";
     $net_amount = "";
 		$baht_text = "";
+		$bDiscText = "";
+		$bDiscAmount = "";
     $remark = $order->remark;
   }
 
@@ -200,6 +207,17 @@ while($total_page > 0 )
 
   //--- ราคารวม
 	$sub_price  = "<td class='width-60 subtotal-first-row'></td>";
+
+  $sub_price .= "<td class='subtotal subtotal-first-row'>";
+  $sub_price .=  "<strong class='{$this->printer->text_color}'>ส่วนลดท้ายบิล {$bDiscText}</strong>";
+  $sub_price .= '</td>';
+  $sub_price .= '<td class="subtotal subtotal-first-row text-right">';
+  $sub_price .=  "<strong>{$bDiscAmount} THB</strong>";
+  $sub_price .= '</td>';
+  array_push($subTotal, array($sub_price));
+
+	//--- ราคารวม
+	$sub_price  = "<td class='width-60 no-border'></td>";
 
   $sub_price .= "<td class='subtotal subtotal-first-row'>";
   $sub_price .=  "<strong class='{$this->printer->text_color}'>ราคารวม</strong>";

@@ -93,9 +93,10 @@ class Address extends PS_Controller
     $this->load->model('inventory/qc_model');
     $id_address = empty($id_address) ? $this->address_model->get_id($customer_code) : $id_address;
     $id_sender = empty($id_sender) ? $this->transport_model->get_id($customer_code) : $id_sender;
+		$boxes = getConfig('USE_QC') == 1 ? $this->qc_model->count_box($code) : $box_count;
     $ds = array(
       'reference' => $code,
-      'boxes' => getConfig('USE_QC') == 1 ? $this->qc_model->count_box($code) : $box_count,
+      'boxes' => $boxes == 0 ? 1 : $boxes,
       'ad' => $this->address_model->get_shipping_detail($id_address),
       'sd' => $this->transport_model->get_sender($id_sender),
       'cName' => getConfig('COMPANY_FULL_NAME'),
@@ -130,7 +131,8 @@ class Address extends PS_Controller
         $senders->third = $this->transport_model->get_name($senders->third_sender);
       }
 
-      echo get_address_form($adn, $sdn, $adrs, $senders);
+			$use_qc = getConfig('USE_QC');
+      echo get_address_form($adn, $sdn, $adrs, $senders, $use_qc);
     }
     else
     {

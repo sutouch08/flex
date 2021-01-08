@@ -13,6 +13,16 @@ function printOrder(){
 
 }
 
+
+
+//--- พิมพ์ packing list แบบไม่มีบาร์โค้ด ไม่แสดงราคา และส่วนลด
+function printOrderNoPrice(){
+  var order_code  = $("#order_code").val();
+  var target  = BASE_URL + 'inventory/invoice/print_order_no_price/'+order_code;
+  window.open(target, '_blank', prop);
+
+}
+
 //--- พิมพ์ packing list แบบมีบาร์โค้ด
 function printOrderBarcode(){
 

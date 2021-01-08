@@ -57,7 +57,7 @@ function getProductGrid(){
 
 					if(rs.length === 6){
 						var price = rs[5];
-						pdCode = pdCode + '<span style="color:red;"> : ' + price + ' ฿</span>';
+						pdCode = pdCode + ' <span style="color:red;"> : ' + price + ' ฿</span>';
 					}
 
 					if(grid == 'notfound'){
@@ -66,6 +66,7 @@ function getProductGrid(){
 					}
 
 					$("#modal").css("width", width +"px");
+					$("#modal-content").css("width", width +"px");
 					$("#modalTitle").html(pdCode);
 					$("#id_style").val(style);
 					$("#modalBody").html(grid);
@@ -115,6 +116,7 @@ function getOrderGrid(styleCode){
 				}
 
 				$("#modal").css("width", width +"px");
+				$("#modal-content").css("width", width +"px");
 				$("#modalTitle").html(pdCode);
 				$("#id_style").val(style);
 				$("#modalBody").html(grid);

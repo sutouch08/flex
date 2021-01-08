@@ -14,11 +14,11 @@ $header .= '<tr>';
 $header .= '<td style="width:80%; height:10mm; line-height:10mm; padding-left:10px;">';
 $header .= 'เลขที่เอกสาร : <span class="font-size-18 blod">'.$order->code.'</span>';
 $header .= '</td>';
-$header .= '<td class="text-center font-size-12" style="border-left:solid 1px #CCC;">กล่องที่</td>';
+$header .= '<td class="text-center font-size-12" style="">กล่องที่</td>';
 $header .= '</tr>';
 $header .= '<tr>';
 $header .= '<td style="width:80%; height:10mm; line-height:10mm; padding-left:10px;">วันที่ : '.thai_date($order->date_add, FALSE, '/').'</td>';
-$header .= '<td rowspan="2" class="middle text-center font-size-48 blod" style="border-left:solid 1px #CCC;">'.$box_no.'/'.$all_box.'</td>';
+$header .= '<td rowspan="2" class="middle text-center font-size-48 blod" style="">'.$box_no.'/'.$all_box.'</td>';
 $header .= '</tr>';
 $header .= '<tr>';
 $header .= '<td style="width:80%; height:10mm; line-height:10mm; padding-left:10px;">';
@@ -36,6 +36,7 @@ $total_row = count($details);
 //--- initial config for print page
 $config = array(
           "total_row" => $total_row,
+					"row" => 14,
           "font_size" => 16,
           "sub_total_row" => 5,
           "header_rows" => 3,

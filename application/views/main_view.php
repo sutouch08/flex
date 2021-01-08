@@ -1,17 +1,4 @@
 <?php $this->load->view('include/header'); ?>
-<?php if(!$this->isViewer && $this->notibars) : ?>
-<div class="row">
-  <div class="col-sm-12">
-    <div class="navbar-buttons navbar-header pull-right" role="navigation">
-      <ul class="nav ace-nav">
-        <?php $this->load->view('include/notification'); ?>
-      </ul>
-    </div>
-  </div>
-
-</div>
-<hr class="padding-5"/>
-<?php endif; ?>
 <div class="row" style="margin-top:30px;">
 	<div class="col-sm-3 col-xs-6 padding-5">
 		<label>รหัสสินค้า</label>

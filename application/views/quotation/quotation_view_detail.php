@@ -122,6 +122,21 @@ if($data->status == 2)
 			<?php 	$total_discount += $rs->discount_amount; ?>
 			<?php 	$total_amount += $rs->total_amount; ?>
 			<?php 	endforeach; ?>
+
+			<?php
+				$totalBfDisc = $total_amount + $total_discount;
+				$total_discount += $data->bDiscAmount;
+				$total_amount -= $data->bDiscAmount;
+			 ?>
+
+
+			<tr id="billDisc">
+				<td colspan="5" class="middle text-right">ส่วนลดท้ายบิล</td>
+				<td class="middle text-center"><?php echo $data->bDiscText; ?> %</td>
+				<td class="middle text-right"><?php echo $data->bDiscAmount; ?></td>
+				<td class="middle text-center">THB.</td>
+			</tr>
+
 				<tr>
 					<td colspan="5" rowspan="4" style="border-right:solid 1px #cccc;"></td>
 					<td class="">จำนวนรวม</td>
@@ -130,7 +145,7 @@ if($data->status == 2)
 				</tr>
 				<tr>
 					<td class="">มูลค่ารวม</td>
-					<td class="text-right"><?php echo number($total_amount, 2); ?></td>
+					<td class="text-right"><?php echo number($totalBfDisc, 2); ?></td>
 					<td class="text-center">THB.</td>
 				</tr>
 				<tr>
@@ -140,7 +155,7 @@ if($data->status == 2)
 				</tr>
 				<tr>
 					<td class="">สุทธิ</td>
-					<td class="text-right"><?php echo number($total_amount - $total_discount, 2); ?></td>
+					<td class="text-right"><?php echo number($total_amount, 2); ?></td>
 					<td class="text-center">THB.</td>
 				</tr>
 			<?php else : ?>

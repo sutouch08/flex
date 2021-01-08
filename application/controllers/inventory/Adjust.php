@@ -20,6 +20,7 @@ class Adjust extends PS_Controller
     $this->load->model('masters/warehouse_model');
     $this->load->model('masters/zone_model');
     $this->load->model('masters/products_model');
+		$this->load->model('inventory/check_stock_diff_model');
   }
 
 
@@ -284,68 +285,113 @@ class Adjust extends PS_Controller
 
 
 
-  public function delete_detail()
-  {
-    $sc = TRUE;
-    if($this->pm->can_edit)
-    {
-      $id = $this->input->post('id');
-      if(!empty($id))
-      {
-        $detail = $this->adjust_model->get_detail($id);
-        if(!empty($detail))
-        {
-          $doc = $this->adjust_model->get($detail->adjust_code);
-          if(!empty($doc))
-          {
-            if($doc->status == 0)
-            {
-              if($detail->valid == 0)
-              {
-                if( ! $this->adjust_model->delete_detail($id))
-                {
-                  $sc = FALSE;
-                  $this->error = "ลบรายการไม่สำเร็จ";
-                }
-              }
-              else
-              {
-                $sc = FALSE;
-                $this->error = "รายการถูกปรับยอดแล้วไม่สามารถแก้ไขได้";
-              }
-            }
-            else
-            {
-              $sc = FALSE;
-              $this->error = "เอกสารถูกบันทึกไปแล้ว ไม่สามารถแก้ไขรายการได้";
-            }
-          }
-          else
-          {
-            $sc = FALSE;
-            $this->error = "ไม่พบเลขที่เอกสาร";
-          }
-        }
-        else
-        {
-          $sc = FALSE;
-          $this->error = "ไม่พบรายการที่ต้องการลบ หรือ รายการถูกลบไปแล้ว";
-        }
-      }
-      else
-      {
-        $sc = FALSE;
-        $this->error = "ไม่พบ ID";
-      }
-    }
-    else
-    {
-      $sc = FALSE;
-      $this->error = "คุณไม่มีสิทธิ์ในการแก้ไขรายการ";
-    }
+	public function delete_detail()
+	{
+		$sc = TRUE;
+		if($this->pm->can_edit)
+		{
+			$id = $this->input->post('id');
+			if(!empty($id))
+			{
+				$detail = $this->adjust_model->get_detail($id);
+				if(!empty($detail))
+				{
+					$doc = $this->adjust_model->get($detail->adjust_code);
+					if(!empty($doc))
+					{
+						if($doc->status == 0)
+						{
+							if( ! $this->adjust_model->delete_detail($id))
+							{
+								$sc = FALSE;
+								$this->error = "ลบรายการไม่สำเร็จ";
+							}
+							else
+							{
+								if($detail->id_diff)
+								{
+									$this->check_stock_diff_model->update($detail->id_diff, array('status' => 0));
+								}
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "เอกสารถูกบันทึกไปแล้ว ไม่สามารถแก้ไขรายการได้";
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "ไม่พบเลขที่เอกสาร";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "ไม่พบรายการที่ต้องการลบ หรือ รายการถูกลบไปแล้ว";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "ไม่พบ ID";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "คุณไม่มีสิทธิ์ในการแก้ไขรายการ";
+		}
 
-    echo $sc === TRUE ? 'success' : $this->error;
-  }
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+
+	///----- Just change status to 0
+	public function unsave()
+	{
+		$sc = TRUE;
+		if($this->input->post('code'))
+		{
+			$code = $this->input->post('code');
+			$doc = $this->adjust_model->get($code);
+			if(!empty($doc))
+			{
+				if($doc->status == 1)
+				{
+					$details = $this->adjust_model->get_details($code);
+					if(!empty($details))
+					{
+						$status = 0; //--- 0 = not save, 1 = saved, 2 = cancled
+						if( ! $this->adjust_model->change_status($code, $status))
+						{
+							$sc = FALSE;
+							$this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "ไม่พบรายการปรับยอดกรุณาตรวจสอบ";
+					}
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "เลขที่เอกสารไม่ถูกต้อง";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "ไม่พบเลขที่เอกสาร";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
 
 
 
@@ -560,6 +606,111 @@ class Adjust extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
+
+
+
+	public function load_check_diff($code)
+  {
+    $sc = TRUE;
+    $list = $this->input->post('diff');
+    if(!empty($list))
+    {
+      $this->db->trans_begin();
+      //---- add diff list to adjust
+      foreach($list as $id => $val)
+      {
+        $diff = $this->check_stock_diff_model->get($id);
+        if(!empty($diff))
+        {
+          if($sc === FALSE)
+          {
+            break;
+          }
+
+          if($diff->status == 0)
+          {
+            $zone = $this->zone_model->get($diff->zone_code);
+            if(!empty($zone))
+            {
+              $arr = array(
+                'adjust_code' => $code,
+                'warehouse_code' => $zone->warehouse_code,
+                'zone_code' => $zone->code,
+                'product_code' => $diff->product_code,
+                'qty' => $diff->qty,
+                'id_diff' => $diff->id
+              );
+
+              $adjust_id = $this->adjust_model->get_not_save_detail($code, $diff->product_code, $diff->zone_code);
+              if(!empty($adjust_id))
+              {
+                if(! $this->adjust_model->update_detail($adjust_id, $arr))
+                {
+                  $sc = FALSE;
+                  $this->error = "Update Failed : {$diff->product_code} : {$diff->zone_code}";
+                }
+              }
+              else
+              {
+                if(! $this->adjust_model->add_detail($arr))
+                {
+                  $sc = FALSE;
+                  $this->error = "Add detail failed : {$diff->product_code} : {$diff->zone_code}";
+                }
+              }
+
+              if($sc === TRUE)
+              {
+                $this->check_stock_diff_model->update($diff->id, array('status' => 1));
+              }
+            }
+            else
+            {
+              $sc = FALSE;
+              $this->error = "โซนไม่ถูกต้อง";
+            }
+          }
+        }
+
+      } //--- endforeach;
+
+      if($sc === TRUE)
+      {
+        $this->db->trans_commit();
+      }
+      else
+      {
+        $this->db->trans_rollback();
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "ไม่พบรายการยอดต่าง";
+    }
+
+    if($sc === TRUE)
+    {
+      set_message('Loaded');
+    }
+    else
+    {
+      set_error($this->error);
+    }
+
+    redirect("{$this->home}/edit/{$code}");
+  }
+
+
+
+  public function get_stock_zone()
+  {
+    $zone_code = $this->input->get('zone_code');
+    $product_code = $this->input->get('product_code');
+    $stock = $this->stock_model->get_stock_zone($zone_code, $product_code);
+    echo $stock;
+  }
+
 
 
   public function get_new_code($date = '')

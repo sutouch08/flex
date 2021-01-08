@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Box_size extends PS_Controller
 {
-  public $menu_code = 'DBBOSI';
+  public $menu_code = 'DBBXSI';
 	public $menu_group_code = 'DB';
 	public $menu_sub_group_code = 'WAREHOUSE';
 	public $title = 'เพิ่ม/แก้ไข ขนาดกล่อง';

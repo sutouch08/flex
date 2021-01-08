@@ -1,11 +1,11 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 col-xs-8 padding-5">
     	<h3 class="title" >
         <?php echo $this->title; ?>
       </h3>
 	</div>
-    <div class="col-sm-6">
+    <div class="col-sm-6 col-xs-4 padding-5">
       <p class="pull-right top-p">
 				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 	<?php if($doc->status == 0 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
@@ -17,39 +17,42 @@
       </p>
     </div>
 </div>
-<hr />
+<hr class="padding-5" />
 
 
 <div class="row">
-    <div class="col-sm-1 col-1-harf padding-5 first">
+    <div class="col-sm-1 col-1-harf col-xs-4 padding-5">
     	<label>เลขที่เอกสาร</label>
         <input type="text" class="form-control input-sm text-center" value="<?php echo $doc->code; ?>" disabled />
     </div>
-		<div class="col-sm-1 col-1-harf padding-5">
+		<div class="col-sm-1 col-1-harf col-xs-4 padding-5">
     	<label>วันที่</label>
       <input type="text" class="form-control input-sm text-center edit" name="date_add" id="dateAdd" value="<?php echo thai_date($doc->date_add, FALSE); ?>" readonly disabled/>
     </div>
-		<div class="col-sm-2 padding-5">
+		<div class="col-sm-1 col-1-harf col-xs-4 padding-5">
 			<label>เลขที่บิล[SAP]</label>
 			<input type="text" class="form-control input-sm text-center edit" name="invoice" id="invoice" value="<?php echo $doc->invoice; ?>" disabled />
 		</div>
-		<div class="col-sm-4 padding-5">
-			<label>ลูกค้า</label>
-			<input type="text" class="form-control input-sm edit" name="customer" id="customer" value="<?php echo $doc->customer_name; ?>" disabled/>
+
+		<div class="col-sm-1 col-1-harf col-xs-4 padding-5">
+			<label>รหัสลูกค้า</label>
+			<input type="text" class="form-control input-sm edit"  id="customer" value="<?php echo $doc->customer_code; ?>" disabled/>
 		</div>
-		<!-- <div class="col-sm-3 padding-5 last">
-			<label>คลัง[รับคืน]</label>
-			<input type="text" class="form-control input-sm edit" name="warehouse" id="warehouse" value="<?php echo $doc->warehouse_name; ?>" disabled />
-		</div> -->
-		<div class="col-sm-3 padding-5 last">
+
+		<div class="col-sm-6 col-xs-8 padding-5">
+			<label>ลูกค้า</label>
+			<input type="text" class="form-control input-sm edit" id="customerName" value="<?php echo $doc->customer_name; ?>" disabled/>
+		</div>
+
+		<div class="col-sm-3 col-xs-6 padding-5">
 			<label>โซน[รับคืน]</label>
 			<input type="text" class="form-control input-sm edit" name="zone" id="zone" value="<?php echo $doc->zone_name; ?>" disabled />
 		</div>
-    <div class="col-sm-11 padding-5 first">
+    <div class="col-sm-8 col-xs-6 padding-5">
     	<label>หมายเหตุ</label>
         <input type="text" class="form-control input-sm edit" name="remark" id="remark" placeholder="ระบุหมายเหตุเอกสาร (ถ้ามี)" value="<?php echo $doc->remark; ?>" disabled />
     </div>
-		<div class="col-sm-1 padding-5 last">
+		<div class="col-sm-1 col-xs-12 padding-5">
 			<label class="display-block not-show">save</label>
 			<?php 	if($doc->status == 0 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
 							<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="editHeader()">แก้ไข</button>
@@ -64,35 +67,35 @@
 <input type="hidden" name="zone_code" id="zone_code" value="<?php echo $doc->zone_code; ?>" />
 <input type="hidden" name="invoice_code" id="invoice_code" value="<?php echo $doc->invoice; ?>" />
 
-<hr class="margin-top-15"/>
+<hr class="margin-top-15 padding-5"/>
 <div class="row">
-	<div class="col-sm-1 padding-5 first">
+	<div class="col-sm-1 col-xs-4 padding-5">
     	<label>จำนวน</label>
         <input type="number" class="form-control input-sm text-center" id="qty" value="1" />
     </div>
-    <div class="col-sm-2 padding-5">
+    <div class="col-sm-2 col-xs-4 padding-5">
     	<label>บาร์โค้ดสินค้า</label>
         <input type="text" class="form-control input-sm text-center" id="barcode" placeholder="ยิงบาร์โค้ดเพื่อรับสินค้า" autocomplete="off"  />
     </div>
-    <div class="col-sm-1 padding-5">
+    <div class="col-sm-1 col-xs-4 padding-5">
     	<label class="display-block not-show">ok</label>
-        <button type="button" class="btn btn-xs btn-primary" onclick="doReceive()"><i class="fa fa-check"></i> ตกลง</button>
+        <button type="button" class="btn btn-xs btn-primary btn-block" onclick="doReceive()"><i class="fa fa-check"></i> ตกลง</button>
     </div>
 
 
-		<div class="col-sm-2 col-sm-offset-5 padding-5">
+		<div class="col-sm-2 col-sm-offset-5 col-xs-6 padding-5">
 			<label>เพิ่มบิล[SAP]</label>
 			<input type="text" class="form-control input-sm text-center" id="invoice-box" placeholder="ดึงใบกำกับเพิ่มเติม" />
 		</div>
-		<div class="col-sm-1 padding-5 last">
+		<div class="col-sm-1 col-xs-6 padding-5">
 			<label class="display-block not-show">btn</label>
 			<button type="button" class="btn btn-xs btn-info btn-block" onclick="load_invoice()">ดึงข้อมูล</button>
 		</div>
 </div>
-<hr class="margin-top-15 margin-bottom-15"/>
+<hr class="margin-top-15 margin-bottom-15 padding-5"/>
 <form id="detailsForm" method="post" action="<?php echo $this->home.'/add_details/'.$doc->code; ?>">
 <div class="row">
-	<div class="col-sm-12">
+	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
 		<table class="table table-striped border-1" style="margin-bottom:0px;">
 			<thead>
 				<tr>
@@ -166,17 +169,17 @@
 <?php  endforeach; ?>
 <?php endif; ?>
 			</tbody>
+			<footer>
+				<tr>
+					<td colspan="7" class="middle text-right">รวม</td>
+					<td class="middle widht-10 text-right" id="total-qty"><?php echo number($total_qty); ?></td>
+					<td class="middle width-10 text-right" id="total-amount"><?php echo number($total_amount, 2); ?></td>
+					<td class="width-5"></td>
+				</tr>
+			</footer>
 		</table>
 	</div>
 </div>
-<table class="table border-1">
-	<tr>
-		<td class="middle width-75 text-right">รวม</td>
-		<td class="middle widht-10 text-right" id="total-qty"><?php echo number($total_qty); ?></td>
-		<td class="middle width-10 text-right" id="total-amount"><?php echo number($total_amount, 2); ?></td>
-		<td class="width-5"></td>
-	</tr>
-</table>
 </form>
 
 

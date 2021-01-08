@@ -2,6 +2,7 @@
 
 function productTabMenu($mode = 'order')
 {
+	//--- sale , sale, quotation;
 	$CI =& get_instance();
 	$ajax = $mode == 'order' ? 'getOrderTabs' : ($mode == 'sale' ? 'getSaleOrderTabs' : 'getViewTabs');
 	$sc = '';

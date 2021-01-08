@@ -44,6 +44,7 @@
     <select class="form-control input-sm" name="valid" id="valid" onchange="getSearch()">
       <option value="0" <?php echo is_selected('0', $valid); ?>>ค้างจ่าย</option>
       <option value="1" <?php echo is_selected('1', $valid); ?>>จ่ายแล้ว</option>
+			<option value="3" <?php echo is_selected('3', $valid); ?>>เกินกำหนด</option>
       <option value="2" <?php echo is_selected('2', $valid); ?>>ทั้งหมด</option>
     </select>
   </div>

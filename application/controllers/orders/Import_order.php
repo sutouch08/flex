@@ -203,8 +203,9 @@ class Import_order extends CI_Controller
                 $channels_code = $channels->code;
 
               	//---	วันที่เอกสาร
-              	$date_add = PHPExcel_Style_NumberFormat::toFormattedString($rs['J'], 'YYYY-MM-DD');
-                $date_add = db_date($date_add, TRUE);
+              	//$date_add = PHPExcel_Style_NumberFormat::toFormattedString($rs['J'], 'YYYY-MM-DD');
+                //$date_add = db_date($date_add, TRUE);
+								$date_add = db_date($rs['J'], TRUE);
 
                 //--- ค่าจัดส่ง
                 $shipping_fee = $rs['P'] == '' ? 0.00 : $rs['P'];
@@ -232,9 +233,11 @@ class Import_order extends CI_Controller
                     'state' => $state,
                     'is_paid' => 1,
                     'is_term' => $payment->has_term,
+										'shipping_fee' => $shipping_fee,
                     'status' => 1,
                     'date_add' => $date_add,
-                    'user' => get_cookie('uname')
+                    'user' => get_cookie('uname'),
+										'is_import' => 1
                   );
 
                   //--- เพิ่มเอกสาร
@@ -289,6 +292,7 @@ class Import_order extends CI_Controller
                       'sale_code' => $sale_code,
                       'state' => $state,
                       'is_term' => $payment->has_term,
+											'shipping_fee' => $shipping_fee,
                       'date_add' => $date_add,
                       'user' => get_cookie('uname')
                     );
@@ -330,7 +334,8 @@ class Import_order extends CI_Controller
                   "discount_amount" => 0,
                   "total_amount"	=> $rs['O'],
                   "id_rule"	=> NULL,
-                  "is_count" => $item->count_stock
+                  "is_count" => $item->count_stock,
+									"is_import" => 1
                 );
 
                 if( $this->orders_model->add_detail($arr) === FALSE )
@@ -364,7 +369,8 @@ class Import_order extends CI_Controller
                     "discount_amount" => 0,
                     "total_amount"	=> $rs['O'],
                     "id_rule"	=> NULL,
-                    "is_count" => $item->count_stock
+                    "is_count" => $item->count_stock,
+										"is_import" => 1
                   );
 
                   if($this->orders_model->update_detail($od->id, $arr) === FALSE)

@@ -4,7 +4,6 @@ var data = [];
 var poError = 0;
 var invError = 0;
 var zoneError = 0;
-var lang = language;
 
 
 $('#venderCode').autocomplete({

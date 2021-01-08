@@ -45,8 +45,8 @@
 <input type="hidden" id="order_code" value="<?php echo $order->code; ?>" />
 <?php $this->load->view('orders/order_edit_header'); ?>
 <?php $this->load->view('orders/order_panel'); ?>
-<?php $this->load->view('orders/order_discount_bar'); ?>
-<?php $this->load->view('orders/order_detail'); ?>
+<?php //$this->load->view('orders/order_discount_bar'); ?>
+<?php $this->load->view('orders/order_view_detail'); ?>
 <?php $this->load->view('orders/order_online_modal'); ?>
 <script src="<?php echo base_url(); ?>assets/js/clipboard.min.js"></script>
 <script src="<?php echo base_url(); ?>scripts/orders/orders.js"></script>

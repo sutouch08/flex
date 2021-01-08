@@ -173,7 +173,8 @@ $('#set_rows').keyup(function(e){
 
 
 function reIndex(){
-	let no = parseDefault(parseInt($('#no').val()), 0);
+	//let no = parseDefault(parseInt($('#no').val()), 0);
+	let no = 0;
   $('.no').each(function(index, el) {
     no += 1;
     $(this).text(addCommas(no));
@@ -259,6 +260,50 @@ function parseDefault(value, def){
 
 	return value;
 }
+
+
+function parseDefaultValue(value, default_value, parseType) {
+	if(parseType === undefined) {
+		parseType = "float"; //--- float or int
+	}
+
+	var value = parseType === 'float' ? parseFloat(value) : parseInt(value);
+
+	if(isNaN(value)) {
+		return default_value;
+	}
+
+	return value;
+}
+
+
+function parseDiscountAmount(discount_label, price)
+{
+	var discAmount = 0;
+
+	if(discount_label != '' && discount_label != 0)
+	{
+		var arr = discount_label.split('+');
+		arr.forEach(function(item, index){
+			var i = index + 1;
+			if(i < 4){
+				var disc = item.split('%');
+				var value = parseDefault(parseFloat(disc[0]), 0);
+				if(disc.length == 2){
+					var amount = (value * 0.01) * price;
+					discAmount += amount;
+					price -= amount;
+				}else{
+					discAmount += value;
+					price -= value;
+				}
+			}
+		});
+	}
+
+	return discAmount;
+}
+
 
 //--- return discount array
 function parseDiscount(discount_label, price)

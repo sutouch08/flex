@@ -27,7 +27,7 @@ class Printer
 	public $text_color = "";
 
 	public $title_size 		= "h4";
-	public $content_border = 2;
+	public $content_border = 0;
 	public $pattern			= array();
 	public $footer			= true;
 	public $custom_header = '';
@@ -51,7 +51,8 @@ class Printer
 			$this->$key = $val;
 		}
 
-		$this->total_page = ceil($this->total_row/$this->row);
+		$total_page = ceil($this->total_row/$this->row);
+		$this->total_page = $total_page == 0 ? 1 : $total_page;
 		return true;
 	}
 
@@ -313,7 +314,7 @@ class Printer
 		{
 			$page_break = "";
 		}
-		return "<div class='page_layout' style='width:".$this->page_width."mm; padding-top:5mm; height:".$this->page_height."mm; margin:auto; ".$page_break."'>"; //// page start
+		return "<div class='page_layout' style='width:".$this->page_width."mm; padding-top:5mm; height:".$this->page_height."mm; position:relative; margin:auto; ".$page_break."'>"; //// page start
 	}
 
 
@@ -336,6 +337,14 @@ class Printer
 		$top .= $this->top_page_left();
 		$top .= $this->top_page_right();
 		$top .= "</div>"; /// top end;
+
+		if($this->custom_header != '')
+		{
+			$top .= "<div style='width:".$this->content_width."mm; margin:auto;'>"; //// top start
+			$top .= $this->custom_header;
+			$top .= "</div>"; /// top end;
+		}
+
 
 		return $top;
 	}
@@ -382,7 +391,6 @@ class Printer
 		$top .= $this->title;
 		$top .= "<span style='font-size:10px; float:right; text-align:right; color:black'>หน้า {$this->current_page}/{$this->total_page}</span>";
 		$top .= "</td>";
-		//$top .= "<td style='font-size:10px; vertical-align:top; text-align:right; border-bottom:solid 2px #333;'>หน้า {$this->current_page}/{$this->total_page}</td>";
 		$top .= "</tr>";
 
 		if(!empty($this->header_row['right']))
@@ -416,96 +424,12 @@ class Printer
 	}
 
 
-	// public function print_header()
-	// {
-	//
-	// 	$header  = "<div style='width:{$this->content_width}mm; margin:auto; padding-bottom:10px; border-bottom:solid 2px #333;'>";
-	//
-	// 	$header .= "<table style='border:none; width:100%;'>";
-	// 	$header .= "<tr>";
-	// 	//--- block A width 60%
-	// 	$header .= "<td style='width:60%; padding-top:10px;'>";
-	// 	if(!empty($this->header_row['A']))
-	// 	{
-	// 		foreach($this->header_row['A'] as $value)
-	// 		{
-	// 			$header .= "<p style='width:100%; margin-bottom:1px; font-size:{$this->font_size}px;'>{$value}</p>";
-	// 		}
-	// 	}
-	// 	$header .= "</td>";
-	//
-	// 	//--- block B width 40%
-	// 	$header .= "<td style='width:40%; border-bottom:solid 2px #333;'>";
-	// 	$header .= "<table style='width:100%; border:none;'>";
-	//
-	// 	if(!empty($this->header_row['B']))
-	// 	{
-	// 		foreach($this->header_row['B'] as $row)
-	// 		{
-	// 			$header .= "<tr>";
-	// 			$header .= "<td class='{$this->text_color}' style='width:30%;'>{$row['label']}</td>";
-	// 			$header .= "<td style='width:70%;'>{$row['value']}</td>";
-	// 			$header .= "</tr>";
-	// 		}
-	// 	}
-	//
-	// 	$header .= "</table>";
-	// 	$header .= "</td>";
-	// 	$header .= "</tr>";
-	//
-	//
-	// 	if(!empty($this->header_row['C']))
-	// 	{
-	// 		$header .= "<tr>";
-	// 		//--- block C width 60%
-	// 		$header .= "<td style='width:60%; padding-top:10px;'>";
-	//
-	// 			foreach($this->header_row['C'] as $value)
-	// 			{
-	// 				$header .= "<p style='width:100%; margin-bottom:1px; font-size:12px;'>{$value}</p>";
-	// 			}
-	//
-	// 		$header .= "</td>";
-	//
-	// 		if(!empty($this->header_row['D']))
-	// 		{
-	// 			//--- block D width 40%
-	// 			$header .= "<td style='width:40%; border-bottom:solid 2px #333;'>";
-	// 			$header .= "<table style='width:100%; border:none;'>";
-	//
-	//
-	// 				foreach($this->header_row['D'] as $row)
-	// 				{
-	// 					$header .= "<tr>";
-	// 					$header .= "<td class='{$this->text_color}' style='width:30%;'>{$row['label']}</td>";
-	// 					$header .= "<td style='width:70%;'>{$row['value']}</td>";
-	// 					$header .= "</tr>";
-	// 				}
-	//
-	// 			$header .= "</table>";
-	// 			$header .= "</td>";
-	// 		}
-	//
-	// 		$header .= "</tr>";
-	// 	}
-	//
-	// 	$header .= "</table>";
-	// 	$header .= "</div>";
-	//
-	// 	return $header;
-	// }
-
-
-
-
-
 
 	public function content_start()
 	{
-		return  "<div style='width:{$this->content_width}mm; margin:auto; margin-bottom:2mm; border:none;'>";
+		$border = $this->content_border == 0 ? 'border:none;' : 'border:solid 2px #ccc;';
+		return  "<div style='width:{$this->content_width}mm; margin:auto; margin-bottom:2mm; border-radius: 10px; {$border}'>";
 	}
-
-
 
 
 
@@ -589,7 +513,7 @@ class Printer
 			$row2 = 8;
 			$row4 = 10;
 			$row3 = $height - ($row1+$row2+$row4) - 2;
-			$footer = "<div style='width:190mm; height:".$height."mm; margin:auto;'>";
+			$footer = "<div style='width:190mm; height:".$height."mm; margin:auto; position:absolute; bottom:10mm;'>";
 			foreach($data as $n=>$value)
 			{
 				$footer .="<div style='width:".$box_width."%; height:".$height."mm; text-align:center; float:right;'>";

@@ -1,19 +1,19 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 padding-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-	<div class="col-sm-6">
-		<p class="pull-right">
-			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> Back</button>
+	<div class="col-sm-6 padding-5">
+		<p class="pull-right top-p">
+			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 		</p>
 	</div>
 </div><!-- End Row -->
-<hr class="title-block"/>
+<hr class="padding-5"/>
 <form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/update"; ?>">
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">Code</label>
+    <label class="col-sm-3 control-label no-padding-right">รหัส</label>
     <div class="col-xs-12 col-sm-3">
       <input type="text" name="code" id="code" class="width-100 code" value="<?php echo $code; ?>" autofocus required />
     </div>
@@ -23,7 +23,7 @@
 
 
   <div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">Name</label>
+    <label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
     <div class="col-xs-12 col-sm-3">
 			<input type="text" name="name" id="name" class="width-100" value="<?php echo $name; ?>" required />
     </div>

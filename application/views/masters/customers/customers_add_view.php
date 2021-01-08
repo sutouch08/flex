@@ -1,19 +1,19 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 padding-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-	<div class="col-sm-6">
-		<p class="pull-right">
+	<div class="col-sm-6 padding-5">
+		<p class="pull-right top-p">
 			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> Back</button>
 		</p>
 	</div>
 </div><!-- End Row -->
-<hr class="title-block"/>
+<hr class="padding-5"/>
 <form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/add"; ?>">
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right"><?php echo $this->lang->line('code'); ?></label>
+    <label class="col-sm-3 control-label no-padding-right">รหัส</label>
     <div class="col-xs-12 col-sm-3">
       <input type="text" name="code" id="code" class="width-100 code" value="<?php echo $code; ?>" autofocus required />
     </div>
@@ -23,7 +23,7 @@
 
 
   <div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right"><?php echo $this->lang->line('name'); ?></label>
+    <label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
     <div class="col-xs-12 col-sm-3">
 			<input type="text" name="name" id="name" class="width-100" value="<?php echo $name; ?>" required />
     </div>
@@ -31,7 +31,7 @@
   </div>
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right"><?php echo $this->lang->line('id'); ?>/<?php echo $this->lang->line('tax_id'); ?></label>
+    <label class="col-sm-3 control-label no-padding-right">ID/Tax ID</label>
     <div class="col-xs-12 col-sm-3">
 			<input type="text" name="Tax_id" id="Tax_id" class="width-100" value="<?php echo $Tax_Id; ?>" />
     </div>
@@ -39,10 +39,10 @@
 
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right"><?php echo $this->lang->line('customer_group'); ?></label>
+    <label class="col-sm-3 control-label no-padding-right">กลุ่มลูกค้า</label>
     <div class="col-xs-12 col-sm-3">
 			<select name="group" id="group" class="form-control" required>
-				<option value=""><?php echo $this->lang->line('choose'); ?></option>
+				<option value="">เลือก</option>
 				<?php echo select_customer_group($group); ?>
 			</select>
     </div>
@@ -51,10 +51,10 @@
 
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right"><?php echo $this->lang->line('customer_kind'); ?></label>
+    <label class="col-sm-3 control-label no-padding-right">ประเภทลูกค้า</label>
     <div class="col-xs-12 col-sm-3">
 			<select name="kind" id="kind" class="form-control" required>
-				<option value=""><?php echo $this->lang->line('choose'); ?></option>
+				<option value="">เลือก</option>
 				<?php echo select_customer_kind($kind); ?>
 			</select>
     </div>
@@ -63,10 +63,10 @@
 
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right"><?php echo $this->lang->line('customer_type'); ?></label>
+    <label class="col-sm-3 control-label no-padding-right">ชนิดลูกค้า</label>
     <div class="col-xs-12 col-sm-3">
 			<select name="type" id="type" class="form-control" required>
-				<option value=""><?php echo $this->lang->line('choose'); ?></option>
+				<option value="">เลือก</option>
 				<?php echo select_customer_type($type); ?>
 			</select>
     </div>
@@ -76,10 +76,10 @@
 
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right"><?php echo $this->lang->line('customer_class'); ?></label>
+    <label class="col-sm-3 control-label no-padding-right">เกรดลูกค้า</label>
     <div class="col-xs-12 col-sm-3">
 			<select name="class" id="class" class="form-control" required>
-				<option value=""><?php echo $this->lang->line('choose'); ?></option>
+				<option value="">เลือก</option>
 				<?php echo select_customer_class($class); ?>
 			</select>
     </div>
@@ -88,10 +88,10 @@
 
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right"><?php echo $this->lang->line('customer_area'); ?></label>
+    <label class="col-sm-3 control-label no-padding-right">พื้นที่ขาย</label>
     <div class="col-xs-12 col-sm-3">
 			<select name="area" id="area" class="form-control" required>
-				<option value=""><?php echo $this->lang->line('choose'); ?></option>
+				<option value="">เลือก</option>
 				<?php echo select_customer_area($area); ?>
 			</select>
     </div>
@@ -127,7 +127,7 @@
     <label class="col-sm-3 control-label no-padding-right">หมายเหตุ</label>
     <div class="col-xs-12 col-sm-3">
       <textarea class="form-control input-sm" name="note" id="note" rows="10"><?php echo $note; ?></textarea>
-			
+
     </div>
   </div>
 

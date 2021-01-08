@@ -18,62 +18,8 @@
       <i class="fa fa-times"></i> ทำเครื่องหมายว่ายังไม่ได้รับเงิน
     </button>
   <?php endif; ?>
+	&nbsp;
   </div>
-
-	<div class="col-sm-2 hidden-xs">&nbsp;</div>
-
-  <div class="col-sm-1 col-xs-8 padding-5">
-		<label>ค่าจัดส่ง</label>
-		<input
-		type="number"
-		class="form-control input-sm inline text-center"
-		id="shippingFee"
-		value="<?php echo $order->shipping_fee; ?>" <?php echo $ship_active;  ?>
-		/>
-	</div>
-	<div class="col-sm-1 col-xs-4 padding-5">
-		<label class="display-block not-show">label</label>
-		<?php if($order->is_paid == 0 && $order->state < 8) : ?>
-		<button
-			type="button"
-			class="btn btn-xs btn-warning btn-block <?php echo $ship_edit; ?>"
-			id="btn-edit-shipping-fee"
-			onclick="activeShippingFee()">แก้ไข
-		</button>
-		<button
-			type="button"
-			class="btn btn-xs btn-success btn-block <?php echo $ship_update; ?>"
-			id="btn-update-shipping-fee"
-			onclick="updateShippingFee()">บันทึก
-		</button>
-		<?php endif; ?>
-	</div>
-	<div class="col-sm-1 col-xs-8 padding-5">
-		<label>ค่าบริการ</label>
-		<input
-		type="number"
-		class="form-control input-sm inline text-center"
-		id="serviceFee"
-		value="<?php echo $order->service_fee; ?>" <?php echo $service_active; ?>
-		/>
-	</div>
-	<div class="col-sm-1 col-xs-4 padding-5">
-		<label class="display-block not-show">label</label>
-		<?php if($order->is_paid == 0 && $order->state < 8) : ?>
-		<button
-			type="button"
-			class="btn btn-xs btn-warning btn-block <?php echo $service_edit; ?>"
-			id="btn-edit-service-fee"
-			onclick="activeServiceFee()">แก้ไข
-		</button>
-		<button
-			type="button"
-			class="btn btn-xs btn-primary btn-block <?php echo $service_update; ?>"
-			id="btn-update-service-fee"
-			onclick="updateServiceFee()">บันทึก
-		</button>
-		<?php endif; ?>
-	</div>
 </div>
 <hr class="padding-5" />
 <div class="row">

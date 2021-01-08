@@ -50,7 +50,6 @@
 					<?php
 					if(!$this->isViewer)
 					{
-						$this->load->view('include/approve_form');
 						$this->load->view('include/top_menu');
 					}
 					?>

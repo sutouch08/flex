@@ -7,10 +7,6 @@ class Auto_complete extends CI_Controller
   public function __construct()
   {
     parent::__construct();
-    //$language = getConfig('LANGUAGE');
-    // $display_lang = get_cookie('display_lang');
-    // $this->language = empty($display_lang) ? 'thai' : $display_lang;
-    // $this->lang->load($this->language, $this->language);
   }
 
   public function get_quotation()
@@ -40,6 +36,35 @@ class Auto_complete extends CI_Controller
 
 		echo json_encode($sc);
   }
+
+
+
+	public function get_invoice_code()
+	{
+		$txt = $_REQUEST['term'];
+		$ds = array();
+
+		$qs = $this->db
+		->select('code')
+		->where('state', 8)
+		->where_in('role', array('S','P', 'U'))
+		->like('code', $txt)
+		->get('orders');
+
+		if($qs->num_rows() > 0)
+		{
+			foreach($qs->result() as $rs)
+			{
+				$ds[] = $rs->code;
+			}
+		}
+		else
+		{
+			$ds[] = 'Not found';
+		}
+
+		echo json_encode($ds);
+	}
 
 
 
@@ -118,6 +143,37 @@ public function get_style_code()
 }
 
 
+public function get_style_code_and_name()
+{
+  $sc = array();
+
+  $this->db
+	->select('code, name')
+	->group_start()
+  ->like('code', $_REQUEST['term'])
+	->or_like('name', $_REQUEST['term'])
+	->group_end()
+  ->where('is_deleted', 0)
+  ->order_by('code', 'ASC')
+  ->limit(20);
+  $qs = $this->db->get('product_style');
+
+  if($qs->num_rows() > 0)
+  {
+    foreach($qs->result() as $rs)
+    {
+      $sc[] = $rs->code.' | '.$rs->name;
+    }
+  }
+  else
+  {
+    $sc[] = "not found";
+  }
+
+	echo json_encode($sc);
+}
+
+
 public function get_item_code()
 {
   $sc = array();
@@ -138,6 +194,41 @@ public function get_item_code()
     foreach($qs->result() as $rs)
     {
       $sc[] = $rs->code;
+    }
+  }
+  else
+  {
+    $sc[] = "not found";
+  }
+
+  echo json_encode($sc);
+}
+
+
+
+public function get_item_code_and_name()
+{
+  $sc = array();
+	$txt = trim($_REQUEST['term']);
+
+	$this->db->select('code, name');
+
+	if($txt !== '*')
+	{
+		$this->db->like('code', $txt);
+		$this->db->or_like('name', $txt);
+	}
+
+	$this->db->order_by('code', 'ASC');
+	$this->db->limit(50);
+
+  $qs = $this->db->get('products');
+
+  if($qs->num_rows() > 0)
+  {
+    foreach($qs->result() as $rs)
+    {
+      $sc[] = $rs->code.' | '.$rs->name;
     }
   }
   else
@@ -212,7 +303,7 @@ public function get_item_code()
     }
     else
     {
-      $sc[] = 'no_content';
+      $sc[] = 'Not found';
     }
 
     echo json_encode($sc);
@@ -283,7 +374,7 @@ public function get_item_code()
     }
     else
     {
-      $sc[] = 'no_content';
+      $sc[] = 'Not found';
     }
 
     echo json_encode($sc);
@@ -316,7 +407,7 @@ public function get_item_code()
     }
     else
     {
-      $sc[] = 'no_content';
+      $sc[] = 'Not found';
     }
 
     echo json_encode($sc);
@@ -353,7 +444,7 @@ public function get_item_code()
     }
     else
     {
-      $sc[] = 'no_content';
+      $sc[] = 'Not found';
     }
 
     echo json_encode($sc);
@@ -413,7 +504,7 @@ public function get_item_code()
     }
     else
     {
-      $sc[] = 'no_content';
+      $sc[] = 'Not found';
     }
 
     echo json_encode($sc);
@@ -454,7 +545,7 @@ public function get_item_code()
     ->select('zone.code AS code, zone.name AS name')
     ->from('zone')
     ->join('warehouse', 'warehouse.code = zone.warehouse_code', 'left')
-    ->where('warehouse.role', 6); //--- 6 =  คลังแปรสภาพ ดู table warehouse_role
+    ->where('warehouse.role', 7); //--- 7 =  คลังแปรสภาพ ดู table warehouse_role
 
     if($txt != '*')
     {
@@ -475,7 +566,7 @@ public function get_item_code()
     }
     else
     {
-      $sc[] = 'no_content';
+      $sc[] = 'Not found';
     }
 
     echo json_encode($sc);
@@ -517,7 +608,7 @@ public function get_item_code()
       }
       else
       {
-        $sc[] = 'no_content';
+        $sc[] = 'Not found';
       }
     }
     else

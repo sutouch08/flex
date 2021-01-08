@@ -65,8 +65,9 @@
   <div class="row">
     <div class="col-sm-12 text-right">
       <button type="button" class="btn btn-sm btn-info" onclick="printAddress()"><i class="fa fa-print"></i> ใบนำส่ง</button>
-      <button type="button" class="btn btn-sm btn-primary" onclick="printOrder()"><i class="fa fa-print"></i> Packing List </button>
-      <button type="button" class="btn btn-sm btn-success" onclick="printOrderBarcode()"><i class="fa fa-print"></i> Packing List (barcode)</button>
+      <button type="button" class="btn btn-sm btn-primary" onclick="printOrder()"><i class="fa fa-print"></i> ใบส่งของ/ใบกำกับ </button>
+			<button type="button" class="btn btn-sm btn-primary" onclick="printOrderNoPrice()"><i class="fa fa-print"></i> ใบส่งของ/ใบกำกับ (ไม่แสดงราคา)</button>
+      <button type="button" class="btn btn-sm btn-success" onclick="printOrderBarcode()"><i class="fa fa-print"></i> ใบส่งของ/ใบกำกับ (barcode)</button>
 
       <?php if($use_qc) : ?>
       <button type="button" class="btn btn-sm btn-warning" onclick="showBoxList()"><i class="fa fa-print"></i> Packing List (ปะหน้ากล่อง)</button>
@@ -284,7 +285,7 @@
   <?php endif; ?>
 
   <script src="<?php echo base_url(); ?>scripts/print/print_address.js"></script>
-  <script src="<?php echo base_url(); ?>scripts/print/print_order.js"></script>
+  <script src="<?php echo base_url(); ?>scripts/print/print_order.js?v=<?php echo date('YmdH'); ?>"></script>
   <script src="<?php echo base_url(); ?>scripts/print/print_address.js"></script>
 
 <?php else : ?>

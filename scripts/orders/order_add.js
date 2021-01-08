@@ -30,6 +30,114 @@ function saveOrder(){
 
 
 
+function update_detail(id) {
+	var c_qty = parseDefaultValue($('#current_qty_'+id).val(), 0, 'float');
+	var qty = parseDefaultValue($('#qty_'+id).val(), 0, 'float');
+	var price = parseDefaultValue($('#price_'+id).val(), 0, 'float');
+	var discount = parseDiscount($('#disc_'+id).val(), price);
+	var total_amount = parseDefaultValue($('#line_total_'+id).val(), 0, 'float');
+
+	$.ajax({
+		url:HOME + 'update_detail',
+		type:'POST',
+		cache:false,
+		data:{
+			'id' : id,
+			'qty' : qty,
+			'price' : price,
+			'discount' : discount,
+			'total_amount' : total_amount
+		},
+		success:function(rs) {
+			var rs = $.trim(rs)
+			if(rs == 'success') {
+				$('#current_qty_'+id).val(qty);
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+
+				$('#qty_'+id).val(c_qty);
+				recal(id);
+			}
+		}
+	})
+
+}
+
+
+function update_shipping_fee()
+{
+	var order_code = $('#order_code').val();
+	var fee = parseDefaultValue($('#shipping-box').val(), 0, 'float');
+	var c_fee = $('#current_shipping_fee').val();
+
+	$.ajax({
+		url:HOME + 'update_shipping_fee',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : order_code,
+			'fee' : fee
+		},
+		success:function(rs) {
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				$('#current_shipping_fee').val(fee);
+			}
+			else {
+				$('#shipping-box').val(c_fee);
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+			}
+
+			recalTotal();
+		}
+	})
+}
+
+
+
+function update_service_fee()
+{
+	var order_code = $('#order_code').val();
+	var fee = parseDefaultValue($('#service-box').val(), 0, 'float');
+	var c_fee = $('#current_service_fee').val();
+
+	$.ajax({
+		url:HOME + 'update_service_fee',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : order_code,
+			'fee' : fee
+		},
+		success:function(rs) {
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				$('#current_service_fee').val(fee);
+			}
+			else {
+				$('#service-box').val(c_fee);
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+			}
+
+			recalTotal();
+		}
+	})
+}
+
+
 
 $("#customer").autocomplete({
 	source: BASE_URL + 'auto_complete/get_customer_code_and_name',
@@ -255,8 +363,22 @@ function removeDetail(id, name){
 
 
 $("#pd-box").autocomplete({
-	source: BASE_URL + 'auto_complete/get_style_code',
-	autoFocus: true
+	source: BASE_URL + 'auto_complete/get_style_code_and_name',
+	autoFocus: true,
+	open:function(event){
+		var $ul = $(this).autocomplete('widget');
+		$ul.css('width', 'auto');
+	},
+	close:function() {
+		var rs = $(this).val();
+		var arr = rs.split(' | ');
+		if(arr.length == 2) {
+			$(this).val(arr[0]);
+		}
+		else {
+			$(this).val('');
+		}
+	}
 });
 
 
@@ -278,15 +400,29 @@ $('#pd-box').keyup(function(event) {
 
 
 $('#item-code').autocomplete({
-	source:BASE_URL + 'auto_complete/get_product_code',
-	minLength: 4,
+	source:BASE_URL + 'auto_complete/get_item_code_and_name',
 	autoFocus:true,
+	open:function(event){
+		var $ul = $(this).autocomplete('widget');
+		$ul.css('width', 'auto');
+	},
 	close:function(){
-		setTimeout(function(){
-			getItemGrid();
-		}, 200);
+		var rs = $(this).val();
+		var arr = rs.split(' | ');
+
+		if(arr.length === 2) {
+			$(this).val(arr[0]);
+			setTimeout(function(){
+				getItemGrid();
+			}, 200);
+		}
+		else {
+			$(this).val('');
+		}
 	}
 });
+
+
 
 $('#item-code').keyup(function(e){
 	if(e.keyCode == 13){
@@ -421,11 +557,9 @@ function updateOrder(recal){
 }
 
 
-
-function recalDiscount(){
+function recal_discount_rule() {
 	updateOrder(1);
 }
-
 
 
 // JavaScript Document
@@ -636,5 +770,207 @@ function checkQuotation()
 				}
 			});
 	});
-	
+
+}
+
+
+function recal(id) {
+	var price = parseDefault(parseFloat($('#price_'+id).val()), 0);
+	var qty = parseDefault(parseFloat($('#qty_'+id).val()), 0);
+	var disc = $('#disc_'+id).val();
+	var discAmount = parseDiscountAmount(disc, price);
+	var lineTotal = (price * qty) - (discAmount * qty);
+	$('#line_total_'+id).val(lineTotal.toFixed(2));
+
+
+	recalTotal();
+}
+
+//--- convert line total to discount
+
+function recalDiscount(id) {
+	var qty = parseDefault(parseFloat($('#qty_'+id).val()), 0);
+	var price = parseDefault(parseFloat($('#price_'+id).val()), 0);
+	var amount = parseDefault(parseFloat($('#line_total_'+id).val()), 0);
+
+	var disc = (1- (amount/qty)/price) * 100;
+
+	$('#disc_'+id).val(disc.toFixed(2)+"%");
+
+	recalTotal();
+}
+
+
+
+
+function recalTotal() {
+	var total_order = 0;
+	var totalAfDisc = 0;
+	var total_qty = 0;
+	var total_disc = 0;
+
+	var net_amount = 0;
+	var shipping_fee = parseDefault(parseFloat($('#shipping-box').val()), 0);
+	var service_fee = parseDefault(parseFloat($('#service-box').val()), 0);
+	var deposit = parseDefault(parseFloat($('#deposit-amount').val()), 0);
+
+	$('.line-total').each(function(){
+		let id = $(this).data('id');
+		let price = parseDefault(parseFloat($('#price_'+id).val()), 0);
+		let qty = parseDefault(parseFloat($('#qty_'+id).val()), 0);
+		let amount = parseDefault(parseFloat($('#line_total_'+id).val()), 0);
+		let order_amount = qty * price;
+		let disc_amount = order_amount - amount;
+
+		total_order += order_amount;
+		total_qty += qty;
+		total_disc += disc_amount;
+
+	});
+
+	totalAfDisc = total_order - total_disc;
+	$('#totalAfDisc').val(totalAfDisc);
+
+
+	var bill_disc = parseDefault(parseFloat($('#billDiscAmount').val()), 0);
+
+	total_disc += bill_disc;
+	net_amount = (total_order + shipping_fee + service_fee) - total_disc - deposit;
+
+	$('#total-qty').text(addCommas(total_qty.toFixed(2)));
+	$('#total-order').text(addCommas(total_order.toFixed(2)));
+	$('#total-disc').text("-" + addCommas(total_disc.toFixed(2)));
+	$('#shipping-fee').text(addCommas(shipping_fee.toFixed(2)));
+	$('#service-fee').text(addCommas(service_fee.toFixed(2)));
+	$('#deposit').text("-" + addCommas(deposit.toFixed(2)));
+	$('#net-amount').text(addCommas(net_amount.toFixed(2)));
+
+}
+
+
+
+
+function updateBillDiscAmount() {
+	var order_code = $('#order_code').val();
+	var billDiscAmount = parseDefaultValue($('#billDiscAmount').val(), 0, 'float');
+	var c_bDisc = $('#current_bill_disc_amount').val();
+
+	$.ajax({
+		url:HOME + 'update_bill_discount',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : order_code,
+			'bDiscAmount' : billDiscAmount
+		},
+		success:function(rs) {
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				$('#current_bill_disc_amount').val(billDiscAmount);
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+
+				$('#billDiscAmount').val(c_bDisc);
+			}
+
+			recalTotal();
+		}
+	})
+
+}
+
+
+function updateBillDiscPercent() {
+
+	var total = parseFloat($('#totalAfDisc').val());
+	var disc = parseDefault(parseFloat($('#billDiscAmount').val()), 0);
+	if(disc < 0 ) {
+		disc = 0;
+		$('#billDiscAmount').val(0);
+	}
+	else if(disc > total) {
+		disc = total;
+		$('#billDiscAmount').val(total.toFixed(2));
+	}
+	else {
+		$('#billDiscAmount').val(disc.toFixed(2));
+	}
+	var disPercent = (total > 0 ? (disc / total) * 100 : 0);
+
+	$('#billDiscPercent').val(disPercent.toFixed(2));
+
+	recalTotal();
+}
+
+
+
+
+$('#shipping-box').focusout(function() {
+	var fee = parseDefault(parseFloat($(this).val()), 0);
+
+	if(fee < 0) {
+		$(this).val(0.00);
+	}
+	else {
+		$(this).val(fee.toFixed(2));
+	}
+
+	recalTotal();
+})
+
+
+
+$('#service-box').focusout(function() {
+	var fee = parseDefault(parseFloat($(this).val()), 0);
+
+	if(fee < 0) {
+		$(this).val(0.00);
+	}
+	else {
+		$(this).val(fee.toFixed(2));
+	}
+
+	recalTotal();
+})
+
+function update_bdisc() {
+	var billDisAmount = parseDefault(parseFloat(removeCommas($('#billDiscAmount').val())), 0);
+	var billDisPercent = parseDefault(parseFloat($('#billDiscPercent').val()), 0);
+
+	var code = $('#code').val();
+	load_in();
+
+	$.ajax({
+		url:HOME + 'update_bill_discount',
+		type:'POST',
+		cache:false,
+		data:{
+			"code" : code,
+			"bDiscText" : billDisPercent,
+			"bDiscAmount" : billDisAmount
+		},
+		success:function(rs) {
+			load_out();
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				$('#billDiscPercent').attr('disabled', 'disabled');
+				$('#billDiscAmount').attr('disabled', 'disabled');
+				$('#btn-update-bdisc').addClass('hide');
+				$('#btn-edit-bdisc').removeClass('hide');
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+			}
+		}
+	})
+
 }

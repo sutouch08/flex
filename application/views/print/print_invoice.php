@@ -1,14 +1,65 @@
 <?php
 $this->load->helper('print');
+$total_row 	= empty($details) ? 0 :count($details);
+$config 		= array(
+	"row" => 10,
+	"total_row" => $total_row,
+	"font_size" => 10,
+	"text_color" => "text-green" //--- hilight text color class
+);
 
-$doc = doc_type($order->role); //--- print_helper
+$this->printer->config($config);
 
 $page  = '';
 $page .= $this->printer->doc_header();
 
-$this->printer->add_title($doc['title']);
+$this->printer->add_title($title);
 
-$header		= get_header($order);
+
+$header		= array();
+
+//---- Header block Company details On Left side
+$header['left'] = array();
+
+$header['left']['A'] = array(
+	'company_name' => "<span style='font-size:".($this->printer->font_size + 1)."px; font-weight:bolder;'>".getConfig('COMPANY_FULL_NAME')."</span>",
+	'address1' => getConfig('COMPANY_ADDRESS1'),
+	'address2' => getConfig('COMPANY_ADDRESS2').' '.getConfig('COMPANY_POST_CODE'),
+	'phone' => 'โทร: '. getConfig('COMPANY_PHONE'),
+	'taxid' => 'Tax ID: ' . getConfig('COMPANY_TAX_ID')
+);
+
+if(!empty($address))
+{
+	$header['left']['B'] = array(
+		"client" => "<span style='font-size:".($this->printer->font_size + 1)."px; font-weight:bolder; color:orange;'>ลูกค้า</span>",
+		"customer" => "<span style='font-size:".($this->printer->font_size + 1)."px; font-weight:bolder;'>({$customer->code}) : {$customer->name}</span>",
+		"address1" => "{$address->address} ต.{$address->sub_district} อ.{$address->district} จ.{$address->province} {$address->postcode}",
+		"phone" => "โทร: {$address->phone}",
+		"taxid" => "Tax ID: {$customer->Tax_Id}"
+	);
+}
+else
+{
+	$header['left']['B'] = array(
+		"client" => "<span style='font-size:".($this->printer->font_size + 1)."px; font-weight:bolder; color:orange;'>ลูกค้า</span>",
+		"customer" => "<span style='font-size:".($this->printer->font_size + 1)."px; font-weight:bolder;'>({$customer->code}) : {$customer->name}</span>",
+		"taxid" => "Tax ID: {$customer->Tax_Id}"
+	);
+}
+
+
+
+//--- Header block  Document details On the right side
+$header['right'] = array();
+
+$header['right']['A'] = array(
+	array('label' => 'เลขที่', 'value' => $order->code),
+	array('label' => 'วันที่', 'value' => thai_date($order->date_add, FALSE, '/')),
+	array('label' => 'ผู้ขาย', 'value' => $order->emp_name)
+);
+
+//$header		= get_header($order);
 
 $this->printer->add_header($header);
 
@@ -17,20 +68,12 @@ $this->printer->add_header($header);
 //--- ฝากขาย โอนเข้าคลังฝากขาย เบิกแปรสภาพ เข้าคลังแปรสภาพ  ยืม เข้าคลังยืม
 //--- รายการที่จะพิมพ์ต้องเอามาจากการสั่งสินค้า เปรียบเทียบ กับยอดตรวจ ที่เท่ากัน หรือ ตัวที่น้อยกว่า
 
-$total_row 	= count($details);
+
 $shipping_row = $order->shipping_fee > 0 ? 1 : 0;
 $service_row = $order->service_fee > 0 ? 1 : 0;
 $deposit_row = $order->deposit > 0 ? 1 : 0;
 $subtotal_row = 4 + $shipping_row + $service_row + $deposit_row;
 
-$config 		= array(
-                "total_row" => $total_row,
-                "font_size" => 12,
-                "header_rows" => 3,
-                "sub_total_row" => $subtotal_row
-            );
-
-$this->printer->config($config);
 
 $row 		     = $this->printer->row;
 $total_page  = $this->printer->total_page;
@@ -44,13 +87,13 @@ $bill_discount		= $order->bDiscAmount;
 
 //**************  กำหนดหัวตาราง  ******************************//
 $thead	= array(
-          array("ลำดับ", "width:5%; text-align:center; border-top:0px; border-top-left-radius:10px;"),
-          array("บาร์โค้ด", "width:15%; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
-          array("สินค้า", "width:35%; text-align:center;border-left: solid 1px #ccc; border-top:0px;"),
-          array("ราคา", "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
-          array("จำนวน", "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
-          array("ส่วนลด", "width:15%; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
-          array("มูลค่า", "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px; border-top-right-radius:10px")
+          array("ลำดับ", "width:5%; text-align:center;"),
+          array("บาร์โค้ด", "width:15%; text-align:center;"),
+          array("สินค้า", "width:35%; text-align:center;"),
+          array("ราคา", "width:10%; text-align:center;"),
+          array("จำนวน", "width:10%; text-align:center;"),
+          array("ส่วนลด", "width:15%; text-align:center;"),
+          array("มูลค่า", "width:10%; text-align:center;")
           );
 
 $this->printer->add_subheader($thead);
@@ -58,13 +101,13 @@ $this->printer->add_subheader($thead);
 
 //***************************** กำหนด css ของ td *****************************//
 $pattern = array(
-            "text-align: center; border-top:0px;",
-            "border-left: solid 1px #ccc; border-top:0px; padding: 0px; text-align:center;",
-            "border-left: solid 1px #ccc; border-top:0px;",
-            "text-align:center; border-left: solid 1px #ccc; border-top:0px;",
-            "text-align:center; border-left: solid 1px #ccc; border-top:0px;",
-            "text-align:center; border-left: solid 1px #ccc; border-top:0px;",
-            "text-align:right; border-left: solid 1px #ccc; border-top:0px;"
+            "text-align:center;",
+            "text-align:center;",
+            "text-aligh:left",
+            "text-align:center;",
+            "text-align:center;",
+            "text-align:center;",
+            "text-align:right;"
             );
 
 $this->printer->set_pattern($pattern);
@@ -72,10 +115,10 @@ $this->printer->set_pattern($pattern);
 
 //*******************************  กำหนดช่องเซ็นของ footer *******************************//
 $footer	= array(
-          array("ผู้รับของ", "ได้รับสินค้าถูกต้องตามรายการแล้ว","วันที่............................."),
-          array("ผู้ส่งของ", "","วันที่............................."),
-          array("ผู้ตรวจสอบ", "","วันที่............................."),
-          array("ผู้อนุมัติ", "","วันที่.............................")
+          array("ผู้รับของ", "ได้รับสินค้าถูกต้องตามรายการแล้ว","วันที่"),
+          array("ผู้ส่งของ", "","วันที่"),
+          array("ผู้ตรวจสอบ", "","วันที่"),
+          array("ผู้อนุมัติ", "","วันที่")
           );
 
 $this->printer->set_footer($footer);
@@ -152,11 +195,14 @@ while($total_page > 0 )
     $qty  = number($total_qty);
     $total_order = number($total_order, 2);
     $total_discount_amount = number(($total_discount + $bill_discount),2);
-    $net_amount = number( ($total_amount + $order->shipping_fee + $order->service_fee) - $bill_discount - $order->deposit, 2);
+    // $net_amount = number( ($total_amount + $order->shipping_fee + $order->service_fee) - $bill_discount - $order->deposit, 2);
+		$net_amount = number( ($total_amount + $order->shipping_fee + $order->service_fee) - $bill_discount, 2);
     $service_fee = number($order->service_fee, 2);
     $shipping_fee = number($order->shipping_fee, 2);
-    $deposit = number($order->deposit, 2);
+    //$deposit = number($order->deposit, 2);
     $remark = $order->remark;
+		// $baht_text = "(".baht_text(($total_amount + $order->shipping_fee + $order->service_fee) - $bill_discount - $order->deposit).")";
+		$baht_text = "(".baht_text(($total_amount + $order->shipping_fee + $order->service_fee) - $bill_discount).")";
   }
   else
   {
@@ -164,32 +210,29 @@ while($total_page > 0 )
     $amount = "";
     $shipping_fee = "";
     $service_fee = "";
-    $deposit = '';
+    //$deposit = '';
     $total_discount_amount = "";
     $net_amount = "";
     $remark = "";
+		$baht_text = "";
   }
 
   $subTotal = array();
 
-  //--- จำนวนรวม   ตัว
-  $sub_qty  = '<td class="width-60 subtotal-first text-center" style="height:'.$this->printer->row_height.'mm;">';
-  //$sub_qty .=  '**** ส่วนลดท้ายบิล '.$bill_discount.' ****';
+	//--- จำนวนรวม   ตัว
+  $sub_qty  = '<td rowspan="5" class="width-60 subtotal-first-row">';
+	$sub_qty .= '<strong>หมายเหตุ : </strong> '.$order->remark;
   $sub_qty .= '</td>';
-  $sub_qty .= '<td class="width-20 subtotal">';
+  $sub_qty .= '<td class="width-20 subtotal subtotal-first-row">';
   $sub_qty .=  '<strong>จำนวนรวม</strong>';
   $sub_qty .= '</td>';
-  $sub_qty .= '<td class="width-20 subtotal text-right">';
+  $sub_qty .= '<td class="width-20 subtotal subtotal-first-row text-right">';
   $sub_qty .=    $qty;
   $sub_qty .= '</td>';
 
   array_push($subTotal, array($sub_qty));
 
-  //--- ราคารวม
-  $sub_price  = '<td rowspan="'.($subtotal_row).'" class="subtotal-first font-size-10" style="height:'.$this->printer->row_height.'mm;">';
-  $sub_price .=  '<strong>หมายเหตุ : </strong> '.$order->remark;
-  $sub_price .= '</td>';
-  $sub_price .= '<td class="subtotal">';
+	$sub_price  = '<td class="subtotal">';
   $sub_price .=  '<strong>ราคารวม</strong>';
   $sub_price .= '</td>';
   $sub_price .= '<td class="subtotal text-right">';
@@ -197,8 +240,9 @@ while($total_page > 0 )
   $sub_price .= '</td>';
   array_push($subTotal, array($sub_price));
 
-  //--- ส่วนลดรวม
-  $sub_disc  = '<td class="subtotal" style="height:'.$this->printer->row_height.'mm;">';
+
+	//--- ส่วนลดรวม
+  $sub_disc  = '<td class="subtotal">';
   $sub_disc .=  '<strong>ส่วนลดรวม</strong>';
   $sub_disc .= '</td>';
   $sub_disc .= '<td class="subtotal text-right"> -';
@@ -206,54 +250,53 @@ while($total_page > 0 )
   $sub_disc .= '</td>';
   array_push($subTotal, array($sub_disc));
 
-  //--- shipping_fee
-  if($order->shipping_fee > 0)
-  {
-    $sub_ship  = '<td class="subtotal" style="height:'.$this->printer->row_height.'mm;">';
-    $sub_ship .=  '<strong>ค่าจัดส่ง</strong>';
-    $sub_ship .= '</td>';
-    $sub_ship .= '<td class="subtotal text-right">';
-    $sub_ship .=  $shipping_fee;
-    $sub_ship .= '</td>';
-    array_push($subTotal, array($sub_ship));
-  }
+	//--- shipping_fee
+  $sub_ship  = '<td class="subtotal">';
+  $sub_ship .=  '<strong>ค่าจัดส่ง</strong>';
+  $sub_ship .= '</td>';
+  $sub_ship .= '<td class="subtotal text-right">';
+  $sub_ship .=  $shipping_fee;
+  $sub_ship .= '</td>';
+  array_push($subTotal, array($sub_ship));
 
-  //--- service_fee
-  if($order->service_fee > 0)
-  {
-    $sub_serv  = '<td class="subtotal" style="height:'.$this->printer->row_height.'mm;">';
-    $sub_serv .=  '<strong>อื่นๆ</strong>';
-    $sub_serv .= '</td>';
-    $sub_serv .= '<td class="subtotal text-right">';
-    $sub_serv .=  $service_fee;
-    $sub_serv .= '</td>';
-    array_push($subTotal, array($sub_serv));
-  }
+	//--- service_fee
+  $sub_serv  = '<td class="subtotal">';
+  $sub_serv .=  '<strong>อื่นๆ</strong>';
+  $sub_serv .= '</td>';
+  $sub_serv .= '<td class="subtotal text-right">';
+  $sub_serv .=  $service_fee;
+  $sub_serv .= '</td>';
+  array_push($subTotal, array($sub_serv));
 
-  //--- deposit
-  if($order->deposit > 0)
-  {
-    $sub_depo  = '<td class="subtotal" style="height:'.$this->printer->row_height.'mm;">';
-    $sub_depo .=  '<strong>ชำระแล้ว</strong>';
-    $sub_depo .= '</td>';
-    $sub_depo .= '<td class="subtotal text-right"> -';
-    $sub_depo .=  $deposit;
-    $sub_depo .= '</td>';
-    array_push($subTotal, array($sub_depo));
-  }
+	//--- deposit
+	/*
+	$sub_depo  = '<td class="subtotal">';
+	$sub_depo .=  '<strong>ชำระแล้ว</strong>';
+	$sub_depo .= '</td>';
+	$sub_depo .= '<td class="subtotal text-right"> -';
+	$sub_depo .=  $deposit;
+	$sub_depo .= '</td>';
+	array_push($subTotal, array($sub_depo));
+	*/
 
-  //--- ยอดสุทธิ
-  $sub_net  = '<td class="subtotal" style="height:'.$this->printer->row_height.'mm;">';
+	//--- ยอดสุทธิ
+	$sub_net  = '<td class="no-border text-center">'.$baht_text.'</td>';
+  $sub_net .= '<td class="subtotal subtotal-last-row">';
   $sub_net .=  '<strong>ยอดเงินสุทธิ</strong>';
   $sub_net .= '</td>';
-  $sub_net .= '<td class="subtotal text-right">';
+  $sub_net .= '<td class="subtotal subtotal-last-row text-right">';
   $sub_net .=  $net_amount;
   $sub_net .= '</td>';
 
   array_push($subTotal, array($sub_net));
 
-  $page .= $this->printer->print_sub_total($subTotal);
+	$page .= $this->printer->print_sub_total($subTotal);
   $page .= $this->printer->content_end();
+	$page .= "<div class='divider-hidden'></div>";
+	$page .= "<div class='divider-hidden'></div>";
+	$page .= "<div class='divider-hidden'></div>";
+	$page .= "<div class='divider-hidden'></div>";
+	$page .= "<div class='divider-hidden'></div>";
   $page .= $this->printer->footer;
   $page .= $this->printer->page_end();
 

@@ -1,3 +1,5 @@
+var HOME = BASE_URL + 'orders/orders/';
+
 function addNew(){
   window.location.href = BASE_URL + 'orders/orders/add_new';
 }
@@ -21,6 +23,21 @@ function editOrder(code){
 }
 
 
+function leave(code) {
+	swal({
+    title:'คุณแน่ใจ ?',
+    text:'รายการทั้งหมดจะไม่ถูกบันทึก ต้องการออกหรือไม่ ?',
+    type:'warning',
+    showCancelButton:true,
+    cancelButtonText:'ไม่ใช่',
+    confirmButtonText:'ออกจากหน้านี้',
+  },
+  function(){
+    editOrder(code);
+  });
+}
+
+
 
 function clearFilter(){
   var url = BASE_URL + 'orders/orders/clear_filter';
@@ -33,7 +50,60 @@ function getSearch(){
   $('#searchForm').submit();
 }
 
+function toggleState(state){
+  var current = $('#state_'+state).val();
+  if(current == 'Y'){
+    $('#state_'+state).val('N');
+    $('#btn-state-'+state).removeClass('btn-info');
+  }else{
+    $('#state_'+state).val('Y');
+    $('#btn-state-'+state).addClass('btn-info');
+  }
 
+  getSearch();
+}
+
+
+function toggleNotSave(){
+  var current = $('#notSave').val();
+  if(current == ''){
+    $('#notSave').val(1);
+    $('#btn-not-save').addClass('btn-info');
+  }else{
+    $('#notSave').val('');
+    $('#btn-not-save').removeClass('btn-info');
+  }
+
+  getSearch();
+}
+
+
+function toggleOnlyMe(){
+  var current = $('#onlyMe').val();
+  if(current == ''){
+    $('#onlyMe').val(1);
+    $('#btn-only-me').addClass('btn-info');
+  }else{
+    $('#onlyMe').val('');
+    $('#btn-only-me').removeClass('btn-info');
+  }
+
+  getSearch();
+}
+
+
+function toggleIsExpire(){
+  var current = $('#isExpire').val();
+  if(current == ''){
+    $('#isExpire').val(1);
+    $('#btn-expire').addClass('btn-info');
+  }else{
+    $('#isExpire').val('');
+    $('#btn-expire').removeClass('btn-info');
+  }
+
+  getSearch();
+}
 
 $('.search').keyup(function(e){
   if(e.keyCode == 13){

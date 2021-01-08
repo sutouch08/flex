@@ -54,7 +54,7 @@
 
 	<div class="col-sm-1 col-xs-12 padding-5">
     <label>ยืนราคา(วัน)</label>
-		<input type="number" class="form-control input-sm text-center" name="valid_days" id="valid_days" value="0"/>
+		<input type="number" class="form-control input-sm text-center" name="valid_days" id="valid_days" value="30"/>
   </div>
 
 	<div class="col-sm-3 col-xs-12 padding-5">

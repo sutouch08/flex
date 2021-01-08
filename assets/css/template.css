@@ -1245,3 +1245,14 @@ input[type=number]::-webkit-outer-spin-button {
 	border-top-left-radius: 0px !important;
 	border-bottom-left-radius: 0px !important;
 }
+
+/*
+#modal {
+	position:relative;
+	max-height: 900px;
+	max-width: 1200px;
+	min-width: 250px;
+	overflow-x: scroll;
+	overflow-y: scroll;
+}
+*/

@@ -37,7 +37,14 @@
 	$total_page		= $use_delivery_bill ? ($boxes <= 1 ? 1 : ($boxes+1)/2) : ($boxes <= 1 ? 1 : $boxes/2);
 	$Page = '';
 
-	$config = array("row" => 16, "header_row" => 0, "footer_row" => 0, "sub_total_row" => 0);
+	$config = array(
+		"row" => 16,
+		"header_row" => 0,
+		"footer_row" => 0,
+		"sub_total_row" => 0,
+		"content_border" => 2
+	);
+
 	$this->printer->config($config);
 
 

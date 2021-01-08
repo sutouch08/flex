@@ -8,7 +8,7 @@ class Orders extends PS_Controller
   public $menu_sub_group_code = 'ORDER';
 	public $title = 'ออเดอร์';
   public $filter;
-  public $error;
+
   public function __construct()
   {
     parent::__construct();
@@ -41,19 +41,56 @@ class Orders extends PS_Controller
   public function index()
   {
     $filter = array(
-      'code'          => get_filter('code', 'code', ''),
-      'customer'      => get_filter('customer', 'customer', ''),
-      'user'          => get_filter('user', 'user', ''),
-      'reference'     => get_filter('reference', 'reference', ''),
-      'ship_code'     => get_filter('shipCode', 'shipCode', ''),
-      'channels'      => get_filter('channels', 'channels', ''),
-      'payment'       => get_filter('payment', 'payment', ''),
+      'code'          => get_filter('code', 'order_code', ''),
+      'customer'      => get_filter('customer', 'order_customer', ''),
+      'user'          => get_filter('user', 'order_user', ''),
+      'reference'     => get_filter('reference', 'order_reference', ''),
+      'ship_code'     => get_filter('shipCode', 'order_shipCode', ''),
+      'channels'      => get_filter('channels', 'order_channels', ''),
+      'payment'       => get_filter('payment', 'order_payment', ''),
       'from_date'     => get_filter('fromDate', 'fromDate', ''),
       'to_date'       => get_filter('toDate', 'toDate', ''),
       'is_paid'       => get_filter('is_paid', 'is_paid', 'all'),
+			'notSave' => get_filter('notSave', 'notSave', NULL),
+      'onlyMe' => get_filter('onlyMe', 'onlyMe', NULL),
+      'isExpire' => get_filter('isExpire', 'isExpire', NULL),
       'order_by'      => get_filter('order_by', 'order_by', 'code'),
       'sort_by'       => get_filter('sort_by', 'sort_by', 'DESC')
     );
+
+    $state = array(
+      '1' => get_filter('state_1', 'state_1', 'N'),
+      '2' => get_filter('state_2', 'state_2', 'N'),
+      '3' => get_filter('state_3', 'state_3', 'N'),
+      '4' => get_filter('state_4', 'state_4', 'N'),
+      '5' => get_filter('state_5', 'state_5', 'N'),
+      '6' => get_filter('state_6', 'state_6', 'N'),
+      '7' => get_filter('state_7', 'state_7', 'N'),
+      '8' => get_filter('state_8', 'state_8', 'N'),
+      '9' => get_filter('state_9', 'state_9', 'N')
+    );
+
+    $state_list = array();
+
+    $button = array();
+
+    for($i =1; $i <= 9; $i++)
+    {
+    	if($state[$i] === 'Y')
+    	{
+    		$state_list[] = $i;
+    	}
+
+      $btn = 'state_'.$i;
+      $button[$btn] = $state[$i] === 'Y' ? 'btn-info' : '';
+    }
+
+    $button['not_save'] = empty($filter['notSave']) ? '' : 'btn-info';
+    $button['only_me'] = empty($filter['onlyMe']) ? '' : 'btn-info';
+    $button['is_expire'] = empty($filter['isExpire']) ? '' : 'btn-info';
+
+
+    $filter['state_list'] = empty($state_list) ? NULL : $state_list;
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_rows();
@@ -84,11 +121,193 @@ class Orders extends PS_Controller
     }
 
     $filter['orders'] = $ds;
+    $filter['state'] = $state;
+    $filter['btn'] = $button;
 
 		$this->pagination->initialize($init);
     $this->load->view('orders/orders_list', $filter);
   }
 
+
+
+	public function test() {
+		$ds = $this->input->post('data');
+
+		if(!empty($ds))
+		{
+			foreach($ds as $rs)
+			{
+				$id = $rs['id'];
+				$item = $rs['code'];
+				$qty = $rs['qty'];
+
+				$stock = $this->get_sell_stock($item);
+
+			}
+		}
+	}
+
+
+
+	public function update_detail()
+	{
+		$sc = TRUE;
+		$id = $this->input->post('id');
+		$qty = $this->input->post('qty');
+		$price = $this->input->post('price');
+		$disc = $this->input->post('discount');
+		$total_amount = $this->input->post('total_amount');
+
+		$auz = get_auz(); //--- Allow under zero stock : return TRUE or FALSE;
+		$ds = $this->orders_model->get_detail($id);
+
+		if(!empty($ds))
+		{
+			//---- หายอดต่างว่าต้องเพิ่มหรือลดจากเดิมเท่าไร
+			//---- ถ้ายอดเป็นบวก คือต้องเพิ่ม ต้องตรวจสอบว่ายอดพอให้เพิ่มมั้ย
+			//---- ถ้ายอดเป็นลบ ต้องเอาออก ไม่ต้องตรวจสอบ เอาออกได้เลย
+			//---- ถ้ายอดเป็น 0 แสดงว่ายอดเดิม ไม่ต้องทำอะไร  update ราคากับส่วนลดอย่างเดียว
+			$diff = $qty - $ds->qty;
+
+			if($diff > 0)
+			{
+				$stock = $this->get_sell_stock($ds->product_code);
+
+				if($stock >= $diff OR $ds->is_count == 0 OR $auz === TRUE)
+				{
+					//---- ถ้ายอดคงเหลือมากกว่ายอดที่เพิ่ม หรือ สินค้าไม่นับสต็อก หรือ อนุญาติให้ติดลบได้
+
+					$arr = array(
+						'qty' => $qty,
+						'price' => $price,
+						'discount1' => number($disc['discLabel1'],2) . $disc['discUnit1'],
+						'discount2' => number($disc['discLabel2'],2) . $disc['discUnit2'],
+						'discount3' => number($disc['discLabel3'],2) . $disc['discUnit3'],
+						'discount_amount' => $disc['discountAmount'] * $qty,
+						'total_amount' => $total_amount,
+						'id_rule' => NULL,
+						'update_user' => get_cookie('uname')
+					);
+
+					if(!$this->orders_model->update_detail($id, $arr))
+					{
+						$sc = FALSE;
+						$this->error = "Update item failed";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "ยอดคงเหลือไม่เพียงพอ คงเหลือ : {$stock}";
+				}
+			}
+			else
+			{
+				$arr = array(
+					'qty' => $qty,
+					'price' => $price,
+					'discount1' => number($disc['discLabel1'],2) . $disc['discUnit1'],
+					'discount2' => number($disc['discLabel2'],2) . $disc['discUnit2'],
+					'discount3' => number($disc['discLabel3'],2) . $disc['discUnit3'],
+					'discount_amount' => $disc['discountAmount'] * $qty,
+					'total_amount' => $total_amount,
+					'id_rule' => NULL,
+					'update_user' => get_cookie('uname')
+				);
+
+				if(!$this->orders_model->update_detail($id, $arr))
+				{
+					$sc = FALSE;
+					$this->error = "Update item failed";
+				}
+			}
+
+			if($sc === TRUE)
+			{
+				$this->orders_model->set_status($ds->order_code, 0);
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid Order line id : {$id}";
+		}
+
+		$this->response($sc);
+	}
+
+
+
+	public function update_shipping_fee()
+	{
+		$sc = TRUE;
+		$code = $this->input->post('code');
+		$fee = $this->input->post('fee');
+
+		$arr = array(
+			'shipping_fee' => $fee
+		);
+
+		if(!$this->orders_model->update($code, $arr))
+		{
+			$sc = FALSE;
+			$this->error = "Update Shipping fee failed";
+		}
+		else
+		{
+			update_order_total_amount($code);
+		}
+
+		$this->response($sc);
+	}
+
+
+	public function update_service_fee()
+	{
+		$sc = TRUE;
+		$code = $this->input->post('code');
+		$fee = $this->input->post('fee');
+
+		$arr = array(
+			'service_fee' => $fee
+		);
+
+		if(!$this->orders_model->update($code, $arr))
+		{
+			$sc = FALSE;
+			$this->error = "Update Service fee failed";
+		}
+		else
+		{
+			update_order_total_amount($code);
+		}
+
+		$this->response($sc);
+	}
+
+
+	public function update_bill_discount()
+	{
+		$sc = TRUE;
+		$code = $this->input->post('code');
+		$bDiscAmount = $this->input->post('bDiscAmount');
+
+		$arr = array(
+			'bDiscAmount' => $bDiscAmount
+		);
+
+		if(! $this->orders_model->update($code, $arr))
+		{
+			$sc = FALSE;
+			$this->error = "Update Bill discount failed";
+		}
+		else
+		{
+			update_order_total_amount($code);
+		}
+
+		$this->response($sc);
+	}
 
 
   public function add_new()
@@ -356,7 +575,7 @@ class Orders extends PS_Controller
 								$this->error = "ใบเสนอราคาไม่ถูกต้อง";
 							} //--- end if empty qt
 						}
-						
+
 					} //--- end if empty qt_no
 
 
@@ -766,14 +985,15 @@ class Orders extends PS_Controller
     if($order->is_term == 1)
     {
       //---- check credit balance
-      $amount = $this->orders_model->get_order_total_amount($code) + $order->shipping_fee + $order->service_fee;
+      $amount = $this->orders_model->get_order_total_amount($code);
+			$amount += $order->shipping_fee;
+			$amount += $order->service_fee;
+			$amount -= $order->bDiscAmount;
 
       //--- credit balance from sap
       $credit_balance = $this->customers_model->get_credit_balance($order->customer_code);
 
-      $control = getConfig('CONTROL_CREDIT');
-
-      if($control == 1)
+      if(getConfig('CONTROL_CREDIT'))
       {
         if($amount > $credit_balance)
         {
@@ -831,7 +1051,7 @@ class Orders extends PS_Controller
 
   			if( $style->active == 1 && $this->products_model->is_disactive_all($style->code) === FALSE)
   			{
-  				$ds 	.= 	'<div class="col-lg-1 col-md-2 col-sm-3 col-xs-4"	style="text-align:center;">';
+  				$ds 	.= 	'<div class="col-sm-2 col-xs-4"	style="text-align:center;">';
   				$ds 	.= 		'<div class="product" style="padding:5px;">';
   				$ds 	.= 			'<div class="image">';
   				$ds 	.= 				'<a href="javascript:void(0)" onClick="getOrderGrid(\''.$style->code.'\')">';
@@ -840,7 +1060,7 @@ class Orders extends PS_Controller
   				$ds	.= 			'</div>';
   				$ds	.= 			'<div class="description" style="font-size:10px; min-height:50px;">';
   				$ds	.= 				'<a href="javascript:void(0)" onClick="getOrderGrid(\''.$style->code.'\')">';
-  				$ds	.= 			$style->code.'<br/>'. number($style->price,2);
+  				$ds	.= 			$style->code.' : '.$style->name.'<br/>'. number($style->price,2);
   				$ds 	.=  		$style->count_stock == 1 ? ' | <span style="color:red;">'.$this->get_style_sell_stock($style->code).'</span>' : '';
   				$ds	.= 				'</a>';
   				$ds 	.= 			'</div>';
@@ -881,7 +1101,7 @@ class Orders extends PS_Controller
   	$sc = $this->getOrderGrid($style_code, $view, $warehouse, $zone);
   	$tableWidth	= $this->products_model->countAttribute($style_code) == 1 ? 600 : $this->getOrderTableWidth($style_code);
   	$sc .= ' | '.$tableWidth;
-  	$sc .= ' | ' . $style_code;
+  	$sc .= ' | ' . $style_code.' : '.$style->name;
   	$sc .= ' | ' . $style_code;
     $sc .= ' | ' . get_cover_image($style_code, 'mini');
     $sc .= ' | ' . number($style->price, 2);
@@ -1165,7 +1385,7 @@ class Orders extends PS_Controller
     $sc = '<tr class="font-size-12"><td>&nbsp;</td>';
     foreach( $colors as $code => $name )
     {
-      $sc .= '<td class="text-center middle"><strong>'.$code.'<br>'. $name.'</strong></td>';
+      $sc .= '<td class="text-center middle"><strong>'.$code.'</strong></td>';
     }
     $sc .= '</tr>';
     return $sc;
@@ -1328,6 +1548,8 @@ class Orders extends PS_Controller
       $netAmount = ( $total_amount - $order->bDiscAmount ) + $order->shipping_fee + $order->service_fee;
 
       $arr = array(
+						"bDiscText" => $order->bDiscText,
+						"bDiscAmount" => $order->bDiscAmount,
             "total_qty" => number($total_qty),
             "order_amount" => number($total_order, 2),
             "total_discount" => number($total_discount, 2),
@@ -1527,36 +1749,36 @@ class Orders extends PS_Controller
   }
 
 
-  public function update_shipping_fee()
-  {
-    $order_code = $this->input->post('order_code');
-    $shipping_fee = $this->input->post('shipping_fee');
-    if($this->orders_model->update_shipping_fee($order_code, $shipping_fee))
-    {
-      update_order_total_amount($order_code);
-      echo 'success';
-    }
-    else
-    {
-      echo 'failed';
-    }
-  }
-
-
-  public function update_service_fee()
-  {
-    $order_code = $this->input->post('order_code');
-    $service_fee = $this->input->post('service_fee');
-    if($this->orders_model->update_service_fee($order_code, $service_fee))
-    {
-      update_order_total_amount($order_code);
-      echo 'success';
-    }
-    else
-    {
-      echo 'failed';
-    }
-  }
+  // public function update_shipping_fee()
+  // {
+  //   $order_code = $this->input->post('order_code');
+  //   $shipping_fee = $this->input->post('shipping_fee');
+  //   if($this->orders_model->update_shipping_fee($order_code, $shipping_fee))
+  //   {
+  //     update_order_total_amount($order_code);
+  //     echo 'success';
+  //   }
+  //   else
+  //   {
+  //     echo 'failed';
+  //   }
+  // }
+	//
+	//
+  // public function update_service_fee()
+  // {
+  //   $order_code = $this->input->post('order_code');
+  //   $service_fee = $this->input->post('service_fee');
+  //   if($this->orders_model->update_service_fee($order_code, $service_fee))
+  //   {
+  //     update_order_total_amount($order_code);
+  //     echo 'success';
+  //   }
+  //   else
+  //   {
+  //     echo 'failed';
+  //   }
+  // }
 
 
 
@@ -2355,25 +2577,43 @@ class Orders extends PS_Controller
   }
 
 
-
   public function clear_filter()
   {
     $filter = array(
-      'code',
-      'customer',
-      'user',
-      'reference',
-      'shipCode',
-      'channels',
-      'payment',
-      'fromDate',
-      'toDate',
-      'is_paid',
-      'order_by',
-      'sort_by'
+      'order_code',
+      'order_customer',
+      'order_user',
+      'order_reference',
+      'order_shipCode',
+      'order_channels',
+      'order_payment',
+      'order_fromDate',
+      'order_toDate',
+      'order_warehouse',
+      'notSave',
+      'onlyMe',
+      'isExpire',
+      'order_order_by',
+      'order_sort_by',
+			'from_date',
+			'to_date',
+      'state_1',
+      'state_2',
+      'state_3',
+      'state_4',
+      'state_5',
+      'state_6',
+      'state_7',
+      'state_8',
+      'state_9',
+      'stated',
+      'startTime',
+      'endTime'
     );
 
     clear_filter($filter);
   }
+
+
 }
 ?>

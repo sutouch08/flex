@@ -91,7 +91,7 @@ $this->printer->add_subheader($thead);
 
 //***************************** กำหนด css ของ td *****************************//
 $pattern = array(
-            "text-align: center;",
+            "text-align:center;",
             "text-align:center;",
             "text-align:left;",
             "text-align:right;",
@@ -240,7 +240,6 @@ while($total_page > 0 )
   array_push($subTotal, array($sub_disc));
 
   //--- shipping_fee
-
   $sub_ship  = '<td class="subtotal">';
   $sub_ship .=  '<strong>ค่าจัดส่ง</strong>';
   $sub_ship .= '</td>';

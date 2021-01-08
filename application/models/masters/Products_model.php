@@ -61,6 +61,21 @@ class Products_model extends CI_Model
         }
       }
 
+			if(!empty($ds['price']))
+      {
+        $operater = !empty($ds['operater']) ? $ds['operater'] : 'less_than';
+
+        if($operater === 'more_than')
+        {
+          $this->db->where('products.price >=', $ds['price'], FALSE);
+        }
+        else
+        {
+          $this->db->where('products.price <=', $ds['price'], FALSE);
+        }
+      }
+
+
       if(!empty($ds['group']))
       {
         $this->db->where('group_code', $ds['group']);
@@ -161,6 +176,23 @@ class Products_model extends CI_Model
           $this->db->group_end();
         }
       }
+
+
+			if(!empty($ds['price']))
+      {
+        $operater = !empty($ds['operater']) ? $ds['operater'] : 'less_than';
+
+        if($operater === 'more_than')
+        {
+          $this->db->where('products.price >=', $ds['price'], FALSE);
+        }
+        else
+        {
+          $this->db->where('products.price <=', $ds['price'], FALSE);
+        }
+      }
+
+
 
       if(!empty($ds['group']))
       {

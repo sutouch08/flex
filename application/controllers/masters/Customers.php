@@ -18,7 +18,6 @@ class Customers extends PS_Controller
     $this->load->model('masters/customer_class_model');
     $this->load->model('masters/customer_area_model');
     $this->load->helper('customer');
-    $this->title = label_value('DBCUST');
   }
 
 
@@ -71,6 +70,8 @@ class Customers extends PS_Controller
 		$this->pagination->initialize($init);
     $this->load->view('masters/customers/customers_view', $data);
   }
+
+
 
 
   public function add_new()
@@ -474,6 +475,251 @@ class Customers extends PS_Controller
     set_message('Sync completed');
   }
 
+
+
+	public function download_template($token)
+	{
+		//--- load excel library
+		$this->load->library('excel');
+
+		$this->excel->setActiveSheetIndex(0);
+		$this->excel->getActiveSheet()->setTitle('Items Master Template');
+
+		//--- set report title header
+		$this->excel->getActiveSheet()->setCellValue('A1', 'Customer Code');
+		$this->excel->getActiveSheet()->setCellValue('B1', 'Customer Name');
+		$this->excel->getActiveSheet()->setCellValue('C1', 'Tax Id');
+		$this->excel->getActiveSheet()->setCellValue('D1', 'Customer Group');
+		$this->excel->getActiveSheet()->setCellValue('E1', 'Customer Kind');
+		$this->excel->getActiveSheet()->setCellValue('F1', 'Customer Type');
+		$this->excel->getActiveSheet()->setCellValue('G1', 'Customer Grade');
+		$this->excel->getActiveSheet()->setCellValue('H1', 'Sales Area');
+		$this->excel->getActiveSheet()->setCellValue('I1', 'Sale Code');
+		$this->excel->getActiveSheet()->setCellValue('J1', 'Credit Term');
+		$this->excel->getActiveSheet()->setCellValue('K1', 'Credit Amount');
+		$this->excel->getActiveSheet()->setCellValue('L1', 'Notes');
+
+
+
+		setToken($token);
+
+		$file_name = "Customers_master_template.xlsx";
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
+		header('Content-Disposition: attachment;filename="'.$file_name.'"');
+		$writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
+		$writer->save('php://output');
+	}
+
+
+
+	public function import_customers()
+	{
+		$sc = TRUE;
+    $file = isset( $_FILES['uploadFile'] ) ? $_FILES['uploadFile'] : FALSE;
+  	$path = $this->config->item('upload_path');
+    $file	= 'uploadFile';
+		$config = array(   // initial config for upload class
+			"allowed_types" => "xlsx",
+			"upload_path" => $path,
+			"file_name"	=> "import_customers",
+			"max_size" => 5120,
+			"overwrite" => TRUE
+			);
+
+		$this->load->library("upload", $config);
+
+		if(! $this->upload->do_upload($file))
+		{
+			$sc = FALSE;
+			$this->error = $this->upload->display_errors();
+		}
+		else
+		{
+			$this->load->library('excel');
+
+			$info = $this->upload->data();
+			/// read file
+			$excel = PHPExcel_IOFactory::load($info['full_path']);
+			//get only the Cell Collection
+			$collection	= $excel->getActiveSheet()->toArray(NULL, TRUE, TRUE, TRUE);
+
+			$i = 1;
+			$count = count($collection);
+			$limit = intval(getConfig('IMPORT_ROWS_LIMIT'))+1;
+
+			if($count <= $limit)
+			{
+				foreach($collection as $rs)
+				{
+					if($i == 1)
+					{
+						$i++;
+
+						$headCol = array(
+							'A' => 'Customer Code',
+							'B' => 'Customer Name',
+							'C' => 'Tax Id',
+							'D' => 'Customer Group',
+							'E' => 'Customer Kind',
+							'F' => 'Customer Type',
+							'G' => 'Customer Grade',
+							'H' => 'Sales Area',
+							'I' => 'Sale Code',
+							'J' => 'Credit Term',
+							'K' => 'Credit Amount',
+							'L' => 'Notes'
+						);
+
+						foreach($headCol as $col => $field)
+						{
+							if($rs[$col] !== $field)
+							{
+								$sc = FALSE;
+								$this->error = 'Column '.$col.' Should be '.$field;
+								break;
+							}
+						}
+
+						if($sc === FALSE)
+						{
+							break;
+						}
+
+					}
+					else if(!empty($rs['A']))
+					{
+						if($sc === FALSE)
+						{
+							break;
+						}
+
+						$code_pattern = '/[^a-zA-Z0-9_-]/';
+
+						$code = preg_replace($code_pattern, '', trim($rs['A']));
+						$name = get_null(trim($rs['B']));
+						$taxId = get_null(trim($rs['C']));
+						$group = get_null(trim($rs['D']));
+						$kind = get_null(trim($rs['E']));
+						$type = get_null(trim($rs['F']));
+						$class = get_null(trim($rs['G']));
+						$area = get_null(trim($rs['H']));
+						$sale = get_null(trim($rs['I']));
+						$term = get_null(trim($rs['J']));
+						$amount = get_null(trim($rs['K']));
+						$notes = get_null(trim($rs['L']));
+
+						if(!empty($group) && ! $this->customer_group_model->is_exists($group))
+						{
+							$this->addGroup($group);
+						}
+
+						if(!empty($kind) && !$this->customer_kind_model->is_exists($kind))
+						{
+							$this->addKind($kind);
+						}
+
+						if(!empty($type) && !$this->customer_type_model->is_exists($type))
+						{
+							$this->addType($type);
+						}
+
+						if(!empty($class) && !$this->customer_class_model->is_exists($class))
+						{
+							$this->addClass($class);
+						}
+
+						if(!empty($area) && !$this->customer_area_model->is_exists($area))
+						{
+							$this->addArea($area);
+						}
+
+						$arr = array(
+							'code' => $code,
+							'name' => $name,
+							'Tax_Id' => $taxId,
+							'group_code' => $group,
+							'kind_code' => $kind,
+							'type_code' => $type,
+							'class_code' => $class,
+							'area_code' => $area,
+							'sale_code' => $sale,
+							'credit_term' => $term,
+							'amount' => $amount
+						);
+
+						if($this->customers_model->is_exists($code))
+						{
+							$is_done = $this->customers_model->update($code, $arr);
+						}
+						else
+						{
+							$is_done = $this->customers_model->add($arr);
+						}
+
+					}
+				} //-- end foreach
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "จำนวนนำเข้าสูงสุดได้ไม่เกิน {$limit} บรรทัด";
+			} //-- end if count limit
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+	private function addGroup($code)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $code
+		);
+
+		$this->customer_group_model->add($arr);
+	}
+
+	private function addKind($code)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $code
+		);
+
+		$this->customer_kind_model->add($arr);
+	}
+
+	private function addType($code)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $code
+		);
+
+		$this->customer_type_model->add($arr);
+	}
+
+	private function addClass($code)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $code
+		);
+
+		$this->customer_class_model->add($arr);
+	}
+
+
+	private function addArea($code)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $code
+		);
+
+		$this->customer_area_model->add($arr);
+	}
 
   public function clear_filter()
 	{

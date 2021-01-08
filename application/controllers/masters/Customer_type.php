@@ -18,8 +18,9 @@ class Customer_type extends PS_Controller
 
   public function index()
   {
-		$code = get_filter('code', 'code', '');
-		$name = get_filter('name', 'name', '');
+
+		$code = get_filter('code', 'c_type_code', '');
+		$name = get_filter('name', 'c_type_name', '');
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_filter('set_rows', 'rows', 20);
@@ -205,8 +206,8 @@ class Customer_type extends PS_Controller
 
   public function clear_filter()
 	{
-		$this->session->unset_userdata('code');
-    $this->session->unset_userdata('name');
+		$filter = array('c_type_code', 'c_type_name');
+		clear_filter($filter);
 		echo 'done';
 	}
 

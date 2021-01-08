@@ -35,6 +35,7 @@ function update_order_total_amount($code)
 
 	$amount += $order->shipping_fee;
 	$amount += $order->service_fee;
+	$amount -= $order->bDiscAmount;
 	$CI->orders_model->update_order_total_amount($code, $amount);
 	$CI->orders_model->recal_order_balance($code);
 }

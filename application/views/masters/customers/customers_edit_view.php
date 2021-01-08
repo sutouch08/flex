@@ -5,7 +5,7 @@
   </div>
 	<div class="col-sm-6">
 		<p class="pull-right top-p">
-			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> <?php label('back'); ?></button>
+			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 		</p>
 	</div>
 </div><!-- End Row -->
@@ -20,13 +20,13 @@ $tab3 = $tab == 'shipTab' ? 'active in' : '';
 <div class="col-sm-1 col-1-harf padding-right-0 padding-top-15">
 	<ul id="myTab1" class="setting-tabs width-100" style="margin-left:0px;">
 	  <li class="li-block <?php echo $tab1; ?>" onclick="changeURL('<?php echo $ds->code; ?>','infoTab')" >
-			<a href="#infoTab" data-toggle="tab" style="text-decoration:none;"><?php label('customer_info'); ?></a>
+			<a href="#infoTab" data-toggle="tab" style="text-decoration:none;">ข้อมูลลูกค้า</a>
 		</li>
 		<li class="li-block <?php echo $tab2; ?>" onclick="changeURL('<?php echo $ds->code; ?>','billTab')" >
-			<a href="#billTab" data-toggle="tab" style="text-decoration:none;"><?php label('bill_to'); ?></a>
+			<a href="#billTab" data-toggle="tab" style="text-decoration:none;">ที่อยู่เปิดบิล</a>
 		</li>
 		<li class="li-block <?php echo $tab3; ?>" onclick="changeURL('<?php echo $ds->code; ?>','shipTab')" >
-			<a href="#shipTab" data-toggle="tab" style="text-decoration:none;" ><?php label('ship_to'); ?></a>
+			<a href="#shipTab" data-toggle="tab" style="text-decoration:none;" >ที่อยู่จัดส่ง</a>
 		</li>
 	</ul>
 </div>

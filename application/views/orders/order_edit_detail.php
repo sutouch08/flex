@@ -3,7 +3,6 @@
 $add = $this->pm->can_add;
 $edit = $this->pm->can_edit;
 $delete = $this->pm->can_delete;
-$hide = $order->status == 1 ? 'hide' : '';
  ?>
 <div class="row">
 	<div class="col-sm-6 col-xs-12 padding-5">
@@ -11,15 +10,45 @@ $hide = $order->status == 1 ? 'hide' : '';
     </div>
     <div class="col-sm-6 col-xs-12 padding-5">
     	<p class="pull-right top-p">
-        	<button type="button" class="btn btn-sm btn-warning" onClick="editOrder('<?php echo $order->code; ?>')"><i class="fa fa-arrow-left"></i> กลับ</button>
+        	<button type="button" class="btn btn-sm btn-warning" onclick="editOrder('<?php echo $order->code; ?>')"><i class="fa fa-arrow-left"></i> กลับ</button>
       <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
-          <button type="button" class="btn btn-sm btn-success <?php echo $hide; ?>" id="btn-save-order" onclick="saveOrder()"><i class="fa fa-save"></i> บันทึก</button>
+          <button type="button" class="btn btn-sm btn-success" id="btn-save-order" onclick="saveOrder()"><i class="fa fa-save"></i> บันทึก</button>
       <?php endif; ?>
         </p>
     </div>
 </div>
 <hr class="margin-bottom-15 padding-5" />
 <?php $this->load->view('orders/order_edit_header'); ?>
+
+<hr class="padding-5 margin-top-15 margin-bottom-15"/>
+<div class="row">
+	<div class="col-sm-6 hidden-xs">&nbsp;</div>
+	<div class="col-sm-1 col-1-harf col-xs-2 padding-5 text-right">
+		<label>ค่าจัดส่ง</label>
+	</div>
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+		<input type="number"
+		class="form-control input-sm text-right"
+		id="shipping-box"
+		value="<?php echo $order->shipping_fee; ?>"
+		onchange="update_shipping_fee()">
+		<input type="hidden" id="current_shipping_fee" value="<?php echo $order->shipping_fee; ?>">
+	</div>
+	<div class="col-sm-1 col-1-harf col-xs-2 padding-5 text-right">
+		<label>ค่าบริการ</label>
+	</div>
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+		<input type="number"
+		class="form-control input-sm text-right"
+		id="service-box"
+		value="<?php echo $order->service_fee; ?>"
+		onchange="update_service_fee()">
+		<input type="hidden" id="current_service_fee" value="<?php echo $order->service_fee; ?>">
+	</div>
+</div>
+
+<hr class="padding-5 margin-top-15 margin-bottom-15"/>
+
 
 <!--  Search Product -->
 <div class="row">
@@ -47,8 +76,8 @@ $hide = $order->status == 1 ? 'hide' : '';
 
 	<div class="divider padding-5 visible-xs"></div>
 
-  <div class="col-sm-2 col-2-harf col-xs-12 padding-5">
-    <button type="button" class="btn btn-xs btn-info btn-block" onclick="recalDiscount()">
+  <div class="col-sm-1 col-1-harf col-sm-offset-1 col-xs-12 padding-5">
+    <button type="button" class="btn btn-xs btn-info btn-block" onclick="recal_discount_rule()">
         <i class="fa fa-calculator"></i> คำนวณส่วนลดใหม่</button>
       </button>
   </div>
@@ -81,7 +110,7 @@ $hide = $order->status == 1 ? 'hide' : '';
 		<div class="modal-content">
   			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h4 class="modal-title" id="modalTitle" style="font-size:24px; font-weight:bolder;">title</h4>
+				<h4 class="modal-title" id="modalTitle" >title</h4>
 			 </div>
 			 <div class="modal-body" id="modalBody"></div>
 			 <div class="modal-footer">

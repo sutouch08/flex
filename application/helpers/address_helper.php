@@ -1,5 +1,5 @@
 <?php
-function get_address_form($adds, $sds, $ds, $dd)
+function get_address_form($adds, $sds, $ds, $dd, $use_qc)
 {
   $sc = 'no_address';
     //--- มีที่อยู่เดียว และผู้จัดส่งเดียว
@@ -104,14 +104,18 @@ function get_address_form($adds, $sds, $ds, $dd)
         } //--- end if $ds
       }
 
-      $dds .= '<tr>';
-      $dds .=   '<td colspan="2">';
-      $dds .=     '<label>';
-      $dds .=       '<span class="lbl">จำนวนกล่อง </span>'; //---  transport_helper
-      $dds .=       '<input type="number" class="form-control input-sm input-mini" name="print_qty" value="1" />';
-      $dds .=     '</label>';
-      $dds .=   '</td>';
-      $dds .= '</tr>';
+			if(! $use_qc)
+			{
+				$dds .= '<tr>';
+	      $dds .=   '<td colspan="2">';
+	      $dds .=     '<label>';
+	      $dds .=       '<span class="lbl">จำนวนกล่อง </span>'; //---  transport_helper
+	      $dds .=       '<input type="number" class="form-control input-sm input-mini" name="print_qty" value="1" />';
+	      $dds .=     '</label>';
+	      $dds .=   '</td>';
+	      $dds .= '</tr>';
+			}
+
 
       //--- ประกอบร่าง
       if( $adds >= 1 && $sds >= 1 )

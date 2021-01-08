@@ -146,6 +146,10 @@
 					</tr>
 					<?php $no++; ?>
 				<?php endforeach; ?>
+				<?php else : ?>
+					<tr>
+						<td colspan="10" class="text-center">--- ไม่พบสินค้าคงเหลือตามเงื่อนไข ----</td>
+					</tr>
 			<?php endif; ?>
 			</tbody>
 		</table>

@@ -21,12 +21,6 @@
 			<div class="help-block col-xs-12 col-sm-reset inline red" id="code-error"></div>
 		</div>
 
-		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right">รหัสเก่า</label>
-			<div class="col-xs-12 col-sm-3">
-				<input type="text" name="old_code" id="old_code" class="width-100" value="<?php echo $old_code; ?>" placeholder="รหัสเก่า (ไม่บังคับ)" />
-			</div>
-		</div>
 
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
@@ -45,17 +39,9 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right">รุ่นเก่า</label>
-			<div class="col-xs-12 col-sm-3">
-				<input type="text" name="old_style" id="old_style" class="width-100" value="<?php echo $old_style; ?>" placeholder="รหัสรุ่นเก่า (ไม่บังคับ)"/>
-			</div>
-		</div>
-
-
-		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">สี</label>
 			<div class="col-xs-12 col-sm-3">
-				<input type="text" name="color" id="color" class="width-100" value="<?php echo $color_code; ?>" required />
+				<input type="text" name="color" id="color" class="width-100" value="<?php echo $color_code; ?>" />
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red" id="color-error"></div>
 		</div>
@@ -64,7 +50,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ไซส์</label>
 			<div class="col-xs-12 col-sm-3">
-				<input type="text" name="size" id="size" class="width-100" value="<?php echo $size_code; ?>" required />
+				<input type="text" name="size" id="size" class="width-100" value="<?php echo $size_code; ?>" />
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red" id="size-error"></div>
 		</div>
@@ -82,7 +68,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ราคาทุน</label>
 			<div class="col-xs-12 col-sm-3">
-				<input type="number" step="any" name="cost" id="cost" class="width-100" value="<?php echo $cost; ?>" required />
+				<input type="number" step="any" name="cost" id="cost" class="width-100" value="<?php echo $cost; ?>" />
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red" id="cost-error"></div>
 		</div>
@@ -90,7 +76,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ราคาขาย</label>
 			<div class="col-xs-12 col-sm-3">
-				<input type="number" step="any" name="price" id="price" class="width-100" value="<?php echo $price; ?>" required />
+				<input type="number" step="any" name="price" id="price" class="width-100" value="<?php echo $price; ?>" />
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red" id="price-error"></div>
 		</div>
@@ -98,7 +84,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">หน่วยนับ</label>
 			<div class="col-xs-12 col-sm-3">
-				<select class="form-control input-sm" name="unit_code" id="unit_code" required>
+				<select class="form-control input-sm" name="unit_code" id="unit_code">
 					<option value="">โปรดเลือก</option>
 					<?php echo select_unit($unit_code); ?>
 				</select>

@@ -1,3 +1,5 @@
+var HOME = BASE_URL + 'masters/customer_kind/';
+
 function addNew(){
   window.location.href = BASE_URL + 'masters/customer_kind/add_new';
 }
@@ -15,10 +17,8 @@ function getEdit(code){
 
 
 function clearFilter(){
-  var url = BASE_URL + 'masters/customer_kind/clear_filter';
-  var page = BASE_URL + 'masters/customer_kind';
-  $.get(url, function(rs){
-    window.location.href = page;
+  $.get(HOME + 'clear_filter', function(rs){
+    goBack();
   });
 }
 

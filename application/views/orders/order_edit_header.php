@@ -81,5 +81,5 @@
 		<?php endif; ?>
     <input type="hidden" name="order_code" id="order_code" value="<?php echo $order->code; ?>" />
     <input type="hidden" name="customerCode" id="customerCode" value="<?php echo $order->customer_code; ?>" />
+		<input type="hidden" name="deposit_amount" id="deposit-amount" value="<?php echo $order->deposit; ?>" />
 </div>
-<hr class="margin-bottom-15 margin-top-15 padding-5"/>
