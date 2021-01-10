@@ -10,20 +10,20 @@
 	$active_no = $ds->active == 0 ? 'btn-danger' : '';
  ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 col-xs-6 padding-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
   </div>
-	<div class="col-sm-6">
-		<p class="pull-right">
-			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> <?php label('back'); ?></button>
+	<div class="col-sm-6 col-xs-6 padding-5">
+		<p class="pull-right top-p">
+			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 		</p>
 	</div>
 </div><!-- End Row -->
-<hr class="title-block"/>
+<hr class="padding-5"/>
 <form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/update"; ?>">
 
 	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right"><?php label('code'); ?></label>
+    <label class="col-sm-3 control-label no-padding-right">รหัส</label>
     <div class="col-xs-12 col-sm-3">
       <input type="text" class="form-control input-sm code" name="code" id="code" value="<?php echo $ds->code; ?>" />
     </div>
@@ -33,7 +33,7 @@
 
 
   <div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right"><?php label('name'); ?></label>
+    <label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
     <div class="col-xs-12 col-sm-3">
 			<input type="text" class="form-control input-sm" name="name" id="name" value="<?php echo $ds->name; ?>" />
     </div>
@@ -41,10 +41,10 @@
   </div>
 
 	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right"><?php label('wh_type'); ?></label>
+ 	 <label class="col-sm-3 control-label no-padding-right">ประเภทคลัง</label>
  	 <div class="col-xs-12 col-sm-3">
  		 <select class="form-control input-sm" name="role" id="role" required>
- 		 	<option value=""><?php label('please_select'); ?></option>
+ 		 	<option value="">เลือก</option>
 			<?php echo select_warehouse_role($ds->role); ?>
  		 </select>
  	 </div>
@@ -52,41 +52,41 @@
   </div>
 
 	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right"><?php label('allow_sell'); ?></label>
+ 	 <label class="col-sm-3 control-label no-padding-right">อนุญาติให้ขาย</label>
  	 <div class="col-xs-12 col-sm-2">
  		<div class="btn-group width-100">
- 			<button type="button" class="btn btn-sm width-50 <?php echo $sell_yes; ?>" id="btn-sell-yes" onclick="toggleSell(1)"><?php label('yes'); ?></button>
-			<button type="button" class="btn btn-sm width-50 <?php echo $sell_no; ?>" id="btn-sell-no" onclick="toggleSell(0)"><?php label('no'); ?></button>
+ 			<button type="button" class="btn btn-sm width-50 <?php echo $sell_yes; ?>" id="btn-sell-yes" onclick="toggleSell(1)">ใช่</button>
+			<button type="button" class="btn btn-sm width-50 <?php echo $sell_no; ?>" id="btn-sell-no" onclick="toggleSell(0)">ไม่ใช่</button>
  		</div>
  	 </div>
   </div>
 
 	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right"><?php label('allow_prepare'); ?></label>
+ 	 <label class="col-sm-3 control-label no-padding-right">อนุญาติให้จัด</label>
  	 <div class="col-xs-12 col-sm-2">
  		<div class="btn-group width-100">
- 			<button type="button" class="btn btn-sm width-50 <?php echo $prepare_yes; ?>" id="btn-prepare-yes" onclick="togglePrepare(1)"><?php label('yes'); ?></button>
-			<button type="button" class="btn btn-sm width-50 <?php echo $prepare_no; ?>" id="btn-prepare-no" onclick="togglePrepare(0)"><?php label('no'); ?></button>
+ 			<button type="button" class="btn btn-sm width-50 <?php echo $prepare_yes; ?>" id="btn-prepare-yes" onclick="togglePrepare(1)">ใช่</button>
+			<button type="button" class="btn btn-sm width-50 <?php echo $prepare_no; ?>" id="btn-prepare-no" onclick="togglePrepare(0)">ไม่ใช่</button>
  		</div>
  	 </div>
   </div>
 
 	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right"><?php label('allow_negative'); ?></label>
+ 	 <label class="col-sm-3 control-label no-padding-right">อนุญาติให้ติดลบ</label>
  	 <div class="col-xs-12 col-sm-2">
  		<div class="btn-group width-100">
- 			<button type="button" class="btn btn-sm width-50 <?php echo $auz_yes; ?>" id="btn-auz-yes" onclick="toggleAuz(1)"><?php label('yes'); ?></button>
-			<button type="button" class="btn btn-sm width-50 <?php echo $auz_no; ?>" id="btn-auz-no" onclick="toggleAuz(0)"><?php label('no'); ?></button>
+ 			<button type="button" class="btn btn-sm width-50 <?php echo $auz_yes; ?>" id="btn-auz-yes" onclick="toggleAuz(1)">ใช่</button>
+			<button type="button" class="btn btn-sm width-50 <?php echo $auz_no; ?>" id="btn-auz-no" onclick="toggleAuz(0)">ไม่ใช่</button>
  		</div>
  	 </div>
   </div>
 
 	<div class="form-group">
- 	 <label class="col-sm-3 control-label no-padding-right"><?php label('active'); ?></label>
+ 	 <label class="col-sm-3 control-label no-padding-right">เปิดใช้งาน</label>
  	 <div class="col-xs-12 col-sm-2">
  		<div class="btn-group width-100">
- 			<button type="button" class="btn btn-sm width-50 <?php echo $active_yes; ?>" id="btn-active-yes" onclick="toggleActive(1)"><?php label('yes'); ?></button>
-			<button type="button" class="btn btn-sm width-50 <?php echo $active_no; ?>" id="btn-active-no" onclick="toggleActive(0)"><?php label('no'); ?></button>
+ 			<button type="button" class="btn btn-sm width-50 <?php echo $active_yes; ?>" id="btn-active-yes" onclick="toggleActive(1)">ใช่</button>
+			<button type="button" class="btn btn-sm width-50 <?php echo $active_no; ?>" id="btn-active-no" onclick="toggleActive(0)">ไม่ใช่</button>
  		</div>
  	 </div>
   </div>
@@ -100,7 +100,7 @@
     <label class="col-sm-3 control-label no-padding-right"></label>
     <div class="col-xs-12 col-sm-3">
       <p class="pull-right">
-        <button type="button" class="btn btn-sm btn-success" onclick="checkUpdate()"><i class="fa fa-save"></i> <?php label('save'); ?></button>
+        <button type="button" class="btn btn-sm btn-success" onclick="checkUpdate()"><i class="fa fa-save"></i> บันทึก</button>
       </p>
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline">

@@ -473,6 +473,8 @@ class Orders extends PS_Controller
 						//--- 2. ลบรายการที่มีในออเดอร์แก่า
 						if($this->orders_model->clear_order_detail($code))
 						{
+              update_order_total_amount($code);
+              
 							//---- update qt no on order
 							$arr = array(
 								'qt_no' => NULL,
@@ -526,6 +528,8 @@ class Orders extends PS_Controller
 										$rs = $this->load_quotation($code, $qt_no);
 										if($rs)
 										{
+                      update_order_total_amount($code);
+
 											//---4. เปลี่ยนเลขที่ qt_no ใน ตาราง orders
 											$arr = array(
 												'qt_no' => $qt_no,

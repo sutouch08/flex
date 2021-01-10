@@ -8,9 +8,6 @@
     <div class="col-sm-6">
       <p class="pull-right top-p">
 				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
-  <?php if($doc->is_approve == 1) : ?>
-				<button type="button" class="btn btn-sm btn-info" onclick="doExport()"><i class="fa fa-send"></i> ส่งข้อมูลไป SAP</button>
-	<?php endif; ?>
 	<?php if($doc->status == 1 && $this->pm->can_edit) : ?>
 				<button type="button" class="btn btn-sm btn-danger" onclick="unsave()">ยกเลิกการบันทึก</button>
 	<?php endif; ?>

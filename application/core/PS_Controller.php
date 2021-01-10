@@ -50,10 +50,10 @@ class PS_Controller extends CI_Controller
     //--- get permission for user
     $this->pm = get_permission($this->menu_code, $uid, get_cookie('id_profile'));
 
-    //$language = getConfig('LANGUAGE');
-    // $display_lang = get_cookie('display_lang');
-    // $this->language = empty($display_lang) ? 'thai' : $display_lang;
-    // $this->lang->load($this->language, $this->language);
+    $language = getConfig('LANGUAGE');
+    $display_lang = get_cookie('display_lang');
+    $this->language = empty($display_lang) ? 'thai' : $display_lang;
+    $this->lang->load($this->language, $this->language);
 
     // if($this->notibars == 1 && $this->isViewer === FALSE)
     // {

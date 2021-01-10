@@ -8,7 +8,7 @@
     <div class="col-sm-6">
     	<p class="pull-right top-p">
       <?php if($this->pm->can_add) : ?>
-        <button type="button" class="btn btn-sm btn-success" onclick="goAdd()"><i class="fa fa-plus"></i> <?php label('add_new'); ?></button>
+        <button type="button" class="btn btn-sm btn-success" onclick="goAdd()"><i class="fa fa-plus"></i> เพิ่มใหม่</button>
       <?php endif; ?>
       </p>
     </div>

@@ -169,6 +169,21 @@ class Channels_model extends CI_Model
   }
 
 
+	public function get_channels_name_list($ds = array())
+	{
+		if(!empty($ds))
+		{
+			$rs = $this->db->where_in('code', $ds)->get('channels');
+
+			if($rs->num_rows() > 0)
+			{
+				return $rs->result();
+			}
+		}
+
+		return NULL;
+	}
+
 
 }
 ?>

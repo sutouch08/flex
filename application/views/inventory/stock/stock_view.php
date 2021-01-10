@@ -16,22 +16,22 @@
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
   <div class="col-sm-2 padding-5 first">
-    <label><?php label('item_code'); ?></label>
+    <label>รหัสสินค้า</label>
     <input type="text" class="form-control input-sm search" name="pd_code"  value="<?php echo $pd_code; ?>" />
   </div>
 
   <div class="col-sm-2 padding-5">
-    <label><?php label('zone'); ?></label>
+    <label>รหัสโซน</label>
     <input type="text" class="form-control input-sm search" name="zone_code" value="<?php echo $zone_code; ?>" />
   </div>
 
   <div class="col-sm-1 padding-5">
     <label class="display-block not-show">buton</label>
-    <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> <?php label('search'); ?></button>
+    <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> ค้นหา</button>
   </div>
 	<div class="col-sm-1 padding-5 last">
     <label class="display-block not-show">buton</label>
-    <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> <?php label('reset'); ?></button>
+    <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> เคลียร์</button>
   </div>
 </div>
 <hr class="margin-top-15">

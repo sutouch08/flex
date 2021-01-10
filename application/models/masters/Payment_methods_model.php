@@ -100,6 +100,18 @@ class Payment_methods_model extends CI_Model
 
 
 
+	public function get_data()
+	{
+		$rs = $this->db->get('payment_method');
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
 
   public function get_payment_methods($code)
   {
@@ -215,6 +227,21 @@ class Payment_methods_model extends CI_Model
     return FALSE;
   }
 
+
+
+	public function get_payment_name_list($ds = array())
+	{
+		if(!empty($ds))
+		{
+			$rs = $this->db->where_in('code', $ds)->get('payment_method');
+			if($rs->num_rows() > 0)
+			{
+				return $rs->result();
+			}
+		}
+
+		return NULL;
+	}
 
 
   public function has_term($code)
