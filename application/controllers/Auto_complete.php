@@ -92,14 +92,20 @@ class Auto_complete extends CI_Controller
 
   public function get_customer_code_and_name()
   {
-    $txt = $_REQUEST['term'];
+    $txt = trim($_REQUEST['term']);
     $sc = array();
-    $rs = $this->db
-    ->select('code, name')
-    ->like('code', $txt)
-    ->or_like('name', $txt)
-    ->limit(20)
-    ->get('customers');
+    $this->db->select('code, name');
+
+		if($txt != '*')
+		{
+			$this->db
+			->group_start()
+			->like('code', $txt)
+			->or_like('name', $txt)
+			->group_end();
+		}
+
+		$rs = $this->db->order_by('code', 'ASC')->limit(20)->get('customers');
 
     if($rs->num_rows() > 0)
     {
@@ -147,15 +153,24 @@ public function get_style_code_and_name()
 {
   $sc = array();
 
-  $this->db
-	->select('code, name')
-	->group_start()
-  ->like('code', $_REQUEST['term'])
-	->or_like('name', $_REQUEST['term'])
-	->group_end()
+	$txt = trim($_REQUEST['term']);
+
+  $this->db->select('code, name');
+
+	if($txt != '*')
+	{
+		$this->db
+		->group_start()
+	  ->like('code', $txt)
+		->or_like('name', $txt)
+		->group_end();
+	}
+
+	$this->db
   ->where('is_deleted', 0)
   ->order_by('code', 'ASC')
   ->limit(20);
+
   $qs = $this->db->get('product_style');
 
   if($qs->num_rows() > 0)
@@ -240,6 +255,45 @@ public function get_item_code_and_name()
 }
 
 
+public function get_active_item_code_and_name()
+{
+  $sc = array();
+	$txt = trim($_REQUEST['term']);
+
+	$this->db
+	->select('code, name')
+	->where('active', 1)
+	->where('can_sell', 1);
+
+	if($txt !== '*')
+	{
+		$this->db->group_start();
+		$this->db->like('code', $txt);
+		$this->db->or_like('name', $txt);
+		$this->db->group_end();
+	}
+
+	$this->db->order_by('code', 'ASC');
+	$this->db->limit(50);
+
+  $qs = $this->db->get('products');
+
+  if($qs->num_rows() > 0)
+  {
+    foreach($qs->result() as $rs)
+    {
+      $sc[] = $rs->code.' | '.$rs->name;
+    }
+  }
+  else
+  {
+    $sc[] = "not found";
+  }
+
+  echo json_encode($sc);
+}
+
+
 
 
   public function sub_district()
@@ -271,6 +325,39 @@ public function get_item_code_and_name()
       foreach($adr->result() as $rs)
       {
         $sc[] = $rs->amphur.'>>'.$rs->province.'>>'.$rs->zipcode;
+      }
+    }
+
+    echo json_encode($sc);
+  }
+
+	public function province()
+  {
+    $sc = array();
+    $adr = $this->db->select("province")
+    ->like('province', $_REQUEST['term'])
+    ->group_by('province')
+    ->limit(20)->get('address_info');
+    if($adr->num_rows() > 0)
+    {
+      foreach($adr->result() as $rs)
+      {
+        $sc[] = $rs->province;
+      }
+    }
+
+    echo json_encode($sc);
+  }
+
+	public function postcode()
+  {
+    $sc = array();
+    $adr = $this->db->like('zipcode', $_REQUEST['term'])->limit(20)->get('address_info');
+    if($adr->num_rows() > 0)
+    {
+      foreach($adr->result() as $rs)
+      {
+        $sc[] = $rs->tumbon.'>>'.$rs->amphur.'>>'.$rs->province.'>>'.$rs->zipcode;
       }
     }
 

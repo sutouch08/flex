@@ -33,7 +33,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">รุ่น</label>
 			<div class="col-xs-12 col-sm-3">
-				<input type="text" name="style" id="style" class="width-100" value="<?php echo $style_code; ?>" required />
+				<input type="text" name="style" id="style" class="width-100" value="<?php echo $style_code; ?>" />
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red" id="style-error"></div>
 		</div>
@@ -66,7 +66,7 @@
 
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right">ราคาทุน</label>
+			<label class="col-sm-3 control-label no-padding-right">ราคาทุน(ไม่รวม VAT)</label>
 			<div class="col-xs-12 col-sm-3">
 				<input type="number" step="any" name="cost" id="cost" class="width-100" value="<?php echo $cost; ?>" />
 			</div>
@@ -74,7 +74,7 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label no-padding-right">ราคาขาย</label>
+			<label class="col-sm-3 control-label no-padding-right">ราคาขาย(รวม VAT)</label>
 			<div class="col-xs-12 col-sm-3">
 				<input type="number" step="any" name="price" id="price" class="width-100" value="<?php echo $price; ?>" />
 			</div>
@@ -91,6 +91,19 @@
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red" id="unit-error"></div>
 		</div>
+
+		<?php if(getConfig('USE_VAT')) : ?>
+		<div class="form-group">
+			<label class="col-sm-3 control-label no-padding-right">VAT</label>
+			<div class="col-xs-12 col-sm-3">
+				<select class="form-control input-sm" name="vat_code" id="vat_code">
+					<?php echo select_vat_group($vat_code); ?>
+				</select>
+			</div>
+		</div>
+		<?php else : ?>
+			<input type="hidden" name="vat_code" id="vat_code" value="" />
+		<?php endif;?>
 
 		<div class="form-group">
 			<label class="col-sm-3 control-label no-padding-right">ยี่ห้อ</label>
@@ -193,7 +206,7 @@
 		</div>
 
 
-		<div class="form-group">
+		<div class="form-group hide">
 			<label class="col-sm-3 control-label no-padding-right">API</label>
 			<div class="col-xs-12 col-sm-3">
 				<label style="padding-top:5px;">
@@ -218,7 +231,7 @@
 		<div class="form-group">
 			<label class="col-sm-3 control-label not-show">บันทึก</label>
 			<div class="col-xs-12 col-sm-3">
-				<button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> บันทึก</button>
+				<button type="button" class="btn btn-sm btn-success" id="btn-submit" onclick="checkEdit()"><i class="fa fa-save"></i> บันทึก</button>
 			</div>
 			<div class="help-block col-xs-12 col-sm-reset inline red"></div>
 		</div>

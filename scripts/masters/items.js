@@ -23,9 +23,21 @@ function duplicate(code){
 
 
 $('#style').autocomplete({
-  source: BASE_URL + 'auto_complete/get_style_code',
-  autoFocus:true
+  source: BASE_URL + 'auto_complete/get_style_code_and_name',
+  autoFocus:true,
+	close:function(){
+		var style = $(this).val();
+		var arr = style.split(' | ');
+		if(arr.length === 2) {
+			$(this).val(arr[0]);
+		}
+		else {
+			$(this).val('');
+		}
+	}
 });
+
+
 
 $('#color').autocomplete({
   source: BASE_URL + 'auto_complete/get_color_code_and_name',
@@ -58,7 +70,26 @@ $('#size').autocomplete({
 
 
 function checkAdd(){
-  var code = $('#code').val();
+	var code = $('#code').val();
+	var name = $('#name').val();
+
+	if(code.length === 0) {
+		set_error($('#code'), $('#code-error'), 'Required');
+		return false;
+	}
+	else {
+		clear_error($('#code'), $('#code-error'));
+	}
+
+	if(name.length === 0) {
+		set_error($('#name'), $('#name-error'), 'Required');
+		return false;
+	}
+	else {
+		clear_error($('#name'), $('#name-error'));
+	}
+
+
   if(code.length > 0){
     $.ajax({
       url:HOME + 'is_exists_code/'+code,
@@ -70,13 +101,28 @@ function checkAdd(){
           return false;
         }else{
           clear_error($('#code'), $('#code-error'));
-          $('#btn-submit').click();
+          $('#addForm').submit();
         }
       }
     })
   }
 }
 
+
+function checkEdit(){
+	var name = $('#name').val();
+
+	if(name.length === 0) {
+		set_error($('#name'), $('#name-error'), 'Required');
+		return false;
+	}
+	else {
+		clear_error($('#name'), $('#name-error'));
+	}
+
+	$('#addForm').submit();
+	
+}
 
 
 function clearFilter(){
@@ -87,6 +133,14 @@ function clearFilter(){
   });
 }
 
+
+$('#price').focus(function(){
+	$(this).select();
+})
+
+$('#cost').focus(function(){
+	$(this).select();
+})
 
 function getDelete(code){
   swal({
@@ -131,6 +185,43 @@ function getTemplate(){
 	get_download(token);
 	window.location.href = BASE_URL + 'masters/items/download_template/'+token;
 }
+
+$('#style').keyup(function(e){
+	if(e.keyCode === 13) {
+		$('#color').focus();
+	}
+})
+
+$('#color').keyup(function(e){
+	if(e.keyCode === 13) {
+		$('#size').focus();
+	}
+})
+
+$('#size').keyup(function(e){
+	if(e.keyCode === 13) {
+		$('#barcode').focus();
+	}
+})
+
+$('#barcode').keyup(function(e){
+	if(e.keyCode === 13) {
+		$('#cost').focus();
+	}
+})
+
+
+$('#cost').keyup(function(e){
+	if(e.keyCode === 13) {
+		$('#price').focus();
+	}
+})
+
+$('#price').keyup(function(e){
+	if(e.keyCode === 13) {
+		$('#unit_code').focus();
+	}
+})
 
 function getSearch(){
   $('#searchForm').submit();

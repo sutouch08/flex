@@ -400,7 +400,7 @@ $('#pd-box').keyup(function(event) {
 
 
 $('#item-code').autocomplete({
-	source:BASE_URL + 'auto_complete/get_item_code_and_name',
+	source:BASE_URL + 'auto_complete/get_active_item_code_and_name',
 	autoFocus:true,
 	open:function(event){
 		var $ul = $(this).autocomplete('widget');
@@ -974,3 +974,31 @@ function update_bdisc() {
 	})
 
 }
+
+$('.price-box').click(function() {
+	$(this).select();
+})
+
+$('.qty-box').click(function() {
+	$(this).select();
+})
+
+$('.discount-box').click(function() {
+	$(this).select();
+})
+
+$('.line-total').click(function() {
+	$(this).select();
+})
+
+$('#billDiscAmount').click(function() {
+	$(this).select();
+})
+
+$('#shipping-box').click(function() {
+	$(this).select();
+})
+
+$('#service-box').click(function() {
+	$(this).select();
+})

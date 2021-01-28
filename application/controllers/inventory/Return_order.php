@@ -78,13 +78,21 @@ class Return_order extends PS_Controller
 
     if($this->input->post('qty'))
     {
+			$this->load->model('orders/orders_model');
+			$this->load->model('account/order_credit_model');
       $this->load->model('inventory/movement_model');
+			$this->load->model('inventory/delivery_order_model');
+			$this->load->model('stock/stock_model');
+			$this->load->helper('discount');
+
       //--- start transection
       $this->db->trans_begin();
 
       $doc = $this->return_order_model->get($code);
       if(!empty($doc))
       {
+				$customer = $this->customers_model->get_attribute($doc->customer_code);
+
         $qtys = $this->input->post('qty');
         $prices = $this->input->post('price');
         $sold = $this->input->post('sold_qty');
@@ -98,46 +106,170 @@ class Return_order extends PS_Controller
 
           foreach($qtys as $item => $invoice)
           {
+						if($sc === FALSE)
+						{
+							break;
+						}
+
+
+						$pd = $this->products_model->get_attribute($item);
+
             foreach($invoice as $inv => $qty)
             {
-              $disc_amount = $qty * ($prices[$item][$inv] * ($discount[$item][$inv] * 0.01));
-              $amount = ($qty * $prices[$item][$inv]) - $disc_amount;
+							if($sc === FALSE)
+							{
+								break;
+							}
+
+							$is_term = $this->orders_model->is_term($inv);
+
+							$price = $prices[$item][$inv];
+							$discText = $discount[$item][$inv];
+							$disc = parse_discount_text($discText, $price);
+
+              $amount = $qty * ($price - $disc['discount_amount']);
+
+
               $arr = array(
                 'return_code' => $code,
                 'invoice_code' => $inv,
                 'product_code' => $item,
-                'product_name' => $this->products_model->get_name($item),
+                'product_name' => $pd->name,
                 'sold_qty' => $sold[$item][$inv],
                 'qty' => $qty,
-                'price' => $prices[$item][$inv],
-                'discount_percent' => $discount[$item][$inv],
+                'price' => $price,
+                'discount_percent' => $discText,
                 'amount' => $amount,
                 'vat_amount' => get_vat_amount($amount)
               );
 
-              if($this->return_order_model->add_detail($arr) === FALSE)
+
+              if(! $this->return_order_model->add_detail($arr))
               {
                 $sc = FALSE;
                 $this->error = 'บันทึกรายการไม่สำเร็จ';
-                break;
               }
-              else
-              {
-                $ds = array(
-                  'reference' => $code,
-                  'warehouse_code' => $doc->warehouse_code,
-                  'zone_code' => $doc->zone_code,
-                  'product_code' => $item,
-                  'move_in' => $qty,
-                  'date_add' => $doc->date_add
-                );
 
-                if($this->movement_model->add($ds) === FALSE)
-                {
-                  $sc = FALSE;
-                  $message = 'บันทึก movement ไม่สำเร็จ';
-                }
-              }
+							//--- update stock
+							if($pd->count_stock)
+							{
+								if(! $this->stock_model->update_stock_zone($doc->zone_code, $item, $qty))
+								{
+									$sc = FALSE;
+									$this->error = "ปรับยอดสต็อกไม่สำเร็จ : {$item}";
+								}
+
+								//--- บันทึก movement
+								$ds = array(
+									'reference' => $code,
+									'warehouse_code' => $doc->warehouse_code,
+									'zone_code' => $doc->zone_code,
+									'product_code' => $item,
+									'move_in' => $qty,
+									'date_add' => $doc->date_add
+								);
+
+								if(!$this->movement_model->add($ds))
+								{
+									$sc = FALSE;
+									$this->error = 'บันทึก movement ไม่สำเร็จ';
+								}
+							}
+
+							$disc = parse_discount_text($discText, $price);
+
+							//--- ข้อมูลสำหรับบันทึกยอดขาย
+							$arr = array(
+											'reference' => $doc->code,
+											'role'   => 'S',
+											'role_name' => 'ขาย',
+											'product_code'  => $pd->code,
+											'product_name'  => $pd->name,
+											'product_style' => $pd->style_code,
+											'color_code' => $pd->color_code,
+											'color_name' => $pd->color_name,
+											'size_code' => $pd->size_code,
+											'size_name' => $pd->size_name,
+											'product_group_code' => $pd->group_code,
+											'product_group_name' => $pd->group_name,
+											'product_sub_group_code' => $pd->sub_group_code,
+											'product_sub_group_name' => $pd->sub_group_name,
+											'product_category_code' => $pd->category_code,
+											'product_category_name' => $pd->category_name,
+											'product_kind_code' => $pd->kind_code,
+											'product_kind_name' => $pd->kind_name,
+											'product_type_code' => $pd->type_code,
+											'product_type_name' => $pd->type_name,
+											'product_brand_code' => $pd->brand_code,
+											'product_brand_name' => $pd->brand_name,
+											'product_year' => $pd->year,
+											'cost'  => $pd->cost,
+											'price'  => $price,
+											'price_ex' => remove_vat($price),
+											'sell'  => $price - $disc['discount_amount'],
+											'qty'   => $qty,
+											'unit_code' => $pd->unit_code,
+											'unit_name' => $pd->unit_name,
+											'discount_label'  => $discText,
+											'avgBillDiscAmount' => 0, //--- average per single item count
+											'discount_amount' => $qty * $disc['discount_amount'],
+											'total_amount'   => ($amount * (-1)),
+											'total_amount_ex' => remove_vat($amount) * (-1),
+											'total_cost'   => ($pd->cost * $qty) * (-1),
+											'margin'  =>  (round(remove_vat($amount),2) - ($pd->cost * $qty)) * (-1),
+											'id_policy'   => NULL,
+											'id_rule'     => NULL,
+											'customer_code' => $doc->customer_code,
+											'customer_name' => $customer->name,
+											'customer_ref' => NULL,
+											'customer_group_code' => $customer->group_code,
+											'customer_group_name' => $customer->group_name,
+											'customer_kind_code' => $customer->kind_code,
+											'customer_kind_name' => $customer->kind_name,
+											'customer_type_code' => $customer->type_code,
+											'customer_type_name' => $customer->type_name,
+											'customer_class_code' => $customer->class_code,
+											'customer_class_name' => $customer->class_name,
+											'customer_area_code' => $customer->area_code,
+											'customer_area_name' => $customer->area_name,
+											'sale_code'   => $customer->sale_code,
+											'sale_name' => $customer->sale_name,
+											'user' => $doc->user,
+											'date_add'  => $doc->date_add,
+											'zone_code' => $doc->zone_code,
+											'warehouse_code'  => $doc->warehouse_code,
+											'update_user' => get_cookie('uname'),
+											'budget_code' => NULL
+							);
+
+							if(! $this->delivery_order_model->sold($arr))
+							{
+								$sc = FALSE;
+								$this->error = "บันทึกยอดขายไม่สำเร็จ";
+							}
+
+							if($sc === TRUE && $is_term)
+							{
+								if($this->order_credit_model->is_exists($doc->code))
+								{
+									$this->order_credit_model->update_amount($doc->code, $amount * (-1));
+									$this->order_credit_model->recal_balance($doc->code);
+								}
+								else
+								{
+									$arr = array(
+										'order_code' => $doc->code,
+										'customer_code' => $doc->customer_code,
+										'delivery_date' => $doc->date_add,
+										'due_date' => $doc->date_add,
+										'over_due_date' => $doc->date_add
+									);
+
+									$this->order_credit_model->add($arr);
+								}
+
+							}
+
             }
 
           } //--- endforeach
@@ -233,26 +365,6 @@ class Return_order extends PS_Controller
 
 
 
-  public function approve($code)
-  {
-		//--- 1 .
-    if($this->pm->can_approve)
-    {
-      $rs = $this->return_order_model->approve($code);
-      if($rs === TRUE)
-      {
-        echo $export === TRUE ? 'success' : $this->error;
-      }
-      else
-      {
-        echo 'อนุมัติเอกสารไม่สำเร็จ';
-      }
-    }
-    else
-    {
-      echo 'คุณไม่มีสิทธิ์อนุมัติ';
-    }
-  }
 
 
   public function add_new()

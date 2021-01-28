@@ -4,7 +4,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">รหัสรุ่นสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<label class="form-control width-100" disabled="disabled"><?php echo $style->code; ?></label>
+			<input type="text" class="width-100" value="<?php echo $style->code; ?>" disabled/>
 			<input type="hidden" name="code" id="code" value="<?php echo $style->code; ?>" />
 		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="code-error"></div>
@@ -13,7 +13,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ชื่อรุ่นสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<input type="text" name="name" id="name" class="width-100" value="<?php echo $style->name; ?>" required />
+			<input type="text" name="name" id="name" class="width-100" maxlength="100" value="<?php echo $style->name; ?>" required />
 		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
 	</div>
@@ -21,7 +21,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ทุน</label>
 		<div class="col-xs-8 col-sm-3">
-			<input type="number" step="any" name="cost" id="cost" class="width-100" value="<?php echo $style->cost; ?>" />
+			<input type="number" step="any" name="cost" id="cost" class="width-100 text-right" value="<?php echo $style->cost; ?>" />
 		</div>
 		<div class="col-sm-3 col-xs-3">
 			<label>
@@ -35,7 +35,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ราคา</label>
 		<div class="col-xs-12 col-sm-3">
-			<input type="number" step="any" name="price" id="price" class="width-100" value="<?php echo $style->price; ?>" />
+			<input type="number" step="any" name="price" id="price" class="width-100 text-right" value="<?php echo $style->price; ?>" />
 		</div>
 		<div class="col-sm-3 col-xs-3">
 			<label>
@@ -46,6 +46,29 @@
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="price-error"></div>
 
 	</div>
+
+	<div class="form-group">
+		<label class="col-sm-3 control-label no-padding-right">หน่วยนับ</label>
+		<div class="col-xs-12 col-sm-3">
+			<select class="form-control input-sm" name="unit_code" id="unit_code">
+				<?php echo select_unit($style->unit_code); ?>
+			</select>
+		</div>
+		<div class="help-block col-xs-12 col-sm-reset inline red" id="unit-error"></div>
+	</div>
+
+	<?php if(getConfig('USE_VAT')) : ?>
+	<div class="form-group">
+		<label class="col-sm-3 control-label no-padding-right">VAT</label>
+		<div class="col-xs-12 col-sm-3">
+			<select class="form-control input-sm" name="vat_code" id="vat_code">
+				<?php echo select_vat_group($style->vat_code); ?>
+			</select>
+		</div>
+	</div>
+	<?php else : ?>
+		<input type="hidden" name="vat_code" id="vat_code" value="" />
+	<?php endif;?>
 
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ยี่ห้อ</label>

@@ -16,15 +16,15 @@
 			<thead>
 				<tr>
 					<th class="width-5 text-center">รูปภาพ</th>
-					<th class="width-20">รหัสสินค้า</th>
+					<th class="width-15">รหัสสินค้า</th>
+					<th class="width-15">สินค้า</th>
 					<th class="width-15">บาร์โค้ด</th>
 					<th class="width-8 text-center">สี</th>
 					<th class="width-8 text-center">ไซส์</th>
 					<th class="width-8 text-right">ทุน</th>
 					<th class="width-8 text-right">ราคา</th>
 					<th class="width-5 text-center">ขาย</th>
-					<th class="width-8 text-center">ใช้งาน</th>
-					<th class="width-5 text-center">API</th>
+					<th class="width-5 text-center">Active</th>
 					<th class=""></th>
 				</tr>
 			</thead>
@@ -37,6 +37,7 @@
 						<img src="<?php echo $img; ?>" style="width:50px;" />
 					</td>
 					<td class="middle"><?php echo $item->code; ?></td>
+					<td class="middle"><?php echo $item->name; ?></td>
 					<td class="middle">
 						<span class="lb" id="bc-lbl-<?php echo $item->code; ?>"><?php echo $item->barcode; ?></span>
 						<input type="text"
@@ -110,15 +111,6 @@
 						<?php endif; ?>
 					</td>
 
-					<td class="middle text-center">
-						<?php if($this->pm->can_edit) : ?>
-							<a href="javascript:void(0)" class="api" data-code="<?php echo $item->code; ?>">
-								<?php echo is_active($item->is_api); ?>
-							</a>
-						<?php else : ?>
-						<?php echo is_active($item->is_api); ?>
-						<?php endif; ?>
-					</td>
 					<td class="middle text-right">
 						<?php if($this->pm->can_edit) : ?>
 							<button type="button" class="btn btn-xs btn-warning lb" id="btn-edit-<?php echo $item->code; ?>" onclick="editItem('<?php echo $item->code; ?>')">

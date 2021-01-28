@@ -377,6 +377,7 @@ class Consign_order extends PS_Controller
     $this->load->model('masters/customers_model');
     $this->load->model('account/order_credit_model');
 
+
     $doc = $this->consign_order_model->get($code);
     if(!empty($doc))
     {
@@ -387,7 +388,7 @@ class Consign_order extends PS_Controller
       $pay_amount = 0;
 
       //--- customer data
-      $customer = $this->customers_model->get($doc->customer_code);
+      $customer = $this->customers_model->get_attribute($doc->customer_code);
 
       $this->db->trans_begin();
 
@@ -407,7 +408,7 @@ class Consign_order extends PS_Controller
             }
 
             //--- get item info
-            $item = $this->products_model->get($rs->product_code);
+            $item = $this->products_model->get_attribute($rs->product_code);
 
             if(!empty($item))
             {
@@ -441,34 +442,68 @@ class Consign_order extends PS_Controller
 
               //--- 3. บันทึกขาย
               //--- ข้อมูลสำหรับบันทึกยอดขาย
+
               $arr = array(
                       'reference' => $doc->code,
                       'role'   => 'M', //-- ตัดยอดฝากขาย
+											'role_name' => 'ตัดยอดฝากขาย',
                       'payment_code'   => NULL,
                       'channels_code'  => NULL,
                       'product_code'  => $rs->product_code,
                       'product_name'  => $rs->product_name,
                       'product_style' => $rs->style_code,
+											'color_code' => $item->color_code,
+											'color_name' => $item->color_name,
+											'size_code' => $item->size_code,
+											'size_name' => $item->size_name,
+											'product_group_code' => $item->group_code,
+											'product_group_name' => $item->group_name,
+											'product_sub_group_code' => $item->sub_group_code,
+											'product_sub_group_name' => $item->sub_group_name,
+											'product_category_code' => $item->category_code,
+											'product_category_name' => $item->category_name,
+											'product_kind_code' => $item->kind_code,
+											'product_kind_name' => $item->kind_name,
+											'product_type_code' => $item->type_code,
+											'product_type_name' => $item->type_name,
+											'product_brand_code' => $item->brand_code,
+											'product_brand_name' => $item->brand_name,
+											'product_year' => $item->year,
                       'cost'  => $rs->cost,
                       'price'  => $rs->price,
+											'price_ex' => remove_vat($rs->price),
                       'sell'  => ($rs->amount/$rs->qty),
                       'qty'   => $rs->qty,
+											'unit_code' => $item->unit_code,
+											'unit_name' => $item->unit_name,
                       'discount_label'  => $rs->discount,
                       'discount_amount' => $rs->discount_amount,
                       'total_amount'   => $rs->amount,
+											'total_amount_ex' => remove_vat($rs->amount),
                       'total_cost'   => $rs->cost * $rs->qty,
-                      'margin'  =>  $rs->amount - ($rs->cost * $rs->qty),
+                      'margin'  =>  remove_vat($rs->amount) - ($rs->cost * $rs->qty),
                       'id_policy'   => NULL,
                       'id_rule'     => NULL,
                       'customer_code' => $doc->customer_code,
                       'customer_ref' => NULL,
-                      'sale_code'   => NULL,
+											'customer_group_code' => $customer->group_code,
+											'customer_group_name' => $customer->group_name,
+											'customer_kind_code' => $customer->kind_code,
+											'customer_kind_name' => $customer->kind_name,
+											'customer_type_code' => $customer->type_code,
+											'customer_type_name' => $customer->type_name,
+											'customer_class_code' => $customer->class_code,
+											'customer_class_name' => $customer->class_name,
+											'customer_area_code' => $customer->area_code,
+											'customer_area_name' => $customer->area_name,
+											'sale_code'   => $customer->sale_code,
+											'sale_name' => $customer->sale_name,
                       'user' => $doc->user,
                       'date_add'  => $doc->date_add,
                       'zone_code' => $doc->zone_code,
                       'warehouse_code'  => $doc->warehouse_code,
                       'update_user' => get_cookie('uname'),
-                      'budget_code' => NULL
+                      'is_count' => $item->count_stock
               );
 
               //--- 3. บันทึกยอดขาย
@@ -658,21 +693,6 @@ class Consign_order extends PS_Controller
                 $sc = FALSE;
                 $this->error = "ลบรายการตั้งหนี้ไม่สำเร็จ";
               }
-
-              // $payment = array(
-              //   'reference' => $doc->code,
-              //   'customer_code' => $doc->customer_code,
-              //   'pay_date' => $doc->date_add,
-              //   'amount' => $pay_amount,
-              //   'payment_type' => 'CA', //-- เงินสด
-              //   'valid' => 1
-              // );
-              //
-              // if(! $this->payment_receive_model->add($payment))
-              // {
-              //   $sc = FALSE;
-              //   $this->error = "บันทึกรับเงินไม่สำเร็จ";
-              // }
             }
           }
 

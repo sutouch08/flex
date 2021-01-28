@@ -127,19 +127,6 @@
 
 						<tr id="billDisc">
 							<td colspan="7" class="middle text-right" style="border-left:solid 1px #CCC;">ส่วนลดท้ายบิล</td>
-							<!--
-							<td class="middle">
-								<span class="input-icon input-icon-right">
-									<input type="number"
-									id="billDiscPercent"
-									class="form-control input-sm"
-									value="<?php //echo $order->bDiscText; ?>"
-									onblur="updateBillDiscAmount()"
-									 />
-									<i class="ace-icon fa fa-percent"></i>
-								</span>
-							</td>
-						-->
 							<td class="middle">
 								<input type="number"
 								class="form-control input-sm text-right"
@@ -207,27 +194,24 @@
 <script id="detail-table-template" type="text/x-handlebars-template">
 {{#each this}}
 	{{#if @last}}
-
 		<tr id="billDisc">
-			<td colspan="6" class="middle text-right">ส่วนลดท้ายบิล</td>
-			<td class="middle">
-				<span class="input-icon input-icon-right">
-					<input type="number" id="billDiscPercent" class="form-control input-sm" value="{{bDiscText}}" />
-					<i class="ace-icon fa fa-percent"></i>
-				</span>
-			</td>
+			<td colspan="7" class="middle text-right" style="border-left:solid 1px #CCC;">ส่วนลดท้ายบิล</td>
 
 			<td class="middle">
 				<input type="number"
 				class="form-control input-sm text-right"
 				id="billDiscAmount"
 				name="billDiscAmount"
-				value="{{bDiscAmount}}"/>
+				value="{{bDiscAmount}}"
+				onchange="updateBillDiscAmount()"
+				/>
 				<!-- total amount after row discount but before bill disc -->
 				<input type="hidden" id="totalAfDisc" value="{{netAmount}}" />
 			</td>
-			<td class="middle padding-5 text-right"></td>
+			<td class="middle padding-5 text-center"><b>THB.</b></td>
 		</tr>
+
+
 
     <tr class="font-size-12">
     	<td colspan="6" rowspan="7"></td>
@@ -285,23 +269,43 @@
 							class="form-control input-sm text-right price-box"
 							id="price_{{id}}"
 							name="price[{{id}}]"
-							value="{{price}}" />
+							value="{{price}}"
+							onkeyup="recal({{id}})"
+							onchange="update_detail({{id}})"
+							 />
 						</td>
             <td class="middle text-center">
 							<input type="number"
 							class="form-control input-sm text-right qty-box"
 							id="qty_{{id}}"
 							name="qty[{{id}}]"
-							value="{{qty}}" />
+							value="{{qty}}"
+							onkeyup="recal({{id}})"
+							onchange="update_detail({{id}})"
+							 />
 						</td>
             <td class="middle text-center">
 							<input type="text"
 							class="form-control input-sm text-center discount-box"
 							id="disc_{{id}}"
 							name="disc[{{id}}]"
-							value="{{ discount }}" />
+							value="{{ discount }}"
+							onkeyup="recal({{id}})"
+							onchange="update_detail({{id}})"
+							 />
 							</td>
-            <td class="middle text-right line-total" id="line-tota-{{id}}">{{ amount }}</td>
+							<td class="middle text-right">
+								<input type="number"
+								class="form-control input-sm text-right line-total"
+								id="line_total_{{id}}"
+								data-id="{{id}}"
+								name="line_total[{{id}}]"
+								value = "{{ amount }}"
+								onkeyup="recalDiscount({{id}})"
+								onchange="update_detail({{id}})"
+								/>
+      				</td>
+
             <td class="middle text-right">
             <?php if( $edit OR $add ) : ?>
             	<button type="button" class="btn btn-xs btn-danger" onclick="removeDetail({{ id }}, '{{ productCode }}')"><i class="fa fa-trash"></i></button>

@@ -37,6 +37,7 @@ class Products extends PS_Controller
     $this->load->helper('product_sub_group');
     $this->load->helper('product_images');
     $this->load->helper('unit');
+		$this->load->helper('vat');
 
   }
 
@@ -109,41 +110,27 @@ class Products extends PS_Controller
   {
     if($this->input->post('code'))
     {
-      $code     = trim($this->input->post('code')); //--- ตัดช่องว่างหัว-ท้าย
-      $name     = addslashes(trim($this->input->post('name'))); //--- escape string
-      $group    = $this->input->post('group_code');
-      $sub_group = $this->input->post('sub_group_code');
-      $category = $this->input->post('category_code');
-      $kind     = $this->input->post('kind_code');
-      $type     = $this->input->post('type_code');
-      $brand    = $this->input->post('brand_code');
-      $year     = $this->input->post('year');
-      $cost     = $this->input->post('cost');
-      $price    = $this->input->post('price');
-      $unit     = $this->input->post('unit_code');
-      $count_stock = $this->input->post('count_stock') === NULL ? 0 :1;
-      $can_sell = $this->input->post('can_sell') === NULL ? 0 : 1;
-      $is_api   = $this->input->post('is_api') === NULL ? 0 : 1;
-      $active   = $this->input->post('active')=== NULL ? 0 : 1;
-      $tabs     = $this->input->post('tabs');
+			$code = trim($this->input->post('code'));
+      $tabs = $this->input->post('tabs');
 
       $ds = array(
         'code' => $code,
-        'name' => $name,
-        'group_code' => $group,
-        'sub_group_code' => $sub_group,
-        'category_code' => $category,
-        'kind_code' => $kind,
-        'type_code' => $type,
-        'brand_code' => $brand,
-        'year' => $year,
-        'cost' => $cost,
-        'price' => $price,
-        'unit_code' => $unit,
-        'count_stock' => $count_stock,
-        'can_sell' => $can_sell,
-        'active' => $active,
-        'is_api' => $is_api,
+        'name' => addslashes(trim($this->input->post('name'))),
+        'group_code' => get_null($this->input->post('group_code')),
+        'sub_group_code' => get_null($this->input->post('sub_group_code')),
+        'category_code' => get_null($this->input->post('category_code')),
+        'kind_code' => get_null($this->input->post('kind_code')),
+        'type_code' => get_null($this->input->post('type_code')),
+        'brand_code' => get_null($this->input->post('brand_code')),
+        'year' => $this->input->post('year'),
+        'cost' => get_zero($this->input->post('cost')),
+        'price' => get_zero($this->input->post('price')),
+        'unit_code' => get_null($this->input->post('unit_code')),
+				'vat_code' => get_null($this->input->post('vat_code')),
+        'count_stock' => $this->input->post('count_stock') === NULL ? 0 :1,
+        'can_sell' => $this->input->post('can_sell') === NULL ? 0 : 1,
+        'active' => $this->input->post('active') === NULL ? 0 : 1,
+        'is_api' => $this->input->post('is_api')=== NULL ? 0 : 1,
         'update_user' => get_cookie('uname')
       );
 
@@ -252,22 +239,6 @@ class Products extends PS_Controller
     if($this->input->post('code'))
     {
       $code = $this->input->post('code'); //--- style code
-      $name = $this->input->post('name'); //--- style name
-      $cost = $this->input->post('cost'); //--- style cost
-      $price = $this->input->post('price'); //--- style price
-      $unit = $this->input->post('unit_code');
-      $brand = $this->input->post('brand_code');
-      $group = $this->input->post('group_code');
-      $sub_group = $this->input->post('sub_group_code');
-      $category = $this->input->post('category_code');
-      $kind = $this->input->post('kind_code');
-      $type = $this->input->post('type_code');
-      $year = $this->input->post('year');
-      $count = $this->input->post('count_stock');
-      $sell = $this->input->post('can_sell');
-      $api = $this->input->post('is_api');
-      $active = $this->input->post('active');
-      $user = get_cookie('uname');
 
       $flag_cost = $this->input->post('cost_update');
       $flag_price = $this->input->post('price_update');
@@ -276,20 +247,21 @@ class Products extends PS_Controller
 
       $ds = array(
         'name' => addslashes(trim($name)),
-        'group_code' => $group,
-        'sub_group_code' => $sub_group,
-        'category_code' => $category,
-        'kind_code' => $kind,
-        'type_code' => $type,
-        'brand_code' => $brand,
-        'year' => $year,
-        'cost' => ($cost === NULL ? 0.00 : $cost),
-        'price' => ($price === NULL ? 0.00 : $price),
-        'unit_code' => $unit,
-        'count_stock' => ($count === NULL ? 0 : 1),
-        'can_sell' => ($sell === NULL ? 0 : 1),
-        'active' => ($active === NULL ? 0 : 1),
-        'is_api' => ($api === NULL ? 0 : 1),
+        'group_code' => get_null($this->input->post('group_code')),
+        'sub_group_code' => get_null($this->input->post('sub_group_code')),
+        'category_code' => get_null($this->input->post('category_code')),
+        'kind_code' => get_null($this->input->post('kind_code')),
+        'type_code' => get_null($this->input->post('type_code')),
+        'brand_code' => get_null($this->input->post('brand_code')),
+        'year' => $this->input->post('year'),
+        'cost' => get_zero($this->input->post('cost')),
+        'price' => get_zero($this->input->post('price')),
+        'unit_code' => get_null($this->input->post('unit_code')),
+				'vat_code' => get_null($this->input->post('vat_code')),
+        'count_stock' => ($this->input->post('count_stock') === NULL ? 0 : 1),
+        'can_sell' => ($this->input->post('can_sell') === NULL ? 0 : 1),
+        'active' => ($this->input->post('active') === NULL ? 0 : 1),
+        'is_api' => ($this->input->post('is_api') === NULL ? 0 : 1),
         'update_user' => get_cookie('uname')
       );
 
@@ -309,33 +281,36 @@ class Products extends PS_Controller
         if(!empty($items))
         {
           $ds = array(
-            'group_code' => $group,
-            'sub_group_code' => $sub_group,
-            'category_code' => $category,
-            'kind_code' => $kind,
-            'type_code' => $type,
-            'brand_code' => $brand,
-            'year' => $year,
-            'unit_code' => $unit,
-            'count_stock' => ($count === NULL ? 0 : 1),
-            'can_sell' => ($sell === NULL ? 0 : 1),
-            'active' => ($active === NULL ? 0 : 1),
-            'is_api' => ($api === NULL ? 0 : 1),
-            'update_user' => get_cookie('uname')
+						'group_code' => get_null($this->input->post('group_code')),
+		        'sub_group_code' => get_null($this->input->post('sub_group_code')),
+		        'category_code' => get_null($this->input->post('category_code')),
+		        'kind_code' => get_null($this->input->post('kind_code')),
+		        'type_code' => get_null($this->input->post('type_code')),
+		        'brand_code' => get_null($this->input->post('brand_code')),
+		        'year' => $this->input->post('year'),
+		        'cost' => get_zero($this->input->post('cost')),
+		        'price' => get_zero($this->input->post('price')),
+		        'unit_code' => get_null($this->input->post('unit_code')),
+						'vat_code' => get_null($this->input->post('vat_code')),
+		        'count_stock' => ($this->input->post('count_stock') === NULL ? 0 : 1),
+		        'can_sell' => ($this->input->post('can_sell') === NULL ? 0 : 1),
+		        'active' => ($this->input->post('active') === NULL ? 0 : 1),
+		        'is_api' => ($this->input->post('is_api') === NULL ? 0 : 1),
+						'update_user' => get_cookie('uname')
           );
 
           //--- ถ้าติกให้ updte cost มาด้วย
           if(!empty($flag_cost))
           {
-            $ds['cost'] = ($cost === NULL ? 0.00 : $cost);
+            $ds['cost'] = get_zero($this->input->post('cost'));
           }
 
           //--- ถ้าติกให้ updte price มาด้วย
           if(!empty($flag_price))
           {
-            $ds['price'] = ($price === NULL ? 0.00 : $price);
+            $ds['price'] = get_zero($this->input->post('price'));
           }
-          
+
           foreach($items as $item)
           {
             $this->products_model->update($item->code, $ds);
@@ -607,6 +582,7 @@ class Products extends PS_Controller
             'cost' => (isset($cost[$size]) ? $cost[$size] :$ds->cost),
             'price' => (isset($price[$size]) ? $price[$size] : $ds->price),
             'unit_code' => $ds->unit_code,
+						'vat_code' => $ds->vat_code,
             'count_stock' => $ds->count_stock,
             'can_sell' => $ds->can_sell,
             'active' => $ds->active,
@@ -656,6 +632,7 @@ class Products extends PS_Controller
           'cost' => $ds->cost,
           'price' => $ds->price,
           'unit_code' => $ds->unit_code,
+					'vat_code' => $ds->vat_code,
           'count_stock' => $ds->count_stock,
           'can_sell' => $ds->can_sell,
           'active' => $ds->active,
@@ -700,6 +677,7 @@ class Products extends PS_Controller
         'cost' => (isset($cost[$size]) ? $cost[$size] :$ds->cost),
         'price' => (isset($price[$size]) ? $price[$size] : $ds->price),
         'unit_code' => $ds->unit_code,
+				'vat_code' => $ds->vat_code,
         'count_stock' => $ds->count_stock,
         'can_sell' => $ds->can_sell,
         'active' => $ds->active,

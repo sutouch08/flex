@@ -218,6 +218,8 @@ class Delivery_order_model extends CI_Model
     }
 
 
+
+
     public function get_non_count_bill_detail($code)
     {
       $qr  = "SELECT o.product_code, o.product_name, o.style_code, o.qty, ";
@@ -251,6 +253,12 @@ class Delivery_order_model extends CI_Model
     }
 
 
+		public function get_sum_non_bill_qty($code)
+		{
+			$rs = $this->db->select_sum('qty')->where('is_count', 0)->where('order_code', $code)->get('order_details');
+
+			return $rs->row()->qty;
+		}
 }
 
  ?>

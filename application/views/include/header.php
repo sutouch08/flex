@@ -2,12 +2,11 @@
 <!DOCTYPE html>
 <html lang="th">
 	<head>
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 		<meta charset="utf-8" />
 
 		<title><?php echo $this->title; ?></title>
 		<meta name="description" content="" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=10.0" />
 		<link rel="shortcut icon" href="<?php echo base_url(); ?>assets/img/favicon.ico">
 
 		<?php $this->load->view('include/header_include'); ?>

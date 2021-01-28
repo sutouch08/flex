@@ -104,8 +104,8 @@
 					</tr>
 					<tr style="font-size:10px;">
             <td>ขนส่ง</td>
-            <td>'.$sd->name.'</td>
-            <td colspan="3">'.$sd->address1.' '.$sd->address2.' ('.$sd->phone.')</td>
+            <td>'.(empty($sd) ? "" : $sd->name).'</td>
+            <td colspan="3">'.(empty($sd) ? "" : $sd->address1.' '.$sd->address2.' ('.$sd->phone.')').'</td>
           </tr>
 					<tr style="font-size:10px;">
             <td>ผู้รับ</td>

@@ -24,7 +24,7 @@
       <input type="text" class="form-control input-sm text-center" name="date_add" id="dateAdd" value="<?php echo date('d-m-Y'); ?>" readonly />
     </div>
 		<div class="col-sm-1 col-1-harf col-xs-4 padding-5">
-			<label>เลขที่บิล[SAP]</label>
+			<label>เลขที่บิล</label>
 			<input type="text" class="form-control input-sm text-center" name="invoice" id="invoice" value="" />
 		</div>
 
@@ -60,6 +60,6 @@
 </form>
 <hr class="margin-top-15 padding-5"/>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/return_order/return_order.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/return_order/return_order_add.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/return_order/return_order.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/return_order/return_order_add.js?v=<?php echo date('YmdH'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

@@ -8,14 +8,14 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
 ?>
 
 <div class="row" style="padding:15px;">
-	<div class="col-sm-3 padding-5">
+	<div class="col-sm-3 padding-0">
     	<table class="table" style="margin-bottom:0px;">
         <?php if( $this->pm->can_add OR $this->pm->can_edit OR $this->pm->can_delete ) : ?>
         	<tr>
-            	<td class="width-25 middle text-right" style="border:0px; padding:5px;">สถานะ : </td>
-                <td class="width-50" style="border:0px; padding:5px;">
+
+                <td class="width-75" style="border:0px; padding:0px;">
                 	<select class="form-control input-sm" style="padding-top:0px; padding-bottom:0px;" id="stateList">
-                    	
+
 							<?php if($order->status == 0) : ?>
 											<option value="0">กรุณาบันทึกออเดอร์</option>
 							<?php else : ?>
@@ -59,7 +59,7 @@ $canSkip = ($pc->can_add + $pc->can_edit + $pc->can_delete) > 0 ? TRUE : FALSE;
 							<?php endif; ?>
                     </select>
                 </td>
-                <td class="width-25" style="border:0px; padding:5px;">
+                <td class="width-25" style="border:0px; padding:0px; padding-left:5px;">
                 <?php if( $order->status == 1 && $order->is_expired == 0 ) : ?>
                 	<button class="btn btn-xs btn-primary btn-block" onclick="changeState()">เปลี่ยนสถานะ</button>
 								<?php elseif($order->is_expired == 1 && $$this->pm->can_delete) : ?>

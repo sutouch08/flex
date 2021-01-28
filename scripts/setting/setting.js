@@ -59,6 +59,23 @@ function toggleManualCode(option)
 	}
 }
 
+//--- เปิด/ปิด ระบบ VAT
+function toggleVAT(option) {
+	$('#use_vat').val(option);
+
+	if(option == 1) {
+		$('#btn-vat-yes').addClass('btn-success');
+		$('#btn-vat-no').removeClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-vat-no').addClass('btn-success');
+		$('#btn-vat-yes').removeClass('btn-success');
+		return;
+	}
+}
+
 
 
 //--- เปิด/ปิด การ sync ข้อมูลระหว่างเว็บไซต์กับระบบหลัก
@@ -125,6 +142,24 @@ function toggleQC(option)
 	if(option == 0){
 		$('#btn-qc-yes').removeClass('btn-success');
 		$('#btn-qc-no').addClass('btn-danger');
+		return;
+	}
+}
+
+
+//---- อนุญาติให้ใส่จำนวนตอน QC ได้หรือไม่
+function toggleInputQC(option)
+{
+	$('#qty_qc').val(option);
+	if(option == 1){
+		$('#qty-qc-yes').addClass('btn-success');
+		$('#qty-qc-no').removeClass('btn-success');
+		return;
+	}
+
+	if(option == 0){
+		$('#qty-qc-yes').removeClass('btn-success');
+		$('#qty-qc-no').addClass('btn-success');
 		return;
 	}
 }

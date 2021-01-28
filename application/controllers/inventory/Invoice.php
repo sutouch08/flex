@@ -116,7 +116,7 @@ class Invoice extends PS_Controller
 		$ds['address'] = $customer_address;
     $ds['title'] = "ใบส่งสินค้า";
     $ds['is_barcode'] = $barcode != '' ? TRUE : FALSE;
-    $this->load->view('print/print_invoice', $ds);
+    $this->load->view('print/print_order', $ds);
   }
 
 
@@ -144,7 +144,7 @@ class Invoice extends PS_Controller
 		$ds['customer'] = $customer;
 		$ds['address'] = $customer_address;
     $ds['title'] = "ใบส่งสินค้า";
-    $this->load->view('print/print_invoice_no_price', $ds);
+    $this->load->view('print/print_order_no_price', $ds);
   }
 
   public function clear_filter()

@@ -1,3 +1,5 @@
+var HOME = BASE_URL + 'masters/products/';
+
 function addNew(){
   window.location.href = BASE_URL + 'masters/products/add_new';
 }
@@ -80,11 +82,59 @@ function getDelete(code){
   })
 }
 
+function checkAdd() {
+	var code = $('#code').val();
+	var name = $('#name').val();
+
+	if(code.length == 0) {
+		set_error($('#code'), $('#code-error'), 'Required');
+		return false;
+	}
+	else {
+		clear_error($('#code'), $('#code-error'));
+	}
+
+	if(name.length == 0) {
+		set_error($('#name'), $('#name-error'), 'Required');
+		return false;
+	}
+	else {
+		clear_error($('#name'), $('#name-error'));
+	}
+
+	$.ajax({
+		url:HOME + 'is_style_exists/'+code,
+		type:'POST',
+		cache:false,
+		success:function(rs) {
+			var rs = $.trim(rs);
+			if(rs === 'exists') {
+				set_error($('#code'), $('#code-error'), 'รหัสซ้ำ');
+				return false;
+			}
+			else {
+				$('#addForm').submit();
+			}
+		}
+	})
+
+
+}
+
 
 
 function getSearch(){
   $('#searchForm').submit();
 }
+
+
+$('#cost').focus(function() {
+	$(this).select();
+})
+
+$('#price').focus(function() {
+	$(this).select();
+})
 
 
 function doExport(code){

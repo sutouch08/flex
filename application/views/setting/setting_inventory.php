@@ -3,6 +3,8 @@ $btn_qc_yes = $USE_QC == 1 ? 'btn-success' : '';
 $btn_qc_no = $USE_QC == 0 ? 'btn-danger' : '';
 $auz_no = $ALLOW_UNDER_ZERO == 0 ? 'btn-success' : '';
 $auz_yes = $ALLOW_UNDER_ZERO == 1 ? 'btn-danger' : '';
+$input_qc_yes = $QC_ALLOW_INPUT_QTY == 1 ? 'btn-success' : '';
+$input_qc_no = $QC_ALLOW_INPUT_QTY == 0 ? 'btn-success' : '';
 ?>
 <div class="tab-pane fade" id="inventory">
 	<form id="inventoryForm" method="post" action="<?php echo $this->home; ?>/update_config">
@@ -39,6 +41,17 @@ $auz_yes = $ALLOW_UNDER_ZERO == 1 ? 'btn-danger' : '';
 				</div>
 				<span class="help-block">เปิด/ปิด ระบบ QC</span>
 				<input type="hidden" name="USE_QC" id="use_qc" value="<?php echo $USE_QC; ?>" />
+			</div>
+			<div class="divider-hidden"></div>
+
+			<div class="col-sm-3"><span class="form-control left-label">ใส่จำนวนตอน QC</span></div>
+			<div class="col-sm-9">
+				<div class="btn-group input-medium">
+					<button type="button" class="btn btn-sm <?php echo $input_qc_yes; ?>" style="width:50%;" id="qty-qc-yes" onClick="toggleInputQC(1)">ใช้</button>
+					<button type="button" class="btn btn-sm <?php echo $input_qc_no; ?>" style="width:50%;" id="qty-qc-no" onClick="toggleInputQC(0)">ไม่ใช้</button>
+				</div>
+				<span class="help-block">เปิด/ปิด ระบบ QC</span>
+				<input type="hidden" name="QC_ALLOW_INPUT_QTY" id="qty_qc" value="<?php echo $QC_ALLOW_INPUT_QTY; ?>" />
 			</div>
 			<div class="divider-hidden"></div>
 

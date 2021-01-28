@@ -61,13 +61,22 @@ class Delivery_order extends PS_Controller
     $sc = TRUE;
     $this->load->model('inventory/buffer_model');
     $this->load->model('inventory/cancle_model');
+		$this->load->model('inventory/qc_model');
     $this->load->model('inventory/movement_model');
     $this->load->model('inventory/invoice_model');
     $this->load->model('masters/customers_model');
+		$this->load->model('masters/channels_model');
+		$this->load->model('masters/payment_methods_model');
+		$this->load->model('masters/products_model');
     $this->load->model('stock/stock_model');
+		$this->load->model('masters/vat_model');
+
     $this->load->helper('discount');
+		$this->load->helper('order');
     $code = $this->input->post('order_code');
     $use_qc = getConfig('USE_QC') == 1 ? TRUE : FALSE;
+		$use_credit = getConfig('CONTROL_CREDIT') == 1 ? TRUE : FALSE;
+
     if($code)
     {
       $order = $this->orders_model->get($code);
@@ -104,8 +113,39 @@ class Delivery_order extends PS_Controller
 
         $this->order_state_model->add_state($arr);
 
+				//--- วันที่บันทึกขาย ตามการตั้งค่า D = ใช้วันที่ตามเอกสาร B = ใช้วันที่กดเปิดบิล
+				$sold_date = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : now();
+
         //---- รายการทีรอการเปิดบิล
         $bill = $this->delivery_order_model->get_bill_detail($code, $use_qc);
+
+				$customer = $this->customers_model->get_attribute($order->customer_code);
+
+				$avgBillDiscAmount = 0;
+
+				if($order->bDiscAmount > 0)
+				{
+					$sum_qty = 0;
+					if($use_qc)
+					{
+						$sum_buffer = $this->buffer_model->get_sum_order_qty($code);
+						$sum_qc = $this->qc_model->get_sum_order_qty($code);
+						$sum_qty = $sum_buffer > $sum_qc ? $sum_qc : $sum_buffer;
+						$non_stock_qty = $this->delivery_order_model->get_sum_non_bill_qty($code);
+						$sum_qty = $sum_qty + $non_stock_qty;
+					}
+					else
+					{
+						$sum_buffer = $this->buffer_model->get_sum_order_qty($code);
+						$non_stock_qty = $this->delivery_order_model->get_sum_non_bill_qty($code);
+						$sum_qty = $sum_qty + $non_stock_qty;
+					}
+					$sum_order_qty = $this->orders_model->get_order_total_qty($code);
+					$sum_qty = $sum_order_qty < $sum_qty ? $sum_order_qty : $sum_qty;
+
+					$avgBillDiscAmount = round(($sum_qty > 0 ? ($order->bDiscAmount / $sum_qty) : 0), 2);
+				}
+
 
         if(!empty($bill))
         {
@@ -166,7 +206,7 @@ class Delivery_order extends PS_Controller
                     'product_code' => $rm->product_code,
                     'move_in' => 0,
                     'move_out' => $buffer_qty,
-                    'date_add' => $order->date_add
+                    'date_add' => $sold_date
                   );
 
                   if($this->movement_model->add($arr) === FALSE)
@@ -195,7 +235,7 @@ class Delivery_order extends PS_Controller
                       'product_code' => $rm->product_code,
                       'move_in' => $buffer_qty,
                       'move_out' => 0,
-                      'date_add' => $order->date_add
+                      'date_add' => $sold_date
                     );
 
                     if($this->movement_model->add($arr) === FALSE)
@@ -206,49 +246,93 @@ class Delivery_order extends PS_Controller
                     }
                   }
 
-                  $total_amount = $rs->final_price * $buffer_qty;
+                  $total_amount = ($rs->final_price + $avgBillDiscAmount) * $buffer_qty;
                   //--- 4. update credit used
                   if($sc === TRUE && $order->role == 'S' && $order->is_term == 1)
                   {
                     $credit_balance = $this->customers_model->get_credit_balance($order->customer_code);
 
-                    if($credit_balance < $total_amount)
+                    if($use_credit && ($credit_balance < $total_amount))
                     {
                       $sc = FALSE;
                       $message = 'เครดิตคงเหลือไม่เพียงพอ';
                     }
 
-                    if($sc === TRUE && $this->customers_model->update_used($order->customer_code, ($rs->final_price * $buffer_qty)))
+                    if($sc === TRUE && $this->customers_model->update_used($order->customer_code, (($rs->final_price + $avgBillDiscAmount) * $buffer_qty)))
                     {
                       $this->customers_model->update_balance($order->customer_code);
                     }
                   }
 
+									$item = $this->products_model->get_attribute($rs->product_code);
                   //--- ข้อมูลสำหรับบันทึกยอดขาย
+									$total_amount = ($rs->final_price - $avgBillDiscAmount) * $buffer_qty;
+									$total_amount_ex = remove_vat($total_amount, $item->vat_rate);
+									$total_cost = $rs->cost * $buffer_qty;
                   $arr = array(
                           'reference' => $order->code,
                           'role'   => $order->role,
+													'role_name' => role_name($order->role),
                           'payment_code'   => $order->payment_code,
+													'payment_name' => $this->payment_methods_model->get_name($order->payment_code),
                           'channels_code'  => $order->channels_code,
+													'channels_name' => $this->channels_model->get_name($order->channels_code),
                           'product_code'  => $rs->product_code,
                           'product_name'  => $rs->product_name,
                           'product_style' => $rs->style_code,
+													'color_code' => $item->color_code,
+													'color_name' => $item->color_name,
+													'size_code' => $item->size_code,
+													'size_name' => $item->size_name,
+													'product_group_code' => $item->group_code,
+													'product_group_name' => $item->group_name,
+													'product_sub_group_code' => $item->sub_group_code,
+													'product_sub_group_name' => $item->sub_group_name,
+													'product_category_code' => $item->category_code,
+													'product_category_name' => $item->category_name,
+													'product_kind_code' => $item->kind_code,
+													'product_kind_name' => $item->kind_name,
+													'product_type_code' => $item->type_code,
+													'product_type_name' => $item->type_name,
+													'product_brand_code' => $item->brand_code,
+													'product_brand_name' => $item->brand_name,
+													'product_year' => $item->year,
                           'cost'  => $rs->cost,
                           'price'  => $rs->price,
-                          'sell'  => $rs->final_price,
+													'price_ex' => remove_vat($rs->price, $item->vat_rate),
+                          'sell'  => ($rs->final_price - $avgBillDiscAmount),
                           'qty'   => $buffer_qty,
+													'unit_code' => $item->unit_code,
+													'unit_name' => $item->unit_name,
+													'vat_code' => $item->vat_code,
+													'vat_rate' => get_zero($item->vat_rate),
                           'discount_label'  => discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
-                          'discount_amount' => ($rs->discount_amount * $buffer_qty),
-                          'total_amount'   => $rs->final_price * $buffer_qty,
-                          'total_cost'   => $rs->cost * $buffer_qty,
-                          'margin'  =>  ($rs->final_price * $buffer_qty) - ($rs->cost * $buffer_qty),
+													'avgBillDiscAmount' => $avgBillDiscAmount, //--- average per single item count
+                          'discount_amount' => ($rs->discount_amount + $avgBillDiscAmount) * $buffer_qty,
+                          'total_amount'   => $total_amount,
+													'total_amount_ex' => $total_amount_ex,
+													'vat_amount' => $total_amount * ($item->vat_rate * 0.01),
+                          'total_cost'   => $total_cost,
+                          'margin'  =>  $total_amount_ex - $total_cost,
                           'id_policy'   => $rs->id_policy,
                           'id_rule'     => $rs->id_rule,
                           'customer_code' => $order->customer_code,
+													'customer_name' => $customer->name,
                           'customer_ref' => $order->customer_ref,
-                          'sale_code'   => $order->sale_code,
+													'customer_group_code' => $customer->group_code,
+													'customer_group_name' => $customer->group_name,
+													'customer_kind_code' => $customer->kind_code,
+													'customer_kind_name' => $customer->kind_name,
+													'customer_type_code' => $customer->type_code,
+													'customer_type_name' => $customer->type_name,
+													'customer_class_code' => $customer->class_code,
+													'customer_class_name' => $customer->class_name,
+													'customer_area_code' => $customer->area_code,
+													'customer_area_name' => $customer->area_name,
+                          'sale_code'   => $customer->sale_code,
+													'sale_name' => $customer->sale_name,
                           'user' => $order->user,
-                          'date_add'  => $order->date_add,
+                          'date_add'  => $sold_date,
                           'zone_code' => $rm->zone_code,
                           'warehouse_code'  => $rm->warehouse_code,
                           'update_user' => get_cookie('uname'),
@@ -391,55 +475,100 @@ class Delivery_order extends PS_Controller
           foreach($bill as $rs)
           {
 
-            $total_amount = $rs->final_price * $rs->qty;
+            $total_amount = ($rs->final_price + $avgBillDiscAmount) * $rs->qty;
             //--- 4. update credit used
             if($sc === TRUE && $order->role == 'S' && $order->is_term == 1)
             {
               $credit_balance = $this->customers_model->get_credit_balance($order->customer_code);
 
-              if($credit_balance < $total_amount)
+              if( $use_credit && ($credit_balance < $total_amount))
               {
                 $sc = FALSE;
                 $message = 'เครดิตคงเหลือไม่เพียงพอ';
               }
 
-              if($sc === TRUE && $this->customers_model->update_used($order->customer_code, ($rs->final_price * $buffer_qty)))
+              if($sc === TRUE && $this->customers_model->update_used($order->customer_code, (($rs->final_price + $avgBillDiscAmount)* $buffer_qty)))
               {
                 $this->customers_model->update_balance($order->customer_code);
               }
             }
 
-            //--- ข้อมูลสำหรับบันทึกยอดขาย
-            $arr = array(
-                    'reference' => $order->code,
-                    'role'   => $order->role,
-                    'payment_code'   => $order->payment_code,
-                    'channels_code'  => $order->channels_code,
-                    'product_code'  => $rs->product_code,
-                    'product_name'  => $rs->product_name,
-                    'product_style' => $rs->style_code,
-                    'cost'  => $rs->cost,
-                    'price'  => $rs->price,
-                    'sell'  => $rs->final_price,
-                    'qty'   => $rs->qty,
-                    'discount_label'  => discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
-                    'discount_amount' => ($rs->discount_amount * $rs->qty),
-                    'total_amount'   => $rs->final_price * $rs->qty,
-                    'total_cost'   => $rs->cost * $rs->qty,
-                    'margin'  => ($rs->final_price * $rs->qty) - ($rs->cost * $rs->qty),
-                    'id_policy'   => $rs->id_policy,
-                    'id_rule'     => $rs->id_rule,
-                    'customer_code' => $order->customer_code,
-                    'customer_ref' => $order->customer_ref,
-                    'sale_code'   => $order->sale_code,
-                    'user' => $order->user,
-                    'date_add'  => $order->date_add,
-                    'zone_code' => NULL,
-                    'warehouse_code'  => NULL,
-                    'update_user' => get_cookie('uname'),
-                    'budget_code' => $order->budget_code,
-                    'is_count' => 0
-            );
+						$item = $this->products_model->get_attribute($rs->product_code);
+						//--- ข้อมูลสำหรับบันทึกยอดขาย
+						$total_amount = ($rs->final_price - $avgBillDiscAmount) * $buffer_qty;
+						$total_amount_ex = remove_vat($total_amount, $item->vat_rate);
+						$total_cost = $rs->cost * $buffer_qty;
+						$arr = array(
+										'reference' => $order->code,
+										'role'   => $order->role,
+										'role_name' => role_name($order->role),
+										'payment_code'   => $order->payment_code,
+										'payment_name' => $this->payment_methods_model->get_name($order->payment_code),
+										'channels_code'  => $order->channels_code,
+										'channels_name' => $this->channels_model->get_name($order->channels_code),
+										'product_code'  => $rs->product_code,
+										'product_name'  => $rs->product_name,
+										'product_style' => $rs->style_code,
+										'color_code' => $item->color_code,
+										'color_name' => $item->color_name,
+										'size_code' => $item->size_code,
+										'size_name' => $item->size_name,
+										'product_group_code' => $item->group_code,
+										'product_group_name' => $item->group_name,
+										'product_sub_group_code' => $item->sub_group_code,
+										'product_sub_group_name' => $item->sub_group_name,
+										'product_category_code' => $item->category_code,
+										'product_category_name' => $item->category_name,
+										'product_kind_code' => $item->kind_code,
+										'product_kind_name' => $item->kind_name,
+										'product_type_code' => $item->type_code,
+										'product_type_name' => $item->type_name,
+										'product_brand_code' => $item->brand_code,
+										'product_brand_name' => $item->brand_name,
+										'product_year' => $item->year,
+										'cost'  => $rs->cost,
+										'price'  => $rs->price,
+										'price_ex' => remove_vat($rs->price, get_zero($item->vat_rate)),
+										'sell'  => ($rs->final_price - $avgBillDiscAmount),
+										'qty'   => $buffer_qty,
+										'unit_code' => $item->unit_code,
+										'unit_name' => $item->unit_name,
+										'vat_code' => $item->vat_code,
+										'vat_rate' => get_zero($item->vat_rate),
+										'discount_label'  => discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
+										'avgBillDiscAmount' => $avgBillDiscAmount, //--- average per single item count
+										'discount_amount' => ($rs->discount_amount + $avgBillDiscAmount) * $buffer_qty,
+										'total_amount'   => $total_amount,
+										'total_amount_ex' => $total_amount_ex,
+										'vat_amount' => $total_amount * (get_zero($item->vat_rate) * 0.01),
+										'total_cost'   => $total_cost,
+										'margin'  =>  $total_amount_ex - $total_cost,
+										'id_policy'   => $rs->id_policy,
+										'id_rule'     => $rs->id_rule,
+										'customer_code' => $order->customer_code,
+										'customer_name' => $customer->name,
+										'customer_ref' => $order->customer_ref,
+										'customer_group_code' => $customer->group_code,
+										'customer_group_name' => $customer->group_name,
+										'customer_kind_code' => $customer->kind_code,
+										'customer_kind_name' => $customer->kind_name,
+										'customer_type_code' => $customer->type_code,
+										'customer_type_name' => $customer->type_name,
+										'customer_class_code' => $customer->class_code,
+										'customer_class_name' => $customer->class_name,
+										'customer_area_code' => $customer->area_code,
+										'customer_area_name' => $customer->area_name,
+										'sale_code'   => $customer->sale_code,
+										'sale_name' => $customer->sale_name,
+										'user' => $order->user,
+										'date_add'  => $sold_date,
+										'zone_code' => $rm->zone_code,
+										'warehouse_code'  => $rm->warehouse_code,
+										'update_user' => get_cookie('uname'),
+										'budget_code' => $order->budget_code,
+										'is_count' => 0
+						);
+
 
             //--- 3. บันทึกยอดขาย
             if($this->delivery_order_model->sold($arr) !== TRUE)
@@ -463,7 +592,7 @@ class Delivery_order extends PS_Controller
             $this->load->model('account/order_credit_model');
 
             $sold_amount = $this->invoice_model->get_total_sold_amount($code);
-            $dept_amount = ($sold_amount + $order->shipping_fee + $order->service_fee);
+            $dept_amount = $sold_amount;
             $customer = $this->customers_model->get($order->customer_code);
             $arr = array(
               'order_code' => $code,

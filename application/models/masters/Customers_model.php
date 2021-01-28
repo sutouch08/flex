@@ -357,5 +357,53 @@ class Customers_model extends CI_Model
     return FALSE;
   }
 
+
+	public function get_saleman($customer_code)
+	{
+		$rs = $this->db
+		->select('sale.code, sale.name')
+		->from('customers AS cust')
+		->join('saleman AS sale', 'cust.sale_code = sale.code', 'left')
+		->where('cust.code', $customer_code)
+		->where('cust.sale_code IS NOT NULL', NULL, FALSE)
+		->get();
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
+
+
+
+	public function get_attribute($code)
+	{
+		$rs = $this->db
+		->select('c.*')
+		->select('cg.name AS group_name')
+		->select('ck.name AS kind_name')
+		->select('ct.name AS type_name')
+		->select('cc.name AS class_name')
+		->select('ca.name AS area_name')
+		->select('sa.name AS sale_name')
+		->from('customers AS c')
+		->join('customer_group AS cg', 'c.group_code = cg.code', 'left')
+		->join('customer_kind AS ck', 'c.kind_code = ck.code', 'left')
+		->join('customer_type AS ct', 'c.type_code = ct.code', 'left')
+		->join('customer_class AS cc', 'c.class_code = cc.code', 'left')
+		->join('customer_area AS ca', 'c.area_code = ca.code', 'left')
+		->join('saleman AS sa', 'c.sale_code = sa.code', 'left')
+		->where('c.code', $code)
+		->get();
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
 }
 ?>

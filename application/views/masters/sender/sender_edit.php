@@ -14,28 +14,28 @@
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="text" name="name" class="width-100" value="<?php echo $name; ?>" required />
+			<input type="text" name="name" class="width-100" maxlength="250" value="<?php echo $name; ?>" required />
     </div>
   </div>
 
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">ที่อยู่ 1</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="text" name="address1" class="width-100" value="<?php echo $address1; ?>" />
+			<input type="text" name="address1" class="width-100" maxlength="250" value="<?php echo $address1; ?>" />
     </div>
   </div>
 
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">ที่อยู่ 2</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="text" name="address2" class="width-100" value="<?php echo $address2; ?>" />
+			<input type="text" name="address2" class="width-100" maxlength="250" value="<?php echo $address2; ?>" />
     </div>
   </div>
 
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">เบอร์โทร</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="text" name="phone" class="width-100" value="<?php echo $phone; ?>" />
+			<input type="text" name="phone" class="width-100" maxlength="20" value="<?php echo $phone; ?>" />
     </div>
   </div>
 

@@ -214,8 +214,18 @@ class Qc_model extends CI_Model
     ->where('product_code', $product_code)
     ->get('qc');
 
-    return intval($rs->row()->qty);
+    return $rs->row()->qty;
   }
+
+
+	public function get_sum_order_qty($code)
+	{
+		$rs = $this->db->select_sum('qty')
+		->where('order_code', $code)
+		->get('qc');
+
+		return $rs->row()->qty;
+	}
 
 
 

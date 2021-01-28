@@ -35,7 +35,7 @@ $hide = $order->status == 1 ? 'hide' : '';
 <!--- Category Menu ---------------------------------->
 <div class='row'>
 	<div class='col-sm-12'>
-		<ul class='nav navbar-nav' role='tablist' style='background-color:#EEE'>
+		<ul class='nav navbar-nav' role='tablist' style='width:100%; margin-left:0px; margin-right: 0px; background-color:#EEE'>
 		<?php echo productTabMenu('order'); ?>
 		</ul>
 	</div><!---/ col-sm-12 ---->

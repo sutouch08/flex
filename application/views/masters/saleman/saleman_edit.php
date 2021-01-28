@@ -14,7 +14,7 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">รหัส</label>
     <div class="col-xs-12 col-sm-3">
-      <input type="text" name="code" id="code" class="width-100 code" value="<?php echo $ds->code; ?>" autofocus required />
+      <input type="text" name="code" id="code" class="width-100 code" maxlength="15" value="<?php echo $ds->code; ?>" disabled />
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" id="code-error"></div>
   </div>
@@ -24,7 +24,7 @@
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="text" name="name" id="name" class="width-100" value="<?php echo $ds->name; ?>" required />
+			<input type="text" name="name" id="name" class="width-100" maxlength="100" value="<?php echo $ds->name; ?>" required />
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
   </div>

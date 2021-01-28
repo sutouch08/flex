@@ -328,9 +328,9 @@ class Orders extends PS_Controller
       $code = $this->get_new_code($date_add);
       $role = 'S'; //--- S = ขาย
       $has_term = $this->payment_methods_model->has_term($this->input->post('payment'));
-      $sale_code = $this->customers_model->get_sale_code($this->input->post('customerCode'));
+      $sale_code = get_null($this->customers_model->get_sale_code($this->input->post('customerCode')));
       $sender_id = get_null($this->input->post('sender_id'));
-			$quotation_no = trim($this->input->post('qt_no')); //-- ใบเสนราคา
+			$quotation_no = get_null(trim($this->input->post('qt_no'))); //-- ใบเสนราคา
 
       //--- check over due
       $is_strict = getConfig('STRICT_OVER_DUE') == 1 ? TRUE : FALSE;
@@ -474,7 +474,7 @@ class Orders extends PS_Controller
 						if($this->orders_model->clear_order_detail($code))
 						{
               update_order_total_amount($code);
-              
+
 							//---- update qt no on order
 							$arr = array(
 								'qt_no' => NULL,
@@ -620,6 +620,7 @@ class Orders extends PS_Controller
 
   public function add_detail($order_code)
   {
+		$this->load->model('masters/vat_model');
     $result = TRUE;
     $err = "";
     $auz = get_auz(); //--- Allow under zero stock : return TRUE or FALSE;
@@ -703,6 +704,9 @@ class Orders extends PS_Controller
                       "cost"  => $item->cost,
                       "price"	=> $item->price,
                       "qty"		=> $qty,
+                      "unit_code" => $item->unit_code,
+                      "vat_code" => $item->vat_code,
+                      "vat_rate" => $this->vat_model->get_rate($item->vat_code),
                       "discount1"	=> $discount['discLabel1'],
                       "discount2" => $discount['discLabel2'],
                       "discount3" => $discount['discLabel3'],
@@ -1095,6 +1099,9 @@ class Orders extends PS_Controller
 
   public function get_order_grid()
   {
+		$use_grid = getConfig('USE_ORDER_GRID');
+		$use_product_name = getConfig('USE_PRODUCT_NAME');
+
     //----- Attribute Grid By Clicking image
     $style_code = $this->input->get('style_code');
     $style = $this->product_style_model->get($style_code);
@@ -1102,8 +1109,19 @@ class Orders extends PS_Controller
     $zone = get_null($this->input->get('zone_code'));
   	$sc = 'not exists';
     $view = $this->input->get('isView') == '0' ? FALSE : TRUE;
-  	$sc = $this->getOrderGrid($style_code, $view, $warehouse, $zone);
-  	$tableWidth	= $this->products_model->countAttribute($style_code) == 1 ? 600 : $this->getOrderTableWidth($style_code);
+
+		if($use_grid)
+		{
+			$sc = $this->getOrderGrid($style_code, $view, $warehouse, $zone);
+			$tableWidth	= $this->products_model->countAttribute($style_code) == 1 ? 600 : $this->getOrderTableWidth($style_code);
+		}
+		else
+		{
+			$sc = $this->getOrderTable($style_code, $view, $warehouse, $zone);
+			$tableWidth	= $use_product_name == 1 ? 700 : 600;
+		}
+
+
   	$sc .= ' | '.$tableWidth;
   	$sc .= ' | ' . $style_code.' : '.$style->name;
   	$sc .= ' | ' . $style_code;
@@ -1130,6 +1148,71 @@ class Orders extends PS_Controller
 		{
 			$sc .= $this->orderGridTwoAttribute($style, $isVisual, $view);
 		}
+		return $sc;
+	}
+
+
+	public function getOrderTable($style_code, $view = FALSE, $warehouse = NULL, $zone = NULL)
+	{
+		$sc 		= '';
+
+		$items	= $this->products_model->get_items_by_style($style_code);
+
+		$sc 	 .= "<table class='table table-bordered'>";
+		$i 		  = 0;
+    $auz = getConfig('ALLOW_UNDER_ZERO') == 1 ? TRUE : FALSE;
+		$use_product_name = getConfig('USE_PRODUCT_NAME') == 1 ? TRUE : FALSE;
+
+    foreach($items as $item )
+    {
+      $sc 	.= $i%2 == 0 ? '<tr>' : '';
+			$isVisual = $item->count_stock == 1 ? FALSE : TRUE;
+      $active	= $item->active == 0 ? 'Disactive' : ( $item->can_sell == 0 ? 'N/S' : ( $item->is_deleted == 1 ? 'Deleted' : TRUE ) );
+			$qty 		= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->get_sell_stock($item->code) ) : 0 ) : FALSE; //--- สต็อกที่สั่งซื้อได้
+			//$disabled  = $isVisual === TRUE  && $active == TRUE ? '' : ( ($active !== TRUE OR $qty < 1 ) ? 'disabled' : '');
+      $disabled  = ($isVisual === TRUE OR $auz === TRUE) && $active == TRUE ? '' : ( ($active !== TRUE OR $qty < 1 ) ? 'disabled' : '');
+
+      if( $qty < 1 && $active === TRUE )
+      {
+        $txt = $auz === TRUE ? '<span class="font-size-12 red">'.$qty.'</span>' : '<span class="font-size-12 red">Sold out</span>';
+        $txt = $qty == 0 ? '<span class="font-size-12 red">Sold out</span>' : $txt;
+      }
+      else
+      {
+        $txt = $active === TRUE ? '' : '<span class="font-size-12 blue">'.$active.'</span>';
+      }
+
+      $available = $qty === FALSE && $active === TRUE ? '' : ( ($qty < 1 || $active !== TRUE ) ? $txt : $qty);
+      $limit = $qty === FALSE ? 1000000 : ($auz === TRUE ? 1000000 : $qty);
+
+      $code = $item->code;
+			$name = $use_product_name === TRUE ? $item->name : $item->code;
+
+			$sc 	.= '<td class="middle text-center" style="border-right:0px;">';
+			$sc 	.= '<strong>' .	$name. '</strong>';
+			$sc 	.= '</td>';
+
+			$sc 	.= '<td class="middle one-attribute" style="width:80px;">';
+
+      if( $view === FALSE )
+			{
+			$sc 	.= '<input type="number" class="form-control input-sm order-grid input-qty display-block text-center" name="qty[0]['.$item->code.']" id="'.$item->code.'" onkeyup="valid_qty($(this), '.$limit.')" '.$disabled.' />';
+			}
+
+      $sc 	.= 	'<center>';
+      $sc   .= '<span class="font-size-10">';
+      $sc   .= $qty === FALSE && $active === TRUE ? '' : ( ($qty < 1 || $active !== TRUE ) ? $txt : $qty);
+      $sc   .= '</span></center>';
+			$sc 	.= '</td>';
+
+			$i++;
+
+			$sc 	.= $i%2 == 0 ? '</tr>' : '';
+
+    }
+
+		$sc	.= "</table>";
+
 		return $sc;
 	}
 
@@ -1307,6 +1390,7 @@ class Orders extends PS_Controller
 
 				if( !empty($item) )
 				{
+					$isVisual = $item->count_stock == 1 ? FALSE : TRUE;
 					$active	= $item->active == 0 ? 'ปิด' : ( $item->can_sell == 0 ? 'ไม่มี' : ( $item->is_deleted == 1 ? 'Deleted' : TRUE ) );
 					//$stock	= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->stock_model->get_stock($item->code) )  : 0 ) : 0; //---- สต็อกทั้งหมดทุกคลัง
 					$qty 		= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->get_sell_stock($item->code) ) : 0 ) : FALSE; //--- สต็อกที่สั่งซื้อได้
@@ -1536,10 +1620,10 @@ class Orders extends PS_Controller
                 "productCode"	=> $rs->product_code,
                 "productName"	=> $rs->product_name,
                 "cost"				=> $rs->cost,
-                "price"	=> number_format($rs->price, 2),
-                "qty"	=> number_format($rs->qty),
+                "price"	=> $rs->price,
+                "qty"	=> $rs->qty,
                 "discount"	=> discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
-                "amount"	=> number_format($rs->total_amount, 2)
+                "amount"	=> $rs->total_amount
                 );
         array_push($ds, $arr);
         $total_qty += $rs->qty;
@@ -1552,7 +1636,6 @@ class Orders extends PS_Controller
       $netAmount = ( $total_amount - $order->bDiscAmount ) + $order->shipping_fee + $order->service_fee;
 
       $arr = array(
-						"bDiscText" => $order->bDiscText,
 						"bDiscAmount" => $order->bDiscAmount,
             "total_qty" => number($total_qty),
             "order_amount" => number($total_order, 2),

@@ -338,7 +338,7 @@ class Printer
 		$top .= $this->top_page_right();
 		$top .= "</div>"; /// top end;
 
-		if($this->custom_header != '')
+		if(! empty($this->custom_header))
 		{
 			$top .= "<div style='width:".$this->content_width."mm; margin:auto;'>"; //// top start
 			$top .= $this->custom_header;
@@ -369,7 +369,7 @@ class Printer
 				$top .= "<td style='width:60%; padding-top:10px;'>";
 				foreach($left as $value)
 				{
-					$top .= "<p style='width:100%; margin-bottom:1px; font-size:{$this->font_size}px;'>{$value}</p>";
+					$top .= "<p style='width:100%; margin-bottom:1px; white-space:normal; font-size:{$this->font_size}px;'>{$value}</p>";
 				}
 				$top .= "</td>";
 				$top .= "</tr>";
@@ -387,9 +387,10 @@ class Printer
 		$top  = "";
 		$top .= "<table class='' style='width:40%; border:none; float:left;'>";
 		$top .= "<tr>";
-		$top .= "<td colspan='2' class='{$this->text_color}' style='width:30%; height:10mm; font-size:28px; text-align:center; border-bottom:solid 2px #333;'>";
+		$top .= "<td colspan='2' class='{$this->text_color}' style='width:30%; height:10mm; font-size:24px; text-align:center; border-bottom:solid 2px #333;'>";
 		$top .= $this->title;
-		$top .= "<span style='font-size:10px; float:right; text-align:right; color:black'>หน้า {$this->current_page}/{$this->total_page}</span>";
+		$top .= "<span style='font-size:10px; float:right; text-align:right; color:black; margin-top:-15px;'>";
+		$top .= "หน้า {$this->current_page}/{$this->total_page}</span>";
 		$top .= "</td>";
 		$top .= "</tr>";
 
@@ -513,7 +514,7 @@ class Printer
 			$row2 = 8;
 			$row4 = 10;
 			$row3 = $height - ($row1+$row2+$row4) - 2;
-			$footer = "<div style='width:190mm; height:".$height."mm; margin:auto; position:absolute; bottom:10mm;'>";
+			$footer = "<div style='width:190mm; height:".$height."mm; margin:auto; position:absolute; bottom:10mm; left:5mm;'>";
 			foreach($data as $n=>$value)
 			{
 				$footer .="<div style='width:".$box_width."%; height:".$height."mm; text-align:center; float:right;'>";

@@ -110,6 +110,7 @@ function getSpace($amount, $length)
 
 function get_summary($order, $details, $banks)
 {
+	$useName = getConfig('USE_PRODUCT_NAME');
 	$payAmount = 0;
 	$orderAmount = 0;
 	$discount = 0;
@@ -121,7 +122,7 @@ function get_summary($order, $details, $banks)
 
 	foreach($details as $rs)
 	{
-		$orderTxt .=   $rs->product_code.'  @'.number($rs->qty).' x '.number($rs->price, 2);
+		$orderTxt .=   ($useName == 1 ? $rs->product_name : $rs->product_code).'  @'.number($rs->qty).' x '.number($rs->price, 2);
 		$orderTxt .= '<br/>';
 		$orderAmount += $rs->qty * $rs->price;
 		$discount += $rs->discount_amount;

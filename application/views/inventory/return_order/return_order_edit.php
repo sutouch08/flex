@@ -30,7 +30,7 @@
       <input type="text" class="form-control input-sm text-center edit" name="date_add" id="dateAdd" value="<?php echo thai_date($doc->date_add, FALSE); ?>" readonly disabled/>
     </div>
 		<div class="col-sm-1 col-1-harf col-xs-4 padding-5">
-			<label>เลขที่บิล[SAP]</label>
+			<label>เลขที่บิล</label>
 			<input type="text" class="form-control input-sm text-center edit" name="invoice" id="invoice" value="<?php echo $doc->invoice; ?>" disabled />
 		</div>
 
@@ -84,7 +84,7 @@
 
 
 		<div class="col-sm-2 col-sm-offset-5 col-xs-6 padding-5">
-			<label>เพิ่มบิล[SAP]</label>
+			<label>เพิ่มบิล</label>
 			<input type="text" class="form-control input-sm text-center" id="invoice-box" placeholder="ดึงใบกำกับเพิ่มเติม" />
 		</div>
 		<div class="col-sm-1 col-xs-6 padding-5">

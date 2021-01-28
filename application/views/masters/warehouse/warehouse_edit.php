@@ -25,7 +25,7 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">รหัส</label>
     <div class="col-xs-12 col-sm-3">
-      <input type="text" class="form-control input-sm code" name="code" id="code" value="<?php echo $ds->code; ?>" />
+      <input type="text" class="form-control input-sm code" name="code" id="code" maxlength="20" value="<?php echo $ds->code; ?>" disabled />
     </div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="code-error"></div>
   </div>
@@ -35,7 +35,7 @@
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="text" class="form-control input-sm" name="name" id="name" value="<?php echo $ds->name; ?>" />
+			<input type="text" class="form-control input-sm" name="name" id="name" maxlength="100" value="<?php echo $ds->name; ?>" />
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
   </div>

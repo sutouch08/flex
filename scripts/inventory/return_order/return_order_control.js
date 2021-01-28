@@ -107,7 +107,7 @@ function doReceive(){
 
 function load_invoice(){
   var code = $('#return_code').val();
-  var invoice = $('#invoice-box').val();
+  var invoice = $.trim($('#invoice-box').val());
   if(invoice.length == 0){
     return false;
   }

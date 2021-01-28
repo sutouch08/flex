@@ -1,4 +1,7 @@
-
+<?php
+$vat_yes = $USE_VAT == 1 ? 'btn-success' : '' ;
+$vat_no = $USE_VAT == 0 ? 'btn-success' : '';
+ ?>
 <div class="tab-pane fade" id="company">
 	<form id="companyForm" method="post" action="<?php echo $this->home; ?>/update_config">
   	<div class="row">
@@ -81,6 +84,17 @@
         <input type="number" class="form-control input-sm input-mini text-center" name="START_YEAR" id="startYear" value="<?php echo $START_YEAR; ?>" />
       </div>
       <div class="divider-hidden"></div>
+
+			<div class="col-sm-3"><span class="form-control left-label">VAT</span></div>
+			<div class="col-sm-9">
+				<div class="btn-group input-medium">
+					<button type="button" class="btn btn-sm <?php echo $vat_yes; ?>" style="width:50%;" id="btn-vat-yes" onClick="toggleVAT(1)">ใช้</button>
+					<button type="button" class="btn btn-sm <?php echo $vat_no; ?>" style="width:50%;" id="btn-vat-no" onClick="toggleVAT(0)">ไม่ใช้</button>
+				</div>
+				<span class="help-block">เปิด/ปิด ระบบ VAT</span>
+				<input type="hidden" name="USE_VAT" id="use_vat" value="<?php echo $USE_VAT; ?>" />
+			</div>
+			<div class="divider-hidden"></div>
 
       <div class="col-sm-9 col-sm-offset-3">
         <button type="button" class="btn btn-sm btn-success" onClick="checkCompanySetting()">

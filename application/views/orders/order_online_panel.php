@@ -7,7 +7,7 @@
   $service_update = $order->service_fee > 0 ? 'hide' : '';
 ?>
 <div class="row">
-  <div class="col-sm-6 col-xs-12 padding-5">
+  <div class="col-sm-6 col-xs-12 padding-5" style="padding-top:10px;">
   <?php echo paymentLabel($payments); ?>
   <?php if($order->state == 8 && $order->is_paid == 0 && $order->payment_role == 4): ?>
     <button type="button" class="btn btn-sm btn-yellow" onclick="paid_order()">ทำเครื่องหมายว่าชำระแล้ว</button>
@@ -18,7 +18,6 @@
       <i class="fa fa-times"></i> ทำเครื่องหมายว่ายังไม่ได้รับเงิน
     </button>
   <?php endif; ?>
-	&nbsp;
   </div>
 </div>
 <hr class="padding-5" />

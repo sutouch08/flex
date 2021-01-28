@@ -138,8 +138,39 @@ class Address extends PS_Controller
     {
       echo 'noaddress';
     }
-
   }
+
+
+
+	function get_customer_bill_to_address()
+	{
+		$this->load->model('address/customer_address_model');
+		$customer_code = trim($this->input->get('customer_code'));
+
+		$rs = $this->customer_address_model->get_customer_bill_to_address($customer_code);
+		if(!empty($rs))
+		{
+			$sub_prefix = $rs->province === 'กรุงเทพมหานคร' ? 'แขวง' : 'ต.';
+			$prefix = $rs->province === 'กรุงเทพมหานคร' ? 'เขต' : 'อ.';
+			$address  = $rs->address.' ';
+			$address .= $sub_prefix . $rs->sub_district.' ';
+			$address .= $prefix . $rs->district.' ';
+			$address .= 'จ.'.$rs->province.' '.$rs->postcode;
+
+			$arr = array(
+				'branch_code' => $rs->branch_code,
+				'branch_name' => $rs->branch_name,
+				'address' => $address,
+				'phone' => $rs->phone
+			);
+
+			echo json_encode($arr);
+		}
+		else
+		{
+			echo "no_address";
+		}
+	}
 
 
 

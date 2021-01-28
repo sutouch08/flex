@@ -37,6 +37,7 @@ class Items extends PS_Controller
     $this->load->helper('product_sub_group');
     $this->load->helper('product_images');
     $this->load->helper('unit');
+		$this->load->helper('vat');
 
   }
 
@@ -91,301 +92,6 @@ class Items extends PS_Controller
   }
 
 
-  public function import_items()
-  {
-    $sc = TRUE;
-    $file = isset( $_FILES['uploadFile'] ) ? $_FILES['uploadFile'] : FALSE;
-  	$path = $this->config->item('upload_path').'items/';
-    $file	= 'uploadFile';
-		$config = array(   // initial config for upload class
-			"allowed_types" => "xlsx",
-			"upload_path" => $path,
-			"file_name"	=> "import_items",
-			"max_size" => 5120,
-			"overwrite" => TRUE
-			);
-
-			$this->load->library("upload", $config);
-
-			if(! $this->upload->do_upload($file))
-      {
-        $sc = FALSE;
-				$this->error = $this->upload->display_errors();
-			}
-      else
-      {
-        $this->load->library('excel');
-        $this->load->library('api');
-
-        $info = $this->upload->data();
-        /// read file
-				$excel = PHPExcel_IOFactory::load($info['full_path']);
-				//get only the Cell Collection
-        $collection	= $excel->getActiveSheet()->toArray(NULL, TRUE, TRUE, TRUE);
-
-        $i = 1;
-        $count = count($collection);
-        $limit = intval(getConfig('IMPORT_ROWS_LIMIT'))+1;
-
-        if($count <= $limit)
-        {
-          foreach($collection as $rs)
-          {
-            if($i == 1)
-            {
-              $i++;
-              $headCol = array(
-                'A' => 'Code',
-                'B' => 'Name',
-                'C' => 'Barcode',
-                'D' => 'Model',
-                'E' => 'Color',
-                'F' => 'Size',
-                'G' => 'Group',
-                'H' => 'SubGroup',
-                'I' => 'Category',
-                'J' => 'Kind',
-                'K' => 'Type',
-                'L' => 'Brand',
-                'M' => 'Year',
-                'N' => 'Cost',
-                'O' => 'Price',
-                'P' => 'Unit',
-                'Q' => 'CountStock',
-                'R' => 'IsAPI'
-              );
-
-              foreach($headCol as $col => $field)
-              {
-                if($rs[$col] !== $field)
-                {
-                  $sc = FALSE;
-                  $this->error = 'Column '.$col.' Should be '.$field;
-                  break;
-                }
-              }
-
-              if($sc === FALSE)
-              {
-                break;
-              }
-
-            }
-            else if(!empty($rs['A']))
-            {
-              if($sc === FALSE)
-              {
-                break;
-              }
-
-              $code_pattern = '/[^a-zA-Z0-9_-]/';
-              $rs['D'] = str_replace(array("\n", "\r"), '', $rs['D']); //--- เอาตัวขึ้นบรรทัดใหม่ออก
-
-              $style = preg_replace($code_pattern, '', get_null(trim($rs['D'])));
-              $color_code = get_null(trim($rs['E']));
-              $size_code = get_null(trim($rs['F']));
-              $group_code = get_null(trim($rs['G']));
-              $sub_group_code = get_null(trim($rs['H']));
-              $category_code = get_null(trim($rs['I']));
-              $kind_code = get_null(trim($rs['J']));
-              $type_code = get_null(trim($rs['K']));
-              $brand_code = get_null(trim($rs['L']));
-              $year = empty($rs['M']) ? '0000' : trim($rs['M']);
-
-              if(!empty($color_code) && ! $this->product_color_model->is_exists($color_code))
-              {
-                $this->addColor($color_code);
-              }
-              else if(!empty($size_code) && ! $this->product_size_model->is_exists($size_code))
-              {
-                $this->addSize($size_code);
-              }
-              else if(!empty($group_code) && ! $this->product_group_model->is_exists($group_code))
-              {
-                $this->addGroup($group_code);
-              }
-              else if(!empty($sub_group_code) && ! $this->product_sub_group_model->is_exists($sub_group_code))
-              {
-                $this->addSubGroup($sub_group_code);
-              }
-              else if(!empty($category_code) && ! $this->product_category_model->is_exists($category_code))
-              {
-                $this->addCategory($category_code);
-              }
-              else if(!empty($kind_code) && ! $this->product_kind_model->is_exists($kind_code))
-              {
-                $this->addKind($kind_code);
-              }
-              else if(!empty($type_code) && ! $this->product_type_model->is_exists($type_code))
-              {
-                $this->addType($type_code);
-              }
-              else if(!empty($brand_code) && ! $this->product_brand_model->is_exists($brand_code))
-              {
-                $this->addBrand($brand_code);
-              }
-
-              if(!empty($style))
-              {
-                if(! $this->product_style_model->is_exists($style) )
-                {
-                  $ds = array(
-                    'code' => $style,
-                    'name' => $style,
-                    'group_code' => $group_code,
-                    'sub_group_code' => $sub_group_code,
-                    'category_code' => $category_code,
-                    'kind_code' => $kind_code,
-                    'type_code' => $type_code,
-                    'brand_code' => $brand_code,
-                    'year' => $year,
-                    'cost' => round(trim($rs['N']), 2),
-                    'price' => round(trim($rs['O']), 2),
-                    'unit_code' => trim($rs['P']),
-                    'count_stock' => trim($rs['Q']) === 'N' ? 0:1,
-                    'is_api' => trim($rs['R']) === 'N' ? 0 : 1,
-                    'update_user' => get_cookie('uname')
-                  );
-
-									$this->product_style_model->add($ds);
-                }
-              }
-
-              $rs['A'] = str_replace(array("\n", "\r"), '', $rs['A']); //--- เอาตัวขึ้นบรรทัดใหม่ออก
-              $code = preg_replace($code_pattern, '', trim($rs['A']));
-              $arr = array(
-                'code' => $code,
-                'name' => trim($rs['B']),
-                'barcode' => get_null(trim($rs['C'])),
-                'style_code' => get_null(trim($rs['D'])),
-                'color_code' => get_null(trim($rs['E'])),
-                'size_code' => get_null(trim($rs['F'])),
-                'group_code' => get_null(trim($rs['G'])),
-                'sub_group_code' => get_null(trim($rs['H'])),
-                'category_code' => get_null(trim($rs['I'])),
-                'kind_code' => get_null(trim($rs['J'])),
-                'type_code' => get_null(trim($rs['K'])),
-                'brand_code' => get_null(trim($rs['L'])),
-                'year' => trim($rs['M']),
-                'cost' => round(trim($rs['N']), 2),
-                'price' => round(trim($rs['O']), 2),
-                'unit_code' => empty(trim($rs['P'])) ? 'PCS' : trim($rs['P']),
-                'count_stock' => trim($rs['Q']) === 'N' ? 0:1,
-                'is_api' => trim($rs['R']) === 'N' ? 0 : 1,
-                'update_user' => get_cookie('uname')
-              );
-
-              if($this->products_model->is_exists($code))
-              {
-                $is_done = $this->products_model->update($code, $arr);
-              }
-              else
-              {
-                $is_done = $this->products_model->add($arr);
-              }
-
-            }
-          } //-- end foreach
-        }
-        else
-        {
-          $sc = FALSE;
-          $this->error = "จำนวนนำเข้าสูงสุดได้ไม่เกิน {$limit} บรรทัด";
-        } //-- end if count limit
-
-      } //--- end if else
-
-    echo $sc === TRUE ? 'success' : $this->error;
-  }
-
-
-
-	public function addBrand($code)
-	{
-		$arr = array(
-			'code' => $code,
-			'name' => $code
-		);
-
-		return $this->product_brand_model->add($arr);
-	}
-
-
-	public function addColor($code)
-	{
-		$arr = array(
-			'code' => $code,
-			'name' => $code
-		);
-
-		return $this->product_color_model->add($arr);
-	}
-
-
-	public function addSize($code)
-	{
-		$arr = array(
-			'code' => $code,
-			'name' => $code
-		);
-
-		return $this->product_size_model->add($arr);
-	}
-
-
-	public function addCategory($code)
-	{
-		$arr = array(
-			'code' => $code,
-			'name' => $code
-		);
-
-		return $this->product_category_model->add($arr);
-	}
-
-
-	public function addKind($code)
-	{
-		$arr = array(
-			'code' => $code,
-			'name' => $code
-		);
-
-		return $this->product_kind_model->add($arr);
-	}
-
-
-	public function addType($code)
-	{
-		$arr = array(
-			'code' => $code,
-			'name' => $code
-		);
-
-		return $this->product_type_model->add($arr);
-	}
-
-	public function addGroup($code)
-	{
-		$arr = array(
-			'code' => $code,
-			'name' => $code
-		);
-
-		return $this->product_group_model->add($arr);
-	}
-
-	public function addSubGroup($code)
-	{
-		$arr = array(
-			'code' => $code,
-			'name' => $code
-		);
-
-		return $this->product_sub_group_model->add($arr);
-	}
-
-
   public function add_new()
   {
     $this->load->view('masters/product_items/items_add_view');
@@ -413,7 +119,7 @@ class Items extends PS_Controller
           'code' => trim($this->input->post('code')),
           'name' => trim($this->input->post('name')),
           'barcode' => get_null(trim($this->input->post('barcode'))),
-          'style_code' => trim($this->input->post('style')),
+          'style_code' => get_null(trim($this->input->post('style'))),
           'color_code' => get_null($this->input->post('color')),
           'size_code' => get_null($this->input->post('size')),
           'group_code' => get_null($this->input->post('group_code')),
@@ -426,6 +132,7 @@ class Items extends PS_Controller
           'cost' => round($this->input->post('cost'), 2),
           'price' => round($this->input->post('price'), 2),
           'unit_code' => $this->input->post('unit_code'),
+					'vat_code' => get_null($this->input->post('vat_code')),
           'count_stock' => is_null($count) ? 0 : 1,
           'can_sell' => is_null($sell) ? 0 : 1,
           'active' => is_null($active) ? 0 : 1,
@@ -473,7 +180,7 @@ class Items extends PS_Controller
           'code' => trim($this->input->post('code')),
           'name' => trim($this->input->post('name')),
           'barcode' => get_null(trim($this->input->post('barcode'))),
-          'style_code' => trim($this->input->post('style')),
+          'style_code' => get_null(trim($this->input->post('style'))),
           'color_code' => get_null($this->input->post('color')),
           'size_code' => get_null($this->input->post('size')),
           'group_code' => get_null($this->input->post('group_code')),
@@ -486,6 +193,7 @@ class Items extends PS_Controller
           'cost' => round($this->input->post('cost'), 2),
           'price' => round($this->input->post('price'), 2),
           'unit_code' => $this->input->post('unit_code'),
+					'vat_code' => get_null($this->input->post('vat_code')),
           'count_stock' => is_null($count) ? 0 : 1,
           'can_sell' => is_null($sell) ? 0 : 1,
           'active' => is_null($active) ? 0 : 1,
@@ -556,7 +264,7 @@ class Items extends PS_Controller
     $arr = array(
       'name' => trim($this->input->post('name')),
       'barcode' => get_null(trim($this->input->post('barcode'))),
-      'style_code' => trim($this->input->post('style')),
+      'style_code' => get_null(trim($this->input->post('style'))),
       'color_code' => get_null($this->input->post('color')),
       'size_code' => get_null($this->input->post('size')),
       'group_code' => get_null($this->input->post('group_code')),
@@ -569,6 +277,7 @@ class Items extends PS_Controller
       'cost' => round($this->input->post('cost'), 2),
       'price' => round($this->input->post('price'), 2),
       'unit_code' => $this->input->post('unit_code'),
+			'vat_code' => get_null($this->input->post('vat_code')),
       'count_stock' => is_null($count) ? 0 : 1,
       'can_sell' => is_null($sell) ? 0 : 1,
       'active' => is_null($active) ? 0 : 1,
@@ -601,7 +310,6 @@ class Items extends PS_Controller
       echo 'ok';
     }
   }
-
 
 
   public function toggle_can_sell($code)
@@ -721,6 +429,302 @@ class Items extends PS_Controller
       $writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
       $writer->save('php://output');
     }
+
+
+		public function import_items()
+	  {
+	    $sc = TRUE;
+	    $file = isset( $_FILES['uploadFile'] ) ? $_FILES['uploadFile'] : FALSE;
+	  	$path = $this->config->item('upload_path').'items/';
+	    $file	= 'uploadFile';
+			$config = array(   // initial config for upload class
+				"allowed_types" => "xlsx",
+				"upload_path" => $path,
+				"file_name"	=> "import_items",
+				"max_size" => 5120,
+				"overwrite" => TRUE
+				);
+
+				$this->load->library("upload", $config);
+
+				if(! $this->upload->do_upload($file))
+	      {
+	        $sc = FALSE;
+					$this->error = $this->upload->display_errors();
+				}
+	      else
+	      {
+	        $this->load->library('excel');
+	        $this->load->library('api');
+
+	        $info = $this->upload->data();
+	        /// read file
+					$excel = PHPExcel_IOFactory::load($info['full_path']);
+					//get only the Cell Collection
+	        $collection	= $excel->getActiveSheet()->toArray(NULL, TRUE, TRUE, TRUE);
+
+	        $i = 1;
+	        $count = count($collection);
+	        $limit = intval(getConfig('IMPORT_ROWS_LIMIT'))+1;
+
+	        if($count <= $limit)
+	        {
+	          foreach($collection as $rs)
+	          {
+	            if($i == 1)
+	            {
+	              $i++;
+	              $headCol = array(
+	                'A' => 'Code',
+	                'B' => 'Name',
+	                'C' => 'Barcode',
+	                'D' => 'Model',
+	                'E' => 'Color',
+	                'F' => 'Size',
+	                'G' => 'Group',
+	                'H' => 'SubGroup',
+	                'I' => 'Category',
+	                'J' => 'Kind',
+	                'K' => 'Type',
+	                'L' => 'Brand',
+	                'M' => 'Year',
+	                'N' => 'Cost',
+	                'O' => 'Price',
+	                'P' => 'Unit',
+	                'Q' => 'CountStock',
+	                'R' => 'IsAPI'
+	              );
+
+	              foreach($headCol as $col => $field)
+	              {
+	                if($rs[$col] !== $field)
+	                {
+	                  $sc = FALSE;
+	                  $this->error = 'Column '.$col.' Should be '.$field;
+	                  break;
+	                }
+	              }
+
+	              if($sc === FALSE)
+	              {
+	                break;
+	              }
+
+	            }
+	            else if(!empty($rs['A']))
+	            {
+	              if($sc === FALSE)
+	              {
+	                break;
+	              }
+
+	              $code_pattern = '/[^a-zA-Z0-9_-]/';
+	              $rs['D'] = str_replace(array("\n", "\r"), '', $rs['D']); //--- เอาตัวขึ้นบรรทัดใหม่ออก
+
+	              $style = preg_replace($code_pattern, '', get_null(trim($rs['D'])));
+	              $color_code = get_null(trim($rs['E']));
+	              $size_code = get_null(trim($rs['F']));
+	              $group_code = get_null(trim($rs['G']));
+	              $sub_group_code = get_null(trim($rs['H']));
+	              $category_code = get_null(trim($rs['I']));
+	              $kind_code = get_null(trim($rs['J']));
+	              $type_code = get_null(trim($rs['K']));
+	              $brand_code = get_null(trim($rs['L']));
+	              $year = empty($rs['M']) ? '0000' : trim($rs['M']);
+
+	              if(!empty($color_code) && ! $this->product_color_model->is_exists($color_code))
+	              {
+	                $this->addColor($color_code);
+	              }
+	              else if(!empty($size_code) && ! $this->product_size_model->is_exists($size_code))
+	              {
+	                $this->addSize($size_code);
+	              }
+	              else if(!empty($group_code) && ! $this->product_group_model->is_exists($group_code))
+	              {
+	                $this->addGroup($group_code);
+	              }
+	              else if(!empty($sub_group_code) && ! $this->product_sub_group_model->is_exists($sub_group_code))
+	              {
+	                $this->addSubGroup($sub_group_code);
+	              }
+	              else if(!empty($category_code) && ! $this->product_category_model->is_exists($category_code))
+	              {
+	                $this->addCategory($category_code);
+	              }
+	              else if(!empty($kind_code) && ! $this->product_kind_model->is_exists($kind_code))
+	              {
+	                $this->addKind($kind_code);
+	              }
+	              else if(!empty($type_code) && ! $this->product_type_model->is_exists($type_code))
+	              {
+	                $this->addType($type_code);
+	              }
+	              else if(!empty($brand_code) && ! $this->product_brand_model->is_exists($brand_code))
+	              {
+	                $this->addBrand($brand_code);
+	              }
+
+	              if(!empty($style))
+	              {
+	                if(! $this->product_style_model->is_exists($style) )
+	                {
+	                  $ds = array(
+	                    'code' => $style,
+	                    'name' => $style,
+	                    'group_code' => $group_code,
+	                    'sub_group_code' => $sub_group_code,
+	                    'category_code' => $category_code,
+	                    'kind_code' => $kind_code,
+	                    'type_code' => $type_code,
+	                    'brand_code' => $brand_code,
+	                    'year' => $year,
+	                    'cost' => round(trim($rs['N']), 2),
+	                    'price' => round(trim($rs['O']), 2),
+	                    'unit_code' => trim($rs['P']),
+	                    'count_stock' => trim($rs['Q']) === 'N' ? 0:1,
+	                    'is_api' => trim($rs['R']) === 'N' ? 0 : 1,
+	                    'update_user' => get_cookie('uname')
+	                  );
+
+										$this->product_style_model->add($ds);
+	                }
+	              }
+
+	              $rs['A'] = str_replace(array("\n", "\r"), '', $rs['A']); //--- เอาตัวขึ้นบรรทัดใหม่ออก
+	              $code = preg_replace($code_pattern, '', trim($rs['A']));
+	              $arr = array(
+	                'code' => $code,
+	                'name' => trim($rs['B']),
+	                'barcode' => get_null(trim($rs['C'])),
+	                'style_code' => get_null(trim($rs['D'])),
+	                'color_code' => get_null(trim($rs['E'])),
+	                'size_code' => get_null(trim($rs['F'])),
+	                'group_code' => get_null(trim($rs['G'])),
+	                'sub_group_code' => get_null(trim($rs['H'])),
+	                'category_code' => get_null(trim($rs['I'])),
+	                'kind_code' => get_null(trim($rs['J'])),
+	                'type_code' => get_null(trim($rs['K'])),
+	                'brand_code' => get_null(trim($rs['L'])),
+	                'year' => trim($rs['M']),
+	                'cost' => round(trim($rs['N']), 2),
+	                'price' => round(trim($rs['O']), 2),
+	                'unit_code' => empty(trim($rs['P'])) ? 'PCS' : trim($rs['P']),
+	                'count_stock' => trim($rs['Q']) === 'N' ? 0:1,
+	                'is_api' => trim($rs['R']) === 'N' ? 0 : 1,
+	                'update_user' => get_cookie('uname')
+	              );
+
+	              if($this->products_model->is_exists($code))
+	              {
+	                $is_done = $this->products_model->update($code, $arr);
+	              }
+	              else
+	              {
+	                $is_done = $this->products_model->add($arr);
+	              }
+
+	            }
+	          } //-- end foreach
+	        }
+	        else
+	        {
+	          $sc = FALSE;
+	          $this->error = "จำนวนนำเข้าสูงสุดได้ไม่เกิน {$limit} บรรทัด";
+	        } //-- end if count limit
+
+	      } //--- end if else
+
+	    echo $sc === TRUE ? 'success' : $this->error;
+	  }
+
+
+
+		public function addBrand($code)
+		{
+			$arr = array(
+				'code' => $code,
+				'name' => $code
+			);
+
+			return $this->product_brand_model->add($arr);
+		}
+
+
+		public function addColor($code)
+		{
+			$arr = array(
+				'code' => $code,
+				'name' => $code
+			);
+
+			return $this->product_color_model->add($arr);
+		}
+
+
+		public function addSize($code)
+		{
+			$arr = array(
+				'code' => $code,
+				'name' => $code
+			);
+
+			return $this->product_size_model->add($arr);
+		}
+
+
+		public function addCategory($code)
+		{
+			$arr = array(
+				'code' => $code,
+				'name' => $code
+			);
+
+			return $this->product_category_model->add($arr);
+		}
+
+
+		public function addKind($code)
+		{
+			$arr = array(
+				'code' => $code,
+				'name' => $code
+			);
+
+			return $this->product_kind_model->add($arr);
+		}
+
+
+		public function addType($code)
+		{
+			$arr = array(
+				'code' => $code,
+				'name' => $code
+			);
+
+			return $this->product_type_model->add($arr);
+		}
+
+		public function addGroup($code)
+		{
+			$arr = array(
+				'code' => $code,
+				'name' => $code
+			);
+
+			return $this->product_group_model->add($arr);
+		}
+
+		public function addSubGroup($code)
+		{
+			$arr = array(
+				'code' => $code,
+				'name' => $code
+			);
+
+			return $this->product_sub_group_model->add($arr);
+		}
+
 
   public function clear_filter()
 	{

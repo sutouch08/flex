@@ -244,10 +244,17 @@ class Order_credit_model extends CI_Model
     $rs = $this->db->set('balance', 'amount - paid', FALSE)->where('order_code', $code)->update('order_credit');
     if($rs)
     {
-      $this->db->set('valid', 1)->where('order_code', $code)->where('balance <=', 0, FALSE)->update('order_credit');
-      $this->db->set('valid', 0)->where('order_code', $code)->where('balance >', 0, FALSE)->update('order_credit');
+      $this->db->set('valid', 1)->where('order_code', $code)->where('balance =', 0, FALSE)->update('order_credit');
+      $this->db->set('valid', 0)->where('order_code', $code)->where('balance !=', 0, FALSE)->update('order_credit');
     }
   }
+
+
+	public function update_amount($code, $amount)
+	{
+		$rs = "UPDATE order_credit SET amount = amount + {$amount} WHERE order_code = '{$code}'";
+		return $this->db->query($rs);
+	}
 
 
 } //--- end class

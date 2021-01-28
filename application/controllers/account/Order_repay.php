@@ -152,7 +152,7 @@ class Order_repay extends PS_Controller
 
           $ds = $this->order_repay_model->get_detail($id);
 
-          if(!empty($ds) && $amount > 0 && $ds->valid == 0)
+          if(!empty($ds) && $amount != 0 && $ds->valid == 0)
           {
             $arr = array(
               'pay_amount' => $amount,

@@ -192,5 +192,13 @@ class Buffer_model extends CI_Model
   {
     return $this->db->where('order_code', $code)->where('qty', 0)->delete('buffer');
   }
+
+
+	public function get_sum_order_qty($code)
+	{
+		$rs = $this->db->select_sum('qty')->where('order_code', $code)->get('buffer');
+
+		return intval($rs->row()->qty);
+	}
 }
  ?>

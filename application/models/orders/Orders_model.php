@@ -827,6 +827,18 @@ class Orders_model extends CI_Model
   }
 
 
+	public function is_term($code)
+	{
+		$rs = $this->db->where('role', 'S')->where('code', $code)->where('is_term', 1)->count_all_results('orders');
+		if($rs > 0)
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+
 } //--- End class
 
 

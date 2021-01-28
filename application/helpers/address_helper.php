@@ -7,14 +7,14 @@ function get_address_form($adds, $sds, $ds, $dd, $use_qc)
     {
       $sc = 1;
     }
-
-    //--- มีที่อยู่ แต่ ไม่มีผู้จัดส่ง
-    else if( $adds >= 1 && $sds < 1 )
-    {
-
-      $sc  = 'no_sender';
-
-    }
+		//
+    // //--- มีที่อยู่ แต่ ไม่มีผู้จัดส่ง
+    // else if( $adds >= 1 && $sds < 1 )
+    // {
+		//
+    //   $sc  = 'no_sender';
+		//
+    // }
     //--- มีที่อยู่มากกว่า 1 หรือ ผู้จัดส่งมากกว่า 1
     else
     {
@@ -118,7 +118,7 @@ function get_address_form($adds, $sds, $ds, $dd, $use_qc)
 
 
       //--- ประกอบร่าง
-      if( $adds >= 1 && $sds >= 1 )
+      if( $adds >= 1 )//&& $sds >= 1 )
       {
         $sc = '<table class="table table-bordered">';
         $sc .= $add;

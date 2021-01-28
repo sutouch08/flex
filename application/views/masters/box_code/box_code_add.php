@@ -25,7 +25,7 @@
 	</div>
 	<div class="col-sm-2 col-xs-12 padding-5">
 		<label>รหัสกล่อง</label>
-		<input type="text" class="form-control input-sm" name="box_code" id="box-code" />
+		<input type="text" class="form-control input-sm" name="box_code" id="box-code" onkeyup="validCode(this)"/>
 	</div>
 	<div class="col-sm-1 col-sx-12 padding-5">
 		<label class="display-block not-show">button</label>

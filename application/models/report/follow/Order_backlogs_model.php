@@ -24,7 +24,8 @@ class Order_backlogs_model extends CI_Model
 			->join('payment_method AS pm', 'o.payment_code = pm.code', 'left')
 			->join('order_state AS st', 'o.state = st.state', 'left')
 			->where('o.role', 'S')
-			->where('o.state <', 8);
+			->where('o.state <', 8)
+			->where('o.is_expired', 0);
 
 			if(empty($ds['allCustomer']) && !empty($ds['fromCustomer']) && !empty($ds['toCustomer']))
 			{

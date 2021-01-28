@@ -16,7 +16,7 @@
     <label class="col-sm-3 control-label no-padding-right">รหัส</label>
     <div class="col-xs-12 col-sm-3">
 			<span class="input-icon input-icon-right width-100">
-      	<input type="text" name="code" id="code" class="form-control input-sm code" value="<?php echo $data->code; ?>" autofocus required />
+      	<input type="text" name="code" id="code" class="form-control input-sm code" maxlength="20" value="<?php echo $data->code; ?>" disabled />
 				<i class="ace-icon fa fa-user"></i>
 			</span>
     </div>
@@ -29,7 +29,7 @@
     <label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
     <div class="col-xs-12 col-sm-3">
 			<span class="input-icon input-icon-right width-100">
-        <input type="text" name="name" id="name" class="form-control input-sm" value="<?php echo $data->name; ?>" required />
+        <input type="text" name="name" id="name" class="form-control input-sm" maxlength="100" value="<?php echo $data->name; ?>" required />
 				<i class="ace-icon fa fa-user"></i>
 			</span>
     </div>

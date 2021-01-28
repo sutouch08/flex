@@ -3,7 +3,7 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">รหัส</label>
     <div class="col-xs-12 col-sm-4">
-      <input type="text" name="code" id="code" class="form-control input-sm code" value="<?php echo $ds->code; ?>" />
+      <input type="text" name="code" id="code" class="form-control input-sm code" value="<?php echo $ds->code; ?>" disabled />
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" id="code-error"></div>
   </div>
@@ -13,7 +13,7 @@
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
     <div class="col-xs-12 col-sm-4">
-			<input type="text" name="name" id="name" class="form-control input-sm" value="<?php echo $ds->name; ?>" required />
+			<input type="text" name="name" id="name" class="form-control input-sm" maxlength="200" value="<?php echo $ds->name; ?>" required />
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
   </div>

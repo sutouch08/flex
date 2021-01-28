@@ -1,11 +1,9 @@
-<?php $required = getConfig('REQUIRED_ALL_ATTRIBUTE') == 1 ? 'required' : ''; ?>
-
 <form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/add_style"; ?>">
 <div class="row">
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">รหัสรุ่นสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<input type="text" name="code" id="code" class="width-100 code" value="" onkeyup="validCode(this)" autofocus required />
+			<input type="text" name="code" id="code" class="width-100 code" maxlength="20" value="" onkeyup="validCode(this)" autofocus required />
 		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline grey" id="code-error">Allow only [a-z, A-Z, 0-9, "-", "_" ]</div>
 	</div>
@@ -13,7 +11,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ชื่อรุ่นสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<input type="text" name="name" id="name" class="width-100" value="" required />
+			<input type="text" name="name" id="name" class="width-100" maxlength="100" value="" required />
 		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
 	</div>
@@ -21,7 +19,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ทุน</label>
 		<div class="col-xs-12 col-sm-3">
-			<input type="number" step="any" name="cost" id="cost" class="width-100" value="" required />
+			<input type="number" step="any" name="cost" id="cost" class="width-100 text-right" value="0.00" required />
 		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
 	</div>
@@ -29,7 +27,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ราคา</label>
 		<div class="col-xs-12 col-sm-3">
-			<input type="number" step="any" name="price" id="price" class="width-100" value="" required />
+			<input type="number" step="any" name="price" id="price" class="width-100 text-right" value="0.00" required />
 		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
 	</div>
@@ -37,17 +35,30 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">หน่วยนับ</label>
 		<div class="col-xs-12 col-sm-3">
-			<select class="form-control input-sm" name="unit_code" id="unit_code" required>
-				<?php echo select_unit($unit_code); ?>
+			<select class="form-control input-sm" name="unit_code" id="unit_code">
+				<?php echo select_unit(); ?>
 			</select>
 		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
 	</div>
 
+	<?php if(getConfig('USE_VAT')) : ?>
+	<div class="form-group">
+		<label class="col-sm-3 control-label no-padding-right">VAT</label>
+		<div class="col-xs-12 col-sm-3">
+			<select class="form-control input-sm" name="vat_code" id="vat_code">
+				<?php echo select_vat_group(); ?>
+			</select>
+		</div>
+	</div>
+	<?php else : ?>
+		<input type="hidden" name="vat_code" id="vat_code" value="" />
+	<?php endif;?>
+
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ยี่ห้อ</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="brand_code" id="brand" class="form-control" <?php echo $required; ?>>
+			<select name="brand_code" id="brand" class="form-control">
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_brand(); ?>
 			</select>
@@ -58,7 +69,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">กลุ่มสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="group_code" id="group" class="form-control" <?php echo $required; ?>>
+			<select name="group_code" id="group" class="form-control">
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_group(); ?>
 			</select>
@@ -69,7 +80,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">กลุ่มย่อยสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="sub_group_code" id="subGroup" class="form-control" <?php echo $required; ?>>
+			<select name="sub_group_code" id="subGroup" class="form-control">
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_sub_group(); ?>
 			</select>
@@ -80,7 +91,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">หมวดหมู่สินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="category_code" id="category" class="form-control" <?php echo $required; ?>>
+			<select name="category_code" id="category" class="form-control">
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_category(); ?>
 			</select>
@@ -91,7 +102,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ประเภทสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="kind_code" id="kind" class="form-control" <?php echo $required; ?>>
+			<select name="kind_code" id="kind" class="form-control">
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_kind(); ?>
 			</select>
@@ -102,7 +113,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ชนิดสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="type_code" id="type" class="form-control" <?php echo $required; ?>>
+			<select name="type_code" id="type" class="form-control">
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_type(); ?>
 			</select>
@@ -114,7 +125,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label no-padding-right">ปีสินค้า</label>
 		<div class="col-xs-12 col-sm-3">
-			<select name="year" id="year" class="form-control" <?php echo $required; ?>>
+			<select name="year" id="year" class="form-control">
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_years(date('Y')); ?>
 			</select>
@@ -168,7 +179,7 @@
 	<div class="form-group">
 		<label class="col-sm-3 control-label not-show">บันทึก</label>
 		<div class="col-xs-12 col-sm-3">
-			<button type="submit" class="btn btn-sm btn-success btn-block"><i class="fa fa-save"></i> บันทึก</button>
+			<button type="button" class="btn btn-sm btn-success btn-block" id="btn-submit" onclick="checkAdd()"><i class="fa fa-save"></i> บันทึก</button>
 		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red"></div>
 	</div>

@@ -158,10 +158,10 @@ function qcProduct(){
   var barcode = $("#barcode-item").val();
   $("#barcode-item").val('');
 
-  if($("."+barcode).length == 1 ){
+  if($("."+barcode).length == 1 ) {
 
       var id = $("."+barcode).attr('id');
-      var qty = parseInt($("."+barcode).val());
+      var qty = parseDefault(parseInt($('#qty').val()), 1); //parseInt($("."+barcode).val());
 
       //--- จำนวนที่จัดมา
       var prepared = parseInt( removeCommas( $("#prepared-"+id).text() ) );
@@ -208,6 +208,8 @@ function qcProduct(){
         if($(".incomplete").length == 0 ){
           showCloseButton();
         }
+
+				$('#qty').val(1);
 
       }else{
         beep();
@@ -270,6 +272,16 @@ $("#barcode-box").keyup(function(e){
   }
 });
 
+$('#qty').focus(function(){
+	$(this).select();
+});
+
+$('#qty').keyup(function(e){
+	if(e.keyCode === 13) {
+		$('#barcode-item').focus();
+	}
+})
+
 
 
 //--- ดึงไอดีกล่อง
@@ -291,6 +303,8 @@ function getBox(){
           $("#id_box").val(rs);
           $("#barcode-box").attr('disabled', 'disabled');
           $(".item").removeAttr('disabled');
+					$('#btn-chose-box').addClass('hide');
+					$('#btn-change-box').removeClass('hide');
           $("#barcode-item").focus();
           updateBoxList();
         }else{

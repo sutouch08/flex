@@ -164,7 +164,8 @@
       $no++;
 ?>
 <?php   endforeach; ?>
-<?php   $netAmount = ($totalPrice - $totalDiscount) + $order->shipping_fee + $order->service_fee - $order->deposit; ?>
+
+<?php   $netAmount = ($totalPrice - $totalDiscount - $order->bDiscAmount) + $order->shipping_fee + $order->service_fee - $order->deposit; ?>
         <tr class="font-size-12">
           <td colspan="3" class="text-right font-size-14">
             รวม
@@ -184,9 +185,8 @@
           </td>
           <?php endif; ?>
 
-          <td colspan="2" class="text-center">
-
-          </td>
+          <td class="">ส่วนลดท้ายบิล</td>
+					<td class="text-right">- <?php echo number($order->bDiscAmount,2); ?></td>
 
         </tr>
 
