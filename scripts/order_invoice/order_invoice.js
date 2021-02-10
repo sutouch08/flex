@@ -19,10 +19,69 @@ function view_detail(code) {
 }
 
 
+function getDelete() {
+	var code = $('#code').val();
+	swal({
+		title:'คุณแน่ใจ ?',
+		text:'ต้องการยกเลิก '+code+' หรือไม่?',
+		type:'warning',
+		showCancelButton:true,
+		confirmButtonColor:'#DD6B55',
+		confirmButtonText:'ใช่ ต้องการยกเลิก',
+		cancelButtonText:'ไม่ใช่',
+		closeOnConfirm:false
+	},
+	function() {
+		load_in();
+		$.ajax({
+			url:HOME + 'cancle_invoice',
+			type:'POST',
+			cache:false,
+			data:{
+				'code' : code
+			},
+			success:function(rs) {
+				load_out();
+				var rs = $.trim(rs);
+				if(rs === 'success') {
+					swal({
+						title:'Deleted',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(function() {
+						window.location.reload();
+					},1200);
+				}
+				else {
+					load_out();
+					swal({
+						title:'Error!',
+						text:rs,
+						type:'error'
+					});
+				}
+			},
+			error:function(xhr, status, error) {
+				load_out();
+				var errorMessage = xhr.status + ': '+xhr.statusText;
+				swal({
+					title:'Error!',
+					text:'Error-'+errorMessage,
+					type:'error'
+				});
+			}
+		})
+	});
+}
+
+
+
 function print_invoice() {
 	//--- properties for print
-	var prop 			= "width=800, height=900. left="+center+", scrollbars=yes";
-	var center    = ($(document).width() - 800)/2;
+	var center    = ($(document).width())/2;
+	var prop 			= "height=900. left="+center+", scrollbars=yes";
 	var code = $('#code').val();
 	var target  = HOME + 'print_invoice/'+code;
   window.open(target, '_blank', prop);
@@ -34,6 +93,43 @@ function clearFilter() {
 	});
 }
 
+
+function print_do_invoice() {
+	//--- properties for print
+	var center    = ($(document).width())/2;
+	var prop 			= "height=900. left="+center+", scrollbars=yes";
+	var code = $('#code').val();
+	var target  = HOME + 'print_do_invoice/'+code;
+  window.open(target, '_blank', prop);
+}
+
+function print_do_receipt() {
+	//--- properties for print
+	var center    = ($(document).width())/2;
+	var prop 			= "height=900. left="+center+", scrollbars=yes";
+	var code = $('#code').val();
+	var target  = HOME + 'print_do_receipt/'+code;
+  window.open(target, '_blank', prop);
+}
+
+function print_tax_receipt() {
+	//--- properties for print
+	var center    = ($(document).width())/2;
+	var prop 			= "height=900. left="+center+", scrollbars=yes";
+	var code = $('#code').val();
+	var target  = HOME + 'print_tax_receipt/'+code;
+  window.open(target, '_blank', prop);
+}
+
+
+function print_tax_invoice() {
+	//--- properties for print
+	var center    = ($(document).width())/2;
+	var prop 			= "height=900. left="+center+", scrollbars=yes";
+	var code = $('#code').val();
+	var target  = HOME + 'print_tax_invoice/'+code;
+  window.open(target, '_blank', prop);
+}
 
 $('#from_date').datepicker({
 	dateFormat:'dd-mm-yy',
@@ -65,8 +161,6 @@ $('#customer_code').autocomplete({
 			$('#customerCode').val(arr[0]); //--- for check with customer
 			$('#customer_code').val(arr[0]);
 			$('#customer_name').val(arr[1]);
-
-			getAddressBillTo(arr[0]);
 		}
 		else {
 			$('#customerCode').val('');
@@ -77,38 +171,12 @@ $('#customer_code').autocomplete({
 })
 
 
-function getAddressBillTo(code) {
-	$.ajax({
-		url:BASE_URL + 'masters/address/get_customer_bill_to_address',
-		type:'GET',
-		cache:false,
-		data:{
-			'customer_code' : code
-		},
-		success:function(rs) {
-			var rs = $.trim(rs);
-			if(isJson(rs)) {
-				var ds = $.parseJSON(rs);
-				$('#branch_code').val(ds.branch_code);
-				$('#branch_name').val(ds.branch_name);
-				$('#address').val(ds.address);
-				$('#phone').val(ds.phone);
-			}
-		}
-	})
-}
-
-
 function add() {
 	var doc_date = $('#doc_date').val();
 	var customerCode = $.trim($('#customerCode').val());
 	var customer_code = $.trim($('#customer_code').val());
 	var customer_name = $.trim($('#customer_name').val());
-	var branch_code = $.trim($('#branch_code').val());
-	var branch_name = $.trim($('#branch_name').val());
-	var address = $.trim($('#address').val());
 	var vat_type = $('#vat_type').val();
-	var phone = $.trim($('#phone').val());
 	var remark = $.trim($('#remark').val());
 
 	if(customer_code.length === 0 || (customer_code != customerCode)) {
@@ -125,12 +193,7 @@ function add() {
 		data:{
 			'doc_date' : doc_date,
 			'customer_code' : customer_code,
-			'customer_name' : customer_name,
-			'branch_code' : branch_code,
-			'branch_name' : branch_name,
-			'address' : address,
 			'vat_type' : vat_type,
-			'phone' : phone,
 			'remark' : remark
 		},
 		success:function(rs) {
@@ -173,10 +236,6 @@ function updateHeader(){
 	var customerCode = $.trim($('#customerCode').val());
 	var customer_code = $.trim($('#customer_code').val());
 	var customer_name = $.trim($('#customer_name').val());
-	var branch_code = $.trim($('#branch_code').val());
-	var branch_name = $.trim($('#branch_name').val());
-	var address = $.trim($('#address').val());
-	var phone = $.trim($('#phone').val());
 	var vat_type = $('#vat_type').val();
 	var remark = $.trim($('#remark').val());
 
@@ -195,12 +254,7 @@ function updateHeader(){
 			'code' : code,
 			'doc_date' : doc_date,
 			'customer_code' : customer_code,
-			'customer_name' : customer_name,
-			'branch_code' : branch_code,
-			'branch_name' : branch_name,
-			'address' : address,
 			'vat_type' : vat_type,
-			'phone' : phone,
 			'remark' : remark
 		},
 		success:function(rs) {

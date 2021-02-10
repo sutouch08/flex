@@ -345,11 +345,6 @@ class Orders_model extends CI_Model
 		->join('zone', 'orders.zone_code = zone.code', 'left')
 		->join('user', 'orders.user = user.uname', 'left');
 
-		if( ! empty($ds['from_date']) && ! empty($ds['to_date']) && ! empty($ds['stated']))
-		{
-			$this->db->join('order_state_change AS st', 'st.order_code = orders.code', 'left');
-		}
-
 		$this->db->where('role', $role);
 
 		//---- เลขที่เอกสาร
@@ -422,20 +417,8 @@ class Orders_model extends CI_Model
 
 		if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
 		{
-			if(!empty($ds['stated']))
-			{
-				$this->db
-				->where('st.state', $ds['stated'])
-				->where('st.date_upd >=', from_date($ds['from_date']))
-				->where('st.date_upd <=', to_date($ds['to_date']))
-				->where('st.time_upd >=', $ds['startTime'])
-				->where('st.time_upd <=', $ds['endTime']);
-			}
-			else
-			{
-				$this->db->where('orders.date_add >=', from_date($ds['from_date']));
-				$this->db->where('orders.date_add <=', to_date($ds['to_date']));
-			}
+			$this->db->where('orders.date_add >=', from_date($ds['from_date']));
+			$this->db->where('orders.date_add <=', to_date($ds['to_date']));
 		}
 
 		if(!empty($ds['warehouse']))
@@ -489,6 +472,12 @@ class Orders_model extends CI_Model
 			{
 				$this->db->where('orders.is_valid', $ds['isValid']);
 			}
+		}
+
+		if(!empty($ds['is_paid']) && $ds['is_paid'] != 'all')
+		{
+			$is_paid = ($ds['is_paid'] == 'not_paid' ? 0 : 1);
+			$this->db->where('orders.is_paid', $is_paid);
 		}
 
 		return $this->db->count_all_results();
@@ -508,11 +497,6 @@ class Orders_model extends CI_Model
 		->join('zone', 'orders.zone_code = zone.code', 'left')
 		->join('user', 'orders.user = user.uname', 'left');
 
-		if( ! empty($ds['from_date']) && ! empty($ds['to_date']) && ! empty($ds['stated']))
-		{
-			$this->db->join('order_state_change AS st', 'st.order_code = orders.code', 'left');
-		}
-
 		$this->db->where('role', $role);
 
 		//---- เลขที่เอกสาร
@@ -585,20 +569,8 @@ class Orders_model extends CI_Model
 
 		if( ! empty($ds['from_date']) && ! empty($ds['to_date']))
 		{
-			if(!empty($ds['stated']))
-			{
-				$this->db
-				->where('st.state', $ds['stated'])
-				->where('st.date_upd >=', from_date($ds['from_date']))
-				->where('st.date_upd <=', to_date($ds['to_date']))
-				->where('st.time_upd >=', $ds['startTime'])
-				->where('st.time_upd <=', $ds['endTime']);
-			}
-			else
-			{
-				$this->db->where('orders.date_add >=', from_date($ds['from_date']));
-				$this->db->where('orders.date_add <=', to_date($ds['to_date']));
-			}
+			$this->db->where('orders.date_add >=', from_date($ds['from_date']));
+			$this->db->where('orders.date_add <=', to_date($ds['to_date']));
 		}
 
 		if(!empty($ds['warehouse']))
@@ -652,6 +624,12 @@ class Orders_model extends CI_Model
 			{
 				$this->db->where('orders.is_valid', $ds['isValid']);
 			}
+		}
+
+		if(!empty($ds['is_paid']) && $ds['is_paid'] != 'all')
+		{
+			$is_paid = ($ds['is_paid'] == 'not_paid' ? 0 : 1);
+			$this->db->where('orders.is_paid', $is_paid);
 		}
 
 

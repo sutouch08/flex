@@ -56,6 +56,7 @@
 					<th class="width-5 middle text-center">ลำดับ</th>
 					<th class="width-15 middle">รหัส</th>
 					<th class="width-20 middle">ชื่อ</th>
+					<th class="width-20 middle">ภาษี(%)</th>
 					<th class="width-10 middle text-center">ใช้งาน</th>
 					<th class="width-10 middle text-center">ค่าเริ่มต้น</th>
 					<th></th>
@@ -69,6 +70,7 @@
 						<td class="middle text-center"><?php echo $no; ?></td>
 						<td class="middle"><?php echo $rs->code; ?></td>
 						<td class="middle"><?php echo $rs->name; ?></td>
+						<td class="middle"><?php echo number($rs->rate,2); ?></td>
 						<td class="middle text-center"><?php echo is_active($rs->active); ?></td>
 						<td class="middle text-center">
 							<?php if($rs->is_default) : ?>

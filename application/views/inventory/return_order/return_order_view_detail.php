@@ -11,9 +11,6 @@
 	<?php if($doc->status == 1 && $this->pm->can_edit) : ?>
 				<button type="button" class="btn btn-sm btn-danger" onclick="unsave()">ยกเลิกการบันทึก</button>
 	<?php endif; ?>
-	<?php if($doc->status == 1 && $doc->is_approve == 0 && $this->pm->can_approve) : ?>
-				<button type="button" class="btn btn-sm btn-primary" onclick="approve()"><i class="fa fa-check"></i> อนุมัติ</button>
-	<?php endif; ?>
 				<button type="button" class="btn btn-sm btn-info" onclick="printReturn()"><i class="fa fa-print"></i> พิมพ์</button>
       </p>
     </div>

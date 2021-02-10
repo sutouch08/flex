@@ -84,7 +84,9 @@
             </tr>
             <tr class="font-size-12">
                 <td style="border-left:solid 1px #CCC;"><b>ส่วนลดรวม</b></td>
-                <td class="text-right" id="total-disc" style="font-weight:bold;">- <?php echo number($total_discount, 2); ?></td>
+                <td class="text-right" id="total-disc" style="font-weight:bold;">
+									- <?php echo number($total_discount + $order->bDiscAmount, 2); ?>
+								</td>
                 <td class="text-center"><b>THB.</b></td>
             </tr>
 

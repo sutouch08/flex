@@ -29,6 +29,59 @@ function getItemGrid(){
 }
 
 
+
+//----
+function getOrderItemGrid(code) {
+	var whCode = $('#warehouse').val();
+	var isView = $('#view').length;
+
+	if(code.length) {
+		$.ajax({
+			url:BASE_URL + 'orders/orders/get_order_item_grid',
+			type:'GET',
+			cache:false,
+			data:{
+				'warehouse_code' : whCode,
+				'itemCode' : code,
+				'isView' : isView
+			},
+			success:function(rs) {
+				var rs = rs.split(' | ');
+				if( rs.length > 3 ){
+					var grid = rs[0];
+					var width = rs[1];
+					var pdCode = rs[2];
+					var style = rs[3];
+
+					if(rs.length === 5){
+						var price = rs[4];
+						pdCode = pdCode + '<span style="color:red;"> : ' + price + ' ฿</span>';
+					}
+
+					if(grid == 'notfound'){
+						swal("ไม่พบสินค้า");
+						return false;
+					}
+
+					//$("#modal").css("width", width +"px");
+					//$("#modal-content").css("width", width +"px");
+					$("#modalItemTitle").html(pdCode);
+					//$("#id_style").val(style);
+					$("#modalItemBody").html(grid);
+					$("#orderItemGrid").modal('show');
+					$('#orderItemGrid').on('shown.bs.modal', function(){
+						$('#'+code).focus();
+					})
+
+				}else{
+					swal("สินค้าไม่ถูกต้อง");
+				}
+			}
+		})
+	}
+}
+
+
 // JavaScript Document
 function getProductGrid(){
 	var pdCode 	= $("#pd-box").val();

@@ -118,7 +118,7 @@ function get_summary($order, $details, $banks)
 
 	$orderTxt = '<div>สรุปการสั่งซื้อ</div>';
 	$orderTxt .= '<div>Order No : '.$order->code.'</div>';
-	$orderTxt .= '########################<br/>';
+	$orderTxt .= '##############################<br/>';
 
 	foreach($details as $rs)
 	{
@@ -129,7 +129,7 @@ function get_summary($order, $details, $banks)
 		$totalAmount += $rs->total_amount;
 	}
 
-	$orderTxt .= '=======================<br/>';
+	$orderTxt .= '=================================<br/>';
 	$orderTxt .= 'ค่าสินค้ารวม'.getSpace(number( $orderAmount, 2), 24).'<br/>';
 
 	if( ($discount + $order->bDiscAmount) > 0 )
@@ -156,19 +156,20 @@ function get_summary($order, $details, $banks)
 	$payAmount = ($orderAmount + $order->shipping_fee + $order->service_fee) - ($discount + $order->bDiscAmount) - $order->deposit;
 	$orderTxt .= 'ยอดชำระ' . getSpace(number( $payAmount, 2), 29).'<br/>';
 
-	$orderTxt .= '=======================<br/>';
+	$orderTxt .= '=================================<br/>';
+
 
 	if(!empty($banks))
 	{
 		$orderTxt .= 'สามารถชำระได้ที่ <br/>';
-		$orderTxt .= '#####################<br/>';
+		$orderTxt .= '##############################<br/>';
 		foreach($banks as $rs)
 		{
 			$orderTxt .= '- '.$rs->bank_name.'<br/>';
 			$orderTxt .= '&nbsp;&nbsp;&nbsp;&nbsp;สาขา '.$rs->branch.'<br/>';
 			$orderTxt .= '&nbsp;&nbsp;&nbsp;&nbsp;ชื่อบัญชี '.$rs->acc_name.'<br/>';
 			$orderTxt .= '&nbsp;&nbsp;&nbsp;&nbsp;เลขที่บัญชี '.$rs->acc_no.'<br/>';
-			$orderTxt .= '--------------------<br/>';
+			$orderTxt .= '-------------------------------------------------------------<br/>';
 		}
 	}
 

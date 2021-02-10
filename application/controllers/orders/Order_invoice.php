@@ -15,8 +15,9 @@ class Order_invoice extends PS_Controller
 		$this->home = base_url().'orders/order_invoice';
 		$this->load->model('orders/order_invoice_model');
 		$this->load->model('masters/customers_model');
+		$this->load->helper('address');
 		$this->load->helper('vat');
-		$this->title = getConfig('USE_VAT') == 1 ? 'ใบส่งสินค้า/ใบกำกับภาษี' : 'ใบส่งสินค้า';
+		$this->title = getConfig('USE_VAT') == 1 ? 'ใบกำกับภาษี' : 'ใบส่งสินค้า';
 	}
 
 
@@ -67,20 +68,33 @@ class Order_invoice extends PS_Controller
 
 		if(!empty($customer))
 		{
+			$this->load->model('address/customer_address_model');
+
 			$code = $this->get_new_code($doc_date);
+
 			$arr = array(
 				'code' => $code,
 				'doc_date' => $doc_date,
+				'vat_type' => $this->input->post('vat_type'),
 				'customer_code' => $customer->code,
 				'customer_name' => $customer->name,
 				'tax_id' => get_null($customer->Tax_Id),
-				'branch_code' => get_null(trim($this->input->post('branch_code'))),
-				'branch_name' => get_null(trim($this->input->post('branch_name'))),
-				'address' => get_null(trim($this->input->post('address'))),
-				'phone' => get_null(trim($this->input->post('phone'))),
 				'remark' => get_null(trim($this->input->post('remark'))),
 				'uname' => $this->_user->uname
 			);
+
+			$address = $this->customer_address_model->get_customer_bill_to_address($customer->code);
+			if(!empty($address))
+			{
+				$arr['branch_code'] = get_null($address->branch_code);
+				$arr['branch_name'] = get_null($address->branch_name);
+				$arr['address'] = get_null($address->address);
+				$arr['sub_district'] = get_null($address->sub_district);
+				$arr['district'] = get_null($address->district);
+				$arr['province'] = get_null($address->province);
+				$arr['postcode'] = get_null($address->postcode);
+				$arr['phone'] = get_null($address->phone);
+			}
 
 			if(! $this->order_invoice_model->add($arr))
 			{
@@ -151,19 +165,30 @@ class Order_invoice extends PS_Controller
 			$customer = $this->customers_model->get($customer_code);
 			if(!empty($customer))
 			{
+				$this->load->model('address/customer_address_model');
+
 				$arr = array(
 					'doc_date' => db_date($this->input->post('doc_date')),
 					'vat_type' => trim($this->input->post('vat_type')),
 					'customer_code' => $customer->code,
 					'customer_name' => $customer->name,
 					'tax_id' => $customer->Tax_Id,
-					'branch_code' => trim($this->input->post('branch_code')),
-					'branch_name' => trim($this->input->post('branch_name')),
-					'address' => trim($this->input->post('address')),
-					'phone' => get_null(trim($this->input->post('phone'))),
 					'remark' => get_null(trim($this->input->post('remark'))),
 					'upd_user' => $this->_user->uname
 				);
+
+				$address = $this->customer_address_model->get_customer_bill_to_address($customer->code);
+				if(!empty($address))
+				{
+					$arr['branch_code'] = get_null($address->branch_code);
+					$arr['branch_name'] = get_null($address->branch_name);
+					$arr['address'] = get_null($address->address);
+					$arr['sub_district'] = get_null($address->sub_district);
+					$arr['district'] = get_null($address->district);
+					$arr['province'] = get_null($address->province);
+					$arr['postcode'] = get_null($address->postcode);
+					$arr['phone'] = get_null($address->phone);
+				}
 
 				if(!$this->order_invoice_model->update($code, $arr))
 				{
@@ -188,6 +213,49 @@ class Order_invoice extends PS_Controller
 
 
 
+	public function cancle_invoice()
+	{
+		$sc = TRUE;
+		$code = $this->input->post('code');
+		if($this->pm->can_delete)
+		{
+			$this->db->trans_begin();
+
+			$arr = array(
+				'status' => 2 //--- cancle
+			);
+
+			if(! $this->order_invoice_model->update($code, $arr))
+			{
+				$sc = FALSE;
+				$this->error = "Update document status failed";
+			}
+
+			if(! $this->order_invoice_model->update_details_status($code, 2))
+			{
+				$sc = FALSE;
+				$this->error = "Update details status failed";
+			}
+
+			if($sc === TRUE)
+			{
+				$this->db->trans_commit();
+			}
+			else
+			{
+				$this->db->trans_rollback();
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing permission";
+		}
+
+		$this->response($sc);
+	}
+
+
 	public function view_detail($code)
 	{
 		$order = $this->order_invoice_model->get($code);
@@ -196,11 +264,20 @@ class Order_invoice extends PS_Controller
 		{
 			$details = $this->order_invoice_model->get_details($code);
 			$reference = $this->order_invoice_model->get_all_reference($code);
+			$address = array(
+				'address' => $order->address,
+				'sub_district' => $order->sub_district,
+				'district' => $order->district,
+				'province' => $order->province,
+				'postcode' => $order->postcode,
+				'phone' => $order->phone
+			);
 
 			$ds = array(
 				'order' => $order,
 				'details' => $details,
 				'reference' => $reference,
+				'address' => parse_address($address), //--- address_helper
 				'use_vat' => getConfig('USE_VAT') == 1 ? TRUE : FALSE
 			);
 
@@ -213,6 +290,34 @@ class Order_invoice extends PS_Controller
 	}
 
 
+
+	public function print_tax_receipt($code)
+	{
+		$this->title = "ใบเสร็จ/ใบกำกับภาษี";
+		$this->print_receipt($code);
+	}
+
+
+	public function print_tax_invoice($code)
+	{
+		$this->title = "ใบแจ้งหนี้/ใบกำกับภาษี";
+		$this->print_invoice($code);
+	}
+
+	public function print_do_receipt($code)
+	{
+		$this->title = "ใบส่งสินค้า/ใบเสร็จรับเงิน";
+		$this->print_receipt($code);
+	}
+
+	public function print_do_invoice($code)
+	{
+		$this->title = "ใบส่งสินค้า/ใบแจ้งหนี้";
+		$this->print_invoice($code);
+	}
+
+
+
 	public function print_invoice($code)
 	{
 		$order = $this->order_invoice_model->get($code);
@@ -222,14 +327,55 @@ class Order_invoice extends PS_Controller
 
 			$details = $this->order_invoice_model->get_details($code);
 			$sale = $this->customers_model->get_saleman($order->customer_code);
-			$ds = array(
-				'title' => 'ใบกำกับภาษี',
-				'order' => $order,
-				'details' => $details,
-				'saleman' => $sale
+			$address = array(
+				'address' => $order->address,
+				'sub_district' => $order->sub_district,
+				'district' => $order->district,
+				'province' => $order->province,
+				'postcode' => $order->postcode
 			);
 
-			$this->load->view('print/print_invoice', $ds);
+			$ds = array(
+				'title' => $this->title,
+				'order' => $order,
+				'address' => parse_address($address), //--- address_helper
+				'details' => $details,
+				'saleman' => $sale,
+				'use_vat' => getConfig('USE_VAT') ? TRUE : FALSE
+			);
+
+			$this->load->view('print/print_tax_invoice', $ds);
+		}
+	}
+
+
+	public function print_receipt($code)
+	{
+		$order = $this->order_invoice_model->get($code);
+		if(!empty($order))
+		{
+			$this->load->library('printer');
+
+			$details = $this->order_invoice_model->get_details($code);
+			$sale = $this->customers_model->get_saleman($order->customer_code);
+			$address = array(
+				'address' => $order->address,
+				'sub_district' => $order->sub_district,
+				'district' => $order->district,
+				'province' => $order->province,
+				'postcode' => $order->postcode
+			);
+
+			$ds = array(
+				'title' => $this->title,
+				'order' => $order,
+				'address' => parse_address($address), //--- address_helper
+				'details' => $details,
+				'saleman' => $sale,
+				'use_vat' => getConfig('USE_VAT') ? TRUE : FALSE
+			);
+
+			$this->load->view('print/print_tax_receipt', $ds);
 		}
 	}
 
@@ -267,10 +413,28 @@ class Order_invoice extends PS_Controller
 					'status' => 1
 				);
 
+				$this->db->trans_begin();
+
 				if(! $this->order_invoice_model->update($code, $arr))
 				{
 					$sc = FALSE;
 					$this->error = "Update Failed";
+				}
+
+				//---- set details status to 1 (saved)
+				if(! $this->order_invoice_model->update_details_status($code, 1))
+				{
+					$sc = FALSE;
+					$this->error = "Update details status failed";
+				}
+
+				if($sc === TRUE)
+				{
+					$this->db->trans_commit();
+				}
+				else
+				{
+					$this->db->trans_rollback();
 				}
 			}
 			else

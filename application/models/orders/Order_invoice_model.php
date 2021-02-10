@@ -66,6 +66,13 @@ class Order_invoice_model extends CI_Model
 	}
 
 
+	public function update_details_status($code, $status)
+	{
+		//--- 0 = pending 1 = saved 2 = cancled
+		return $this->db->set('status', $status)->where('invoice_code', $code)->update('order_invoice_detail');
+	}
+
+
 
 	public function get_total_amount_and_vat_amount($code)
 	{

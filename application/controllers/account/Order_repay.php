@@ -134,6 +134,8 @@ class Order_repay extends PS_Controller
 
   public function save($code)
   {
+		$this->load->model('orders/orders_model');
+
     $sc = TRUE;
     if($this->input->post('pay_amount'))
     {
@@ -190,9 +192,16 @@ class Order_repay extends PS_Controller
               }
             }
 
+						//--- ถ้ายอดครบตามจำนวนเงินใน order แล้ว ทำเครื่องหมายว่าชำระแล้ว
+						if($this->order_credit_model->is_valid($ds->reference) === TRUE)
+						{
+							$this->orders_model->paid($ds->reference, TRUE);
+						}
+
             $total_pay_amount += $amount;
 
           } //-- end if !empty()
+
         } //-- end foreach
 
         //--- 4. บันทึกรับเงิน
@@ -623,6 +632,70 @@ class Order_repay extends PS_Controller
 
     return FALSE;
   }
+
+
+	public function print_receipt($code)
+	{
+		$this->load->model('address/customer_address_model');
+		$this->load->helper('address');
+		$doc = $this->order_repay_model->get($code);
+
+		if(!empty($doc))
+		{
+			$this->load->library('printer');
+			$adr = $this->customer_address_model->get_customer_bill_to_address($doc->customer_code);
+			$sale = $this->customers_model->get_saleman($doc->customer_code);
+			$customer = $this->customers_model->get($doc->customer_code);
+			if(!empty($adr))
+			{
+				$address = array(
+					'address' => $adr->address,
+					'sub_district' => $adr->sub_district,
+					'district' => $adr->district,
+					'province' => $adr->province,
+					'postcode' => $adr->postcode
+				);
+			}
+			else
+			{
+				$address = array(
+					'address' => NULL,
+					'sub_district' => NULL,
+					'district' => NULL,
+					'province' => NULL,
+					'postcode' => NULL
+				);
+			}
+
+			$details = $this->order_repay_model->get_details($code);
+
+			$order_in = get_order_in($details);
+			$reference = "";
+
+			if(!empty($order_in))
+			{
+				$all_ref = $this->order_repay_model->get_order_invoice($order_in);
+				$reference = parse_reference($all_ref);
+			}
+
+
+
+			$ds = array(
+				'title' => 'ใบเสร็จรับเงิน',
+				'order' => $doc,
+				'adr' => $adr,
+				'address' => parse_address($address), //--- address_helper
+				'details' => $details,
+				'saleman' => $sale,
+				'customer' => $customer,
+				'reference' => $reference
+			);
+
+			$this->load->view('print/print_receipt', $ds);
+		}
+	}
+
+
 
   public function get_new_code($date = NULL)
   {

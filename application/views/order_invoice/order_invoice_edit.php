@@ -28,35 +28,10 @@
 		<label for="customer_code">รหัสลูกค้า</label>
 		<input type="text" class="form-control input-sm text-center edit" name="customer_code" id="customer_code" value="<?php echo $order->customer_code; ?>" disabled />
 	</div>
-	<div class="col-sm-4 col-xs-6 padding-5">
+	<?php if($use_vat) : ?>
+	<div class="col-sm-6 col-xs-6 padding-5">
 		<label for="customer_name">ลูกค้า</label>
 		<input type="text" class="form-control input-sm" name="customer_name" id="customer_name" value="<?php echo $order->customer_name; ?>" disabled />
-	</div>
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-		<label for="branch_code">รหัสสาขา</label>
-		<input type="text" class="form-control input-sm text-center edit" name="branch_code" id="branch_code" value="<?php echo $order->branch_code; ?>" disabled />
-	</div>
-	<div class="col-sm-2 col-xs-6 padding-5">
-		<label for="branch_name">สาขา</label>
-		<input type="text" class="form-control input-sm edit" name="branch_name" id="branch_name" value="<?php echo $order->branch_name; ?>" disabled />
-	</div>
-
-<?php if($use_vat) : ?>
-	<div class="col-sm-9 col-xs-12 padding-5">
-		<label for="address">ที่อยู่</label>
-		<input type="text"
-			class="form-control input-sm edit"
-			name="address"
-			id="address"
-			value="<?php echo $order->address.' โทร. '.$order->phone; ?>" disabled />
-	</div>
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-		<label for="phone">เบอร์โทร</label>
-		<input type="text"
-			class="form-control input-sm edit"
-			name="phone"
-			id="phone"
-			value="<?php echo $order->phone; ?>" disabled />
 	</div>
 	<div class="col-sm-1 col-1-harf col-xs-12 padding-5">
 		<label for="phone">ราคาขาย</label>
@@ -66,21 +41,9 @@
 		</select>
 	</div>
 <?php else : ?>
-	<div class="col-sm-9 col-xs-12 padding-5">
-		<label for="address">ที่อยู่</label>
-		<input type="text"
-			class="form-control input-sm edit"
-			name="address"
-			id="address"
-			value="<?php echo $order->address.' โทร. '.$order->phone; ?>" disabled />
-	</div>
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-		<label for="phone">เบอร์โทร</label>
-		<input type="text"
-			class="form-control input-sm edit"
-			name="phone"
-			id="phone"
-			value="<?php echo $order->phone; ?>" disabled />
+	<div class="col-sm-7 col-7-harf col-xs-6 padding-5">
+		<label for="customer_name">ลูกค้า</label>
+		<input type="text" class="form-control input-sm" name="customer_name" id="customer_name" value="<?php echo $order->customer_name; ?>" disabled />
 	</div>
 <?php endif; ?>
 

@@ -246,7 +246,7 @@ class Products extends PS_Controller
       $tabs = $this->input->post('tabs');
 
       $ds = array(
-        'name' => addslashes(trim($name)),
+        'name' => addslashes(trim($this->input->post('name'))),
         'group_code' => get_null($this->input->post('group_code')),
         'sub_group_code' => get_null($this->input->post('sub_group_code')),
         'category_code' => get_null($this->input->post('category_code')),

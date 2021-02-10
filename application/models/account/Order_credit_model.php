@@ -257,6 +257,31 @@ class Order_credit_model extends CI_Model
 	}
 
 
+	public function get_order_balance($code)
+	{
+		$rs = $this->db->select('balance')->where('order_code', $code)->get('order_credit');
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row()->balance;
+		}
+
+		return FALSE;
+	}
+
+
+	public function is_valid($code)
+	{
+		$rs = $this->db->where('order_code', $code)->where('valid', 1)->count_all_results('order_credit');
+
+		if($rs === 1)
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+
 } //--- end class
 
  ?>

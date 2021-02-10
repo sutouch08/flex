@@ -226,6 +226,7 @@ function addToOrder(){
 
 	if(data.length > 0 ){
 		$("#orderGrid").modal('hide');
+		$("#orderItemGrid").modal('hide');
 		$.ajax({
 			url: BASE_URL + 'orders/orders/add_detail/'+order_code,
 			type:"POST",
@@ -317,6 +318,9 @@ function updateDetailTable(){
 				var data = $.parseJSON(rs);
 				var output = $("#detail-table");
 				render(source, data, output);
+
+				percent_init();
+				digit_init();
 			}
 			else
 			{
@@ -324,6 +328,8 @@ function updateDetailTable(){
 				var data = [];
 				var output = $("#detail-table");
 				render(source, data, output);
+				percent_init();
+				digit_init();
 			}
 		}
 	});
@@ -885,29 +891,6 @@ function updateBillDiscAmount() {
 }
 
 
-function updateBillDiscPercent() {
-
-	var total = parseFloat($('#totalAfDisc').val());
-	var disc = parseDefault(parseFloat($('#billDiscAmount').val()), 0);
-	if(disc < 0 ) {
-		disc = 0;
-		$('#billDiscAmount').val(0);
-	}
-	else if(disc > total) {
-		disc = total;
-		$('#billDiscAmount').val(total.toFixed(2));
-	}
-	else {
-		$('#billDiscAmount').val(disc.toFixed(2));
-	}
-	var disPercent = (total > 0 ? (disc / total) * 100 : 0);
-
-	$('#billDiscPercent').val(disPercent.toFixed(2));
-
-	recalTotal();
-}
-
-
 
 
 $('#shipping-box').focusout(function() {
@@ -1001,4 +984,46 @@ $('#shipping-box').click(function() {
 
 $('#service-box').click(function() {
 	$(this).select();
+})
+
+
+function percent_init() {
+	$('.row-disc').keyup(function(e) {
+		if(e.keyCode === 32) {
+			//-- press space bar
+			var value = $.trim($(this).val());
+			if(value.length) {
+				var last = value.slice(-1);
+				if(isNaN(last)) {
+					//--- ถ้าตัวสุดท้ายไม่ใช่ตัวเลข เอาออก
+					value = value.slice(0, -1);
+				}
+				value = value +"%";
+				$(this).val(value);
+			}
+			else {
+				$(this).val('');
+			}
+
+			recal($(this).data('id'));
+		}
+	})
+}
+
+
+function digit_init() {
+	$('.digit').focusout(function(){
+		var value = parseDefaultValue($(this).val(), 0, 'float');
+		$(this).val(value.toFixed(2));
+	});
+
+	$('.digit').focus(function(){
+		$(this).select();
+	})
+}
+
+
+$(document).ready(function(){
+	percent_init();
+	digit_init();
 })

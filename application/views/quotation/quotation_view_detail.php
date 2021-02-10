@@ -87,7 +87,8 @@ if($data->status == 2)
 			<table class="table table-striped border-1">
 				<thead>
 					<tr>
-						<th class="width-5 middle text-center">ลำดับ</th>
+						<th class="width-5 middle text-center">#</th>
+						<th class="width-5 middle text-center"></th>
 						<th class="width-15 middle">รหัสสินค้า</th>
 						<th class="middle hidden-xs">ชื่อสินค้า</th>
 						<th class="width-8 middle text-right">ราคา</th>
@@ -108,14 +109,16 @@ if($data->status == 2)
 			<?php 	foreach($details as $rs) : ?>
 				<tr id="row-<?php echo $rs->id; ?>">
 					<td class="middle text-center"><?php echo $no; ?></td>
+					<td class="middle text-center">
+						<img src="<?php echo get_product_image($rs->product_code, 'mini'); ?>" width="40px" height="40px"/>
+					</td>
 					<td class="middle"><?php echo $rs->product_code; ?></td>
 					<td class="middle hidden-xs"><?php echo $rs->product_name; ?></td>
 					<td class="middle text-right"><?php echo number($rs->price,2); ?></td>
 					<td class="middle text-right"><?php echo number($rs->qty); ?></td>
 					<td class="middle text-center"><?php echo discountLabel($rs->discount1, $rs->discount2, $rs->discount3); ?></td>
 					<td class="middle text-right"><?php echo number($rs->total_amount, 2); ?></td>
-					<td class="middle text-right">
-					</td>
+					<td class="middle text-right">THB.</td>
 				</tr>
 			<?php   $no++; ?>
 			<?php   $total_qty += $rs->qty; ?>
@@ -131,14 +134,14 @@ if($data->status == 2)
 
 
 			<tr id="billDisc">
-				<td colspan="5" class="middle text-right">ส่วนลดท้ายบิล</td>
-				<td class="middle text-center"><?php echo $data->bDiscText; ?> %</td>
+				<td colspan="6" class="middle"></td>
+				<td class="middle">ส่วนลดท้ายบิล</td>
 				<td class="middle text-right"><?php echo $data->bDiscAmount; ?></td>
 				<td class="middle text-center">THB.</td>
 			</tr>
 
 				<tr>
-					<td colspan="5" rowspan="4" style="border-right:solid 1px #cccc;"></td>
+					<td colspan="6" rowspan="4" style="border-right:solid 1px #cccc;"></td>
 					<td class="">จำนวนรวม</td>
 					<td class="text-right"><?php echo number($total_qty); ?></td>
 					<td class="text-center">Pcs.</td>
@@ -160,7 +163,7 @@ if($data->status == 2)
 				</tr>
 			<?php else : ?>
 				<tr>
-					<td colspan="8" class="middle text-center">---- ไม่พบรายการ ----</td>
+					<td colspan="9" class="middle text-center">---- ไม่พบรายการ ----</td>
 				</tr>
 			<?php endif; ?>
 				</tbody>

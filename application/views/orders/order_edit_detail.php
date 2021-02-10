@@ -11,7 +11,7 @@ $delete = $this->pm->can_delete;
     <div class="col-sm-6 col-xs-12 padding-5">
     	<p class="pull-right top-p">
         	<button type="button" class="btn btn-sm btn-warning" onclick="editOrder('<?php echo $order->code; ?>')"><i class="fa fa-arrow-left"></i> กลับ</button>
-      <?php if($this->pm->can_add OR $this->pm->can_edit) : ?>
+      <?php if($order->status == 0 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
           <button type="button" class="btn btn-sm btn-success" id="btn-save-order" onclick="saveOrder()"><i class="fa fa-save"></i> บันทึก</button>
       <?php endif; ?>
         </p>
@@ -20,13 +20,11 @@ $delete = $this->pm->can_delete;
 <hr class="margin-bottom-15 padding-5" />
 <?php $this->load->view('orders/order_edit_header'); ?>
 
-<hr class="padding-5 margin-top-15 margin-bottom-15"/>
+<hr class="padding-5 "/>
 <div class="row">
-	<div class="col-sm-6 hidden-xs">&nbsp;</div>
-	<div class="col-sm-1 col-1-harf col-xs-2 padding-5 text-right">
-		<label>ค่าจัดส่ง</label>
-	</div>
+	<div class="col-sm-9 hidden-xs">&nbsp;</div>
 	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+		<label>ค่าจัดส่ง</label>
 		<input type="number"
 		class="form-control input-sm text-right"
 		id="shipping-box"
@@ -34,10 +32,9 @@ $delete = $this->pm->can_delete;
 		onchange="update_shipping_fee()">
 		<input type="hidden" id="current_shipping_fee" value="<?php echo $order->shipping_fee; ?>">
 	</div>
-	<div class="col-sm-1 col-1-harf col-xs-2 padding-5 text-right">
-		<label>ค่าบริการ</label>
-	</div>
+
 	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+		<label>ค่าบริการ</label>
 		<input type="number"
 		class="form-control input-sm text-right"
 		id="service-box"
@@ -47,8 +44,7 @@ $delete = $this->pm->can_delete;
 	</div>
 </div>
 
-<hr class="padding-5 margin-top-15 margin-bottom-15"/>
-
+<hr class="padding-5 margin-bottom-10"/>
 
 <!--  Search Product -->
 <div class="row">
@@ -83,36 +79,35 @@ $delete = $this->pm->can_delete;
   </div>
 </div>
 <hr class="margin-top-15 margin-bottom-0 padding-5" />
-<!--- Category Menu ---------------------------------->
-<div class='row'>
-	<div class='col-sm-12 col-xs-12 padding-5'>
-		<ul class='nav navbar-nav' role='tablist' style='width: 100%; margin-left: 0px; margin-right: 0px; background-color:#EEE'>
-		<?php echo productTabMenu('order'); ?>
-		</ul>
-	</div><!---/ col-sm-12 ---->
-</div><!---/ row -->
-<hr class="padding-5" />
-<div class='row'>
-	<div class='col-sm-12 col-xs-12 padding-5'>
-		<div class='tab-content' style="min-height:1px; padding:0px; border:0px;">
-		<?php echo getProductTabs(); ?>
-		</div>
-	</div>
-</div>
-<!-- End Category Menu ------------------------------------>
 
-<?php $this->load->view('orders/order_detail'); //include 'include/order/order_detail.php'; ?>
+<?php
+
+if(getConfig('USE_PRODUCT_TAB') == 1)
+{
+	if(getConfig('PRODUCT_TAB_TYPE') === 'item')
+	{
+		$this->load->view('orders/item_tab_menu');
+	}
+	else
+	{
+		$this->load->view('orders/order_tab_menu');
+	}
+}
+
+?>
+
+<?php $this->load->view('orders/order_detail');  ?>
 
 
 <form id="orderForm">
 <div class="modal fade" id="orderGrid" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog" id="modal" style="min-width:250px;">
+	<div class="modal-dialog" id="modal" style="min-width:250px; max-width:1000px;">
 		<div class="modal-content">
   			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="modalTitle" >title</h4>
 			 </div>
-			 <div class="modal-body" id="modalBody"></div>
+			 <div class="modal-body text-center" id="modalBody"></div>
 			 <div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
 				<button type="button" class="btn btn-primary" onClick="addToOrder()" >เพิ่มในรายการ</button>
@@ -121,6 +116,65 @@ $delete = $this->pm->can_delete;
 	</div>
 </div>
 </form>
+
+<form id="orderItemForm">
+<div class="modal fade" id="orderItemGrid" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog" >
+		<div class="modal-content">
+  			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="modalItemTitle" >title</h4>
+			 </div>
+			 <div class="modal-body text-center" id="modalItemBody"></div>
+			 <div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
+				<button type="button" class="btn btn-primary" onClick="addToOrder()" >เพิ่มในรายการ</button>
+			 </div>
+		</div>
+	</div>
+</div>
+</form>
+
+<script id="productTabs-template" type="text/x-handlebarsTemplate">
+{{#each this}}
+<div class="col-sm-2 col-xs-6 padding-0 center">
+  <div class="product padding-5">
+    <div class="image">
+      <a href="javascript:void(0)" onclick="getOrderGrid('{{code}}')">
+        <img class="img-responsive border-1" src="{{image}}" />
+      </a>
+    </div>
+    <div class="discription" style="font-size:10px; min-height:50px;">
+      <a href="javascript:void(0)" onclick="getOrderGrid('{{code}}')">
+        <span class="display-block">{{name}}</span>
+        <span>{{price}}</span>
+      </a>
+    </div>
+  </div>
+</div>
+{{/each}}
+</script>
+
+<script id="itemTabs-template" type="text/x-handlebarsTemplate">
+{{#each this}}
+<div class="col-sm-2 col-xs-6 padding-0 center">
+  <div class="product padding-5">
+    <div class="image">
+      <a href="javascript:void(0)" onclick="getOrderItemGrid('{{code}}')">
+        <img class="img-responsive border-1" src="{{image}}" />
+      </a>
+    </div>
+    <div class="discription" style="font-size:10px; min-height:50px;">
+      <a href="javascript:void(0)" onclick="getOrderItemGrid('{{code}}')">
+        <span class="display-block">{{name}}</span>
+        <span>{{price}}</span>
+      </a>
+    </div>
+  </div>
+</div>
+{{/each}}
+</script>
+
 <input type="hidden" id="auz" value="<?php echo getConfig('ALLOW_UNDER_ZERO'); ?>">
 <script src="<?php echo base_url(); ?>scripts/orders/orders.js"></script>
 <script src="<?php echo base_url(); ?>scripts/orders/order_add.js"></script>

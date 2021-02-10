@@ -331,30 +331,6 @@ class Products_model extends CI_Model
   }
 
 
-  // public function count_rows(array $ds = array())
-  // {
-  //   if(!empty($ds))
-  //   {
-  //     $this->db->select('code');
-  //
-  //     foreach($ds as $field => $val)
-  //     {
-  //       if($val != '')
-  //       {
-  //         $this->db->like($field, $val);
-  //       }
-  //     }
-  //     $rs = $this->db->get('products');
-  //
-  //     return $rs->num_rows();
-  //   }
-  //
-  //   return 0;
-  // }
-
-
-
-
   public function get($code)
   {
     $rs = $this->db->where('code', $code)->get('products');
@@ -753,6 +729,24 @@ class Products_model extends CI_Model
 		}
 
 		return NULL;
+	}
+
+
+	public function get_vat_rate($code)
+	{
+		$rs = $this->db
+		->select('vat.rate')
+		->from('products AS pd')
+		->join('vat', 'pd.vat_code = vat.code', 'left')
+		->where('pd.code', $code)
+		->get();
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row()->rate;
+		}
+
+		return getConfig('SALE_VAT_RATE');
 	}
 
 }

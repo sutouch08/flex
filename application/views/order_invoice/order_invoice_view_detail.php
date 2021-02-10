@@ -1,18 +1,26 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6 col-xs-8 padding-5">
+	<div class="col-sm-6 col-xs-4 padding-5">
     <h3 class="title">
+			<i class="fa fa-file-text-o"></i> 
       <?php echo $this->title; ?>
     </h3>
     </div>
-    <div class="col-sm-6 col-xs-4 padding-5">
+    <div class="col-sm-6 col-xs-8 padding-5">
     	<p class="pull-right top-p">
 				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 				<?php if($order->status != 2 && $this->pm->can_delete) : ?>
 					<button type="button" class="btn btn-sm btn-danger" onclick="getDelete()"><i class="fa fa-times"></i> ยกเลิก</button>
 				<?php endif; ?>
 				<?php if($order->status == 1) : ?>
-				<button type="button" class="btn btn-sm btn-info" onclick="print_invoice()"><i class="fa fa-print"></i> พิมพ์</button>
+
+					<?php if($use_vat) : ?>
+						<button type="button" class="btn btn-sm btn-info" onclick="print_tax_receipt()"><i class="fa fa-print"></i> พิมพ์ใบเสร็จรับเงิน</button>
+						<button type="button" class="btn btn-sm btn-info" onclick="print_tax_invoice()"><i class="fa fa-print"></i> พิมพ์ใบแจ้งหนี้</button>
+					<?php else : ?>
+						<button type="button" class="btn btn-sm btn-info" onclick="print_do_invoice()"><i class="fa fa-print"></i> พิมพ์ใบแจ้งหนี้</button>
+						<button type="button" class="btn btn-sm btn-info" onclick="print_do_receipt()"><i class="fa fa-print"></i> พิมพ์ใบเสร็จ</button>
+					<?php endif; ?>
 				<?php endif; ?>
       </p>
     </div>
@@ -31,68 +39,45 @@
 		<label for="customer_code">รหัสลูกค้า</label>
 		<input type="text" class="form-control input-sm text-center edit" name="customer_code" id="customer_code" value="<?php echo $order->customer_code; ?>" disabled />
 	</div>
-	<div class="col-sm-4 col-xs-6 padding-5">
+	<?php if($use_vat) : ?>
+	<div class="col-sm-6 col-xs-6 padding-5">
 		<label for="customer_name">ลูกค้า</label>
 		<input type="text" class="form-control input-sm" name="customer_name" id="customer_name" value="<?php echo $order->customer_name; ?>" disabled />
 	</div>
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-		<label for="branch_code">รหัสสาขา</label>
-		<input type="text" class="form-control input-sm text-center edit" name="branch_code" id="branch_code" value="<?php echo $order->branch_code; ?>" disabled />
+	<div class="col-sm-1 col-1-harf col-xs-12 padding-5">
+		<label for="phone">ราคาขาย</label>
+		<select class="form-control input-sm edit" id="vat_type" name="vat_type" disabled>
+			<option value="I" <?php echo is_selected('I', $order->vat_type); ?>>รวม VAT</option>
+			<option value="E" <?php echo is_selected('E', $order->vat_type); ?>>ไม่รวม VAT</option>
+		</select>
 	</div>
+	<?php else : ?>
+	<div class="col-sm-7 col-7-harf col-xs-6 padding-5">
+		<label for="customer_name">ลูกค้า</label>
+		<input type="text" class="form-control input-sm" name="customer_name" id="customer_name" value="<?php echo $order->customer_name; ?>" disabled />
+	</div>
+	<?php endif; ?>
 	<div class="col-sm-2 col-xs-6 padding-5">
 		<label for="branch_name">สาขา</label>
-		<input type="text" class="form-control input-sm edit" name="branch_name" id="branch_name" value="<?php echo $order->branch_name; ?>" disabled />
+		<input type="text" class="form-control input-sm text-center" name="branch_name" id="branch_name" value="<?php echo $order->branch_name; ?>" disabled />
+	</div>
+	<div class="col-sm-10 col-xs-12 padding-5">
+		<label for="address">ที่อยู่</label>
+		<input type="text"
+			class="form-control input-sm"
+			name="address"
+			id="address"
+			value="<?php echo $address; ?>" disabled />
 	</div>
 
-	<?php if($use_vat) : ?>
-		<div class="col-sm-9 col-xs-12 padding-5">
-			<label for="address">ที่อยู่</label>
-			<input type="text"
-				class="form-control input-sm edit"
-				name="address"
-				id="address"
-				value="<?php echo $order->address.' โทร. '.$order->phone; ?>" disabled />
-		</div>
-		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-			<label for="phone">เบอร์โทร</label>
-			<input type="text"
-				class="form-control input-sm edit"
-				name="phone"
-				id="phone"
-				value="<?php echo $order->phone; ?>" disabled />
-		</div>
-		<div class="col-sm-1 col-1-harf col-xs-12 padding-5">
-			<label for="phone">ราคาขาย</label>
-			<select class="form-control input-sm edit" id="vat_type" name="vat_type" disabled>
-				<option value="I" <?php echo is_selected('I', $order->vat_type); ?>>รวม VAT</option>
-				<option value="E" <?php echo is_selected('E', $order->vat_type); ?>>ไม่รวม VAT</option>
-			</select>
-		</div>
-	<?php else : ?>
-		<div class="col-sm-9 col-xs-12 padding-5">
-			<label for="address">ที่อยู่</label>
-			<input type="text"
-				class="form-control input-sm edit"
-				name="address"
-				id="address"
-				value="<?php echo $order->address.' โทร. '.$order->phone; ?>" disabled />
-		</div>
-		<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-			<label for="phone">เบอร์โทร</label>
-			<input type="text"
-				class="form-control input-sm edit"
-				name="phone"
-				id="phone"
-				value="<?php echo $order->phone; ?>" disabled />
-		</div>
-	<?php endif; ?>
-
-	<div class="col-sm-12 col-xs-12 padding-5">
-		<label for="remark">หมายเหตุ</label>
-		<input type="text" class="form-control input-sm edit" name="remark" id="remark" value="<?php echo $order->remark; ?>" disabled/>
-	</div>
 </div>
 <input type="hidden" id="customerCode" value="<?php echo $order->customer_code; ?>" />
+<?php
+if($order->status == 2)
+{
+  $this->load->view('cancle_watermark');
+}
+?>
 <hr class="padding-5" />
 <div class="row">
 <div class="col-sm-12 col-xs-12 padding-5">
@@ -157,19 +142,20 @@
 			</tbody>
 			<tfoot>
 				<tr>
-					<td colspan="7"></td>
+					<td colspan="7" rowspan="<?php echo ($use_vat === TRUE ? 3 : 2); ?>" style="white-space:normal;">
+						<b>หมายเหตุ : </b>
+						<?php echo $order->remark; ?>
+					</td>
 					<td class="middle text-right">รวมเป็นเงิน</td>
 					<td class="middle text-right"><?php echo number($total_amount_ex, 2); ?></td>
 				</tr>
 			<?php if($use_vat) : ?>
 				<tr>
-					<td colspan="7" style="border-top:0px;"></td>
 					<td class="middle text-right">ภาษีมูลค่าเพิ่ม <?php echo getConfig('SALE_VAT_RATE'); ?> %</td>
 					<td class="middle text-right"><?php echo number($total_vat, 2); ?></td>
 				</tr>
 			<?php endif; ?>
 				<tr>
-					<td colspan="7" style="border-top:0px;"></td>
 					<td class="middle text-right">จำนวนเงินรวมทั้งสิ้น</td>
 					<td class="middle text-right"><?php echo number($total_amount_inc, 2); ?></td>
 				</tr>

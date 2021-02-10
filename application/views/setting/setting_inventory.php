@@ -9,6 +9,7 @@ $input_qc_no = $QC_ALLOW_INPUT_QTY == 0 ? 'btn-success' : '';
 <div class="tab-pane fade" id="inventory">
 	<form id="inventoryForm" method="post" action="<?php echo $this->home; ?>/update_config">
   	<div class="row">
+			<!--
     	<div class="col-sm-3">
         <span class="form-control left-label">รับสินค้าเกินไปสั่งซื้อ(%)</span>
       </div>
@@ -31,7 +32,7 @@ $input_qc_no = $QC_ALLOW_INPUT_QTY == 0 ? 'btn-success' : '';
       <div class="col-sm-9">
         <input type="text" class="form-control input-sm input-small" name="LEND_WAREHOUSE" value="<?php echo $LEND_WAREHOUSE; ?>" />
       </div>
-
+		-->
       <div class="divider-hidden"></div>
 			<div class="col-sm-3"><span class="form-control left-label">ใช้งานระบบ QC</span></div>
 			<div class="col-sm-9">

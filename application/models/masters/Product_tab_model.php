@@ -117,41 +117,56 @@ class Product_tab_model extends CI_Model
 	}
 
 
+	public function delete_tab_style($id)
+	{
+		return $this->db->where('id_tab', $id)->delete('product_tab_style');
+	}
+
+
+	public function delete_tab_item($id)
+	{
+		return $this->db->where('id_tab', $id)->delete('product_tab_item');
+	}
+	
+
 	public function updateTabsProduct($style_code, array $ds = array())
 	{
+		$this->db->trans_start();
+		$this->db->where('style_code', $style_code)->delete('product_tab_style');
+
 		if( !empty($ds))
 		{
-			$this->db->trans_start();
-      $this->db->where('style_code', $style_code)->delete('product_tab_style');
       foreach( $ds as $id)
       {
         $this->db->insert('product_tab_style', array('style_code' => $style_code, 'id_tab' => $id));
       }
-
-			$this->db->trans_complete();
-
-      return $this->db->trans_status();
 		}
 
-		return FALSE;
+		$this->db->trans_complete();
+
+		return $this->db->trans_status();
 	}
 
 
+	public function updateTabsItem($item_code, $ds = NULL)
+	{
+		$this->db->trans_start();
+		//--- delete old data
+		$this->db->where('item_code', $item_code)->delete('product_tab_item');
 
-  //
-	// public function addTabsProduct($style_code, $id_tab)
-	// {
-	// 	return dbQuery("INSERT INTO product_tab_style (style_code, id_product_tab) VALUES ('".$style_code."', '".$id_tab."')");
-	// }
+		if(!empty($ds))
+		{
+			//--- insert new data
+			foreach($ds as $id)
+			{
+				$this->db->insert('product_tab_item', array('item_code' => $item_code, 'id_tab' => $id));
+			}
+		}
 
+		$this->db->trans_complete();
 
-
-
-	// public function dropTabsProduct($style_code)
-	// {
-	// 	return dbQuery("DELETE FROM product_tab_style WHERE style_code = '".$style_code."'");
-	// }
-
+		return $this->db->trans_status();
+	}
 
 
 	public function isExists($field, $val, $id='')
@@ -233,6 +248,22 @@ class Product_tab_model extends CI_Model
   }
 
 
+  public function getItemTabsId($code)
+  {
+    $sc = array();
+    $qs = $this->db->select('id_tab')->where('item_code', $code)->get('product_tab_item');
+    if($qs->num_rows() > 0)
+    {
+      foreach($qs->result() as $rs)
+      {
+        $sc[$rs->id_tab] = $rs->id_tab;
+      }
+    }
+
+    return $sc;
+  }
+
+
 
 	//-------- เอารายการใน product_tab_style มา
 	public function getParentTabsId($style_code)
@@ -254,6 +285,42 @@ class Product_tab_model extends CI_Model
 		}
 
 		$qs = $this->db->select('id_tab')->where('style_code', $style_code)->get('product_tab_style');
+
+		if( $qs->num_rows() > 0 )
+		{
+      foreach($qs->result() as $rs)
+      {
+        $sc[$rs->id_tab] = $rs->$id_tab;
+      }
+		}
+
+		return $sc;
+	}
+
+
+
+	//-------- เอารายการใน product_tab_item มา
+	public function getParentItemTabsId($code)
+	{
+		$sc = array();
+		$ds = $this->getItemTabsId($code);
+
+		if( !empty( $ds ))
+		{
+			foreach( $ds as $id )
+			{
+				$id_tab = $this->getParentId($id);
+
+				while( $id_tab > 0 )
+				{
+					$sc[$id_tab] = $id_tab;
+					$id_tab = $this->getParentId($id_tab);
+				}
+			}
+			return $sc;
+		}
+
+		$qs = $this->db->select('id_tab')->where('item_code', $code)->get('product_tab_item');
 
 		if( $qs->num_rows() > 0 )
 		{
@@ -314,19 +381,45 @@ class Product_tab_model extends CI_Model
 
   public function get_style_in_tab($id)
   {
-    $qr = "SELECT t.style_code FROM product_tab_style AS t ";
-		$qr .= "JOIN product_style AS p ON t.style_code = p.id ";
-		$qr .= "WHERE p.active = 1 AND p.can_sell = 1 AND is_deleted = 0 ";
-		$qr .= "AND id_tab = ".$id;
+  	$rs = $this->db
+		->select('t.style_code AS code')
+		->select('p.name, p.price')
+		->from('product_tab_style AS t')
+		->join('product_style AS p', 't.style_code = p.code')
+		->where('p.active', 1)
+		->where('p.can_sell', 1)
+		->where('p.is_deleted', 0)
+		->where('t.id_tab', $id)
+		->get();
 
-    $rs = $this->db->query($qr);
-    if($rs->num_rows() > p)
+    if($rs->num_rows() > 0)
     {
       return $rs->result();
     }
 
-    return array();
+    return NULL;
   }
+
+
+	public function get_item_in_tab($id)
+	{
+		$rs = $this->db
+		->select('pd.code, pd.name, pd.price')
+		->from('product_tab_item AS t')
+		->join('products AS pd', 't.item_code = pd.code')
+		->where('pd.active', 1)
+		->where('pd.can_sell', 1)
+		->where('pd.is_deleted', 0)
+		->where('t.id_tab', $id)
+		->get();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
 
 
 
@@ -355,6 +448,21 @@ class Product_tab_model extends CI_Model
 
     return FALSE;
   }
+
+
+	public function getChild($id)
+	{
+		$rs = $this->db
+		->where('id_parent', $id)
+		->get('product_tab');
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
 
 
 

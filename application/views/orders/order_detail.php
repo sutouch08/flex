@@ -7,7 +7,7 @@
 <div class="row">
 	<div class="col-sm-12 col-xs-12 padding-5">
 		<div class="table-responsive">
-			<table class="table table-striped border-1">
+			<table class="table table-striped border-1" style="min-width:1000px;">
         <thead>
         	<tr class="font-size-12">
             	<th class="width-5 text-center">No.</th>
@@ -56,9 +56,10 @@
 
               <td class="middle text-center">
 								<input type="number"
-								class="form-control input-sm text-right price-box"
+								class="form-control input-sm text-right price-box digit"
 								id="price_<?php echo $rs->id; ?>"
 								name="price[<?php echo $rs->id; ?>]"
+								data-id="<?php echo $rs->id; ?>"
 								value="<?php echo $rs->price; ?>"
 								onkeyup="recal(<?php echo $rs->id; ?>)"
 								onchange="update_detail(<?php echo $rs->id; ?>)"
@@ -67,10 +68,11 @@
 
               <td class="middle text-center">
 								<input type="number"
-								class="form-control input-sm text-right qty-box"
+								class="form-control input-sm text-right qty-box digit"
 								id="qty_<?php echo $rs->id; ?>"
 								data-id="<?php echo $rs->id; ?>"
 								name="qty[<?php echo $rs->id; ?>]"
+								data-id="<?php echo $rs->id; ?>"
 								value="<?php echo $rs->qty; ?>"
 								onkeyup="recal(<?php echo $rs->id; ?>)"
 								onchange="update_detail(<?php echo $rs->id; ?>)"
@@ -80,9 +82,10 @@
 
               <td class="middle text-center">
 								<input type="text"
-								class="form-control input-sm text-center discount-box"
+								class="form-control input-sm text-center discount-box row-disc"
 								id="disc_<?php echo $rs->id; ?>"
 								name="disc[<?php echo $rs->id; ?>]"
+								data-id="<?php echo $rs->id; ?>"
 								value="<?php echo $discount; ?>"
 								onkeyup="recal(<?php echo $rs->id; ?>)"
 								onchange="update_detail(<?php echo $rs->id; ?>)"
@@ -91,10 +94,11 @@
 
               <td class="middle text-right">
 								<input type="number"
-								class="form-control input-sm text-right line-total"
+								class="form-control input-sm text-right line-total digit"
 								id="line_total_<?php echo $rs->id; ?>"
 								data-id="<?php echo $rs->id; ?>"
 								name="line_total[<?php echo $rs->id; ?>]"
+								data-id="<?php echo $rs->id; ?>"
 								value = "<?php echo $rs->total_amount; ?>"
 								onkeyup="recalDiscount(<?php echo $rs->id; ?>)"
 								onchange="update_detail(<?php echo $rs->id; ?>)"
@@ -129,7 +133,7 @@
 							<td colspan="7" class="middle text-right" style="border-left:solid 1px #CCC;">ส่วนลดท้ายบิล</td>
 							<td class="middle">
 								<input type="number"
-								class="form-control input-sm text-right"
+								class="form-control input-sm text-right digit"
 								id="billDiscAmount"
 								name="billDiscAmount"
 								value="<?php echo $order->bDiscAmount; ?>"
@@ -155,7 +159,9 @@
             </tr>
             <tr class="font-size-12">
                 <td style="border-left:solid 1px #CCC;"><b>ส่วนลดรวม</b></td>
-                <td class="text-right" id="total-disc" style="font-weight:bold;">- <?php echo number($total_discount, 2); ?></td>
+                <td class="text-right" id="total-disc" style="font-weight:bold;">
+									- <?php echo number($total_discount + $order->bDiscAmount, 2); ?>
+								</td>
                 <td class="text-center"><b>THB.</b></td>
             </tr>
 

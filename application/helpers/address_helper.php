@@ -131,4 +131,48 @@ function get_address_form($adds, $sds, $ds, $dd, $use_qc)
   return $sc;
 }
 
+
+function parse_address(array $ds = array())
+{
+	$adr = "";
+
+	if(!empty($ds))
+	{
+
+		if(!empty($ds['address']))
+		{
+			$adr .= $ds['address'].' ';
+		}
+
+		if(!empty($ds['sub_district']))
+		{
+			$prefix = (!empty($ds['province']) && $ds['province'] === "กรุงเทพมหานคร") ? "แขวง" : "ตำบล";
+			$adr .= $prefix.$ds['sub_district'].' ';
+		}
+
+		if(!empty($ds['district']))
+		{
+			$prefix = (!empty($ds['province']) && $ds['province'] === "กรุงเทพมหานคร") ? "เขต" : "อำเภอ";
+			$adr .= $prefix.$ds['district'].' ';
+		}
+
+		if(!empty($ds['province']))
+		{
+			$adr .= "จังหวัด".$ds['province'].' ';
+		}
+
+		if(!empty($ds['postcode']))
+		{
+			$adr .= $ds['postcode'].' ';
+		}
+
+		if(!empty($ds['phone']))
+		{
+			$adr .= "โทร. ".$ds['phone'];
+		}
+	}
+
+	return $adr;
+}
+
  ?>

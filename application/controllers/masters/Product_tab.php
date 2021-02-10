@@ -5,7 +5,7 @@ class Product_tab extends PS_Controller
   public $menu_code = 'DBPTAB';
 	public $menu_group_code = 'DB';
   public $menu_sub_group_code = 'PRODUCT';
-	public $title = 'เพิ่ม/แก้ไข แถบแสดงสินค้า';
+	public $title = 'แถบแสดงสินค้า';
   public $error = '';
 
   public function __construct()
@@ -21,8 +21,7 @@ class Product_tab extends PS_Controller
   public function index()
   {
     $filter = array(
-      'tab_name' => get_filter('tab_name', 'tab_name', ''),
-      'parent' => get_filter('parent', 'parent', '')
+      'tab_name' => get_filter('tab_name', 'tab_name', '')
     );
 
     //--- แสดงผลกี่รายการต่อหน้า
@@ -42,11 +41,6 @@ class Product_tab extends PS_Controller
     {
       foreach($tabs as $rs)
       {
-        if($rs->id_parent == 0)
-        {
-          $rs->parent = "TOP LEVEL";
-        }
-
         $rs->members = $this->product_tab_model->countMember($rs->id);
       }
     }
@@ -65,82 +59,84 @@ class Product_tab extends PS_Controller
 
   public function add()
   {
-    if($this->input->post('tab_name'))
-    {
-      $name = trim($this->input->post('tab_name'));
-      $parent = $this->input->post('tabs');
+		$sc = TRUE;
+		$name = trim($this->input->post('name'));
+		if($name !== NULL)
+		{
+			if($this->product_tab_model->isExists('name', $name))
+			{
+				$sc = FALSE;
+				$this->error = "ชื่อซ้ำ กรุณากำหนดชื่อใหม่";
+			}
+			else
+			{
+				$arr = array(
+					'name' => $name,
+					'id_parent' => 0
+				);
 
-      if(! $this->product_tab_model->isExists('name', $name))
-      {
-        $arr = array(
-          'name' => $name,
-          'id_parent' => $parent
-        );
+				if(! $this->product_tab_model->add($arr))
+				{
+					$sc = FALSE;
+					$this->error = "เพิ่มรายการไม่สำเร็จ";
+				}
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter : name";
+		}
 
-        if($this->product_tab_model->add($arr))
-        {
-          set_message("เพิ่มแถบสินค้าเรียบร้อยแล้ว");
-        }
-        else
-        {
-          set_error("เพิ่มแถบสินค้าไม่สำเร็จ");
-        }
-      }
-      else
-      {
-        set_error("ชื่อแถบซ้ำ กรุณาใช้ชื่อแถบอื่น");
-      }
-    }
-    else
-    {
-      set_error("กรุณาระบุชื่อแถบสินค้า");
-    }
-
-    redirect($this->home.'/add_new');
+		$this->response($sc);
   }
 
 
   public function edit($id)
   {
     $ds = $this->product_tab_model->get($id);
-    $this->load->view('masters/product_tab/product_tab_edit', $ds);
+		if(!empty($ds))
+		{
+			$this->load->view('masters/product_tab/product_tab_edit', $ds);
+		}
+		else
+		{
+			$this->error_page();
+		}
   }
 
 
-  public function update($id)
+  public function update()
   {
-    if($this->input->post('tab_name'))
-    {
-      $name = trim($this->input->post('tab_name'));
-      $parent = $this->input->post('tabs');
+		$sc = TRUE;
+		$id = $this->input->post('id');
+		$name = trim($this->input->post('name'));
 
-      if(! $this->product_tab_model->isExists('name', $name, $id))
-      {
-        $arr = array(
-          'name' => $name,
-          'id_parent' => $parent
-        );
+		if(!empty($id) && $name !== NULL)
+		{
+			if($this->product_tab_model->isExists('name', $name, $id))
+			{
+				$sc = FALSE;
+				$this->error = "ชื่อซ้ำ กรุณากำหนดชื่อใหม่";
+			}
+			else
+			{
+				$arr = array('name' => $name);
 
-        if(! $this->product_tab_model->update($id, $arr))
-        {
-          set_error('แก้ไขข้อมูลไม่สำเร็จ');
-        }
-        else
-        {
-          set_message('แก้ไขข้อมูลเรียบร้อยแล้ว');
-        }
-      }
-      else
-      {
-        set_error('ชื่อซ้ำ กรุณาใช้ชื่ออื่น');
-      }
-    }
-    else
-    {
-      set_error('กรุณาระบุชื่อแถบสินค้า');
-    }
+				if(!$this->product_tab_model->update($id, $arr))
+				{
+					$sc = FALSE;
+					$this->error = "ปรับปรุงข้อมูลไม่สำเร็จ";
+				}
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parater";
+		}
 
-    redirect($this->home.'/edit/'.$id);
+		$this->response($sc);
   }
 
 
@@ -148,27 +144,47 @@ class Product_tab extends PS_Controller
   {
     $sc = TRUE;
 
-    if(! $this->product_tab_model->is_has_child($id))
-    {
-      if( ! $this->product_tab_model->delete($id))
-      {
-        $sc = FALSE;
-        $this->error = "ลบแถบสินค้าไม่สำเร็จ";
-      }
-    }
-    else
-    {
-      $sc = FALSE;
-      $this->error = "ไม่สามารถลบแถบได้เนื่องจากมีแถบลูกค้างอยู่";
-    }
+    $this->db->trans_begin();
+		if(! $this->product_tab_model->delete_tab_style($id))
+		{
+			$sc = FALSE;
+			$this->error = "ลบรุ่นสินค้าในแถบแสดงสินค้าไม่สำเร็จ";
+		}
 
-    echo $sc === TRUE ? 'success' : $this->error;
+		if($sc === TRUE)
+		{
+			if(!$this->product_tab_model->delete_tab_item($id))
+			{
+				$sc = FALSE;
+				$this->error = "ลบสินค้าในแถบแสดงสินค้าไม่สำเร็จ";
+			}
+		}
+
+		if($sc === TRUE)
+		{
+			if(!$this->product_tab_model->delete($id))
+			{
+				$sc = FALSE;
+				$this->error = "ลบแถบแสดงสินค้าไม่สำเร็จ";
+			}
+		}
+
+		if($sc === TRUE)
+		{
+			$this->db->trans_commit();
+		}
+		else
+		{
+			$this->db->trans_rollback();
+		}
+
+		$this->response($sc);
   }
 
 
   public function clear_filter()
   {
-    $filter = array('tab_name', 'parent');
+    $filter = array('tab_name');
     clear_filter($filter);
   }
 

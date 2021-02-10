@@ -183,7 +183,8 @@ class Quotation extends PS_Controller
 						'amount' => number($rs->total_amount, 2),
 						'err' => $rs->total_amount < 0 ? 'has-error' : '',
 						'hilight' => $rs->total_amount < 0 ? 'red' : '',
-						'cando' => $this->pm->can_edit ? true : false
+						'cando' => $this->pm->can_edit ? true : false,
+						'err' => $total_amount < 0 ? 'has-error' : ''
 					);
 
 					array_push($ds, $arr);
@@ -274,156 +275,42 @@ class Quotation extends PS_Controller
   public function save()
   {
     $sc = TRUE;
-    if($this->input->post('data'))
-    {
-      $this->load->helper('discount');
-      $data = json_decode($this->input->post('data'));
-      $code = $this->input->post('code');
-			$bDiscText = $this->input->post('bDiscText');
-			$bDiscAmount = $this->input->post('bDiscAmount');
-      $qt = $this->quotation_model->get($code);
-      if(!empty($data))
-      {
-				if(!empty($qt))
+		$code = $this->input->post('code');
+
+		if(!empty($code))
+		{
+			$order = $this->quotation_model->get($code);
+
+			if(!empty($order))
+			{
+				if($order->status == 0)
 				{
-					if($qt->status != 2 && $qt->is_closed == 0)
-					{
-						$this->db->trans_begin();
-						//--- delete all current details
-						if(! $this->quotation_model->delete_details($code))
-						{
-							$sc = FALSE;
-							$this->error = "ลบรายการเก่าไม่สำเร็จ";
-						}
-						else
-						{
-							foreach($data as $rs)
-			        {
-			          $qty = $rs->qty;
-			          $item = $this->products_model->get($rs->product_code);
-								if(!empty($item))
-								{
-									if($qty > 0)
-				          {
-				            //---
-				            $ds = $this->quotation_model->get_detail_by_item_code($code, $item->code);
-				            $disc = parse_discount_text($rs->discount_label, $rs->price);
-
-				            if(!empty($ds))
-				            {
-				              $new_qty = $ds->qty + $qty;
-				              $final_price = $rs->price - $disc['discount_amount'];
-				              $discount_amount = $disc['discount_amount'] * $new_qty;
-				              $total_amount = $final_price * $new_qty;
-
-				              $arr = array(
-				                'qty' => $new_qty,
-				                'discount1' => $disc['discount1'],
-				                'discount2' => $disc['discount2'],
-				                'discount3' => $disc['discount3'],
-				                'discount_amount' => $discount_amount,
-				                'total_amount' => $total_amount
-				              );
-
-				              //--- Update
-				              if(! $this->quotation_model->update_detail($ds->id, $arr))
-				              {
-				                $sc = FALSE;
-				                $this->error = "Update failed";
-				              }
-				            }
-				            else
-				            {
-				              $arr = array(
-				                'quotation_code' => $code,
-				                'style_code' => $item->style_code,
-				                'product_code' => $item->code,
-				                'product_name' => $item->name,
-												'cost' => $item->cost,
-				                'price' => $rs->price,
-				                'qty' => $qty,
-												'unit_code' => $item->unit_code,
-				                'discount1' => $disc['discount1'],
-				                'discount2' => $disc['discount2'],
-				                'discount3' => $disc['discount3'],
-				                'discount_amount' => $disc['discount_amount'] * $qty,
-				                'total_amount' => ($rs->price - $disc['discount_amount']) * $qty,
-												'count_stock' => $item->count_stock,
-				                'date_add' => $qt->date_add
-				              );
-				              //---- add
-				              if(! $this->quotation_model->add_detail($arr))
-				              {
-				                $sc = FALSE;
-				                $this->error = "Insert failed : {$item->code}";
-				              }
-				            }
-				          } //--- end if qty
-								}
-								else
-								{
-									$sc = FALSE;
-									$this->error = "รหัสสินค้าไม่ถูกต้อง : {$rs->product_code}";
-								} //--- end if item
-
-			        } //--- end foreach
-
-							//--- set document status to 1 (saved)
-							$arr = array(
-								'status' => 1
-							);
-
-							if($sc === TRUE)
-							{
-								if(! $this->quotation_model->update($code, $arr))
-								{
-									$sc = FALSE;
-									$this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
-								}
-							}
-
-
-							if($sc === TRUE)
-							{
-								$this->db->trans_commit();
-							}
-							else
-							{
-								$this->db->trans_rollback();
-							}
-						}
-
-					}
-					else
+					$arr = array('status' => 1);
+					if(!$this->quotation_model->update($code, $arr))
 					{
 						$sc = FALSE;
-						$this->error = $qt->is_closed == 0 ?"เอกสารถูกปิดไปแล้ว" : "เอกสารถูกยกเลิกไปแล้ว";
+						$this->error = "บันทึกเอกสารไม่สำเร็จ";
 					}
 				}
 				else
 				{
 					$sc = FALSE;
-					$this->error = "เลขที่เอกสารไม่ถูกต้อง";
+					$this->error = "สถานะเอกสารไม่ถูกต้อง";
 				}
-      }
-
-			if($sc === TRUE)
-			{
-				$arr = array(
-					'bDiscText' => empty($bDiscText) ? 0 : $bDiscText,
-					'bDiscAmount' => $bDiscAmount
-				);
-
-				$this->quotation_model->update($code, $arr);
 			}
-    }
-    else
-    {
-      $sc = FALSE;
-      $this->error = "ไม่พบข้อมูล";
-    }
+			else
+			{
+				$sc = FALSE;
+				$this->error = "เลขที่เอกสารไม่ถูกต้อง";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter : code";
+		}
 
-    echo $sc === TRUE ? 'success' : $this->error;
+		$this->response($sc);
   }
 
 
@@ -432,6 +319,7 @@ class Quotation extends PS_Controller
   {
     $sc = TRUE;
 		$code = $this->input->post('code');
+
     if(!empty($code))
     {
       $this->load->helper('discount');
@@ -525,10 +413,163 @@ class Quotation extends PS_Controller
     else
     {
       $sc = FALSE;
-      $this->error = "ไม่พบข้อมูล";
+      $this->error = "Missing required parameter : code";
     }
 
-    echo $sc === TRUE ? 'success' : $this->error;
+    $this->response($sc);
+  }
+
+
+
+	public function add_details()
+  {
+    $sc = TRUE;
+		$code = $this->input->post('code');
+    if(!empty($code))
+    {
+      $doc = $this->quotation_model->get($code);
+
+
+      if(!empty($doc) )
+      {
+				//---- เอกสารต้องไม่ถูกยกเลิก และ เอกสารต้องยังไม่ถูกปิด
+				if($doc->status != 2 && $doc->is_closed == 0)
+				{
+					$this->load->helper('discount');
+		      $discLabel = $this->input->post('disc');
+					$items = $this->input->post('items');
+
+					if(!empty($items))
+					{
+						$this->db->trans_begin();
+
+						foreach($items as $rd)
+						{
+							if($sc === FALSE)
+							{
+								break;
+							}
+
+							$rs = (object) $rd;
+
+							$item = $this->products_model->get($rs->product_code);
+
+							if(!empty($item))
+							{
+								if($rs->qty > 0)
+								{
+									//---- get current item if exists
+									$ds = $this->quotation_model->get_detail_by_item_code($code, $item->code);
+									//---- get discount
+			            $disc = parse_discount_text($discLabel, $item->price);
+
+									if(!empty($ds))
+			            {
+			              $new_qty = $ds->qty + $rs->qty;
+			              $final_price = $item->price - $disc['discount_amount'];
+			              $discount_amount = $disc['discount_amount'] * $new_qty;
+			              $total_amount = $final_price * $new_qty;
+
+			              $arr = array(
+			                'qty' => $new_qty,
+			                'discount1' => $disc['discount1'],
+			                'discount2' => $disc['discount2'],
+			                'discount3' => $disc['discount3'],
+			                'discount_amount' => $discount_amount,
+			                'total_amount' => $total_amount
+			              );
+
+			              //--- Update
+			              if(! $this->quotation_model->update_detail($ds->id, $arr))
+			              {
+			                $sc = FALSE;
+			                $this->error = "Update failed";
+			              }
+			            }
+			            else
+			            {
+			              $arr = array(
+			                'quotation_code' => $code,
+			                'style_code' => $item->style_code,
+			                'product_code' => $item->code,
+			                'product_name' => $item->name,
+											'cost' => $item->cost,
+			                'price' => $item->price,
+			                'qty' => $rs->qty,
+											'unit_code' => $item->unit_code,
+			                'discount1' => $disc['discount1'],
+			                'discount2' => $disc['discount2'],
+			                'discount3' => $disc['discount3'],
+			                'discount_amount' => $disc['discount_amount'] * $rs->qty,
+			                'total_amount' => ($item->price - $disc['discount_amount']) * $rs->qty,
+											'count_stock' => $item->count_stock,
+			                'date_add' => $doc->date_add
+			              );
+			              //---- add
+			              if(! $this->quotation_model->add_detail($arr))
+			              {
+			                $sc = FALSE;
+			                $this->error = "Insert failed";
+			              }
+			            }
+								}
+								else
+								{
+									$sc = FALSE;
+									$this->error = "จำนวนต้องมากกว่า 0 : {$rs->product_code}";
+								}
+							}
+							else
+							{
+								$sc = FALSE;
+								$this->error = "ไม่พบสินค้าในระบบ {$rs->product_code}";
+							}
+
+						} //--- end foreach
+
+						if($sc === TRUE)
+						{
+							$this->db->trans_commit();
+						}
+						else
+						{
+							$this->db->trans_rollback();
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "จำนวนไม่ถูกต้อง";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					if($doc->status == 2)
+					{
+						$this->error = "เอกสารถูกยกเลิกไปแล้ว";
+					}
+
+					if($doc->is_closed == 1)
+					{
+						$this->error = "เอกสารถูกปิดไปแล้ว";
+					}
+				}
+
+      }
+			else
+			{
+				$sc = FALSE;
+				$this->error = "เลขที่เอกสารไม่ถูกต้อง";
+			}
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Missing required parameter : quotation code";
+    }
+
+    $this->response($sc);
   }
 
 
@@ -538,11 +579,9 @@ class Quotation extends PS_Controller
 	{
 		$sc = TRUE;
 		$code = trim($this->input->post('code'));
-		$bDiscText = trim($this->input->post('bDiscText'));
 		$bDiscAmount = trim($this->input->post('bDiscAmount'));
 
 		$arr = array(
-			'bDiscText' => $bDiscText.'%',
 			'bDiscAmount' => $bDiscAmount
 		);
 
@@ -554,6 +593,7 @@ class Quotation extends PS_Controller
 
 		$this->response($sc);
 	}
+
 
 	public function view_detail($code)
   {
@@ -706,6 +746,76 @@ class Quotation extends PS_Controller
 
 
 
+
+	public function get_detail_table()
+	{
+		$sc = TRUE;
+		$code = trim($this->input->get('code'));
+		$order = $this->quotation_model->get($code);
+
+		$ds = array();
+
+		if(!empty($order))
+		{
+			$details = $this->quotation_model->get_details($code);
+			if(!empty($details))
+			{
+				$no = 1;
+				$total_qty = 0;
+				$total_discount = 0;
+				$total_amount = 0;
+				$cando = ($this->pm->can_add OR $this->pm->can_edit) ? TRUE : FALSE;
+				foreach($details as $rs)
+				{
+					$arr = array(
+						'id' => $rs->id,
+						'no' => $no,
+						'img' => get_product_image($rs->product_code, 'mini'),
+						'product_code' => $rs->product_code,
+						'product_name' => $rs->product_name,
+						'price' => $rs->price,
+						'qty' => $rs->qty,
+						'discount_label' => discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
+						'amount' => $rs->total_amount,
+						'cando' => $cando
+					);
+
+					array_push($ds, $arr);
+					$no++;
+					$total_qty += $rs->qty;
+					$total_discount += $rs->discount_amount;
+					$total_amount += $rs->total_amount;
+				}
+
+				$arr = array(
+					'subtotal' => TRUE,
+					'bDiscAmount' => $order->bDiscAmount,
+					'total_qty' => number($total_qty, 2),
+					'totalAfDisc' => $total_amount,
+					'totalBfDisc' => number(($total_amount + $total_discount), 2),
+					'total_discount' => number($total_discount + $order->bDiscAmount, 2),
+					'net_amount' => number($total_amount - $order->bDiscAmount, 2)
+				);
+
+				array_push($ds, $arr);
+			}
+			else
+			{
+				$arr = array('nodata' => TRUE);
+				array_push($ds, $arr);
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid parameter : code";
+		}
+
+		echo $sc === TRUE ? json_encode($ds) : $this->error;
+	}
+
+
+
 	public function update_row()
 	{
 		$sc = TRUE;
@@ -781,9 +891,26 @@ class Quotation extends PS_Controller
 		}
 
 
-		echo $sc === TRUE ? 'success' : $this->error;
+		$this->response($sc);
 	}
 
+
+
+	public function unsave_quotation()
+	{
+		$sc = TRUE;
+		$code = $this->input->post('code');
+
+		$arr = array('status' => 0);
+
+		if(! $this->quotation_model->update($code, $arr))
+		{
+			$sc = FALSE;
+			$this->error = "Update failed";
+		}
+
+		$this->response($sc);
+	}
 
 
   //---- get item price

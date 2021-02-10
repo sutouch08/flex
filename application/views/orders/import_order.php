@@ -1,5 +1,5 @@
 <div class="modal fade" id="upload-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
- <div class="modal-dialog" style="width:500px;">
+ <div class="modal-dialog" style="width:350px;">
    <div class="modal-content">
        <div class="modal-header">
        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -8,12 +8,12 @@
       <div class="modal-body">
         <form id="upload-form" name="upload-form" method="post" enctype="multipart/form-data">
         <div class="row">
-          <div class="col-sm-9">
+          <div class="col-sm-9 col-xs-8 padding-5">
             <button type="button" class="btn btn-sm btn-primary btn-block" id="show-file-name" onclick="getFile()">กรุณาเลือกไฟล์ Excel</button>
           </div>
 
-          <div class="col-sm-3">
-            <button type="button" class="btn btn-sm btn-info" onclick="uploadfile()"><i class="fa fa-cloud-upload"></i> นำเข้า</button>
+          <div class="col-sm-3 col-xs-4 padding-5">
+            <button type="button" class="btn btn-sm btn-info btn-block" onclick="uploadfile()"><i class="fa fa-cloud-upload"></i> นำเข้า</button>
           </div>
         </div>
         <input type="file" class="hide" name="uploadFile" id="uploadFile" accept=".xlsx" />

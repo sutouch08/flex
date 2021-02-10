@@ -173,6 +173,12 @@ class Return_order_model extends CI_Model
   }
 
 
+	public function unvalid_details($code)
+	{
+		return $this->db->set('valid', 0)->where('return_code', $code)->update('return_order_detail');
+	}
+
+
   //--- จำนวนรวมของสินค้าที่เคยคืนไปแล้ว ในใบกำกับนี้
   public function get_returned_qty($invoice, $product_code)
   {

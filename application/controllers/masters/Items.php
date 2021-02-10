@@ -225,14 +225,14 @@ class Items extends PS_Controller
   public function edit($code)
   {
     $item = $this->products_model->get($code);
+
     if(!empty($item))
     {
       $this->load->view('masters/product_items/items_edit_view', $item);
     }
     else
     {
-      set_error('ไม่พบข้อมูล');
-      redirect($this->home);
+      $this->error_page();
     }
   }
 
@@ -260,6 +260,8 @@ class Items extends PS_Controller
     $api = $this->input->post('is_api');
     $active = $this->input->post('active');
     $user = get_cookie('uname');
+    $tabs = $this->input->post('tabs');
+
 
     $arr = array(
       'name' => trim($this->input->post('name')),
@@ -287,6 +289,8 @@ class Items extends PS_Controller
 
     if($this->products_model->update($code, $arr))
     {
+      $this->product_tab_model->updateTabsItem($code, $tabs);
+
       set_message('Update success');
       redirect($this->home.'/edit/'.$code);
     }
@@ -724,6 +728,167 @@ class Items extends PS_Controller
 
 			return $this->product_sub_group_model->add($arr);
 		}
+
+
+	public function change_image()
+	{
+		$sc = TRUE;
+
+		if($this->input->post('code'))
+		{
+			$file = isset( $_FILES['image'] ) ? $_FILES['image'] : FALSE;
+      $code = $this->input->post('code'); //--- item code
+
+			if($file !== FALSE)
+      {
+        ;
+        if(! $this->do_upload($file, $code))
+        {
+          $sc = FALSE;
+        }
+      }
+			else
+			{
+				$sc = FALSE;
+				$this->error = "File not found";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter : code";
+		}
+
+		$this->response($sc);
+	}
+
+
+	public function do_upload($file, $code)
+	{
+		$sc = TRUE;
+    $code = urldecode($code);
+    $this->load->library('upload');
+
+		$id_image	  = $this->product_image_model->get_new_id(); //-- เอา id_image ล่าสุด มา + 1
+		$img_name 	= $id_image; //-- ตั้งชื่อรูปตาม id_image
+		$image_path = $this->config->item('image_path').'products/';
+		$use_size 	= array('mini', 'default', 'medium', 'large'); //---- ใช้ทั้งหมด 4 ขนาด
+    $image 	= new Upload($file);
+
+    if( $image->uploaded )
+    {
+      foreach($use_size as $size)
+      {
+				$imagePath = $image_path.$size.'/'; //--- แต่ละ folder
+        $img	= $this->getImageSizeProperties($size); //--- ได้ $img['prefix'] , $img['size'] กลับมา
+        $image->file_new_name_body = $img['prefix'] . $img_name; 		//--- เปลี่ยนชือ่ไฟล์ตาม prefix + id_image
+        $image->image_resize			 = TRUE;		//--- อนุญาติให้ปรับขนาด
+        $image->image_retio_fill	 = TRUE;		//--- เติกสีให้เต็มขนาดหากรูปภาพไม่ได้สัดส่วน
+        $image->file_overwrite		 = TRUE;		//--- เขียนทับไฟล์เดิมได้เลย
+        $image->auto_create_dir		 = TRUE;		//--- สร้างโฟลเดอร์อัตโนมัติ กรณีที่ไม่มีโฟลเดอร์
+        $image->image_x					   = $img['size'];		//--- ปรับขนาดแนวตั้ง
+        $image->image_y					   = $img['size'];		//--- ปรับขนาดแนวนอน
+        $image->image_background_color	= "#FFFFFF";		//---  เติมสีให้ตามี่กำหนดหากรูปภาพไม่ได้สัดส่วน
+        $image->image_convert			= 'jpg';		//--- แปลงไฟล์
+
+        $image->process($imagePath);						//--- ดำเนินการตามที่ได้ตั้งค่าไว้ข้างบน
+
+				if( ! $image->processed )	//--- ถ้าไม่สำเร็จ
+				{
+					$sc = FALSE;
+					$this->error = $image->error;
+				}
+      } //--- end foreach
+    } //--- end if
+
+    $image->clean();	//--- เคลียร์รูปภาพออกจากหน่วยความจำ
+
+		$arr = array("id"	=> $id_image);
+		$this->product_image_model->add($arr);		//--- เพิ่มข้อมูลรูปภาพลงฐานข้อมูล
+
+		//--- ผูก item image
+		$id = $this->product_image_model->get_product_image_id($code);
+
+		if(!empty($id))
+		{
+			$arr = array(
+				'id' => $id,
+				'code' => $code,
+				'id_image' => $id_image
+			);
+		}
+		else
+		{
+			$arr = array(
+				'code' => $code,
+				'id_image' => $id_image
+			);
+		}
+
+		$this->product_image_model->update_product_image($arr);
+
+		return $sc;
+	}
+
+	public function getImageSizeProperties($size)
+	{
+		$sc = array();
+		switch($size)
+		{
+			case "mini" :
+			$sc['prefix']	= "product_mini_";
+			$sc['size'] 	= 60;
+			break;
+			case "default" :
+			$sc['prefix'] 	= "product_default_";
+			$sc['size'] 	= 125;
+			break;
+			case "medium" :
+			$sc['prefix'] 	= "product_medium_";
+			$sc['size'] 	= 250;
+			break;
+			case "large" :
+			$sc['prefix'] 	= "product_large_";
+			$sc['size'] 	= 1500;
+			break;
+			default :
+			$sc['prefix'] 	= "";
+			$sc['size'] 	= 300;
+			break;
+		}//--- end switch
+		return $sc;
+	}
+
+
+	public function delete_image()
+	{
+		$sc = TRUE;
+		$code = $this->input->post('code');
+		$id_image = $this->product_image_model->get_image_id_by_code($code);
+		if(!empty($id_image))
+		{
+			//--- delete product_image
+			$rs = $this->product_image_model->delete_product_image($id_image);
+
+			if($rs)
+			{
+				delete_product_image($id_image);
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Delete image failed";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "ไม่พบ id image";
+		}
+
+		$this->response($sc);
+	}
+
 
 
   public function clear_filter()

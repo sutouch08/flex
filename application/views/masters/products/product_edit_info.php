@@ -1,4 +1,9 @@
 <?php $required = getConfig('REQUIRED_ALL_ATTRIBUTE') == 1 ? 'required' : ''; ?>
+<style>
+.lbl::before {
+	margin-right:5px !important;
+}
+</style>
 <form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/update_style"; ?>">
 <div class="row">
 	<div class="form-group">

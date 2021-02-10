@@ -91,11 +91,11 @@ $("#toDate").datepicker({
 
 
 // JavaScript Document
-function printRepay(){
+function printReceipt(){
   var code = $('#repay_code').val();
-	var center = ($(document).width() - 800) /2;
-  var target = HOME + 'print_repay/'+ code;
-  window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
+	var center = ($(document).width() - 1200) /2;
+  var target = HOME + 'print_receipt/'+ code;
+  window.open(target, "_blank", "width=1200, height=900, left="+center+", scrollbars=yes");
 }
 
 

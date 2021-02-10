@@ -69,8 +69,6 @@ $total_discount 	= 0; //--- ส่วนลดรวม
 $total_order  = 0;    //--- มูลค่าราคารวม
 
 $bill_discount = $order->bDiscAmount;
-$bill_disText =  $order->bDiscText;
-
 
 //**************  กำหนดหัวตาราง  ******************************//
 $thead	= array(
@@ -184,10 +182,9 @@ while($total_page > 0 )
   {
     $qty  = number($total_qty);
     $amount = number($total_order, 2);
-    $total_discount_amount = "- ".number(($total_discount + $bill_discount),2);
+    $total_discount_amount = number(($total_discount + $bill_discount),2);
     $net_amount = number( ($total_amount - $bill_discount), 2);
 		$baht_text = "(".baht_text($total_amount - $bill_discount).")";
-		$bDiscText = "({$bill_disText} %)";
 		$bDiscAmount = number($bill_discount,2);
     $remark = $order->remark;
   }
@@ -198,7 +195,6 @@ while($total_page > 0 )
     $total_discount_amount = "";
     $net_amount = "";
 		$baht_text = "";
-		$bDiscText = "";
 		$bDiscAmount = "";
     $remark = $order->remark;
   }
@@ -209,7 +205,7 @@ while($total_page > 0 )
 	$sub_price  = "<td class='width-60 subtotal-first-row'></td>";
 
   $sub_price .= "<td class='subtotal subtotal-first-row'>";
-  $sub_price .=  "<strong class='{$this->printer->text_color}'>ส่วนลดท้ายบิล {$bDiscText}</strong>";
+  $sub_price .=  "<strong class='{$this->printer->text_color}'>ส่วนลดท้ายบิล</strong>";
   $sub_price .= '</td>';
   $sub_price .= '<td class="subtotal subtotal-first-row text-right">';
   $sub_price .=  "<strong>{$bDiscAmount} THB</strong>";

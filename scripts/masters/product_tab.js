@@ -50,7 +50,10 @@ function getDelete(id, name){
             timer:1000
           });
 
-          $('#row-'+id).remove();
+          setTimeout(function(){
+						window.location.reload();
+					}, 1200)
+					
         }else{
           swal({
             title:'Error!',
@@ -71,27 +74,103 @@ function getSearch(){
 }
 
 
-function doExport(code){
-  load_in();
-  $.ajax({
-    url:BASE_URL + 'masters/products/export_products/'+code,
-    type:'POST',
-    cache:false,
-    success:function(rs){
-      load_out();
-      if(rs === 'success'){
-        swal({
-          title:'Success',
-          type:'success',
-          timer:1000
-        });
-      }else{
-        swal({
-          title:'Error',
-          text:rs,
-          type:'error'
-        });
-      }
-    }
-  })
+function save() {
+	var name = $('#tab_name').val();
+	if(name.length == 0) {
+		$('#tab_name').addClass('has-error');
+		return false;
+	}
+	else {
+		$('#tab_name').removeClass('has-error');
+	}
+
+	$.ajax({
+		url:HOME + 'add',
+		type:'POST',
+		cache:false,
+		data:{
+			'name' : name
+		},
+		success:function(rs) {
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+
+				setTimeout(function(){
+					addNew();
+				}, 1200);
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+			}
+		},
+		error:function(xhr, status, error) {
+			swal({
+				title:'Error!',
+				text:'Error-'+xhr.status+': '+xhr.statusText,
+				type:'error'
+			});
+		}
+	})
+}
+
+
+
+function update() {
+	var name = $('#tab_name').val();
+	var id = $('#id').val();
+
+	if(name.length == 0) {
+		$('#tab_name').addClass('has-error');
+		return false;
+	}
+	else {
+		$('#tab_name').removeClass('has-error');
+	}
+
+	$.ajax({
+		url:HOME + 'update',
+		type:'POST',
+		cache:false,
+		data:{
+			'id' : id,
+			'name' : name
+		},
+		success:function(rs) {
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+
+				setTimeout(function(){
+					getEdit(id);
+				}, 1200);
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+			}
+		},
+		error:function(xhr, status, error) {
+			swal({
+				title:'Error!',
+				text:'Error-'+xhr.status+': '+xhr.statusText,
+				type:'error'
+			});
+		}
+	})
 }

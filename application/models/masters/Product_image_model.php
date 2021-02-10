@@ -29,6 +29,30 @@ class Product_image_model extends CI_Model
   }
 
 
+	public function get_product_image_id($item_code)
+	{
+		$rs = $this->db->select('id')->where('code', $item_code)->get('image_product');
+		if($rs->num_rows() > 0)
+		{
+			return $rs->row()->id;
+		}
+
+		return NULL;
+	}
+
+
+	public function get_image_id_by_code($item_code)
+	{
+		$rs = $this->db->select('id_image')->where('code', $item_code)->get('image_product');
+		if($rs->num_rows() > 0)
+		{
+			return $rs->row()->id_image;
+		}
+
+		return NULL;
+	}
+
+
   public function get_style_images($style)
   {
     $rs = $this->db->where('style', $style)->get('images');

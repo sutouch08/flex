@@ -35,14 +35,7 @@
   			<option value="2" <?php echo is_selected(2, $status); ?>>ยกเลิก</option>
   		</select>
     </div>
-    <div class="col-sm-1 col-1-harf padding-5">
-      <label>การอนุมัติ</label>
-      <select class="form-control input-sm" name="approve" onchange="getSearch()">
-  			<option value="all">ทั้งหมด</option>
-  			<option value="0" <?php if($approve == '0'){ echo 'selected'; } ?>>รออนุมัติ</option>
-  			<option value="1" <?php echo is_selected(1, $approve); ?>>อนุมัติแล้ว</option>
-  		</select>
-    </div>
+
     <div class="col-sm-2 padding-5">
       <label>วันที่</label>
       <div class="input-daterange input-group">
@@ -77,7 +70,6 @@
           <th class="width-10 text-right">จำนวน</th>
           <th class="width-10 text-right">มลูค่า</th>
           <th class="width-5 text-center">สถานะ</th>
-          <th class="width-5 text-center">อนุมัติ</th>
           <th class=""></th>
         </tr>
       </thead>
@@ -101,16 +93,13 @@
                 <span class="blue">NC</span>
               <?php endif; ?>
             </td>
-            <td class="middle text-center">
-              <?php echo is_active($rs->is_approve); ?>
-            </td>
             <td class="middle text-right">
               <button type="button" class="btn btn-minier btn-info" onclick="viewDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
           <?php if($this->pm->can_edit && $rs->status == 0) : ?>
               <button type="button" class="btn btn-minier btn-warning" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
           <?php endif; ?>
           <?php if($this->pm->can_delete && $rs->status != 2) : ?>
-              <button type="button" class="btn btn-minier btn-danger" onclick="goDelete('<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
+              <button type="button" class="btn btn-minier btn-danger" onclick="cancle_return('<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
           <?php endif; ?>
             </td>
           </tr>

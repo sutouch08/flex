@@ -9,6 +9,7 @@ class Return_order extends PS_Controller
 	public $title = 'คืนสินค้า(ลดหนี้ขาย)';
   public $filter;
   public $error;
+
   public function __construct()
   {
     parent::__construct();
@@ -18,6 +19,7 @@ class Return_order extends PS_Controller
     $this->load->model('masters/zone_model');
     $this->load->model('masters/customers_model');
     $this->load->model('masters/products_model');
+
   }
 
 
@@ -97,7 +99,7 @@ class Return_order extends PS_Controller
         $prices = $this->input->post('price');
         $sold = $this->input->post('sold_qty');
         $discount = $this->input->post('discount');
-        $vat = getConfig('SALE_VAT_RATE'); //--- 0.07
+
         //--- drop old detail
         $this->return_order_model->drop_details($code);
 
@@ -128,19 +130,24 @@ class Return_order extends PS_Controller
 							$disc = parse_discount_text($discText, $price);
 
               $amount = $qty * ($price - $disc['discount_amount']);
-
+							$vat_amount = $amount * $pd->vat_rate;
 
               $arr = array(
                 'return_code' => $code,
                 'invoice_code' => $inv,
                 'product_code' => $item,
                 'product_name' => $pd->name,
+								'unit_code' => $pd->unit_code,
+								'unit_name' => $pd->unit_name,
                 'sold_qty' => $sold[$item][$inv],
                 'qty' => $qty,
                 'price' => $price,
                 'discount_percent' => $discText,
                 'amount' => $amount,
-                'vat_amount' => get_vat_amount($amount)
+								'vat_code' => $pd->vat_code,
+								'vat_rate' => get_zero($pd->vat_rate),
+                'vat_amount' => $vat_amount,
+								'valid' => 1
               );
 
 
@@ -210,6 +217,8 @@ class Return_order extends PS_Controller
 											'qty'   => $qty,
 											'unit_code' => $pd->unit_code,
 											'unit_name' => $pd->unit_name,
+											'vat_code' => $pd->vat_code,
+											'vat_rate' => get_zero($pd->vat_rate),
 											'discount_label'  => $discText,
 											'avgBillDiscAmount' => 0, //--- average per single item count
 											'discount_amount' => $qty * $disc['discount_amount'],
@@ -338,21 +347,104 @@ class Return_order extends PS_Controller
   {
     $sc = TRUE;
     $this->load->model('inventory/movement_model');
+		$this->load->model('account/order_credit_model');
+		$this->load->model('inventory/delivery_order_model');
+		$this->load->model('stock/stock_model');
+		$this->load->helper('discount');
     if($this->pm->can_edit)
     {
-      if($this->return_order_model->set_status($code, 0) === FALSE)
-      {
-        $sc = FALSE;
-        $message = 'ยกเลิกการบันทึกไม่สำเร็จ';
-      }
-      else
-      {
-        if($this->movement_model->drop_movement($code) === FALSE)
-        {
-          $sc = FALSE;
-          $message = 'ลบ movement ไม่สำเร็จ';
-        }
-      }
+			$doc = $this->return_order_model->get($code);
+
+			if(!empty($doc))
+			{
+				$this->db->trans_begin();
+
+	      if($this->return_order_model->set_status($code, 0) === FALSE)
+	      {
+	        $sc = FALSE;
+	        $message = 'เปลี่ยนสถานะเอกสารไม่สำเร็จ';
+	      }
+
+				if(! $this->return_order_model->unvalid_details($code))
+				{
+					$sc = FALSE;
+					$this->error = "เปลี่ยนสถานะรายการไม่สำเร็จ";
+				}
+
+				if($sc === TRUE)
+				{
+					if($this->movement_model->drop_movement($code) === FALSE)
+	        {
+	          $sc = FALSE;
+	          $message = 'ลบ movement ไม่สำเร็จ';
+	        }
+				}
+
+				$details = $this->return_order_model->get_details($code);
+
+				//----- update stock
+				if($sc === TRUE)
+				{
+					if(!empty($details))
+					{
+						foreach($details as $rs)
+						{
+							$item = $this->products_model->get($rs->product_code);
+							if(!empty($item))
+							{
+								if($item->count_stock)
+								{
+									if(! $this->stock_model->update_stock_zone($doc->zone_code, $item->code, (-1)*$rs->qty ))
+									{
+										$sc = FALSE;
+										$this->error = "ปรับยอดสต็อกไม่สำเร็จ : {$item->code}";
+									}
+								}
+							}
+							else
+							{
+								$sc = FALSE;
+								$this->error = "ไม่พบรหัสสินค้าในระบบ : {$rs->product_code}";
+							}
+						} //--- end foreach
+					}
+				}
+
+				//--- drop sold data
+				if($sc === TRUE)
+				{
+					if(! $this->delivery_order_model->drop_sold_data($code))
+					{
+						$sc = FALSE;
+						$this->error = "ลบรายการบันทึกขายไม่สำเร็จ";
+					}
+				}
+
+				//--- drop order credit
+				if($sc === TRUE)
+				{
+					if(! $this->order_credit_model->delete($code))
+					{
+						$sc = FALSE;
+						$this->error = "ลบรายการตั้งหนี้ไม่สำเร็จ";
+					}
+				}
+
+				if($sc === TRUE)
+				{
+					$this->db->trans_commit();
+				}
+				else
+				{
+					$this->db->trans_rollback();
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "เลขที่เอกสารไม่ถูกต้อง";
+			}
+
     }
     else
     {
@@ -360,7 +452,8 @@ class Return_order extends PS_Controller
       $message = 'คุณไม่มีสิทธิ์ในการยกเลิกการบันทึก';
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+
+		$this->response($sc);
   }
 
 
@@ -420,6 +513,7 @@ class Return_order extends PS_Controller
     $doc = $this->return_order_model->get($code);
     $doc->customer_name = $this->customers_model->get_name($doc->customer_code);
     $doc->zone_name = $this->zone_model->get_name($doc->zone_code);
+		$doc->warehouse_name = $this->warehouse_model->get_name($doc->warehouse_code);
 
     $details = $this->return_order_model->get_details($code);
 
@@ -671,23 +765,49 @@ class Return_order extends PS_Controller
   public function print_detail($code)
   {
     $this->load->library('printer');
-    $doc = $this->return_order_model->get($code);
-    $doc->customer_name = $this->customers_model->get_name($doc->customer_code);
-    $doc->warehouse_name = $this->warehouse_model->get_name($doc->warehouse_code);
-    $doc->zone_name = $this->zone_model->get_name($doc->zone_code);
-    $details = $this->return_order_model->get_details($code);
+		$this->load->model('address/customer_address_model');
+		$this->load->helper('address');
 
-    if(!empty($details))
-    {
-      foreach($details as $rs)
-      {
-        $rs->barcode = $this->products_model->get_barcode($rs->product_code);
-      }
-    }
-    $ds = array(
-      'doc' => $doc,
-      'details' => $details
-    );
+    $doc = $this->return_order_model->get($code);
+		$adr = $this->customer_address_model->get_customer_bill_to_address($doc->customer_code);
+		$sale = $this->customers_model->get_saleman($doc->customer_code);
+		$customer = $this->customers_model->get($doc->customer_code);
+
+		if(!empty($adr))
+		{
+			$address = array(
+				'address' => $adr->address,
+				'sub_district' => $adr->sub_district,
+				'district' => $adr->district,
+				'province' => $adr->province,
+				'postcode' => $adr->postcode
+			);
+		}
+		else
+		{
+			$address = array(
+				'address' => NULL,
+				'sub_district' => NULL,
+				'district' => NULL,
+				'province' => NULL,
+				'postcode' => NULL
+			);
+		}
+
+
+    $details = $this->return_order_model->get_details($code);
+		$use_vat = getConfig('USE_VAT') == 1 ? TRUE : FALSE;
+
+		$ds = array(
+			'title' => ($use_vat ? 'ใบลดหนี้/ใบกำกับภาษี' : 'ใบคืนสินค้า'),
+			'order' => $doc,
+			'adr' => $adr,
+			'address' => parse_address($address), //--- address_helper
+			'details' => $details,
+			'saleman' => $sale,
+			'customer' => $customer,
+			'use_vat' => $use_vat
+		);
 
     $this->load->view('print/print_return', $ds);
   }
@@ -697,26 +817,119 @@ class Return_order extends PS_Controller
   public function cancle_return($code)
   {
     $sc = TRUE;
+    $this->load->model('inventory/movement_model');
+		$this->load->model('account/order_credit_model');
+		$this->load->model('inventory/delivery_order_model');
+		$this->load->model('stock/stock_model');
+		$this->load->helper('discount');
+
     if($this->pm->can_delete)
     {
-      $this->db->trans_start();
-      $this->return_order_model->set_status($code, 2);
-      $this->return_order_model->cancle_details($code);
-      $this->db->trans_complete();
+			$doc = $this->return_order_model->get($code);
 
-      if($this->db->trans_status() === FALSE)
-      {
-        $sc = FALSE;
-        $message = $this->db->error();
-      }
+			if(!empty($doc) && $doc->status != 2)
+			{
+				$this->db->trans_begin();
+
+	      if($this->return_order_model->set_status($code, 2) === FALSE)
+	      {
+	        $sc = FALSE;
+	        $message = 'ยกเลิกเอกสารไม่สำเร็จ';
+	      }
+
+				if($sc === TRUE)
+				{
+					if($this->movement_model->drop_movement($code) === FALSE)
+	        {
+	          $sc = FALSE;
+	          $message = 'ลบ movement ไม่สำเร็จ';
+	        }
+				}
+
+				$details = $this->return_order_model->get_details($code);
+
+				//----- update stock
+				if($sc === TRUE)
+				{
+					if(!empty($details))
+					{
+						foreach($details as $rs)
+						{
+							$item = $this->products_model->get($rs->product_code);
+							if(!empty($item))
+							{
+								if($item->count_stock)
+								{
+									if(! $this->stock_model->update_stock_zone($doc->zone_code, $item->code, (-1)*$rs->qty ))
+									{
+										$sc = FALSE;
+										$this->error = "ปรับยอดสต็อกไม่สำเร็จ : {$item->code}";
+									}
+								}
+							}
+							else
+							{
+								$sc = FALSE;
+								$this->error = "ไม่พบรหัสสินค้าในระบบ : {$rs->product_code}";
+							}
+						} //--- end foreach
+					}
+				}
+
+				//--- drop sold data
+				if($sc === TRUE)
+				{
+					if(! $this->delivery_order_model->drop_sold_data($code))
+					{
+						$sc = FALSE;
+						$this->error = "ลบรายการบันทึกขายไม่สำเร็จ";
+					}
+				}
+
+				//--- drop order credit
+				if($sc === TRUE)
+				{
+					if(! $this->order_credit_model->delete($code))
+					{
+						$sc = FALSE;
+						$this->error = "ลบรายการตั้งหนี้ไม่สำเร็จ";
+					}
+				}
+
+
+        if($sc === TRUE)
+        {
+          if(! $this->return_order_model->cancle_details($code))
+          {
+            $sc = FALSE;
+            $this->error = "ยกเลิกรายการไม่สำเร็จ";
+          }
+        }
+
+				if($sc === TRUE)
+				{
+					$this->db->trans_commit();
+				}
+				else
+				{
+					$this->db->trans_rollback();
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "เลขที่เอกสารไม่ถูกต้อง";
+			}
+
     }
     else
     {
       $sc = FALSE;
-      $message = 'คุณไม่มีสิทธิ์ในการยกเลิกเอกสาร';
+      $message = 'Missing Permission';
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+
+		$this->response($sc);
   }
 
 

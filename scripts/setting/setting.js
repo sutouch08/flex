@@ -110,6 +110,80 @@ function toggleStrictDue(option)
 }
 
 
+//---- เลือกใช้วันที่ในการบันทึกขาย D = Document date, B = Bill date
+function toggleSoldDate(option)
+{
+	$('#order-sold-date').val(option);
+	if(option === 'D') {
+		$('#btn-doc-date').addClass('btn-success');
+		$('#btn-bill-date').removeClass('btn-success');
+		return;
+	}
+
+	if(option === 'B') {
+		$('#btn-bill-date').addClass('btn-success');
+		$('#btn-doc-date').removeClass('btn-success');
+		return;
+	}
+}
+
+
+
+//----
+function toggleOrderGrid(option)
+{
+	$('#use-order-grid').val(option);
+	if(option == 1) {
+		$('#btn-grid').addClass('btn-success');
+		$('#btn-table').removeClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-table').addClass('btn-success');
+		$('#btn-grid').removeClass('btn-success');
+		return;
+	}
+}
+
+
+//----
+function toggleProductTab(option)
+{
+	$('#use-product-tab').val(option);
+	if(option == 1) {
+		$('#btn-tab-yes').addClass('btn-success');
+		$('#btn-tab-no').removeClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-tab-no').addClass('btn-success');
+		$('#btn-tab-yes').removeClass('btn-success');
+		return;
+	}
+}
+
+
+
+function toggleProductTabType(option)
+{
+	$('#product-tab-type').val(option);
+
+	if(option == 'style') {
+		$('#btn-tab-style').addClass('btn-success');
+		$('#btn-tab-item').removeClass('btn-success');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-tab-item').addClass('btn-success');
+		$('#btn-tab-style').removeClass('btn-success');
+		return;
+	}
+}
+
+
 
 //---- ไม่ขายสินค้าให้ลูกค้าที่มียอดค้างเกินกำหนด
 function toggleAuz(option)

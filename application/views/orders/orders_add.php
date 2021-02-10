@@ -40,11 +40,6 @@
   </div>
 
 	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-    <label>ใบเสนอราคา</label>
-		<input type="text" class="form-control input-sm" name="qt_no" id="qt_no" value="" />
-  </div>
-
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     <label>ช่องทางขาย</label>
 		<select class="form-control input-sm" name="channels" required>
 			<option value="">ทั้งหมด</option>
@@ -72,7 +67,7 @@
       <?php echo select_sender_list(); ?>
     </select>
   </div>
-  <div class="col-sm-4  col-4-harf col-xs-12 padding-5">
+  <div class="col-sm-6 col-xs-12 padding-5">
     <label>หมายเหตุ</label>
     <input type="text" class="form-control input-sm" name="remark" id="remark" value="">
   </div>

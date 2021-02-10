@@ -521,9 +521,9 @@ class Printer
 				$footer .="<span style='font-size:{$this->font_size}px; width:100%; height:".$row1."mm; text-align:center;'>".$value[0]."</span>";
 				$footer .="<div style='font-size:{$this->font_size}px; width:100%; height:".($this->footer_row - 1)* $this->row_height."mm; text-align:center; padding-left:10px; padding-right:10px; '>";
 				$footer .="<span style='font-size:{$this->font_size}px; width:100%; height: ".$row2."mm; text-align:center;font-size:8px; float:left;'>".$value[1]."</span>";
-				$footer .="<span style='font-size:{$this->font_size}px; width:100%; height: ".$row3."mm; text-align:center; padding-left:5px; padding-right:5px; border-bottom:dotted 1px #333; float:left; padding:10px;'></span>";
+				$footer .="<span style='font-size:{$this->font_size}px; width:100%; height: ".$row3."mm; text-align:center; padding-left:5px; padding-right:5px; ".(is_null($value[1]) ? "" : "border-bottom:dotted 1px #333;")." float:left; padding:10px;'></span>";
 				$footer .="<span style='font-size:{$this->font_size}px; width:20%; height: ".$row4."mm; text-align:right; vertical-align:bottom; float:left; padding-top: 25px;'>".$value[2]."</span>";
-				$footer .="<span style='font-size:{$this->font_size}px; width:70%; height: ".$row4."mm; text-align:left; float:left; padding-top: 10px; border-bottom:dotted 1px #333;'></span>";
+				$footer .="<span style='font-size:{$this->font_size}px; width:70%; height: ".$row4."mm; text-align:left; float:left; padding-top: 10px;".(is_null($value[2]) ? "" : " border-bottom:dotted 1px #333;")."'></span>";
 				$footer .="</div>";
 				$footer .="</div>";
 			}

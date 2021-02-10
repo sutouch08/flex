@@ -259,6 +259,13 @@ class Delivery_order_model extends CI_Model
 
 			return $rs->row()->qty;
 		}
+
+
+
+		public function drop_sold_data($code)
+		{
+			return $this->db->where('reference', $code)->delete('order_sold');
+		}
 }
 
  ?>

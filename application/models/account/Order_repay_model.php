@@ -278,6 +278,45 @@ class Order_repay_model extends CI_Model
 
 
 
+	public function get_order_invoice(array $ds = array())
+	{
+		//--- ds is array of ordercode
+		if(!empty($ds))
+		{
+			$this->db->distinct();
+			$rs = $this->db
+			->select('invoice_code')
+			->where('invoice_code IS NOT NULL', NULL, FALSE)
+			->where_in('code', $ds)
+			->group_by('invoice_code')
+			->get('orders');
+
+			if($rs->num_rows() > 0)
+			{
+				return $rs->result();
+			}
+		}
+
+		return NULL;
+	}
+
+
+	public function get_order_date($code)
+	{
+		$rs = $this->db
+		->select('date_add')
+		->where('code', $code)
+		->get('orders');
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row()->date_add;
+		}
+
+		return NULL;
+	}
+
+
 
 } //--- end class
 ?>

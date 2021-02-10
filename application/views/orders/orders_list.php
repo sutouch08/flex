@@ -1,52 +1,52 @@
 <?php $this->load->view('include/header'); ?>
 <?php $can_upload = getConfig('ALLOW_UPLOAD_ORDER'); ?>
 <div class="row">
-	<div class="col-sm-6 col-xs-8 first">
+	<div class="col-sm-6 col-xs-4 padding-5">
     <h3 class="title">
       <?php echo $this->title; ?>
     </h3>
     </div>
-    <div class="col-sm-6 col-xs-4 last">
+    <div class="col-sm-6 col-xs-8 padding-5">
     	<p class="pull-right top-p">
       <?php if($this->pm->can_add) : ?>
 				<?php if($can_upload == 1) : ?>
-					<button type="button" class="btn btn-sm btn-purple" onclick="getUploadFile()">นำเข้าออเดอร์</button>
+					<button type="button" class="btn btn-xs btn-purple" onclick="getUploadFile()">นำเข้าออเดอร์</button>
 				<?php endif;?>
-        <button type="button" class="btn btn-sm btn-success" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
+        <button type="button" class="btn btn-xs btn-success" onclick="addNew()"><i class="fa fa-plus"></i> เพิมใหม่</button>
       <?php endif; ?>
 
       </p>
     </div>
 </div><!-- End Row -->
-<hr class="first last"/>
+<hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-2 padding-5 first">
+  <div class="col-sm-2 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-sm-2 padding-5">
+  <div class="col-sm-2 col-xs-6 padding-5">
     <label>ลูกค้า</label>
     <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-sm-2 col-xs-6 padding-5">
     <label>พนักงาน</label>
     <input type="text" class="form-control input-sm search" name="user" value="<?php echo $user; ?>" />
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-sm-2 col-xs-6 padding-5">
     <label>เลขที่อ้างอิง</label>
 		<input type="text" class="form-control input-sm search" name="reference" value="<?php echo $reference; ?>" />
   </div>
 
-	<div class="col-sm-2 padding-5">
+	<div class="col-sm-2 col-xs-6 padding-5">
     <label>เลขที่จัดส่ง</label>
 		<input type="text" class="form-control input-sm search" name="shipCode" value="<?php echo $ship_code; ?>" />
   </div>
 
-	<div class="col-sm-2 padding-5 last">
+	<div class="col-sm-2 col-xs-6 padding-5">
     <label>ช่องทางการขาย</label>
 		<select class="form-control input-sm" name="channels" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
@@ -54,7 +54,7 @@
 		</select>
   </div>
 
-	<div class="col-sm-2 padding-5 first">
+	<div class="col-sm-2 col-xs-6 padding-5">
     <label>ช่องทางการชำระเงิน</label>
 		<select class="form-control input-sm" name="payment" onchange="getSearch()">
 			<option value="">ทั้งหมด</option>
@@ -90,44 +90,20 @@
 </div>
 
 <div class="row margin-top-10">
-	<div class="col-sm-1 padding-5 first">
-		<button type="button" id="btn-state-1" class="btn btn-sm btn-block <?php echo $btn['state_1']; ?>" onclick="toggleState(1)">รอดำเนินการ</button>
+	<div class="col-sm-12 col-xs-12 padding-5">
+		<button type="button" id="btn-state-1" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_1']; ?>" onclick="toggleState(1)">รอดำเนินการ</button>
+		<button type="button" id="btn-state-2" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_2']; ?>" onclick="toggleState(2)">รอชำระเงิน</button>
+		<button type="button" id="btn-state-3" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_3']; ?>" onclick="toggleState(3)">รอจัด</button>
+		<button type="button" id="btn-state-4" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_4']; ?>" onclick="toggleState(4)">กำลังจัด</button>
+		<button type="button" id="btn-state-5" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_5']; ?>" onclick="toggleState(5)">รอตรวจ</button>
+		<button type="button" id="btn-state-6" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_6']; ?>" onclick="toggleState(6)">กำลังตรวจ</button>
+		<button type="button" id="btn-state-7" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_7']; ?>" onclick="toggleState(7)">รอเปิดบิล</button>
+		<button type="button" id="btn-state-8" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_8']; ?>" onclick="toggleState(8)">เปิดบิลแล้ว</button>
+		<button type="button" id="btn-state-9" class="btn btn-sm margin-bottom-5 <?php echo $btn['state_9']; ?>" onclick="toggleState(9)">ยกเลิก</button>
+		<button type="button" id="btn-not-save" class="btn btn-sm margin-bottom-5 <?php echo $btn['not_save']; ?>" onclick="toggleNotSave()">ไม่บันทึก</button>
+		<button type="button" id="btn-expire" class="btn btn-sm margin-bottom-5 <?php echo $btn['is_expire']; ?>" onclick="toggleIsExpire()">หมดอายุ</button>
+		<button type="button" id="btn-only-me" class="btn btn-sm margin-bottom-5 <?php echo $btn['only_me']; ?>" onclick="toggleOnlyMe()">เฉพาะฉัน</button>
 	</div>
-	<div class="col-sm-1 padding-5">
-		<button type="button" id="btn-state-2" class="btn btn-sm btn-block <?php echo $btn['state_2']; ?>" onclick="toggleState(2)">รอชำระเงิน</button>
-	</div>
-	<div class="col-sm-1 padding-5">
-		<button type="button" id="btn-state-3" class="btn btn-sm btn-block <?php echo $btn['state_3']; ?>" onclick="toggleState(3)">รอจัด</button>
-	</div>
-	<div class="col-sm-1 padding-5">
-		<button type="button" id="btn-state-4" class="btn btn-sm btn-block <?php echo $btn['state_4']; ?>" onclick="toggleState(4)">กำลังจัด</button>
-	</div>
-	<div class="col-sm-1 padding-5">
-		<button type="button" id="btn-state-5" class="btn btn-sm btn-block <?php echo $btn['state_5']; ?>" onclick="toggleState(5)">รอตรวจ</button>
-	</div>
-	<div class="col-sm-1 padding-5">
-		<button type="button" id="btn-state-6" class="btn btn-sm btn-block <?php echo $btn['state_6']; ?>" onclick="toggleState(6)">กำลังตรวจ</button>
-	</div>
-	<div class="col-sm-1 padding-5">
-		<button type="button" id="btn-state-7" class="btn btn-sm btn-block <?php echo $btn['state_7']; ?>" onclick="toggleState(7)">รอเปิดบิล</button>
-	</div>
-	<div class="col-sm-1 padding-5">
-		<button type="button" id="btn-state-8" class="btn btn-sm btn-block <?php echo $btn['state_8']; ?>" onclick="toggleState(8)">เปิดบิลแล้ว</button>
-	</div>
-	<div class="col-sm-1 padding-5">
-		<button type="button" id="btn-state-9" class="btn btn-sm btn-block <?php echo $btn['state_9']; ?>" onclick="toggleState(9)">ยกเลิก</button>
-	</div>
-
-	<div class="col-sm-1 padding-5">
-		<button type="button" id="btn-not-save" class="btn btn-sm btn-block <?php echo $btn['not_save']; ?>" onclick="toggleNotSave()">ไม่บันทึก</button>
-	</div>
-	<div class="col-sm-1 padding-5">
-		<button type="button" id="btn-expire" class="btn btn-sm btn-block <?php echo $btn['is_expire']; ?>" onclick="toggleIsExpire()">หมดอายุ</button>
-	</div>
-	<div class="col-sm-1 padding-5 last">
-		<button type="button" id="btn-only-me" class="btn btn-sm btn-block <?php echo $btn['only_me']; ?>" onclick="toggleOnlyMe()">เฉพาะฉัน</button>
-	</div>
-
 </div>
 
 <input type="hidden" name="state_1" id="state_1" value="<?php echo $state[1]; ?>" />
@@ -145,14 +121,14 @@
 
 <input type="hidden" name="order_by" id="order_by" value="<?php echo $order_by; ?>">
 <input type="hidden" name="sort_by" id="sort_by" value="<?php echo $sort_by; ?>">
-<hr class="margin-top-15">
+<hr class="padding-5">
 </form>
 <?php echo $this->pagination->create_links(); ?>
 <?php $sort_date = $order_by === 'date_add' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''; ?>
 <?php $sort_code = $order_by === 'code' ? ($sort_by === 'DESC' ? 'sorting_desc' : 'sorting_asc') : ''; ?>
 
 <div class="row">
-	<div class="col-sm-12 table-responsive">
+	<div class="col-sm-12 col-xs-6 padding-5 table-responsive">
 		<table class="table table-striped table-bordered table-hover dataTable">
 			<thead>
 				<tr>

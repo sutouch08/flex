@@ -1,7 +1,7 @@
 // JavaScript Document
 var HOME = BASE_URL + 'inventory/return_order/';
 
-function goDelete(code){
+function cancle_return(code){
 	swal({
 		title: "คุณแน่ใจ ?",
 		text: "ต้องการยกเลิก '"+code+"' หรือไม่ ?",

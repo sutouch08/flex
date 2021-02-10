@@ -1111,6 +1111,12 @@ mark,
   background-color: #fcf8e3;
   padding: .2em;
 }
+.text-top {
+	vertical-align: top;
+}
+.text-bottom {
+	vertical-align: bottom;
+}
 .text-left {
   text-align: left;
 }

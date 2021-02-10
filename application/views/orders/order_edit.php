@@ -17,9 +17,9 @@
 				<?php if(($this->pm->can_add OR $this->pm->can_edit) && $order->status == 1) : ?>
 				<button type="button" class="btn btn-sm btn-grey" onClick="inputDeliveryNo()"><i class="fa fa-truck"></i> บันทึกการจัดส่ง</button>
 				<?php endif; ?>
-				<?php if($order->is_term == 0) : ?>
+
 				<button type="button" class="btn btn-sm btn-purple" onclick="getSummary()"><i class="fa fa-bolt"></i> สรุปข้อมูล</button>
-				<?php endif; ?>
+				
 				<button type="button" class="btn btn-sm btn-default" onclick="printOrderSheet()"><i class="fa fa-print"></i> พิมพ์</button>
 				<!--
 				<?php if($this->pm->can_delete && $order->never_expire == 0) : ?>

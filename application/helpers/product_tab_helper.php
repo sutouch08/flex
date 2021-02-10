@@ -402,45 +402,65 @@ function productTabsTree($style_code = '', $script = TRUE)
 	$parent = $cs->product_tab_model->getParentTabsId($style_code);
 
 	$sc	= '<ul class="tree">';
-	$sc 	.= '<li>';
-	$sc 	.= '<i class="fa fa-minus-square-o" id="catbox-0" onClick="toggleTree(0)"></i>';
-	$sc 	.= '<label class="padding-10"> TOP LEVEL </label>';
-	$sc 	.= '<ul id="catchild-0">';
-	$qs = $cs->db->query("SELECT * FROM product_tab WHERE id_parent = 0");
-	$i = 1;
-	if($qs->num_rows() > 0)
-	{
-		foreach( $qs->result() as $rs )
-		{
-			$is_checked = isset( $se[$rs->id] ) ? 'checked' : '';
-			$sc .= '<li class="'. ($i == 1 ? '' : 'margin-top-15').'">';
-			$i++;
 
-			$ex = isset( $parent[$rs->id] ) ? '' : 'hide';
-			$ep = isset( $parent[$rs->id] ) ? 'minus' : 'plus';
-			//----- Next Level
-			if( hasChild($rs->id) === TRUE )
+	$is_checked = isset($se[0]) ? 'checked' : '';
+
+	$sc .= '<li>';
+
+	$ex = isset($parent[0]) ? '' : 'hide';
+	$ep = isset($parent[0]) ? 'minus' : 'plus';
+
+	if( hasChild(0) === TRUE)
+	{
+		$sc .= '<i class="fa fa-minus-square-o" id="catbox-0" onClick="toggleTree(0)"></i>';
+		$sc .= '<label class="padding-10">';
+		$sc .= '<input type="checkbox" class="ace margin-right-10" name="tabs[]" value="0" '. $is_checked .' />';
+		$sc .= '<span class="lbl">TOP LEVEL</span></label>';
+		$sc .= '<ul id="catchild-0">';
+		$qs = $cs->db->query("SELECT * FROM product_tab WHERE id_parent = 0");
+		$i = 1;
+		if($qs->num_rows() > 0)
+		{
+			foreach( $qs->result() as $rs )
 			{
-				$sc .= '<i class="fa fa-'.$ep.'-square-o" id="catbox-'.$rs->id.'" onClick="toggleTree('.$rs->id.')"></i>';
-				$sc .= '<label class="padding-10">
-									<input type="checkbox" class="ace margin-right-10" name="tabs[]" value="'.$rs->id.'" '. $is_checked .' />
-									<span class="lbl">'.$rs->name.'</span></label>';
-				$sc .= '<ul id="catchild-'.$rs->id.'" class="'.$ex.'">';
-				$sc .= productTabChild($rs->id, $style_code, $parent, $se) ;
-				$sc .= '</ul>';
+				$is_checked = isset( $se[$rs->id] ) ? 'checked' : '';
+				$sc .= '<li class="'. ($i == 1 ? '' : 'margin-top-15').'">';
+				$i++;
+
+				$ex = isset( $parent[$rs->id] ) ? '' : 'hide';
+				$ep = isset( $parent[$rs->id] ) ? 'minus' : 'plus';
+				//----- Next Level
+				if( hasChild($rs->id) === TRUE )
+				{
+					$sc .= '<i class="fa fa-'.$ep.'-square-o" id="catbox-'.$rs->id.'" onClick="toggleTree('.$rs->id.')"></i>';
+					$sc .= '<label class="padding-10">
+										<input type="checkbox" class="ace margin-right-10" name="tabs[]" value="'.$rs->id.'" '. $is_checked .' />
+										<span class="lbl">'.$rs->name.'</span></label>';
+					$sc .= '<ul id="catchild-'.$rs->id.'" class="'.$ex.'">';
+					$sc .= productTabChild($rs->id, $style_code, $parent, $se) ;
+					$sc .= '</ul>';
+				}
+				else
+				{
+					$sc .= '<label class="padding-10">
+										<input type="checkbox" class="ace margin-right-10" name="tabs[]" value="'.$rs->id.'" '. $is_checked .' />
+										<span class="lbl">'.$rs->name.'</span></label>';
+				}//---- has sub cate
+				$sc .= '</li>';
 			}
-			else
-			{
-				$sc .= '<label class="padding-10">
-									<input type="checkbox" class="ace margin-right-10" name="tabs[]" value="'.$rs->id.'" '. $is_checked .' />
-									<span class="lbl">'.$rs->name.'</span></label>';
-			}//---- has sub cate
-			$sc .= '</li>';
+
+			$sc 	.= '</ul></li>';
 		}
 	}
+	else
+	{
+			$sc .= '<i class="fa fa-minus-square-o" id="catbox-0" onClick="toggleTree(0)"></i>';
+			$sc .= '<label class="padding-10"> TOP LEVEL </label>';
+			$sc .= '</li>';
+	}
 
-	$sc 	.= '</ul></li>';
 	$sc	.= '</ul>';
+
 	if( $script === TRUE)
 	{
 		$sc .= '<script>';
@@ -503,14 +523,162 @@ function productTabChild($id_parent, $style_code, $parent, $se )
 
 
 
-function isInTab($style_code, $id_tab)
+function itemTabChild($id_parent, $item_code, $parent, $se )
 {
+	$sc = '';
+	$ci =& get_instance();
+	$qs = $ci->db->query("SELECT * FROM product_tab WHERE id_parent = ".$id_parent);
+	if( $qs->num_rows() > 0 )
+	{
+
+		foreach( $qs->result() as $rs)
+		{
+				$sc .= '<li>';
+				//----- Next Level
+				$ex = isset( $parent[$rs->id] ) ? '' : 'hide';
+				$ep = isset( $parent[$rs->id] ) ? 'minus' : 'plus';
+				$is_checked = isset( $se[$rs->id] ) ? 'checked' : '';
+			if( hasChild($rs->id) === TRUE )
+			{
+				$sc .= '<i class="fa fa-'.$ep.'-square-o" id="catbox-'.$rs->id.'" onClick="toggleTree('.$rs->id.')"></i>';
+				$sc .= '<label class="padding-10">
+									<input type="checkbox" class="ace" name="tabs[]" value="'.$rs->id.'" '. $is_checked .' />
+									<span class="lbl margin-right-10">' .$rs->name. '</span></label>';
+				$sc .= '<ul id="catchild-'.$rs->id.'" class="'.$ex.'">';
+				$sc .= itemTabChild($rs->id, $item_code, $parent, $se) ;
+				$sc .= '</ul>';
+			}
+			else
+			{
+				$sc .= '<label class="padding-10">
+				<input type="checkbox" class="ace margin-right-10" name="tabs[]" value="'.$rs->id.'" '. $is_checked .' />
+				<span class="lbl">' .$rs->name. '</span>
+				</label>';
+			}//---- has sub cate
+			$sc .= '</li>';
+		}
+	}
+	return $sc;
+}
+
+
+
+function isInTab($code, $id_tab)
+{
+	$type = getConfig('PRODUCT_TAB_TYPE');
 	$sc = FALSE;
 	$ci =& get_instance();
-	$qs = $ci->db->query("SELECT * FROM product_tab_style WHERE style_code = ".$style_code." AND id_tab = ".$id_tab);
+
+	if($type === 'item')
+	{
+		$qs = $ci->db->query("SELECT * FROM product_tab_item WHERE item_code = '{$code}' AND id_tab = {$id_tab}");
+	}
+	else
+	{
+		$qs = $ci->db->query("SELECT * FROM product_tab_style WHERE style_code = {$code} AND id_tab = {$id_tab}");
+	}
+
 	if( $qs->num_rows() > 0 )
 	{
 		$sc = TRUE;
+	}
+	return $sc;
+}
+
+
+
+
+
+function itemTabsTree($code = '', $script = TRUE)
+{
+	$cs =& get_instance();
+	$cs->load->model('masters/product_tab_model');
+
+	//----- รายการที่ติ๊ก
+	$se = $cs->product_tab_model->getItemTabsId($code);
+
+	//------- รายการที่ต้อง expan
+	$parent = $cs->product_tab_model->getParentItemTabsId($code);
+
+	$sc	= '<ul class="tree">';
+
+	$is_checked = isset($se[0]) ? 'checked' : '';
+
+	$sc .= '<li>';
+
+	$ex = isset($parent[0]) ? '' : 'hide';
+	$ep = isset($parent[0]) ? 'minus' : 'plus';
+
+	if( hasChild(0) === TRUE)
+	{
+		$sc .= '<i class="fa fa-minus-square-o" id="catbox-0" onClick="toggleTree(0)"></i>';
+		$sc .= '<label class="padding-10">';
+		$sc .= '<input type="checkbox" class="ace margin-right-10" name="tabs[]" value="0" '. $is_checked .' />';
+		$sc .= '<span class="lbl">TOP LEVEL</span></label>';
+		$sc .= '<ul id="catchild-0">';
+
+		$qs = $cs->db->query("SELECT * FROM product_tab WHERE id_parent = 0");
+
+		$i = 1;
+		if($qs->num_rows() > 0)
+		{
+			foreach( $qs->result() as $rs )
+			{
+				$is_checked = isset( $se[$rs->id] ) ? 'checked' : '';
+				$sc .= '<li class="'. ($i == 1 ? '' : 'margin-top-15').'">';
+				$i++;
+
+				$ex = isset( $parent[$rs->id] ) ? '' : 'hide';
+				$ep = isset( $parent[$rs->id] ) ? 'minus' : 'plus';
+				//----- Next Level
+				if( hasChild($rs->id) === TRUE )
+				{
+					$sc .= '<i class="fa fa-'.$ep.'-square-o" id="catbox-'.$rs->id.'" onClick="toggleTree('.$rs->id.')"></i>';
+					$sc .= '<label class="padding-10">
+										<input type="checkbox" class="ace margin-right-10" name="tabs[]" value="'.$rs->id.'" '. $is_checked .' />
+										<span class="lbl">'.$rs->name.'</span></label>';
+					$sc .= '<ul id="catchild-'.$rs->id.'" class="'.$ex.'">';
+					$sc .= itemTabChild($rs->id, $code, $parent, $se) ;
+					$sc .= '</ul>';
+				}
+				else
+				{
+					$sc .= '<label class="padding-10">
+										<input type="checkbox" class="ace margin-right-10" name="tabs[]" value="'.$rs->id.'" '. $is_checked .' />
+										<span class="lbl">'.$rs->name.'</span></label>';
+				}//---- has sub cate
+				$sc .= '</li>';
+			}
+		}
+
+		$sc 	.= '</ul></li>';
+	}
+	else
+	{
+		$sc .= '<i class="fa fa-minus-square-o" id="catbox-0" onClick="toggleTree(0)"></i>';
+		$sc .= '<label class="padding-10"> TOP LEVEL </label>';
+		$sc .= '</li>';
+	}
+
+	$sc	.= '</ul>';
+
+	if( $script === TRUE)
+	{
+		$sc .= '<script>';
+		$sc .= 'function toggleTree(id){';
+		$sc .= 'var ul 	= $("#catchild-"+id);';
+		$sc .= 'var rs 	= ul.hasClass("hide");';
+		$sc .= 'if( rs == true){';
+		$sc .= 'ul.removeClass("hide");';
+		$sc .= '$("#catbox-"+id).removeClass("fa-plus-square-o");';
+		$sc .= '$("#catbox-"+id).addClass("fa-minus-square-o");';
+		$sc .= '}else	{';
+		$sc .= 'ul.addClass("hide");';
+		$sc .= '$("#catbox-"+id).removeClass("fa-minus-square-o");';
+		$sc .= '$("#catbox-"+id).addClass("fa-plus-square-o");';
+		$sc .= '} ';
+		$sc .= '}';
+		$sc .= '</script>';
 	}
 	return $sc;
 }
