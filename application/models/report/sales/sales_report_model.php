@@ -94,5 +94,38 @@ class Sales_report_model extends CI_Model
   }
 
 
+	//--- รายงานวิเคราะห์ขายแบบละเอีด
+	public function get_sold_details($ds = array())
+	{
+		if(!empty($ds))
+		{
+			if($ds['role'] != 'all')
+			{
+				$this->db->where('role', $ds['role']);
+			}
+			else
+			{
+				$this->db->where_in('role', array('S', 'M'));
+			}
+
+			$this->db
+			->where('date_add >=', $ds['fromDate'])
+			->where('date_add <=', $ds['toDate'])
+			->order_by('date_add', 'ASC')
+			->order_by('reference', 'ASC')
+			->order_by('is_count', 'DESC');
+
+			$rs = $this->db->get('order_sold');
+
+			if($rs->num_rows() > 0)
+			{
+				return $rs->result();
+			}
+		}
+
+		return NULL;
+	}
+
+
 } //--- end class
 ?>

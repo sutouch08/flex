@@ -28,17 +28,19 @@ class Order_sold_details extends PS_Controller
     $fromDate = $this->input->post('fromDate');
     $toDate = $this->input->post('toDate');
 
+		$token = $this->input->post('token');
+
     //---  Report title
     $report_title = 'รายงานวิเคราะห์ขายแบบละเอียด';
     $date_title = 'วันที่ : '.thai_date($fromDate, FALSE, '/').' - '.thai_date($toDate, FALSE, '/');
-    $role_title = 'ประเภท : '.($role == 'all' ? 'ขาย, ฝากขาย' : ($role == 'S' ? 'เฉพาะขาย' : 'เฉพาะฝากขาย');
+    $role_title = 'ประเภท : '.($role == 'all' ? 'ขาย, ฝากขาย' : ($role == 'S' ? 'เฉพาะขาย' : 'เฉพาะฝากขาย'));
 
 
     //--- load excel library
     $this->load->library('excel');
 
     $this->excel->setActiveSheetIndex(0);
-    $this->excel->getActiveSheet()->setTitle('Sales By Customer Show Items');
+    $this->excel->getActiveSheet()->setTitle('Order sales details');
 
     //--- set report title header
     $this->excel->getActiveSheet()->setCellValue('A1', $report_title);
@@ -47,83 +49,103 @@ class Order_sold_details extends PS_Controller
 
 		$row = 4;
 		//--------- Report Table header
-		$excel->getActiveSheet()->setCellValue("A{$row}", 'date');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'reference');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'role');
-		$excel->getActiveSheet()->setCellValue("C{$row}", 'payment');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'channels');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'model');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'item code');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'item name');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'color');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'size');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'item group');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'item category');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'item kind');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'item type');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'brand');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'year');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'cost (ex)');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'cost (inc)');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'price (ex)');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'price (inc)');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'qty');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'discount item');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'bill discount');
-		$excel->getActiveSheet()->setCellValue("B{$row}", 'role');
-
+		$this->excel->getActiveSheet()->setCellValue("A{$row}", 'date');
+		$this->excel->getActiveSheet()->setCellValue("B{$row}", 'reference');
+		$this->excel->getActiveSheet()->setCellValue("C{$row}", 'item code');
+		$this->excel->getActiveSheet()->setCellValue("D{$row}", 'item name');
+		$this->excel->getActiveSheet()->setCellValue("E{$row}", 'color');
+		$this->excel->getActiveSheet()->setCellValue("F{$row}", 'size');
+		$this->excel->getActiveSheet()->setCellValue("G{$row}", 'model');
+		$this->excel->getActiveSheet()->setCellValue("H{$row}", 'item group');
+		$this->excel->getActiveSheet()->setCellValue("I{$row}", 'item category');
+		$this->excel->getActiveSheet()->setCellValue("J{$row}", 'item kind');
+		$this->excel->getActiveSheet()->setCellValue("K{$row}", 'item type');
+		$this->excel->getActiveSheet()->setCellValue("L{$row}", 'item brand');
+		$this->excel->getActiveSheet()->setCellValue("M{$row}", 'item year');
+		$this->excel->getActiveSheet()->setCellValue("N{$row}", 'channels');
+		$this->excel->getActiveSheet()->setCellValue("O{$row}", 'payment');
+		$this->excel->getActiveSheet()->setCellValue("P{$row}", 'cost (ex)');
+		$this->excel->getActiveSheet()->setCellValue("Q{$row}", 'price (inc)');
+		$this->excel->getActiveSheet()->setCellValue("R{$row}", 'price (ex)');
+		$this->excel->getActiveSheet()->setCellValue("S{$row}", 'qty');
+		$this->excel->getActiveSheet()->setCellValue("T{$row}", 'item discount');
+		$this->excel->getActiveSheet()->setCellValue("U{$row}", 'bill discount');
+		$this->excel->getActiveSheet()->setCellValue("V{$row}", 'total discount');
+		$this->excel->getActiveSheet()->setCellValue("W{$row}", 'total amount (inc)');
+		$this->excel->getActiveSheet()->setCellValue("X{$row}", 'total amount (ex)');
+		$this->excel->getActiveSheet()->setCellValue("Y{$row}", 'total vat');
+		$this->excel->getActiveSheet()->setCellValue("Z{$row}", 'total cost (ex)');
+		$this->excel->getActiveSheet()->setCellValue("AA{$row}", 'margin');
+		$this->excel->getActiveSheet()->setCellValue("AB{$row}", 'customer name');
+		$this->excel->getActiveSheet()->setCellValue("AC{$row}", 'customer group');
+		$this->excel->getActiveSheet()->setCellValue("AD{$row}", 'customer kind');
+		$this->excel->getActiveSheet()->setCellValue("AE{$row}", 'customer type');
+		$this->excel->getActiveSheet()->setCellValue("AF{$row}", 'customer grade');
+		$this->excel->getActiveSheet()->setCellValue("AG{$row}", 'customer area');
+		$this->excel->getActiveSheet()->setCellValue("AH{$row}", 'customer saleman');
+		$this->excel->getActiveSheet()->setCellValue("AI{$row}", 'Warehouse');
+		$this->excel->getActiveSheet()->setCellValue("AJ{$row}", 'Zone');
 
 
 
     $row = 5;
 
     $ds = array(
-      'allCustomer' => is_true($allCustomer),
-      'cusFrom' => $cusFrom,
-      'cusTo' => $cusTo,
+			'role' => $role,
       'fromDate' => from_date($fromDate),
       'toDate' => to_date($toDate)
     );
 
-    $result = $this->sales_report_model->get_order_sold_by_date_upd($ds);
+    $result = $this->sales_report_model->get_sold_details($ds);
 
     if(!empty($result))
     {
-      $no = 1;
       foreach($result as $rs)
       {
-        $this->excel->getActiveSheet()->setCellValue('A'.$row, $no);
-        $this->excel->getActiveSheet()->setCellValue('B'.$row, thai_date($rs->date_upd, FALSE, '/'));
-        $this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->customer_name);
-        $this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->reference);
-        $this->excel->getActiveSheet()->setCellValue('E'.$row, $rs->product_code);
-        $this->excel->getActiveSheet()->setCellValue('F'.$row, number($rs->price, 2));
-        $this->excel->getActiveSheet()->setCellValue('G'.$row, $rs->discount_label);
-        $this->excel->getActiveSheet()->setCellValue('H'.$row, number($rs->qty));
-        $this->excel->getActiveSheet()->setCellValue('I'.$row, number($rs->total_amount));
-        $no++;
+				$this->excel->getActiveSheet()->setCellValue("A{$row}", thai_date($rs->date_add, FALSE, '/'));
+				$this->excel->getActiveSheet()->setCellValue("B{$row}", $rs->reference);
+        $this->excel->getActiveSheet()->setCellValue("C{$row}", $rs->product_code);
+				$this->excel->getActiveSheet()->setCellValue("D{$row}", $rs->product_name);
+				$this->excel->getActiveSheet()->setCellValue("E{$row}", $rs->color_name);
+				$this->excel->getActiveSheet()->setCellValue("F{$row}", $rs->size_name);
+				$this->excel->getActiveSheet()->setCellValue("G{$row}", $rs->product_style);
+				$this->excel->getActiveSheet()->setCellValue("H{$row}", $rs->product_group_name);
+				$this->excel->getActiveSheet()->setCellValue("I{$row}", $rs->product_category_name);
+				$this->excel->getActiveSheet()->setCellValue("J{$row}", $rs->product_kind_name);
+				$this->excel->getActiveSheet()->setCellValue("K{$row}", $rs->product_type_name);
+				$this->excel->getActiveSheet()->setCellValue("L{$row}", $rs->product_brand_name);
+				$this->excel->getActiveSheet()->setCellValue("M{$row}", $rs->product_year);
+				$this->excel->getActiveSheet()->setCellValue("N{$row}", $rs->channels_name);
+				$this->excel->getActiveSheet()->setCellValue("O{$row}", $rs->payment_name);
+				$this->excel->getActiveSheet()->setCellValue("P{$row}", $rs->cost);
+				$this->excel->getActiveSheet()->setCellValue("Q{$row}", $rs->price);
+				$this->excel->getActiveSheet()->setCellValue("R{$row}", $rs->price_ex);
+				$this->excel->getActiveSheet()->setCellValue("S{$row}", $rs->qty);
+				$this->excel->getActiveSheet()->setCellValue("T{$row}", $rs->discount_label);
+				$this->excel->getActiveSheet()->setCellValue("U{$row}", $rs->avgBillDiscAmount);
+				$this->excel->getActiveSheet()->setCellValue("V{$row}", $rs->discount_amount);
+				$this->excel->getActiveSheet()->setCellValue("W{$row}", $rs->total_amount);
+				$this->excel->getActiveSheet()->setCellValue("X{$row}", $rs->total_amount_ex);
+				$this->excel->getActiveSheet()->setCellValue("Y{$row}", $rs->vat_amount);
+				$this->excel->getActiveSheet()->setCellValue("Z{$row}", $rs->total_cost);
+				$this->excel->getActiveSheet()->setCellValue("AA{$row}", $rs->margin);
+				$this->excel->getActiveSheet()->setCellValue("AB{$row}", $rs->customer_name);
+				$this->excel->getActiveSheet()->setCellValue("AC{$row}", $rs->customer_group_name);
+				$this->excel->getActiveSheet()->setCellValue("AD{$row}", $rs->customer_kind_name);
+				$this->excel->getActiveSheet()->setCellValue("AE{$row}", $rs->customer_type_name);
+				$this->excel->getActiveSheet()->setCellValue("AF{$row}", $rs->customer_class_name);
+				$this->excel->getActiveSheet()->setCellValue("AG{$row}", $rs->customer_area_name);
+				$this->excel->getActiveSheet()->setCellValue("AH{$row}", $rs->sale_name);
+				$this->excel->getActiveSheet()->setCellValue("AI{$row}", $rs->warehouse_code);
+				$this->excel->getActiveSheet()->setCellValue("AJ{$row}", $rs->zone_code);
         $row++;
       }
 
-      $res = $row -1;
-
-      $this->excel->getActiveSheet()->setCellValue('A'.$row, 'รวม');
-      $this->excel->getActiveSheet()->mergeCells('A'.$row.':G'.$row);
-      $this->excel->getActiveSheet()->setCellValue('H'.$row, '=SUM(H5:H'.$res.')');
-      $this->excel->getActiveSheet()->setCellValue('I'.$row, '=SUM(I5:I'.$res.')');
-
-      $this->excel->getActiveSheet()->getStyle('A'.$row)->getAlignment()->setHorizontal('right');
-      $this->excel->getActiveSheet()->getStyle('F5:F'.$row)->getAlignment()->setHorizontal('right');
-      $this->excel->getActiveSheet()->getStyle('F5:F'.$row)->getNumberFormat()->setFormatCode('#,##0');
-      $this->excel->getActiveSheet()->getStyle('G5:G'.$row)->getAlignment()->setHorizontal('center');
-      $this->excel->getActiveSheet()->getStyle('G5:G'.$row)->getNumberFormat()->setFormatCode('#,##0.00');
-      $this->excel->getActiveSheet()->getStyle('H5:I'.$row)->getAlignment()->setHorizontal('right');
-      $this->excel->getActiveSheet()->getStyle('H5:H'.$row)->getNumberFormat()->setFormatCode('0');
-      $this->excel->getActiveSheet()->getStyle('I5:I'.$row)->getNumberFormat()->setFormatCode('#,##0.00');
     }
 
-
-    $file_name = "Report Sales by customer show items.xlsx";
+		setToken($token);
+		
+    $file_name = "Report Sales details.xlsx";
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
     header('Content-Disposition: attachment;filename="'.$file_name.'"');
     $writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
