@@ -32,7 +32,31 @@ class Po_model extends CI_Model
     ->order_by('products.color_code', 'ASC')
     ->order_by('product_size.position', 'ASC');
 
-    //$rs = $this->db->where('po_code', $code)->get('po_detail');
+    $rs = $this->db->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return FALSE;
+  }
+
+
+	public function get_print_details($code)
+  {
+    $this->db
+    ->select('po_detail.*, products.vat_code, vat.rate, unit.name AS unit_name')
+    ->from('po_detail')
+    ->join('products', 'po_detail.product_code = products.code', 'left')
+    ->join('product_size', 'products.size_code = product_size.code', 'left')
+		->join('vat', 'products.vat_code = vat.code', 'left')
+		->join('unit', 'products.unit_code = unit.code', 'left')
+    ->where('po_detail.po_code', $code)
+    ->order_by('products.style_code', 'ASC')
+    ->order_by('products.color_code', 'ASC')
+    ->order_by('product_size.position', 'ASC');
+
     $rs = $this->db->get();
 
     if($rs->num_rows() > 0)

@@ -14,6 +14,10 @@
 	color:#33B2FF;
 }
 
+.text-purple {
+	color:#910DDE;
+}
+
 .company-logo {
 	max-height: 38px;
 }
@@ -33,5 +37,9 @@
 
 	.text-blue {
 		color:#33B2FF !important;
+	}
+
+	.text-purple {
+		color:#910DDE !important;
 	}
 }

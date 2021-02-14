@@ -16,7 +16,7 @@
     <label class="col-sm-3 control-label no-padding-right">รหัส</label>
     <div class="col-xs-12 col-sm-3">
 			<span class="input-icon input-icon-right width-100">
-      	<input type="text" name="code" id="code" class="form-control input-sm code" maxlength="20" value="<?php echo $data->code; ?>" disabled />
+      	<input type="text" name="code" id="code" class="form-control input-sm code" maxlength="20" value="<?php echo $data->code; ?>" readonly />
 				<i class="ace-icon fa fa-user"></i>
 			</span>
     </div>

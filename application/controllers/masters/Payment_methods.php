@@ -62,10 +62,12 @@ class Payment_methods extends PS_Controller
       $sc = TRUE;
       $code = $this->input->post('code');
       $name = $this->input->post('name');
+			$role = $this->input->post('role');
       $term = $this->input->post('term');
       $ds = array(
         'code' => $code,
         'name' => $name,
+				'role' => $role,
         'has_term' => $term === NULL ? 0 : $term
       );
 

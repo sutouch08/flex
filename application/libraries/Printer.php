@@ -507,8 +507,10 @@ class Printer
 		else
 		{
 			$c = count($data);
-			$box_width = 100/$c;
-			$box_width = $box_width > 35 ? 35 : $box_width;
+			$box_width = $c >= 4 ? 25 : ($c == 1 ? 33 :round(100/$c, 0));
+			$space = $c+1;
+			$margin = $c == 1 ? 5 : (190/$space)/$c/2;
+			//$margin = round(((190 - ($box_width * 0.01 * 190))/$c) , 0);
 			$height = $this->footer_row * $this->row_height;
 			$row1 = $this->row_height;
 			$row2 = 8;
@@ -517,9 +519,9 @@ class Printer
 			$footer = "<div style='width:190mm; height:".$height."mm; margin:auto; position:absolute; bottom:10mm; left:5mm;'>";
 			foreach($data as $n=>$value)
 			{
-				$footer .="<div style='width:".$box_width."%; height:".$height."mm; text-align:center; float:right;'>";
+				$footer .="<div style='width:".$box_width."%; height:".$height."mm; text-align:center; float:right; padding-left:{$margin}mm; padding-right:{$margin}mm;'>";
 				$footer .="<span style='font-size:{$this->font_size}px; width:100%; height:".$row1."mm; text-align:center;'>".$value[0]."</span>";
-				$footer .="<div style='font-size:{$this->font_size}px; width:100%; height:".($this->footer_row - 1)* $this->row_height."mm; text-align:center; padding-left:10px; padding-right:10px; '>";
+				$footer .="<div style='font-size:{$this->font_size}px; width:100%; height:".($this->footer_row - 1)* $this->row_height."mm; text-align:center; padding-left:10px; padding-right:10px;'>";
 				$footer .="<span style='font-size:{$this->font_size}px; width:100%; height: ".$row2."mm; text-align:center;font-size:8px; float:left;'>".$value[1]."</span>";
 				$footer .="<span style='font-size:{$this->font_size}px; width:100%; height: ".$row3."mm; text-align:center; padding-left:5px; padding-right:5px; ".(is_null($value[1]) ? "" : "border-bottom:dotted 1px #333;")." float:left; padding:10px;'></span>";
 				$footer .="<span style='font-size:{$this->font_size}px; width:20%; height: ".$row4."mm; text-align:right; vertical-align:bottom; float:left; padding-top: 25px;'>".$value[2]."</span>";

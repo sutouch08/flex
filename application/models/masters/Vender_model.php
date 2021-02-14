@@ -53,6 +53,7 @@ class Vender_model extends CI_Model
   public function is_exists_name($name, $old_name = NULL)
   {
     $this->db->where('name', $name);
+		
     if(!empty($old_name))
     {
       $this->db->where('name !=', $old_name);
@@ -165,6 +166,19 @@ class Vender_model extends CI_Model
 
     return FALSE;
   }
+
+
+
+	public function has_po($code)
+	{
+		return $this->db->where('vender_code', $code)->count_all_results('po');
+	}
+
+	public function has_received($code)
+	{
+		return $this->db->where('vender_code', $code)->count_all_results('receive_product');
+	}
+
 
 }
 ?>

@@ -722,13 +722,13 @@ class Orders extends PS_Controller
                 $error = "Error : Insert fail";
                 $err_qty++;
               }
-              else
-              {
-                if($item->count_stock == 1 && $item->is_api == 1)
-                {
-                  $this->update_api_stock($item->code);
-                }
-              }
+              // else
+              // {
+              //   if($item->count_stock == 1 && $item->is_api == 1)
+              //   {
+              //     $this->update_api_stock($item->code);
+              //   }
+              // }
 
             }
             else  //--- ถ้ามีรายการในออเดอร์อยู่แล้ว
@@ -768,13 +768,13 @@ class Orders extends PS_Controller
                 $error = "Error : Update Fail";
                 $err_qty++;
               }
-              else
-              {
-                if($item->count_stock == 1 && $item->is_api == 1)
-                {
-                  $this->update_api_stock($item->code);
-                }
-              }
+              // else
+              // {
+              //   if($item->count_stock == 1 && $item->is_api == 1)
+              //   {
+              //     $this->update_api_stock($item->code);
+              //   }
+              // }
 
             }	//--- end if isExistsDetail
           }
@@ -803,14 +803,14 @@ class Orders extends PS_Controller
     $detail = $this->orders_model->get_detail($id);
     $item = $this->products_model->get($detail->product_code);
     $rs = $this->orders_model->remove_detail($id);
-    if($rs)
-    {
-      if($detail->is_count == 1 && $item->is_api == 1)
-      {
-        $this->update_api_stock($item->code);
-      }
-
-    }
+    // if($rs)
+    // {
+    //   if($detail->is_count == 1 && $item->is_api == 1)
+    //   {
+    //     $this->update_api_stock($item->code);
+    //   }
+    //
+    // }
 
     echo $rs === TRUE ? 'success' : 'Can not delete please try again';
   }

@@ -569,13 +569,16 @@ public function delete_po($code)
   public function print_po($code)
   {
     $this->load->library('printer');
+
     $po = $this->po_model->get($code);
+
     if(!empty($po))
     {
       $po->vender_name = $this->vender_model->get_name($po->vender_code);
     }
 
-    $detail = $this->po_model->get_details($code);
+    $details = $this->po_model->get_print_details($code);
+
     if(!empty($detail))
     {
       foreach($detail as $rs)
@@ -584,8 +587,14 @@ public function delete_po($code)
       }
     }
 
-    $ds['po'] = $po;
-    $ds['details'] = $detail;
+		$ds = array(
+			'po' => $po,
+			'details' => $details,
+			'title' => "ใบสั่งซื้อ",
+			'vender' => $this->vender_model->get($po->vender_code)
+		);
+
+
     $this->load->view('print/print_po', $ds);
   }
 

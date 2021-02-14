@@ -14,6 +14,7 @@ class Receive_po extends PS_Controller
     parent::__construct();
     $this->home = base_url().'inventory/receive_po';
     $this->load->model('inventory/receive_po_model');
+
     $this->title = "รับสินค้าจากการซื้อ";
   }
 
@@ -97,19 +98,16 @@ class Receive_po extends PS_Controller
     $this->load->library('printer');
     $this->load->model('masters/zone_model');
     $this->load->model('masters/products_model');
+		$this->load->model('masters/vender_model');
 
     $doc = $this->receive_po_model->get($code);
-    if(!empty($doc))
-    {
-      $zone = $this->zone_model->get($doc->zone_code);
-      $doc->zone_name = $zone->name;
-      $doc->warehouse_name = $zone->warehouse_name;
-    }
 
-    $details = $this->receive_po_model->get_details($code);
+    $details = $this->receive_po_model->get_print_details($code);
 
     $ds = array(
+			'title' => "ใบรับสินค้า",
       'doc' => $doc,
+			'vender' => $this->vender_model->get($doc->vender_code),
       'details' => $details
     );
 
@@ -513,7 +511,7 @@ class Receive_po extends PS_Controller
         }
       }
 
-			
+
 			$this->receive_po_model->set_status($code, 2); //--- 0 = ยังไม่บันทึก 1 = บันทึกแล้ว 2 = ยกเลิก
 
 

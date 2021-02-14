@@ -47,87 +47,98 @@ class Vender extends PS_Controller
 
   public function add_new()
   {
-    $active = $this->session->flashdata('active');
-    $data['code'] = $this->session->flashdata('code');
-    $data['name'] = $this->session->flashdata('name');
-    $data['credit_term'] = $this->session->flashdata('credit_term');
-    $data['active'] = is_null($active) ? 1 : $this->session->flashdata('active');
-    $this->load->view('masters/vender/vender_add', $data);
+		if($this->pm->can_add)
+		{
+			$this->load->view('masters/vender/vender_add');
+		}
+		else
+		{
+			$this->deny_page();
+		}
   }
 
 
   public function add()
   {
-    if($this->input->post('code'))
-    {
-      $sc = TRUE;
-      $code = $this->input->post('code');
-      $name = $this->input->post('name');
-      $term = $this->input->post('credit_term');
-      $active = $this->input->post('active');
+		$sc = TRUE;
 
-      $ds = array(
-        'code' => $code,
-        'name' => $name,
-        'credit_term' => $term,
-        'active' => $active
-      );
+		if($this->pm->can_add)
+		{
+			if($this->input->post('code') && $this->input->post('name'))
+			{
+				$code = trim($this->input->post('code'));
+				$name = trim($this->input->post('name'));
 
-      if($this->vender_model->is_exists($code) === TRUE)
-      {
-        $sc = FALSE;
-        set_error("'".$code."' ".label_value('already_exists'));
-      }
+				if(!$this->vender_model->is_exists($code))
+				{
+					if(! $this->vender_model->is_exists_name($name))
+					{
+						$arr = array(
+							'code' => $code,
+							'name' => $name,
+							'credit_term' => get_zero($this->input->post('term')),
+							'tax_id' => get_null(trim($this->input->post('tax_id'))),
+							'branch_name' => get_null(trim($this->input->post('branch'))),
+							'address' => get_null(trim($this->input->post('address'))),
+							'phone' => get_null(trim($this->input->post('phone'))),
+							'active' => $this->input->post('active')
+						);
 
-      if($this->vender_model->is_exists_name($name) === TRUE)
-      {
-        $sc = FALSE;
-        set_error("'".$name."' ".label_value('already_exists'));
-      }
+						if(! $this->vender_model->add($arr))
+						{
+							$sc = FALSE;
+							$this->error = "เพิ่มรายการไม่สำเร็จ";
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "ชื่อซ้ำ กรุณากำหนดชื่อใหม่";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "รหัสซ้ำ กรุณากำหนดรหัสใหม่";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Missing required parameter";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing permission";
+		}
 
-      if($sc === TRUE)
-      {
-        if($this->vender_model->add($ds))
-        {
-          set_message(label_value('insert_success'));
-        }
-        else
-        {
-          $sc = FALSE;
-          set_error('insert_fail');
-        }
-      }
 
-
-      if($sc === FALSE)
-      {
-        $this->session->set_flashdata('code', $code);
-        $this->session->set_flashdata('name', $name);
-        $this->session->set_flashdata('credit_term', $term);
-        $this->session->set_flashdata('active', $active);
-      }
-    }
-    else
-    {
-      set_error(label_value('no_data_found'));
-    }
-
-    redirect($this->home.'/add_new');
+		$this->response($sc);
   }
 
 
 
   public function edit($code)
   {
-    $rs = $this->vender_model->get($code);
-    $data = array(
-      'code' => $rs->code,
-      'name' => $rs->name,
-      'credit_term' => $rs->credit_term,
-      'active' => $rs->active
-    );
+		if($this->pm->can_edit)
+		{
+			$data = $this->vender_model->get($code);
 
-    $this->load->view('masters/vender/vender_edit', $data);
+			if(!empty($data))
+			{
+	    	$this->load->view('masters/vender/vender_edit', $data);
+			}
+			else
+			{
+				$this->error_page();
+			}
+		}
+		else
+		{
+			$this->deny_page();
+		}
   }
 
 
@@ -135,89 +146,133 @@ class Vender extends PS_Controller
   public function update()
   {
     $sc = TRUE;
+		if($this->pm->can_edit)
+		{
+			if($this->input->post('code') && $this->input->post('name'))
+			{
+				$code = $this->input->post('code');
+				$name = trim($this->input->post('name'));
+				$old_name = $this->input->post('old_name');
+				if(! $this->vender_model->is_exists_name($name, $old_name))
+				{
+					$arr = array(
+						'name' => $name,
+						'credit_term' => get_zero($this->input->post('term')),
+						'tax_id' => get_null(trim($this->input->post('tax_id'))),
+						'branch_name' => get_null(trim($this->input->post('branch'))),
+						'address' => get_null(trim($this->input->post('address'))),
+						'phone' => get_null(trim($this->input->post('phone'))),
+						'active' => $this->input->post('active')
+					);
 
-    if($this->input->post('code'))
-    {
-      $old_code = $this->input->post('old_code');
-      $old_name = $this->input->post('old_name');
-      $code = $this->input->post('code');
-      $name = $this->input->post('name');
-      $term = $this->input->post('credit_term');
-      $active = $this->input->post('active');
+					if(! $this->vender_model->update($code, $arr))
+					{
+						$sc = FALSE;
+						$this->error = "Update รายการไม่สำเร็จ";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "ชื่อซ้ำ กรุณากำหนดชื่อใหม่";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Missing required parameter";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing Permission";
+		}
 
-      $ds = array(
-        'code' => $code,
-        'name' => $name,
-        'credit_term' => $term,
-        'active' => $active
-      );
-
-      if($sc === TRUE && $this->vender_model->is_exists($code, $old_code) === TRUE)
-      {
-        $sc = FALSE;
-        set_error("'".$code."' ".label_value('already_exists'));
-      }
-
-      if($sc === TRUE && $this->vender_model->is_exists_name($name, $old_name) === TRUE)
-      {
-        $sc = FALSE;
-        set_error("'".$name."' ".label_value('already_exists'));
-      }
-
-      if($sc === TRUE)
-      {
-        if($this->vender_model->update($old_code, $ds) === TRUE)
-        {
-          set_message(label_value('update_success'));
-        }
-        else
-        {
-          $sc = FALSE;
-          set_error(label_value('update_fail'));
-        }
-      }
-
-    }
-    else
-    {
-      $sc = FALSE;
-      set_error(label_value('no_data_found'));
-    }
-
-    if($sc === FALSE)
-    {
-      $code = $old_code;
-    }
-
-    redirect($this->home.'/edit/'.$code);
+		$this->response($sc);
   }
 
 
 
-  public function delete($code)
+	public function view_detail($code)
   {
-    if($code != '')
-    {
-      if($this->vender_model->delete($code))
-      {
-        set_message(label_value('delete_success'));
-      }
-      else
-      {
-        set_error(label_value('delete_fail'));
-      }
-    }
-    else
-    {
-      set_error(label_value('no_data_found'));
-    }
+		$data = $this->vender_model->get($code);
 
-    redirect($this->home);
+		if(!empty($data))
+		{
+			$this->load->view('masters/vender/vender_edit', $data);
+		}
+		else
+		{
+			$this->error_page();
+		}
+		
   }
 
 
+  public function delete()
+	{
+		$sc = TRUE;
+
+		if($this->pm->can_delete)
+		{
+			$code = $this->input->post('code');
+
+			if(!empty($code))
+			{
+				//--- check po transection
+				$po = $this->vender_model->has_po($code);
+
+				//--- check receive transection
+				$received = $this->vender_model->has_received($code);
+
+				if($po > 0 OR $received > 0)
+				{
+					$sc = FALSE;
+					$this->error = "ไม่สามารถลบรายการได้ เนื่องจากมี Transection เกิดขึ้นแล้ว";
+				}
+				else
+				{
+					if(! $this->vender_model->delete($code))
+					{
+						$sc = FALSE;
+						$this->error = "ลบรายการไม่สำเร็จ";
+					}
+				}
+
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Missing required parameter : code";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing permission";
+		}
+
+		$this->response($sc);
+	}
 
 
+
+
+	public function is_exists_code()
+	{
+		$sc = TRUE;
+		$code = $this->input->post('code');
+		$old_code = $this->input->post('old_code');
+
+		if($this->vender_model->is_exists($code, $old_code))
+		{
+			$sc = FALSE;
+			$this->error = "duplicated";
+		}
+
+		$this->response($sc);
+	}
 
 
   public function clear_filter()

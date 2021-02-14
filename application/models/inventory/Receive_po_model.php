@@ -119,6 +119,32 @@ class Receive_po_model extends CI_Model
   }
 
 
+  public function get_print_details($code)
+  {
+    $this->db
+    ->select('rd.*')
+    ->select('u.name AS unit_name')
+    ->select('vat.rate AS rate')
+    ->from('receive_product_detail AS rd')
+    ->join('products AS pd', 'rd.product_code = pd.code', 'left')
+    ->join('product_size AS ps', 'pd.size_code = ps.code', 'left')
+    ->join('unit AS u', 'pd.unit_code = u.code', 'left')
+    ->join('vat AS vat', 'pd.vat_code = vat.code', 'left')
+    ->where('rd.receive_code', $code)
+    ->order_by('pd.style_code', 'ASC')
+    ->order_by('pd.color_code', 'ASC')
+    ->order_by('ps.position', 'ASC');
+
+    $rs = $this->db->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
 
   public function get_unsave_details($code)
   {
