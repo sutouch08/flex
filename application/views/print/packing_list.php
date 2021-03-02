@@ -70,6 +70,7 @@ $pattern = array(
 $this->printer->set_pattern($pattern);
 
 $n = 1;
+$index = 0;
 $total_qty = 0;
 while( $total_page > 0 )
 {
@@ -84,7 +85,7 @@ while( $total_page > 0 )
   $i = 0;
   while( $i < $row )
   {
-    $rs = isset($details[$i]) ? $details[$i] : array();
+    $rs = isset($details[$index]) ? $details[$index] : array();
     if( ! empty($rs))
     {
       $arr = array(
@@ -109,6 +110,7 @@ while( $total_page > 0 )
 
     $i++;
     $n++;
+		$index++;
   } //--- end while $i < $row
 
   //--- ปิดหัวตาราง

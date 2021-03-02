@@ -176,15 +176,26 @@ function set_zone(){
 
 
 $('#pd-code').autocomplete({
-  source: BASE_URL + 'auto_complete/get_item_code',
+  source: BASE_URL + 'auto_complete/get_item_code_and_name',
   autoFocus:true,
+	open:function(event){
+		var $ul = $(this).autocomplete('widget');
+		$ul.css('width', 'auto');
+	},
   close:function(){
-    let code = $(this).val();
-    if(code.length === 0 || code === 'not found'){
-      $(this).val('');
-    }
+		var rs = $(this).val();
+		var arr = rs.split(' | ');
+
+		if(arr.length === 2) {
+			$(this).val(arr[0]);
+
+		}
+		else {
+			$(this).val('');
+		}
   }
 });
+
 
 
 $('#pd-code').keyup(function(e){

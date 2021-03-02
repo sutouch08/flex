@@ -8,6 +8,17 @@ class Qc_model extends CI_Model
     parent::__construct();
   }
 
+	public function get($id)
+	{
+		$rs = $this->db->where('id', $id)->get('qc');
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
+
 
   public function add($order_code, $product_code, $box_id, $qty)
   {
@@ -26,14 +37,27 @@ class Qc_model extends CI_Model
 
   public function update($order_code, $product_code, $box_id, $qty)
   {
-    $user = get_cookie('uname');
-    $qr = "UPDATE qc SET qty = (qty + {$qty}), user = '{$user}'
-           WHERE order_code = '{$order_code}'
-           AND product_code = '{$product_code}'
-           AND box_id = {$box_id}";
-
-    return $this->db->query($qr);
+		return $this->db
+		->set("qty", "qty + {$qty}", FALSE)
+		->set("user", get_cookie('uname'))
+		->where('order_code', $order_code)
+		->where('product_code', $product_code)
+		->where('box_id', $box_id)
+		->update('qc');
   }
+
+
+	public function update_checked_qty($id, $qty)
+	{
+		return $this->db->set("qty", "qty + {$qty}", FALSE)->where('id', $id)->update('qc');
+	}
+
+
+
+	public function delete($id)
+	{
+		return $this->db->where('id', $id)->delete('qc');
+	}
 
 
 
@@ -309,6 +333,26 @@ class Qc_model extends CI_Model
 
     return intval($rs->num_rows());
   }
+
+
+	public function get_checked_table($order_code, $product_code)
+	{
+		$rs = $this->db
+		->select('qc.id, qc_box.code, qc_box.box_no, qc.qty')
+		->from('qc')
+		->join('qc_box', 'qc.box_id = qc_box.id AND qc.order_code = qc_box.order_code', 'left')
+		->where('qc.order_code', $order_code)
+		->where('qc.product_code', $product_code)
+		->get();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
 
 
   public function clear_qc($code)

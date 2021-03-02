@@ -176,7 +176,7 @@ function toggleProductTabType(option)
 		return;
 	}
 
-	if(option == 0) {
+	if(option == 'item') {
 		$('#btn-tab-item').addClass('btn-success');
 		$('#btn-tab-style').removeClass('btn-success');
 		return;

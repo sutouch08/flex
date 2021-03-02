@@ -46,7 +46,7 @@ $header['right'] = array();
 $header['right']['A'] = array(
 	array('label' => 'เลขที่', 'value' => $order->code),
 	array('label' => 'วันที่', 'value' => thai_date($order->date_add, FALSE, '/')),
-	array('label' => 'พนักงานขาย', 'value' => $saleman->name),
+	array('label' => 'พนักงานขาย', 'value' => (empty($saleman) ? '-' : $saleman->name)),
 	array('label' => 'อ้างอิง', 'value' => $reference)
 );
 

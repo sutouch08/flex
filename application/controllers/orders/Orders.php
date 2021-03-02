@@ -130,24 +130,6 @@ class Orders extends PS_Controller
 
 
 
-	public function test() {
-		$ds = $this->input->post('data');
-
-		if(!empty($ds))
-		{
-			foreach($ds as $rs)
-			{
-				$id = $rs['id'];
-				$item = $rs['code'];
-				$qty = $rs['qty'];
-
-				$stock = $this->get_sell_stock($item);
-
-			}
-		}
-	}
-
-
 
 	public function update_detail()
 	{
@@ -1978,15 +1960,21 @@ class Orders extends PS_Controller
       //--- บันทึกรายการ
       if($this->order_payment_model->add($arr))
       {
-				if($this->orders_model->change_state($order_code, 2))
+				$order = $this->orders_model->get($order_code);
+
+				if($order->state < 2)
 				{
-					$arr = array(
-	          'order_code' => $order_code,
-	          'state' => 2,
-	          'update_user' => get_cookie('uname')
-	        );
-	        $this->order_state_model->add_state($arr);
+					if($this->orders_model->change_state($order_code, 2))
+					{
+						$arr = array(
+		          'order_code' => $order_code,
+		          'state' => 2,
+		          'update_user' => get_cookie('uname')
+		        );
+		        $this->order_state_model->add_state($arr);
+					}
 				}
+
       }
       else
       {
@@ -2339,6 +2327,13 @@ class Orders extends PS_Controller
             $sc = FALSE;
             $message = 'ใบเบิกมีการรับคืนสินค้าแล้วไม่อนุญาติให้ย้อนสถานะ';
           }
+        }
+
+        //--- เปิดไปกำกับไปแล้ว
+        if(! empty($order->invoice_code))
+        {
+          $sc = FALSE;
+          $message = "ออเดอร์ถูกเปิดใบกำกับภาษีแล้ว กรุณายกเลิกใบกำกับก่อนย้อนสถานะ";
         }
 
 

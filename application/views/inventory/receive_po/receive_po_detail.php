@@ -108,8 +108,8 @@ if($doc->status == 2)
     </div>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_add.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_edit.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_po/receive_po_edit.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

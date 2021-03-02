@@ -46,8 +46,8 @@ $tab3 = $tab == 'shipTab' ? 'active in' : '';
 </div><!--/ col-sm-9  -->
 </div><!--/ row  -->
 
-<script src="<?php echo base_url(); ?>scripts/masters/customers.js"></script>
-<script src="<?php echo base_url(); ?>scripts/masters/address.js"></script>
-<script src="<?php echo base_url(); ?>scripts/masters/customer_address.js"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/customers.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/address.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/customer_address.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

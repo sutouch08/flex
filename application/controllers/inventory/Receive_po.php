@@ -569,7 +569,7 @@ class Receive_po extends PS_Controller
               'pdCode' => $rs->product_code,
               'pdName' => $rs->product_name,
               'price' => $rs->price,
-              //'qty' => number($rs->qty),
+              'qty' => $backlogs <= 0 ? '' :$backlogs,
               //'limit' => ($limit - $rs->received) < 0 ? 0 : $limit - $rs->received,
               'backlogs' => number($backlogs)
             );

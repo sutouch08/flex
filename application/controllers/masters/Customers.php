@@ -76,58 +76,44 @@ class Customers extends PS_Controller
 
   public function add_new()
   {
-    $data['code'] = $this->session->flashdata('code');
-    $data['name'] = $this->session->flashdata('name');
-    $data['Tax_Id'] = $this->session->flashdata('Tax_Id');
-    $data['group'] = $this->session->flashdata('group');
-    $data['kind'] = $this->session->flashdata('kind');
-    $data['type'] = $this->session->flashdata('type');
-    $data['class'] = $this->session->flashdata('class');
-    $data['area'] = $this->session->flashdata('area');
-    $data['sale'] = $this->session->flashdata('sale');
-    $data['credit'] = $this->session->flashdata('credit');
-    $data['credit_term'] = $this->session->flashdata('credit_term');
-    $data['note'] = $this->session->flashdata('note');
-
-    $this->load->view('masters/customers/customers_add_view', $data);
+    $this->load->view('masters/customers/customers_add_view');
   }
 
 
   public function add()
   {
-    if($this->input->post('code'))
+		$sc = TRUE;
+		$code = $this->input->post('code');
+		$name = $this->input->post('name');
+		$credit = $this->input->post('CreditLine');
+		$credit_term = $this->input->post('credit_term');
+    if(! is_null($code) && !empty($name))
     {
-      $sc = TRUE;
-      $code = $this->input->post('code');
-      $name = $this->input->post('name');
-      $credit = $this->input->post('CreditLine');
-      $credit_term = $this->input->post('credit_term');
-
       $ds = array(
         'code' => $code,
         'name' => $name,
-        'Tax_Id' => $this->input->post('Tax_id'),
-        'group_code' => $this->input->post('group'),
-        'kind_code' => $this->input->post('kind'),
-        'type_code' => $this->input->post('type'),
-        'class_code' => $this->input->post('class'),
-        'area_code' => $this->input->post('area'),
-        'sale_code' => $this->input->post('sale'),
+        'Tax_Id' => get_null(trim($this->input->post('Tax_id'))),
+        'group_code' => get_null(trim($this->input->post('group'))),
+        'kind_code' => get_null(trim($this->input->post('kind'))),
+        'type_code' => get_null(trim($this->input->post('type'))),
+        'class_code' => get_null(trim($this->input->post('class'))),
+        'area_code' => get_null(trim($this->input->post('area'))),
+        'sale_code' => get_null(trim($this->input->post('sale'))),
         'credit_term' => empty($credit_term) ? 0 : $credit_term,
         'amount' => empty($credit) ? 0 : $credit,
         'note' => get_null($this->input->post('note'))
       );
 
-      if($this->customers_model->is_exists($code) === TRUE)
+      if($this->customers_model->is_exists($code))
       {
         $sc = FALSE;
-        set_error("'".$code."' มีในระบบแล้ว");
+        $this->error = "รหัสซ้ำ กรุณากำหนดรหัสใหม่";
       }
 
-      if($this->customers_model->is_exists_name($name) === TRUE)
+      if($this->customers_model->is_exists_name($name))
       {
         $sc = FALSE;
-        set_error("'".$name."' มีในระบบแล้ว");
+        $this->error = "ชื่อซ้ำ กรุณากำหนดชื่อใหม่";
       }
 
       if($sc === TRUE)
@@ -135,37 +121,22 @@ class Customers extends PS_Controller
         if($this->customers_model->add($ds))
         {
           $this->customers_model->update_balance($code);
-          set_message('เพิ่มข้อมูลเรียบร้อยแล้ว');
         }
         else
         {
           $sc = FALSE;
-          set_error('เพิ่มข้อมูลไม่สำเร็จ');
+          $error = $this->db->error();
+					$this->error = "Insert Failed : ".$error['message'];
         }
-      }
-
-
-      if($sc === FALSE)
-      {
-        $this->session->set_flashdata('code', $code);
-        $this->session->set_flashdata('name', $name);
-        $this->session->set_flashdata('Tax_Id', $this->input->post('Tax_Id'));
-        $this->session->set_flashdata('group', $this->input->post('group'));
-        $this->session->set_flashdata('kind', $this->input->post('kind'));
-        $this->session->set_flashdata('type', $this->input->post('type'));
-        $this->session->set_flashdata('class', $this->input->post('class'));
-        $this->session->set_flashdata('area', $this->input->post('area'));
-        $this->session->set_flashdata('sale', $this->input->post('sale'));
-        $this->session->set_flashdata('CreditLine', $this->input->post('CreditLine'));
-        $this->session->set_flashdata('credit_term', $this->input->post('credit_term'));
       }
     }
     else
     {
-      set_error('ไม่พบข้อมูล');
+      $sc = FALSE;
+			$this->error = "Missing Required parameter: Code";
     }
 
-    redirect($this->home.'/add_new');
+    $this->response($sc);
   }
 
 
@@ -288,73 +259,59 @@ class Customers extends PS_Controller
 
 
 
-  public function update()
+	public function update()
   {
-    $sc = TRUE;
-
-    if($this->input->post('code'))
+		$sc = TRUE;
+		$code = $this->input->post('code');
+		$name = $this->input->post('name');
+		$old_name = trim($this->input->post('old_name'));
+		$credit = $this->input->post('CreditLine');
+		$credit_term = $this->input->post('credit_term');
+    if(! is_null($code) && !empty($name))
     {
-      $old_code = $this->input->post('customers_code');
-      $old_name = $this->input->post('customers_name');
-      $code = $this->input->post('code');
-      $name = $this->input->post('name');
-      $credit = $this->input->post('CreditLine');
-      $credit_term = $this->input->post('credit_term');
-
       $ds = array(
         'code' => $code,
         'name' => $name,
-        'Tax_Id' => $this->input->post('Tax_Id'),
-        'group_code' => $this->input->post('group'),
-        'kind_code' => $this->input->post('kind'),
-        'type_code' => $this->input->post('type'),
-        'class_code' => $this->input->post('class'),
-        'area_code' => $this->input->post('area'),
-        'sale_code' => $this->input->post('sale'),
-        'amount' => $credit,
-        'credit_term' => $credit_term,
+        'Tax_Id' => get_null(trim($this->input->post('Tax_id'))),
+        'group_code' => get_null(trim($this->input->post('group'))),
+        'kind_code' => get_null(trim($this->input->post('kind'))),
+        'type_code' => get_null(trim($this->input->post('type'))),
+        'class_code' => get_null(trim($this->input->post('class'))),
+        'area_code' => get_null(trim($this->input->post('area'))),
+        'sale_code' => get_null(trim($this->input->post('sale'))),
+        'credit_term' => empty($credit_term) ? 0 : $credit_term,
+        'amount' => empty($credit) ? 0 : $credit,
         'note' => get_null($this->input->post('note'))
       );
 
-      if($sc === TRUE && $this->customers_model->is_exists($code, $old_code) === TRUE)
-      {
-        $sc = FALSE;
-        set_error("'".$code."' มีอยู่ในระบบแล้ว โปรดใช้รหัสอื่น");
-      }
 
-      if($sc === TRUE && $this->customers_model->is_exists_name($name, $old_name) === TRUE)
+      if($this->customers_model->is_exists_name($name, $old_name))
       {
         $sc = FALSE;
-        set_error("'".$name."' มีอยู่ในระบบแล้ว โปรดใช้ชื่ออื่น");
+        $this->error = "ชื่อซ้ำ กรุณากำหนดชื่อใหม่";
       }
 
       if($sc === TRUE)
       {
-        if($this->customers_model->update($old_code, $ds) === TRUE)
+        if($this->customers_model->update($code, $ds))
         {
           $this->customers_model->update_balance($code);
-          set_message('ปรับปรุงข้อมูลเรียบร้อยแล้ว');
         }
         else
         {
           $sc = FALSE;
-          set_error('ปรับปรุงข้อมูลไม่สำเร็จ');
+          $error = $this->db->error();
+					$this->error = "Insert Failed : ".$error['message'];
         }
       }
-
     }
     else
     {
       $sc = FALSE;
-      set_error('ไม่พบข้อมูล');
+			$this->error = "Missing Required parameter: Code";
     }
 
-    if($sc === FALSE)
-    {
-      $code = $this->input->post('customers_code');
-    }
-
-    redirect($this->home.'/edit/'.$code);
+    $this->response($sc);
   }
 
 

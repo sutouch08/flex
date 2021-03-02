@@ -54,7 +54,7 @@ $header['right']['A'] = array(
 );
 
 $header['right']['B'] = array(
-	array('label' => 'พนักงานขาย', 'value' => $saleman->name),
+	array('label' => 'พนักงานขาย', 'value' => (empty($saleman) ? '-' : $saleman->name)),
 	array('label' => 'อ้างอิง', 'value' => $order->reference)
 );
 

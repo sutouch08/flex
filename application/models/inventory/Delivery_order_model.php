@@ -36,6 +36,11 @@ class Delivery_order_model extends CI_Model
       $this->db->like('orders.code', $ds['code']);
     }
 
+		if(!empty($ds['invoice_code']))
+		{
+			$this->db->like('orders.invoice_code', $ds['invoice_code']);
+		}
+
     if(!empty($ds['customer']))
     {
       $this->db->group_start();
@@ -98,6 +103,11 @@ class Delivery_order_model extends CI_Model
     {
       $this->db->like('orders.code', $ds['code']);
     }
+
+		if(!empty($ds['invoice_code']))
+		{
+			$this->db->like('orders.invoice_code', $ds['invoice_code']);
+		}
 
     if(!empty($ds['customer']))
     {

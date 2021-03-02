@@ -70,7 +70,9 @@ function getOrderItemGrid(code) {
 					$("#modalItemBody").html(grid);
 					$("#orderItemGrid").modal('show');
 					$('#orderItemGrid').on('shown.bs.modal', function(){
+						$('#'+code).val(1);
 						$('#'+code).focus();
+						$('#'+code).select();
 					})
 
 				}else{

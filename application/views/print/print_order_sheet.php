@@ -78,7 +78,7 @@ $bill_discount		= $order->bDiscAmount;
 //**************  กำหนดหัวตาราง  ******************************//
 $thead	= array(
           array("#", "width:5%; text-align:center;"),
-          array("บาร์โค้ด", "width:15%;"),
+          array("บาร์โค้ด", "width:15%; text-align:left;"),
           array("สินค้า", "width:40%; text-align:text-left;"),
 					array("ราคา", "width:10%; text-align:right;"),
           array("จำนวน", "width:10%; text-align:right;"),
@@ -149,7 +149,7 @@ while($total_page > 0 )
       //--- มูลค่าสินค้า หลังหักส่วนลดตามรายการสินค้า
       $amount = $rs->total_amount;
 
-      $barcode = $is_barcode === FALSE ? $rs->barcode : barcodeImage($rs->barcode);
+      $barcode = barcodeImage($rs->barcode); //$is_barcode === FALSE ? $rs->barcode : barcodeImage($rs->barcode);
       //--- เตรียมข้อมูลไว้เพิ่มลงตาราง
       $data = array(
                     $n,

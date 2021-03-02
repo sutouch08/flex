@@ -129,6 +129,23 @@ $product_brand = ($pdBrandNo > 0 && $allProduct == 'N' && $product_style == 'N')
 				<div class="divider-hidden"></div>
 
 
+				<div class="col-sm-2">
+					<span class="form-control left-label text-right">ยี่ห้อสินค้า</span>
+				</div>
+        <div class="col-sm-2">
+					<div class="btn-group width-100">
+						<button type="button" class="not-pd-all btn btn-sm width-50" id="btn-pd-brand-yes" onclick="toggleProductBrand('Y')" disabled>YES</button>
+						<button type="button" class="not-pd-all btn btn-sm width-50 btn-primary" id="btn-pd-brand-no" onclick="toggleProductBrand('N')" disabled>NO</button>
+					</div>
+        </div>
+				<div class="col-sm-2 col-2-harf padding-5">
+					<button type="button" class="option btn btn-xs btn-info btn-block padding-right-5" id="btn-select-pd-brand" onclick="showProductBrand()" disabled>
+						เลือกยี่ห้อสินค้า <span class="badge pull-right" id="badge-pd-brand"><?php echo $pdBrandNo; ?></span>
+					</button>
+				</div>
+				<div class="divider-hidden"></div>
+
+
 
 				<div class="col-sm-2">
 					<span class="form-control left-label text-right">กลุ่มสินค้า</span>
@@ -165,6 +182,38 @@ $product_brand = ($pdBrandNo > 0 && $allProduct == 'N' && $product_style == 'N')
 				<div class="divider-hidden"></div>
 
 
+				<div class="col-sm-2">
+					<span class="form-control left-label text-right">หมวดหมู่สินค้า</span>
+				</div>
+        <div class="col-sm-2">
+					<div class="btn-group width-100">
+						<button type="button" class="not-pd-all btn btn-sm width-50" id="btn-pd-cat-yes" onclick="toggleProductCategory('Y')" disabled>YES</button>
+						<button type="button" class="not-pd-all btn btn-sm width-50 btn-primary" id="btn-pd-cat-no" onclick="toggleProductCategory('N')" disabled>NO</button>
+					</div>
+        </div>
+				<div class="col-sm-2 col-2-harf padding-5">
+					<button type="button" class="option btn btn-xs btn-info btn-block padding-right-5" id="btn-select-pd-cat" onclick="showProductCategory()" disabled>
+						เลือกหมวดหมู่สินค้า <span class="badge pull-right" id="badge-pd-cat"><?php echo $pdCategoryNo; ?></span>
+					</button>
+				</div>
+				<div class="divider-hidden"></div>
+
+				<div class="col-sm-2">
+					<span class="form-control left-label text-right">ประเภทสินค้า</span>
+				</div>
+				<div class="col-sm-2">
+					<div class="btn-group width-100">
+						<button type="button" class="not-pd-all btn btn-sm width-50" id="btn-pd-kind-yes" onclick="toggleProductKind('Y')" disabled>YES</button>
+						<button type="button" class="not-pd-all btn btn-sm width-50 btn-primary" id="btn-pd-kind-no" onclick="toggleProductKind('N')" disabled>NO</button>
+					</div>
+				</div>
+				<div class="col-sm-2 col-2-harf padding-5">
+					<button type="button" class="option btn btn-xs btn-info btn-block padding-right-5" id="btn-select-pd-kind" onclick="showProductKind()" disabled>
+						เลือกประเภทสินค้า <span class="badge pull-right" id="badge-pd-kind"><?php echo $pdKindNo; ?></span>
+					</button>
+				</div>
+				<div class="divider-hidden"></div>
+
 
 				<div class="col-sm-2">
 					<span class="form-control left-label text-right">ชนิดสินค้า</span>
@@ -182,57 +231,6 @@ $product_brand = ($pdBrandNo > 0 && $allProduct == 'N' && $product_style == 'N')
 				</div>
 				<div class="divider-hidden"></div>
 
-
-
-				<div class="col-sm-2">
-					<span class="form-control left-label text-right">ประเภทสินค้า</span>
-				</div>
-        <div class="col-sm-2">
-					<div class="btn-group width-100">
-						<button type="button" class="not-pd-all btn btn-sm width-50" id="btn-pd-kind-yes" onclick="toggleProductKind('Y')" disabled>YES</button>
-						<button type="button" class="not-pd-all btn btn-sm width-50 btn-primary" id="btn-pd-kind-no" onclick="toggleProductKind('N')" disabled>NO</button>
-					</div>
-        </div>
-				<div class="col-sm-2 col-2-harf padding-5">
-					<button type="button" class="option btn btn-xs btn-info btn-block padding-right-5" id="btn-select-pd-kind" onclick="showProductKind()" disabled>
-						เลือกประเภทสินค้า <span class="badge pull-right" id="badge-pd-kind"><?php echo $pdKindNo; ?></span>
-					</button>
-				</div>
-				<div class="divider-hidden"></div>
-
-
-				<div class="col-sm-2">
-					<span class="form-control left-label text-right">หมวดหมู่สินค้า</span>
-				</div>
-        <div class="col-sm-2">
-					<div class="btn-group width-100">
-						<button type="button" class="not-pd-all btn btn-sm width-50" id="btn-pd-cat-yes" onclick="toggleProductCategory('Y')" disabled>YES</button>
-						<button type="button" class="not-pd-all btn btn-sm width-50 btn-primary" id="btn-pd-cat-no" onclick="toggleProductCategory('N')" disabled>NO</button>
-					</div>
-        </div>
-				<div class="col-sm-2 col-2-harf padding-5">
-					<button type="button" class="option btn btn-xs btn-info btn-block padding-right-5" id="btn-select-pd-cat" onclick="showProductCategory()" disabled>
-						เลือกเขตสินค้า <span class="badge pull-right" id="badge-pd-cat"><?php echo $pdCategoryNo; ?></span>
-					</button>
-				</div>
-				<div class="divider-hidden"></div>
-
-
-				<div class="col-sm-2">
-					<span class="form-control left-label text-right">ยี่ห้อสินค้า</span>
-				</div>
-        <div class="col-sm-2">
-					<div class="btn-group width-100">
-						<button type="button" class="not-pd-all btn btn-sm width-50" id="btn-pd-brand-yes" onclick="toggleProductBrand('Y')" disabled>YES</button>
-						<button type="button" class="not-pd-all btn btn-sm width-50 btn-primary" id="btn-pd-brand-no" onclick="toggleProductBrand('N')" disabled>NO</button>
-					</div>
-        </div>
-				<div class="col-sm-2 col-2-harf padding-5">
-					<button type="button" class="option btn btn-xs btn-info btn-block padding-right-5" id="btn-select-pd-brand" onclick="showProductBrand()" disabled>
-						เลือกยี่ห้อสินค้า <span class="badge pull-right" id="badge-pd-brand"><?php echo $pdBrandNo; ?></span>
-					</button>
-				</div>
-				<div class="divider-hidden"></div>
 
         <div class="col-sm-2">
 					<span class="form-control left-label text-right">ปีสินค้า</span>

@@ -96,25 +96,6 @@ $customer_class = ($custClassNo > 0 && $allCustomer == 'N' && $customer_id == 'N
 				<div class="divider-hidden"></div>
 
 
-
-				<div class="col-sm-2">
-					<span class="form-control left-label text-right">ชนิดลูกค้า</span>
-				</div>
-        <div class="col-sm-2">
-					<div class="btn-group width-100">
-						<button type="button" class="not-all btn btn-sm width-50" id="btn-cust-type-yes" onclick="toggleCustomerType('Y')" disabled>YES</button>
-						<button type="button" class="not-all btn btn-sm width-50 btn-primary" id="btn-cust-type-no" onclick="toggleCustomerType('N')" disabled>NO</button>
-					</div>
-        </div>
-				<div class="col-sm-2 col-2-harf padding-5">
-					<button type="button" class="option btn btn-xs btn-info btn-block padding-right-5" id="btn-select-cust-type" onclick="showCustomerType()" disabled>
-						เลือกชนิดลูกค้า <span class="badge pull-right" id="badge-type"><?php echo $custTypeNo; ?></span>
-					</button>
-				</div>
-				<div class="divider-hidden"></div>
-
-
-
 				<div class="col-sm-2">
 					<span class="form-control left-label text-right">ประเภทลูกค้า</span>
 				</div>
@@ -133,17 +114,17 @@ $customer_class = ($custClassNo > 0 && $allCustomer == 'N' && $customer_id == 'N
 
 
 				<div class="col-sm-2">
-					<span class="form-control left-label text-right">เขตลูกค้า</span>
+					<span class="form-control left-label text-right">ชนิดลูกค้า</span>
 				</div>
         <div class="col-sm-2">
 					<div class="btn-group width-100">
-						<button type="button" class="not-all btn btn-sm width-50" id="btn-cust-area-yes" onclick="toggleCustomerArea('Y')" disabled>YES</button>
-						<button type="button" class="not-all btn btn-sm width-50 btn-primary" id="btn-cust-area-no" onclick="toggleCustomerArea('N')" disabled>NO</button>
+						<button type="button" class="not-all btn btn-sm width-50" id="btn-cust-type-yes" onclick="toggleCustomerType('Y')" disabled>YES</button>
+						<button type="button" class="not-all btn btn-sm width-50 btn-primary" id="btn-cust-type-no" onclick="toggleCustomerType('N')" disabled>NO</button>
 					</div>
         </div>
 				<div class="col-sm-2 col-2-harf padding-5">
-					<button type="button" class="option btn btn-xs btn-info btn-block padding-right-5" id="btn-select-cust-area" onclick="showCustomerArea()" disabled>
-						เลือกเขตลูกค้า <span class="badge pull-right" id="badge-area"><?php echo $custAreaNo; ?></span>
+					<button type="button" class="option btn btn-xs btn-info btn-block padding-right-5" id="btn-select-cust-type" onclick="showCustomerType()" disabled>
+						เลือกชนิดลูกค้า <span class="badge pull-right" id="badge-type"><?php echo $custTypeNo; ?></span>
 					</button>
 				</div>
 				<div class="divider-hidden"></div>
@@ -164,11 +145,28 @@ $customer_class = ($custClassNo > 0 && $allCustomer == 'N' && $customer_id == 'N
 					</button>
 				</div>
         <div class="divider-hidden"></div>
+
+
+				<div class="col-sm-2">
+					<span class="form-control left-label text-right">พื้นที่ขาย</span>
+				</div>
+        <div class="col-sm-2">
+					<div class="btn-group width-100">
+						<button type="button" class="not-all btn btn-sm width-50" id="btn-cust-area-yes" onclick="toggleCustomerArea('Y')" disabled>YES</button>
+						<button type="button" class="not-all btn btn-sm width-50 btn-primary" id="btn-cust-area-no" onclick="toggleCustomerArea('N')" disabled>NO</button>
+					</div>
+        </div>
+				<div class="col-sm-2 col-2-harf padding-5">
+					<button type="button" class="option btn btn-xs btn-info btn-block padding-right-5" id="btn-select-cust-area" onclick="showCustomerArea()" disabled>
+						เลือกพื้นที่ขาย <span class="badge pull-right" id="badge-area"><?php echo $custAreaNo; ?></span>
+					</button>
+				</div>
+				<div class="divider-hidden"></div>
+
 				<div class="col-sm-2">&nbsp;</div>
 				<div class="col-sm-3">
 					<button type="button" class="btn btn-xs btn-success btn-block" onclick="saveCustomer()"><i class="fa fa-save"></i> บันทึก</button>
 				</div>
-
 
     </div>
 

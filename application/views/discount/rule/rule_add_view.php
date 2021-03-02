@@ -13,12 +13,12 @@
 <form id="addForm" method="post" action="<?php echo $this->home; ?>/add">
 <div class="row">
   <div class="col-sm-2 padding-5 first">
-    <label>เลขที่นโยบาย</label>
+    <label>เลขที่</label>
     <input type="text" class="form-control input-sm" name="code" id="code" value="" disabled />
   </div>
 
   <div class="col-sm-8 padding-5">
-    <label>ชื่อนโยบาย</label>
+    <label>ชื่อ</label>
     <input type="text" class="form-control input-sm" name="name" id="name" value="" required />
   </div>
   <?php if($this->pm->can_add) : ?>

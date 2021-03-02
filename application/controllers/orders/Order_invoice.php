@@ -219,32 +219,68 @@ class Order_invoice extends PS_Controller
 		$code = $this->input->post('code');
 		if($this->pm->can_delete)
 		{
-			$this->db->trans_begin();
+			$order = $this->order_invoice_model->get($code);
 
-			$arr = array(
-				'status' => 2 //--- cancle
-			);
-
-			if(! $this->order_invoice_model->update($code, $arr))
+			if(!empty($order))
 			{
-				$sc = FALSE;
-				$this->error = "Update document status failed";
-			}
 
-			if(! $this->order_invoice_model->update_details_status($code, 2))
-			{
-				$sc = FALSE;
-				$this->error = "Update details status failed";
-			}
+				$this->db->trans_begin();
 
-			if($sc === TRUE)
-			{
-				$this->db->trans_commit();
+				$arr = array(
+					'status' => 2 //--- cancle
+				);
+
+				if(! $this->order_invoice_model->update($code, $arr))
+				{
+					$sc = FALSE;
+					$this->error = "Update document status failed";
+				}
+
+				if(! $this->order_invoice_model->update_details_status($code, 2))
+				{
+					$sc = FALSE;
+					$this->error = "Update details status failed";
+				}
+
+				if(!empty($order->reference))
+				{
+					$reference = explode(',', $order->reference);
+
+					if(!empty($reference))
+					{
+						$this->load->model('orders/orders_model');
+
+						foreach($reference as $order_code)
+						{
+							$arr = array(
+								'invoice_code' => NULL
+							);
+
+							if(! $this->orders_model->update($order_code, $arr))
+							{
+								$sc = FALSE;
+								$this->error = "Update order invoice reference failed";
+							}
+						}
+					}
+				}
+
+
+				if($sc === TRUE)
+				{
+					$this->db->trans_commit();
+				}
+				else
+				{
+					$this->db->trans_rollback();
+				}
 			}
 			else
 			{
-				$this->db->trans_rollback();
+				$sc = FALSE;
+				$this->error = "Invalid Document No";
 			}
+
 		}
 		else
 		{
@@ -605,6 +641,269 @@ class Order_invoice extends PS_Controller
 	}
 
 
+
+
+	public function create_invoice($order_code)
+	{
+		$this->load->model('orders/orders_model');
+		$this->load->model('address/customer_address_model');
+		$sc = TRUE;
+
+		if(!empty($order_code))
+		{
+			$order = $this->orders_model->get($order_code);
+
+			if(!empty($order))
+			{
+				if($order->state == 8)
+				{
+					if(empty($order->invoice_code))
+					{
+						$customer = $this->customers_model->get($order->customer_code);
+						$doc_date = date('Y-m-d');
+						$code = $this->get_new_code($doc_date);
+						$total_amount = 0;
+						$total_vat = 0;
+
+						$arr = array(
+							'code' => $code,
+							'doc_date' => $doc_date,
+							'vat_type' => 'I',
+							'customer_code' => $customer->code,
+							'customer_name' => $customer->name,
+							'tax_id' => get_null($customer->Tax_Id),
+							'remark' => NULL,
+							'uname' => $this->_user->uname,
+							'reference' => $order_code,
+							'status' => 1
+						);
+
+						$address = $this->customer_address_model->get_customer_bill_to_address($customer->code);
+
+						if(!empty($address))
+						{
+							$arr['branch_code'] = get_null($address->branch_code);
+							$arr['branch_name'] = get_null($address->branch_name);
+							$arr['address'] = get_null($address->address);
+							$arr['sub_district'] = get_null($address->sub_district);
+							$arr['district'] = get_null($address->district);
+							$arr['province'] = get_null($address->province);
+							$arr['postcode'] = get_null($address->postcode);
+							$arr['phone'] = get_null($address->phone);
+						}
+
+						$this->db->trans_begin();
+
+						if($this->order_invoice_model->add($arr))
+						{
+							//----- get details
+							$details = $this->order_invoice_model->get_billed_details($order_code);
+
+							if(!empty($details))
+							{
+								foreach($details as $rs)
+								{
+									if($sc === FALSE)
+									{
+										break;
+									}
+
+									//--- use id from order_sold to check duplicate item
+									$is_exists = $this->order_invoice_model->is_exists_detail($rs->reference, $rs->product_code);
+
+									if(! $is_exists)
+									{
+										$discount_label = $rs->discount_label;
+										//--- recal discount
+										if($rs->avgBillDiscAmount > 0 && $rs->discount_amount > 0)
+										{
+											$price = $rs->price * $rs->qty;
+											$discount = $price == 0 ? 0 : ($rs->discount_amount/$price) * 100;
+											$discount_label = $discount === 0 ? 0 : round($discount,2).'%';
+										}
+
+
+										$arr = array(
+											'invoice_code' => $code,
+											'order_code' => $rs->reference,
+											'product_code' => $rs->product_code,
+											'product_name' => $rs->product_name,
+											'qty' => $rs->qty,
+											'price' => $rs->price,
+											'unit_code' => $rs->unit_code,
+											'unit_name' => $rs->unit_name,
+											'vat_code' => $rs->vat_code,
+											'vat_rate' => $rs->vat_rate,
+											'discount_label' => $discount_label,
+											'discount_amount' => $rs->discount_amount,
+											'amount' => $rs->total_amount,
+											'vat_amount' => $rs->vat_amount,
+											'status' => 1
+										);
+
+										if(! $this->order_invoice_model->add_detail($arr))
+										{
+											$sc = FALSE;
+											$this->error = "Insert detail failed";
+										}
+
+										if($sc === TRUE)
+										{
+											$total_amount += $rs->total_amount;
+											$total_vat += $rs->vat_amount;
+										}
+									} //--- end if exists
+								} //--- end foreach
+							} //--- end if empty details
+
+							$arr = array(
+								'total_amount' => $total_amount,
+								'vat_amount' => $total_vat
+							);
+
+							if(! $this->order_invoice_model->update($code, $arr))
+							{
+								$sc = FALSE;
+								$this->error = "Update DocTotal failed";
+							}
+
+
+							if(! $this->orders_model->update($order_code, array('invoice_code' => $code)))
+							{
+								$sc = FALSE;
+								$this->error = "Update order invoice reference failed";
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "Create Document failed";
+						}
+
+
+						if($sc === TRUE)
+						{
+							$this->db->trans_commit();
+						}
+						else
+						{
+							$this->db->trans_rollback();
+						}
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Invalid order state";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid Order code";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter: code";
+		}
+
+		if($sc === TRUE)
+		{
+			$result = array(
+				'status' => 'success',
+				'code' => empty($code) ? '' : $code
+			);
+		}
+		else
+		{
+			$result = array(
+				'status' => 'failed',
+				'error' => $this->error
+			);
+		}
+
+		return $result;
+	}
+
+
+
+	public function gen_new_invoice()
+	{
+		$sc = TRUE;
+
+		if($this->pm->can_add)
+		{
+			$orders = $this->input->post('orders');
+
+			if(!empty($orders))
+			{
+				$count = 0;
+				$success = array();
+				$failed = array();
+
+				foreach($orders as $order_code)
+				{
+					$rs = $this->create_invoice($order_code);
+
+					if(!empty($rs))
+					{
+						$count++;
+
+						if($rs['status'] === 'success')
+						{
+							$success[] = $rs['code'];
+						}
+						else
+						{
+							$arr = array(
+								'code' => $order_code,
+								'error_message' => $rs['error']
+							);
+
+							array_push($failed, $arr);
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "Server Error";
+					}
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Missing required parameter : code";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing Permission";
+		}
+
+		if($sc === TRUE)
+		{
+			$arr = array(
+				'success' => array(
+					'count' => count($success),
+					'code' => $success
+				),
+				'failed' => array(
+					'count' => count($failed),
+					'order' => $failed
+				)
+			);
+
+			echo json_encode($arr);
+		}
+		else
+		{
+			echo $this->error;
+		}
+	}
 
 
 

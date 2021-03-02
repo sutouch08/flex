@@ -1,25 +1,34 @@
 <?php $this->load->view('include/header'); ?>
+<?php $pm = get_permission('SOODIV', $this->_user->uid, get_cookie('id_profile')); ?>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-sm-6 col-xs-6 padding-5">
     <h3 class="title">
       <?php echo $this->title; ?>
     </h3>
     </div>
-		<div class="col-sm-6">
+		<div class="col-sm-6 col-xs-6 padding-5">
 			<p class="pull-right top-p">
-
+				<?php if($pm->can_add OR $pm->can_edit) : ?>
+					<button type="button" class="btn btn-sm btn-primary" onclick="create_each_invoice()">เปิดใบกำกับแยกออเดอร์</button>
+					<button type="button" class="btn btn-sm btn-success" onclick="create_one_invoice()">เปิดใบกำกับรวมออเดอร์</button>
+				<?php endif; ?>
 			</p>
 		</div>
 </div><!-- End Row -->
-<hr class=""/>
+<hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-1 col-1-harf padding-5 first">
+  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
     <input type="text" class="form-control input-sm search" name="code"  value="<?php echo $code; ?>" />
   </div>
 
-  <div class="col-sm-1 col-1-harf padding-5">
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+    <label>ใบกำกับ</label>
+    <input type="text" class="form-control input-sm search" name="invoice_code"  value="<?php echo $invoice_code; ?>" />
+  </div>
+
+  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     <label>ลูกค้า</label>
     <input type="text" class="form-control input-sm search" name="customer" value="<?php echo $customer; ?>" />
   </div>
@@ -32,6 +41,7 @@
 		</select>
   </div>
 
+	<!--
 	<div class="col-sm-1 col-1-harf padding-5">
     <label>รูปแบบ</label>
 		<select class="form-control input-sm" name="role" onchange="getSearch()">
@@ -39,7 +49,7 @@
       <?php echo select_order_role($role); ?>
     </select>
   </div>
-
+-->
 	<div class="col-sm-1 col-1-harf padding-5">
     <label>ช่องทางขาย</label>
 		<select class="form-control input-sm" name="channels" onchange="getSearch()">
@@ -60,7 +70,7 @@
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-sm-1 padding-5 last">
+	<div class="col-sm-1 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
@@ -73,9 +83,11 @@
     <table class="table table-striped border-1">
       <thead>
         <tr>
+					<th class="width-5 text-center"></th>
           <th class="width-5 text-center">ลำดับ</th>
           <th class="width-8 text-center">วันที่</th>
-          <th class="width-20">เลขที่เอกสาร</th>
+          <th class="width-15">เลขที่เอกสาร</th>
+					<th class="width-10">ใบกำกับ</th>
           <th class="">ลูกค้า/ผู้รับ/ผู้เบิก</th>
           <th class="width-10 text-center">ยอดเงิน</th>
           <th class="width-10 text-center">การชำระเงิน</th>
@@ -88,7 +100,14 @@
 <?php   foreach($orders as $rs)  : ?>
 
         <tr class="font-size-12">
-
+					<td class="text-center">
+						<?php if($rs->role === 'S' && empty($rs->invoice_code)) : ?>
+							<label>
+								<input type="checkbox" class="ace chk" value="<?php echo $rs->code; ?>" />
+								<span class="lbl"></span>
+							</label>
+						<?php endif; ?>
+					</td>
           <td class="text-center pointer" onclick="viewDetail('<?php echo $rs->code; ?>')">
             <?php echo $no; ?>
           </td>
@@ -103,6 +122,10 @@
 						<?php if($rs->payment_role == 4 && $rs->is_paid == 0) : ?>
 							<span class="label label-danger">รอเงินเข้า</span>
 						<?php endif; ?>
+          </td>
+
+					<td class="pointer text-center" onclick="viewDetail('<?php echo $rs->code; ?>')">
+            <?php echo $rs->invoice_code; ?>
           </td>
 
           <td class="pointer hide-text" onclick="viewDetail('<?php echo $rs->code; ?>')">
@@ -129,7 +152,7 @@
 <?php endforeach; ?>
 <?php else : ?>
       <tr>
-        <td colspan="7" class="text-center"><h4>ไม่พบรายการ</h4></td>
+        <td colspan="8" class="text-center"><h4>ไม่พบรายการ</h4></td>
       </tr>
 <?php endif; ?>
       </tbody>

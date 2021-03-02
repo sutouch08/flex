@@ -3,7 +3,8 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">รหัส</label>
     <div class="col-xs-12 col-sm-4">
-      <input type="text" name="code" id="code" class="form-control input-sm code" value="<?php echo $ds->code; ?>" disabled />
+      <input type="text" class="form-control input-sm code" value="<?php echo $ds->code; ?>" disabled />
+			<input type="hidden" name="code" id="code" value="<?php echo $ds->code; ?>"/>
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" id="code-error"></div>
   </div>
@@ -29,7 +30,7 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">กลุ่มลูกค้า</label>
     <div class="col-xs-12 col-sm-4">
-			<select name="group" id="group" class="form-control" required>
+			<select name="group" id="group" class="form-control">
 				<option value="">เลือก</option>
 				<?php echo select_customer_group($ds->group_code); ?>
 			</select>
@@ -41,7 +42,7 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">ประเภทลูกค้า</label>
     <div class="col-xs-12 col-sm-4">
-			<select name="kind" id="kind" class="form-control" required>
+			<select name="kind" id="kind" class="form-control">
 				<option value="">เลือก</option>
 				<?php echo select_customer_kind($ds->kind_code); ?>
 			</select>
@@ -53,7 +54,7 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">ชนิดลูกค้า</label>
     <div class="col-xs-12 col-sm-4">
-			<select name="type" id="type" class="form-control" required>
+			<select name="type" id="type" class="form-control">
 				<option value="">เลือก</option>
 				<?php echo select_customer_type($ds->type_code); ?>
 			</select>
@@ -66,7 +67,7 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">เกรดลูกค้า</label>
     <div class="col-xs-12 col-sm-4">
-			<select name="class" id="class" class="form-control" required>
+			<select name="class" id="class" class="form-control">
 				<option value="">เลือก</option>
 				<?php echo select_customer_class($ds->class_code); ?>
 			</select>
@@ -78,7 +79,7 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">พื้นที่ขาย</label>
     <div class="col-xs-12 col-sm-4">
-			<select name="area" id="area" class="form-control" required>
+			<select name="area" id="area" class="form-control">
 				<option value="">เลือก</option>
 				<?php echo select_customer_area($ds->area_code); ?>
 			</select>
@@ -141,13 +142,14 @@
     <label class="col-sm-3 control-label no-padding-right"></label>
     <div class="col-xs-12 col-sm-3">
       <p class="pull-right">
-        <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> บันทึก</button>
+        <button type="button" class="btn btn-sm btn-success" onclick="update()"><i class="fa fa-save"></i> บันทึก</button>
       </p>
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline">
       &nbsp;
     </div>
   </div>
+
+	<input type="hidden" name="old_name" id="old_name" value="<?php echo $ds->name; ?>" />
 	<input type="hidden" name="customers_code" id="customers_code" value="<?php echo $ds->code; ?>" />
-	<input type="hidden" name="customers_name" value="<?php echo $ds->name; ?>" />
 </form>

@@ -96,7 +96,7 @@
 
 
 <script>
-	$('#acc-no').mask('999-9-99999-9');
+	//$('#acc-no').mask('999-9-99999-9');
 </script>
 
 <?php $this->load->view('include/footer'); ?>

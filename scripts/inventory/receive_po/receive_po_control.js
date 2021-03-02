@@ -65,7 +65,8 @@ function insert_item()
 	var items = [];
 
   $('.input-qty').each(function(){
-    let pdCode = $(this).attr('id');
+    //let pdCode = $(this).attr('id');
+		let pdCode = $(this).data('pdcode');
     var qty = parseDefault(parseInt($(this).val()), 0);
 
     if(qty > 0){
@@ -163,7 +164,8 @@ function insertPoItems()
 	var items = [];
 
   $('.receive_qty').each(function(){
-    let pdCode = $(this).attr('id');
+    //let pdCode = $(this).attr('id');
+		let pdCode = $(this).data('pdcode');
     var qty = parseDefault(parseInt($(this).val()),0);
 
     if(qty > 0){
@@ -220,4 +222,26 @@ function insertPoItems()
 			}
 		}
   });
+}
+
+
+function receiveAll() {
+	$('.receive_qty').each(function() {
+		var no = $(this).data('no');
+		var backlogs = parseDefault(parseFloat($('#qty-'+no).val()), 0);
+
+		if(backlogs > 0) {
+			$('#pdCode-'+no).val(backlogs);
+		}
+		else {
+			$('#pdCode-'+no).val('');
+		}
+	})
+}
+
+
+function clearAll() {
+	$('.receive_qty').each(function(){
+		$(this).val('');
+	})
 }

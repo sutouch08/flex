@@ -123,7 +123,7 @@ $btn_tab_item = $PRODUCT_TAB_TYPE == 'item' ? 'btn-success' : '';
     <div class="col-sm-9">
 			<div class="btn-group input-large">
 				<button type="button" class="btn btn-sm width-50 <?php echo $btn_tab_style; ?>" id="btn-tab-style" onClick="toggleProductTabType('style')">รุ่นสินค้า</button>
-				<button type="button" class="btn btn-sm width-50 <?php echo $btn_tab_item; ?>" id="btn-tab-item" onClick="toggleProductTab('item')">รายการสินค้า</button>
+				<button type="button" class="btn btn-sm width-50 <?php echo $btn_tab_item; ?>" id="btn-tab-item" onClick="toggleProductTabType('item')">รายการสินค้า</button>
 			</div>
       <span class="help-block">กำหนดรูปแบบการใช้แถบแสดงสินค้า แสดงเป็น 'รุ่นสินค้า' หรือ 'รายการสินค้า'</span>
 			<input type="hidden" name="PRODUCT_TAB_TYPE" id="product-tab-type" value="<?php echo $PRODUCT_TAB_TYPE; ?>" />

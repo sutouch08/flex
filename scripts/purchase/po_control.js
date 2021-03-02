@@ -1,6 +1,16 @@
 $('#pd-code').autocomplete({
-  source:BASE_URL + 'auto_complete/get_style_code',
-  autoFocus:true
+  source:BASE_URL + 'auto_complete/get_style_code_and_name',
+  autoFocus:true,
+	close:function() {
+		var rs = $(this).val();
+		var arr = rs.split(' | ');
+		if(arr.length == 2) {
+			$(this).val(arr[0]);
+		}
+		else {
+			$(this).val('');
+		}
+	}
 });
 
 $('#pd-code').keyup(function(e){
@@ -12,9 +22,15 @@ $('#pd-code').keyup(function(e){
 
 
 $('#item-code').autocomplete({
-  source:BASE_URL + 'auto_complete/get_item_code',
+  source:BASE_URL + 'auto_complete/get_item_code_and_name',
   autoFocus:true,
   close:function(){
+		var rs = $(this).val();
+		var arr = rs.split(' | ');
+		if(arr.length == 2) {
+			$(this).val(arr[0]);
+		}
+
     $('#item-qty').focus();
   }
 });
@@ -118,6 +134,9 @@ function addRow(){
     },
     success:function(rs){
       if(rs === 'success'){
+				$('#item-code').val('');
+				$('#item-qty').val('');
+				$('#item-code').focus();
         updateDetailTable();
       }else{
         swal(rs);

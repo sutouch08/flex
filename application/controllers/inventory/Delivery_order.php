@@ -76,6 +76,7 @@ class Delivery_order extends PS_Controller
     $code = $this->input->post('order_code');
     $use_qc = getConfig('USE_QC') == 1 ? TRUE : FALSE;
 		$use_credit = getConfig('CONTROL_CREDIT') == 1 ? TRUE : FALSE;
+		$warehouse_code = NULL;
 
     if($code)
     {
@@ -92,9 +93,11 @@ class Delivery_order extends PS_Controller
       }
 
       //---- กรณีฝากขาย (โอนคลัง)
-      if($order->role == 'N')
+      if($order->role == 'N' OR $order->role == 'C')
       {
         $this->load->model('orders/consign_model');
+				$this->load->model('masters/zone_model');
+				$warehouse_code = $this->zone_model->get_warehouse_code($order->zone_code);
       }
 
       if($order->state == 7)
@@ -230,7 +233,7 @@ class Delivery_order extends PS_Controller
                     //--- 2. เพิ่ม movement เข้าปลายทาง
                     $arr = array(
                       'reference' => $order->code,
-                      'warehouse_code' => $order->warehouse_code,
+                      'warehouse_code' => empty($warehouse_code) ? $this->zone_model->get_warehouse_code($order->zone_code) : $warehouse_code,
                       'zone_code' => $order->zone_code,
                       'product_code' => $rm->product_code,
                       'move_in' => $buffer_qty,

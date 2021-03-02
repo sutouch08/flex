@@ -20,7 +20,7 @@
     <input type="text" class="form-control input-sm text-center" id="txt-policy" value="<?php echo $rule->code; ?>" disabled />
   </div>
   <div class="col-sm-8 padding-5">
-    <label>ชื่อเงื่อนไข</label>
+    <label>ชื่อ</label>
     <input type="text" class="form-control input-sm" maxlength="150" id="txt-rule-name" value="<?php echo $rule->name; ?>" disabled />
   </div>
   <div class="col-sm-1 padding-5">

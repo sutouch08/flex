@@ -103,7 +103,7 @@
           <td>กล่องที่ {{box_no}}</td>
           <td class="text-center"><span id="label-{{id_qc}}">{{qty}}</span></td>
           <td class="text-center">
-            <input type="number" class="form-control input-sm text-center" id="input-{{id_qc}}" />
+            <input type="number" class="form-control input-sm text-center" id="input-{{id_qc}}" data-id="{{id_order_detail}}" />
           </td>
           <td class="text-right">
           <?php if($this->pm->can_delete) : ?>
@@ -128,9 +128,9 @@ if(!empty($barcode_list))
 }
  ?>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/qc/qc.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_process.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_control.js"></script>
-<script src="<?php echo base_url(); ?>scripts/print/print_address.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/qc/qc.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_process.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/qc/qc_control.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/print/print_address.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/beep.js"></script>
 <?php $this->load->view('include/footer'); ?>

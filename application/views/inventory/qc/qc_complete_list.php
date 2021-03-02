@@ -23,14 +23,19 @@
           <span class="visible-xs"><?php echo $rs->product_code; ?></span>
         </td>
         <td class="middle text-center"><?php echo number($rs->order_qty); ?></td>
-        <td class="middle text-center" id="prepared-<?php echo $rs->id; ?>"><?php echo number($rs->prepared); ?></td>
+        <td class="middle text-center prepared" data-id="<?php echo $rs->id; ?>" id="prepared-<?php echo $rs->id; ?>"><?php echo number($rs->prepared); ?></td>
         <td class="middle text-center" id="qc-<?php echo $rs->id; ?>"><?php echo number($rs->qc); ?></td>
         <td class="middle text-right hidden-xs">
+
           <?php if(($rs->qc > $rs->prepared OR $rs->qc > $rs->order_qty) && $this->pm->can_delete) : ?>
-            <button type="button" class="btn btn-xs btn-warning" onclick="showEditOption('<?php echo $order->code; ?>', '<?php echo $rs->id; ?>', '<?php echo $rs->product_code; ?>')">
+            <button type="button"
+						id="btn-<?php echo $rs->id; ?>"
+						class="btn btn-xs btn-warning"
+						onclick="showEditOption('<?php echo $order->code; ?>', '<?php echo $rs->id; ?>', '<?php echo $rs->product_code; ?>')">
               <i class="fa fa-pencil"></i> แก้ไข
             </button>
           <?php endif; ?>
+
           <button
             type="button"
             class="btn btn-default btn-xs btn-pop"

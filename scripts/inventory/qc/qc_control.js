@@ -1,7 +1,7 @@
 //--- ปิดออเดอร์ (ตรวจเสร็จแล้วจ้า) เปลี่ยนสถานะ
 function closeOrder(){
   var order_code = $("#order_code").val();
-
+	var err = 0;
   var notsave = 0;
   //--- ตรวจสอบก่อนว่ามีรายการที่ยังไม่บันทึกค้างอยู่หรือไม่
   $(".hidden-qc").each(function(index, element){
@@ -10,34 +10,62 @@ function closeOrder(){
     }
   });
 
+	//----- เช็คว่ามีรายการที่ตรวจเกินที่จัดมาหรือไม่
+	$('.prepared').each(function(index, element){
+		let id = $(this).data('id');
+		var prepared = parseDefault(parseInt($('#prepared-'+id).text()), 0);
+		var qc = parseDefault(parseInt($('#qc-'+id).text()), 0);
+
+		if(qc > prepared) {
+
+			err++;
+
+			return false;
+		}
+	})
+
+
   //--- ถ้ายังมีรายการที่ยังไม่บันทึก ให้บันทึกก่อน
-  if(notsave > 0){
+  if(notsave > 0) {
     saveQc(2);
-  }else{
-    //--- close order
-    $.ajax({
-      url: HOME +'close_order',
-      type:'POST',
-      cache:'false',
-      data:{
-        "order_code": order_code
-      },
-      success:function(rs){
-        var rs = $.trim(rs);
-        if(rs == 'success'){
-          swal({title:'Success', type:'success', timer:1000});
-          $('#btn-close').attr('disabled', 'disabled');
-          $(".zone").attr('disabled', 'disabled');
-          $(".item").attr('disabled', 'disabled');
-          $(".close").attr('disabled', 'disabled');
-          $('#btn-print-address').removeClass('hide');
-        }else{
-          swal("Error!", rs, "error");
-        }
-      }
-    });
+  }
+	else if(err > 0) {
+		swal({
+			title:'ข้อผิดพลาด',
+			text:'พบจำนวนที่ตรวจมากกว่าจำนวนที่จัด กรุณาแก้ไข',
+			type:'error'
+		});
+	}
+	else {
+		doCloseOrder(order_code);
   }
 
+}
+
+
+function doCloseOrder(order_code) {
+	//--- close order
+	$.ajax({
+		url: HOME +'close_order',
+		type:'POST',
+		cache:'false',
+		data:{
+			"order_code": order_code
+		},
+		success:function(rs){
+			var rs = $.trim(rs);
+			if(rs == 'success'){
+				swal({title:'Success', type:'success', timer:1000});
+				$('#btn-close').attr('disabled', 'disabled');
+				$(".zone").attr('disabled', 'disabled');
+				$(".item").attr('disabled', 'disabled');
+				$(".close").attr('disabled', 'disabled');
+				$('#btn-print-address').removeClass('hide');
+			}else{
+				swal("Error!", rs, "error");
+			}
+		}
+	});
 }
 
 
@@ -375,6 +403,9 @@ function updateQty(id_qc){
   remove_qty = Math.ceil($('#input-'+id_qc).val());
   limit = parseInt($('#label-'+id_qc).text());
   limit = isNaN(limit) ? 0 : limit;
+	id = $('#input-'+id_qc).data('id');
+	prepared = parseDefault(parseInt($('#prepared-'+id).text()), 0);
+
 
   if(remove_qty > limit){
     swal('ยอดที่เอาออกต้องไม่มากกว่ายอดตรวจนับ');
@@ -384,12 +415,12 @@ function updateQty(id_qc){
   if(limit >= remove_qty){
     load_in();
     $.ajax({
-      url:'controller/qcController.php?decreaseCheckedQty',
+      url:HOME + 'update_checked_qty',
       type:'POST',
       cache:'false',
       data:{
-        'id_qc' : id_qc,
-        'remove_qty' : remove_qty
+        'id' : id_qc,
+        'qty' : remove_qty
       },
       success:function(rs){
         load_out();
@@ -398,6 +429,10 @@ function updateQty(id_qc){
           qty = limit - remove_qty;
           $('#label-'+id_qc).text(qty);
           $('#input-'+id_qc).val('');
+					$('#qc-'+id).text(qty);
+					if(prepared == qty){
+						$('#btn-'+id).remove();
+					}
         }
       }
     });
@@ -406,16 +441,17 @@ function updateQty(id_qc){
 
 
 
-function showEditOption(order_code, product_code, pdCode){
-  $('#edit-title').text(pdCode);
+function showEditOption(order_code, id, product_code){
+  $('#edit-title').text(product_code);
   load_in();
   $.ajax({
-    url:'controller/qcController.php?getCheckedTable',
+    url:HOME + 'get_checked_table',
     type:'GET',
     cache:'false',
     data:{
       'order_code' : order_code,
-      'product_code' : product_code
+      'product_code' : product_code,
+			'id_order_detail' : id
     },
     success:function(rs){
       load_out();

@@ -54,12 +54,12 @@
       <div class="modal-body">
         <table class="table table-striped table-bordered">
           <thead>
-            <th class="width-10 text-center"><?php label('Num'); ?></th>
-            <th class="width-20 text-center"><?php label('item_code'); ?></th>
-            <th class="text-center"><?php label('item_name'); ?></th>
-            <th class="width-10 text-center"><?php label('price'); ?></th>
-            <th class="width-10 text-center"><?php label('po_backlogs'); ?></th>
-            <th class="width-10 text-center"><?php label('qty'); ?></th>
+            <th class="width-10 text-center">#</th>
+            <th class="width-20 text-center">รหัส</th>
+            <th class="text-center">สินค้า</th>
+            <th class="width-10 text-center">ราคา</th>
+            <th class="width-10 text-center">ค้างรับ</th>
+            <th class="width-10 text-center">จำนวน</th>
           </thead>
           <tbody id="po-body">
 
@@ -68,6 +68,8 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" id="btn_close" data-dismiss="modal">ปิด</button>
+				<button type="button" class="btn btn-yellow" onclick="receiveAll()">รับยอดค้างทั้งหมด</button>
+				<button type="button" class="btn btn-purple" onclick="clearAll()">เคลียร์ตัวเลขทั้งหมด</button>
         <button type="button" class="btn btn-primary" onclick="insertPoItems()">เพิ่มในรายการ</button>
        </div>
     </div>
@@ -102,9 +104,10 @@
   <td class="middle">{{pdCode}}</td>
   <td class="middle">{{pdName}}</td>
   <td class="middle text-center">{{price}}</td>
-  <td class="middle text-center">{{backlogs}}</td>
+  <td class="middle text-center" id="backlogs-{{no}}">{{backlogs}}</td>
   <td class="middle text-center">
-    <input type="number" class="form-control input-sm text-center receive_qty" id="{{pdCode}}" value="" />
+    <input type="number" class="form-control input-sm text-center receive_qty" data-no="{{no}}" data-pdcode="{{pdCode}}" id="pdCode-{{no}}" value="{{qty}}" />
+		<input type="hidden" id="qty-{{no}}" value="{{qty}}" />
   </td>
 </tr>
 {{/each}}

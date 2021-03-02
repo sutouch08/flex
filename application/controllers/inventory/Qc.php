@@ -275,6 +275,89 @@ class Qc extends PS_Controller
   }
 
 
+	public function get_checked_table()
+	{
+		$code = $this->input->get('order_code');
+		$pd_code = $this->input->get('product_code');
+		$id = $this->input->get('id_order_detail'); //---- ส่งคืนกลับไป ให้ js ใช้กับอีก function
+		$ds = array();
+
+		$qs = $this->qc_model->get_checked_table($code, $pd_code);
+
+		if(!empty($qs))
+		{
+			foreach($qs as $rs)
+			{
+				$arr = array(
+	        'id_qc' => $rs->id,
+	        'barcode' => $rs->code,
+	        'box_no' => $rs->box_no,
+	        'qty' => $rs->qty,
+					'id_order_detail' => $id
+	      );
+
+	      array_push($ds, $arr);
+			}
+
+			echo json_encode($ds);
+		}
+		else
+		{
+			echo "ไม่พบรายการตรวจสินค้า";
+		}
+	}
+
+
+
+	public function update_checked_qty()
+	{
+		$sc = TRUE;
+
+		$id = $this->input->post('id');
+		$qty = $this->input->post('qty');
+
+		$qc = $this->qc_model->get($id);
+
+		if(!empty($qc))
+		{
+			if($qty <= $qc->qty)
+			{
+				if($qty == $qc->qty)
+				{
+					if(! $this->qc_model->delete($id))
+					{
+						$sc = FALSE;
+						$error = $this->db->error();
+						$this->error = "Delete Failed : ".$error['message'];
+					}
+				}
+				else
+				{
+					if(! $this->qc_model->update_checked_qty($id, $qty *(-1)))
+					{
+						$sc = FALSE;
+						$error = $this->db->error();
+						$this->error = "Update Failed : ".$error['message'];
+					}
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "ยอดที่เอาออกต้องไม่เกินยอดตรวจนับ";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "ไม่พบรายการตรวจนับ";
+		}
+
+		$this->response($sc);
+	}
+
+
+
 
   public function get_box()
   {
