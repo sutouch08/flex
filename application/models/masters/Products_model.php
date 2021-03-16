@@ -333,7 +333,13 @@ class Products_model extends CI_Model
 
   public function get($code)
   {
-    $rs = $this->db->where('code', $code)->get('products');
+		$rs = $this->db
+		->select('products.*, vat.rate AS vat_rate')
+		->from('products')
+		->join('vat', 'products.vat_code = vat.code', 'left')
+		->where('products.code', $code)
+		->get();
+		
     if($rs->num_rows() == 1)
     {
       return $rs->row();

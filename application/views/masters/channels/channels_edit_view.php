@@ -45,17 +45,30 @@
 				<i class="ace-icon fa fa-user"></i>
 			</span>
     </div>
-    <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
+    <div class="help-block col-xs-12 col-sm-reset inline red" id="customer_name-error"></div>
   </div>
 
 	<div class="divider-hidden">
+
+		<div class="form-group">
+	    <label class="col-sm-3 control-label no-padding-right">&nbsp;</label>
+	    <div class="col-xs-12 col-sm-3">
+				<label>
+					<input type="checkbox" class="ace" name="is_default" id="is_default" value="1" <?php echo is_checked('1', $data->is_default); ?> />
+					<span class="lbl">&nbsp; &nbsp;ค่าเริ่มต้น</span>
+				</label>
+	    </div>
+	    <div class="help-block col-xs-12 col-sm-reset inline red" id="customer_name-error"></div>
+	  </div>
+
+		<div class="divider-hidden">
 
 	</div>
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right"></label>
     <div class="col-xs-12 col-sm-3">
       <p class="pull-right">
-        <button type="submit" class="btn btn-xs btn-success"><i class="fa fa-save"></i> Save</button>
+        <button type="button" class="btn btn-xs btn-success" onclick="update()"><i class="fa fa-save"></i> Save</button>
       </p>
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline">
@@ -67,5 +80,5 @@
 	<input type="hidden" name="customer_code" id="customer_code" value="<?php echo $data->customer_code; ?>" />
 </form>
 
-<script src="<?php echo base_url(); ?>scripts/masters/channels.js"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/channels.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

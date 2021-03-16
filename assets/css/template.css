@@ -1210,6 +1210,9 @@ td {
     padding-right : 15px !important;
   }
 
+	.form-group{
+		margin-bottom: 0px;
+	}
 
 }
 

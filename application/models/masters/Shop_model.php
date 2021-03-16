@@ -54,6 +54,56 @@ class Shop_model extends CI_Model
 
 
 
+	public function add_user(array $ds = array())
+	{
+		if(!empty($ds))
+		{
+			return $this->db->insert('shop_users', $ds);
+		}
+
+		return FALSE;
+	}
+
+
+	public function delete_shop_user($id)
+	{
+		return $this->db->where('id', $id)->delete('shop_users');
+	}
+
+
+
+	public function get_shop_user($id)
+	{
+		$rs = $this->db
+		->select('shop_users.*, user.name')
+		->from('shop_users')
+		->join('user', 'shop_users.uname = user.uname', 'left')
+		->where('shop_users.shop_id', $id)
+		->get();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
+
+	public function is_exists_user($shop_id, $uname)
+	{
+		$rs = $this->db->where('shop_id', $shop_id)->where('uname', $uname)->get('shop_users');
+		if($rs->num_rows() > 0)
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+
+
   //---- delete zone  must use only mistake on sap and delete zone in SAP already
   public function delete($code)
   {

@@ -148,5 +148,5 @@
 	<input type="hidden" name="user_id" id="user_id" value="0" />
 </form>
 
-<script src="<?php echo base_url(); ?>scripts/users/users.js"></script>
+<script src="<?php echo base_url(); ?>scripts/users/users.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

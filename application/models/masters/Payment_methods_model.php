@@ -255,5 +255,34 @@ class Payment_methods_model extends CI_Model
     return FALSE;
   }
 
+
+	public function has_default()
+	{
+		$rs = $this->db->where('is_default', 1)->count_all_results('payment_method');
+		if($rs > 0)
+		{
+			return TRUE;
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+
+
+	public function set_default($code)
+	{
+		if($this->db->set('is_default', 0)->where('is_default', 1)->update('payment_method'))
+		{
+			if($this->db->set('is_default', 1)->where('code', $code)->update('payment_method'))
+			{
+				return TRUE;
+			}
+		}
+
+		return FALSE;
+	}
+
+
 }
 ?>

@@ -54,7 +54,7 @@ if(!empty($details))
   $leftCol	.= 			'<span style="font-size:12px; font-weight:bold; display:block;">ชื่อ - ที่อยู่จัดส่งลูกค้า</span>';
   $leftCol 	.=			'<span style="font-size:12px; display:block;">รหัสลูกค้า : '.$cusCode.'</span>';
   $leftCol 	.=			'<span style="font-size:12px; display:block;">'.$cusName.'</span>';
-  $leftCol	.=			'<span style="font-size:12px; display:bolck;">'.$cusAdr1.' '.$cusAdr2.' '.$cusProv.' '.$cusPostCode.'</span>';
+  $leftCol	.=			'<span style="font-size:12px; display:block; white-space:pre-warp;">'.$cusAdr1.' '.$cusAdr2.' '.$cusProv.' '.$cusPostCode.'</span>';
   $leftCol	.= 		'</div>';
   $leftCol	.= '</div>';
 
@@ -106,7 +106,7 @@ if(!empty($details))
 
     $rightCol	.= 	'<tr style="font-size:10px;">';
     $rightCol	.= 		'<td align="center">'.$n.'</td>';
-    $rightCol	.=		'<td>'.$rs->product_code.'</td>';
+    $rightCol	.=		'<td>'.$rs->product_name.'</td>';
     $rightCol	.=		'<td align="center">'.number_format($rs->price, 2).'</td>';
     $rightCol	.=		'<td align="center">'.number_format($rs->qty).'</td>';
     $rightCol	.=		'<td align="right">'.number_format($amount, 2).'</td>';
@@ -215,8 +215,8 @@ $Page .= '<hr style="border: 1px dashed #ccc;" />';
 $Page .= '<div class="row">';
 $Page	.=  '<table style="width:100%; border:0px;">';
 $Page .= 	  '<tr>';
-$Page .=			'<td width="35%" style="vertical-align:text-top; padding:15px;">'.$leftCol.'</td>';
-$Page .= 		  '<td width="65%" style="vertical-align:text-top; padding:15px;">'.$rightCol.'</td>';
+$Page .=			'<td width="30%" style="vertical-align:text-top; padding:15px;">'.$leftCol.'</td>';
+$Page .= 		  '<td width="70%" style="vertical-align:text-top; padding:15px;">'.$rightCol.'</td>';
 $Page	.=		'</tr>';
 $Page	.=   '</table>';
 $Page .= '</div>';

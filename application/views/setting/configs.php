@@ -15,7 +15,7 @@
 			<li class=""><a href="#inventory" data-toggle="tab">คลังสินค้า</a></li>
 		  <li class=""><a href="#order" data-toggle="tab">ออเดอร์</a></li>
 		  <li class=""><a href="#document" data-toggle="tab">เอกสาร</a></li>
-	<?php if($cando === TRUE) : ?>
+	<?php if($this->_SuperAdmin) : ?>
 			<li class=""><a href="#system" data-toggle="tab">ระบบ</a></li>
 	<?php endif; ?>
 			<!--
@@ -32,7 +32,7 @@
 
 		<!---  ตั้งค่าระบบ  ----------------------------------------------------->
 		<?php
-			if($cando === TRUE)
+			if($this->_SuperAdmin)
 			{
 				$this->load->view('setting/setting_system');
 			}

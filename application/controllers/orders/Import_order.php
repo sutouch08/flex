@@ -15,7 +15,7 @@ class Import_order extends CI_Controller
     $this->load->model('stock/stock_model');
 
     $this->load->library('excel');
-    $this->load->library('api');
+    //$this->load->library('api');
   }
 
 
@@ -53,36 +53,6 @@ class Import_order extends CI_Controller
 
         if( $count <= 501 )
         {
-          $ds = array();
-          foreach($collection as $cs)
-          {
-            //---- order code from web site
-            $key = $cs['I'];
-
-            $str = substr($key, 0, 2);
-
-            if($str == 'LA')
-            {
-              $key = substr($key, 2);
-            }
-
-            $cs['I'] = $key;
-
-            $key = $key.$cs['M'];
-
-
-            if(isset($ds[$key]))
-            {
-              $ds[$key]['N'] += $cs['N'];
-              $ds[$key]['O'] += $cs['O'];
-            }
-            else
-            {
-              $ds[$key] = $cs;
-            }
-          }
-
-
           //--- รหัสเล่มเอกสาร [อ้างอิงจาก SAP]
           //--- ถ้าเป็นฝากขายแบบโอนคลัง ยืมสินค้า เบิกแปรสภาพ เบิกสินค้า (ไม่เปิดใบกำกับ เปิดใบโอนคลังแทน) นอกนั้น เปิด SO
           $bookcode = getConfig('BOOK_CODE_ORDER');
@@ -92,9 +62,7 @@ class Import_order extends CI_Controller
           //--- รหัสลูกค้าเริ่มต้น หากพอว่าไม่มีการระบุรหัสลูกค้าไว้ จะใช้รหัสนี้แทน
           $default_customer = getConfig('DEFAULT_CUSTOMER');
 
-          $prefix = getConfig('PREFIX_SHIPPING_NUMBER');
-
-          foreach($ds as $rs)
+          foreach($collection as $rs)
           {
             //--- ถ้าพบ Error ให้ออกจากลูปทันที
             if($sc === FALSE)
@@ -122,8 +90,7 @@ class Import_order extends CI_Controller
                 'O' => 'price',
                 'P' => 'shipping fee',
                 'Q' => 'service fee',
-                'R' => 'force update',
-                'S' => 'Is DHL'
+                'R' => 'force update'
               );
 
               foreach($headCol as $col => $field)
@@ -146,22 +113,16 @@ class Import_order extends CI_Controller
               //---- order code from web site
               $ref_code = $rs['I'];
 
-              // $str = substr($ref_code, 0, 2);
-              //
-              // if($str == 'LA')
-              // {
-              //   $ref_code = substr($ref_code, 2);
-              // }
+							//---	วันที่เอกสาร
+							//$date_add = PHPExcel_Style_NumberFormat::toFormattedString($rs['J'], 'YYYY-MM-DD');
+							//$date_add = db_date($date_add, TRUE);
+							$date_add = db_date($rs['J'], TRUE);
 
-              $shipping_code = '';
-
-              if($rs['S'] == 'Y' OR $rs['S'] == 'y' OR $rs['S'] == '1')
-              {
-                $shipping_code = $prefix.$ref_code;
-              }
+							$remark = empty($rs['S']) ? NULL : trim($rs['S']);
 
               //---- กำหนดช่องทางการขาย
-              $channels = $this->channels_model->get($rs['L']);
+              $channels = $this->channels_model->get(trim($rs['L']));
+
               //--- หากไม่ระบุช่องทางขายมา หรือ ช่องทางขายไม่ถูกต้องใช้ default
               if(empty($channels))
               {
@@ -169,7 +130,8 @@ class Import_order extends CI_Controller
               }
 
               //--- กำหนดช่องทางการชำระเงิน
-              $payment = $this->payment_methods_model->get($rs['K']);
+              $payment = $this->payment_methods_model->get(trim($rs['K']));
+
               if(empty($payment))
               {
                 $payment = $this->payment_methods_model->get_default();
@@ -179,6 +141,9 @@ class Import_order extends CI_Controller
               //------ ถ้ามีแล้วจะได้ order_code กลับมา ถ้ายังจะได้ FALSE;
               $order_code  = $this->orders_model->get_order_code_by_reference($ref_code);
 
+							//--- รันเลขที่เอกสารตามประเภทเอาสาร
+							$code = $order_code === FALSE ? $this->get_new_code($date_add) : $order_code;
+
               //-- state ของออเดอร์ จะมีการเปลี่ยนแปลงอีกที
               $state = 3;
 
@@ -187,7 +152,8 @@ class Import_order extends CI_Controller
               if($order_code === FALSE OR ($order_code !== FALSE && $rs['R'] == 1))
               {
               	//---	ถ้าเป็นออเดอร์ขายหรือสปอนเซอร์ จะมี id_customer
-              	$customer_code = empty($channels->customer_code) ? $default_customer : $channels->customer_code;
+              	$customer_code = empty($channels) ? $default_customer : (empty($channels->customer_code) ? $default_customer : $channels->customer_code);
+
                 $customer = $this->customers_model->get($customer_code);
 
               	//---	ถ้าเป็นออเดอร์ขาย จะมี id_sale
@@ -197,15 +163,10 @@ class Import_order extends CI_Controller
               	$customer_ref = addslashes(trim($rs['A']));
 
                 //---	ช่องทางการชำระเงิน
-                $payment_code = $payment->code;
+                $payment_code = empty($payment) ? NULL : $payment->code;
 
                 //---	ช่องทางการขาย
-                $channels_code = $channels->code;
-
-              	//---	วันที่เอกสาร
-              	//$date_add = PHPExcel_Style_NumberFormat::toFormattedString($rs['J'], 'YYYY-MM-DD');
-                //$date_add = db_date($date_add, TRUE);
-								$date_add = db_date($rs['J'], TRUE);
+                $channels_code = empty($channels) ? NULL : $channels->code;
 
                 //--- ค่าจัดส่ง
                 $shipping_fee = $rs['P'] == '' ? 0.00 : $rs['P'];
@@ -213,8 +174,6 @@ class Import_order extends CI_Controller
                 //--- ค่าบริการอื่นๆ
                 $service_fee = $rs['Q'] == '' ? 0.00 : $rs['Q'];
 
-              	//--- รันเลขที่เอกสารตามประเภทเอาสาร
-              	$code = $order_code === FALSE ? $this->get_new_code($date_add) : $order_code;
 
                 //---- กรณียังไม่มีออเดอร์
                 if($order_code === FALSE)
@@ -232,11 +191,12 @@ class Import_order extends CI_Controller
                     'sale_code' => $sale_code,
                     'state' => $state,
                     'is_paid' => 1,
-                    'is_term' => $payment->has_term,
+                    'is_term' => empty($payment) ? 0 : $payment->has_term,
 										'shipping_fee' => $shipping_fee,
                     'status' => 1,
                     'date_add' => $date_add,
                     'user' => get_cookie('uname'),
+										'remark' => $remark,
 										'is_import' => 1
                   );
 
@@ -328,6 +288,9 @@ class Import_order extends CI_Controller
                   "cost"  => $item->cost,
                   "price"	=> ($rs['O']/$rs['N']),
                   "qty"		=> $rs['N'],
+									"unit_code" => $item->unit_code,
+									"vat_code" => $item->vat_code,
+									"vat_rate" => get_zero($item->vat_rate),
                   "discount1"	=> 0,
                   "discount2" => 0,
                   "discount3" => 0,
@@ -346,7 +309,7 @@ class Import_order extends CI_Controller
                 }
                 else
                 {
-                  $this->update_api_stock($item->code);
+                  //$this->update_api_stock($item->code);
                 }
               }
               else
@@ -381,7 +344,7 @@ class Import_order extends CI_Controller
                   }
                   else
                   {
-                    $this->update_api_stock($item->code);
+                    //$this->update_api_stock($item->code);
                   }
                 } //--- enf force update
               } //--- end if exists detail

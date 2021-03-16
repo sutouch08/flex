@@ -153,9 +153,17 @@ function validUserName(){
   var uname = $('#uname').val();
   var id = $('#user_id').val();
   if(uname.length > 0){
-    let url = BASE_URL + 'users/users/valid_uname/'+uname+'/'+id;
-    $.get(url, function(rs){
-        rs = $.trim(rs);
+
+		$.ajax({
+			url:BASE_URL + 'users/users/valid_uname',
+			type:'GET',
+			cache:false,
+			data:{
+				'uname' : uname,
+				'id' : id
+			},
+			success:function(rs) {
+				rs = $.trim(rs);
         if(rs === 'exists'){
           $('#uname-error').text('User name already exists!');
           $('#uname').addClass('has-error');
@@ -165,7 +173,17 @@ function validUserName(){
           $('#uname').removeClass('has-error');
           validUname = true;
         }
-    });
+			},
+			error:function(xhr, status, error) {
+				var errorMessage = xhr.status+": "+xhr.statusText;
+				swal({
+					title:'Error!',
+					text:'Error-'+errorMessage,
+					type:'error'
+				});
+			}
+		})
+
   }else{
     $('#uname-error').text('User name is required!');
     $('#uname').addClass('has-error');
@@ -179,19 +197,36 @@ function validDisplayName(){
   var dname = $('#dname').val();
   var id = $('#user_id').val();
   if(dname.length > 0){
-    let url = BASE_URL + 'users/users/valid_dname/'+dname+'/'+id;
-    $.get(url, function(rs){
-      rs = $.trim(rs);
-      if(rs === 'exists'){
-        $('#dname-error').text('Display name already exists!');
-        $('#dname').addClass('has-error');
-        validDname = false;
-      }else{
-        $('#dname-error').text('');
-        $('#dname').removeClass('has-error');
-        validDname = true;
-      }
-    })
+		$.ajax({
+			url:BASE_URL + 'users/users/valid_dname',
+			type:'GET',
+			cache:false,
+			data:{
+				'dname' : dname,
+				'id' : id
+			},
+			success:function(rs) {
+				rs = $.trim(rs);
+	      if(rs === 'exists'){
+	        $('#dname-error').text('Display name already exists!');
+	        $('#dname').addClass('has-error');
+	        validDname = false;
+	      }else{
+	        $('#dname-error').text('');
+	        $('#dname').removeClass('has-error');
+	        validDname = true;
+	      }
+			},
+			error:function(xhr, status, error) {
+				var errorMessage = xhr.status+": "+xhr.statusText;
+				swal({
+					title:'Error!',
+					text:'Error-'+errorMessage,
+					type:'error'
+				});
+			}
+		})
+
   }else{
     $('#dname-error').text('Display name is required!');
     $('#dname').addClass('has-error');

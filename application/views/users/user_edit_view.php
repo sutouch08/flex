@@ -124,5 +124,5 @@
 	<input type="hidden" name="user_id" id="user_id" value="<?php echo $data->id; ?>" />
 </form>
 
-<script src="<?php echo base_url(); ?>scripts/users/users.js"></script>
+<script src="<?php echo base_url(); ?>scripts/users/users.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

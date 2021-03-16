@@ -817,31 +817,37 @@ class Orders extends PS_Controller
       $rs->user          = $this->user_model->get_name($rs->user);
       $rs->state_name    = get_state_name($rs->state);
       $rs->has_payment   = $this->order_payment_model->is_exists($code);
-    }
 
-    $state = $this->order_state_model->get_order_state($code);
-    $ost = array();
-    if(!empty($state))
-    {
-      foreach($state as $st)
-      {
-        $ost[] = $st;
-      }
-    }
 
-    $details = $this->orders_model->get_order_details($code);
-    $ship_to = $this->address_model->get_shipping_address($rs->customer_ref);
-    $banks = $this->bank_model->get_active_bank();
-    $ds['state'] = $ost;
-    $ds['order'] = $rs;
-    $ds['details'] = $details;
-    $ds['addr']  = $ship_to;
-    $ds['banks'] = $banks;
-    $ds['payments'] = $this->order_payment_model->get_payments($code);
-    $ds['allowEditDisc'] = getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
-    $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
-    $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
-    $this->load->view('orders/order_edit', $ds);
+			$state = $this->order_state_model->get_order_state($code);
+	    $ost = array();
+	    if(!empty($state))
+	    {
+	      foreach($state as $st)
+	      {
+	        $ost[] = $st;
+	      }
+	    }
+
+	    $details = $this->orders_model->get_order_details($code);
+	    $ship_to = $this->address_model->get_shipping_address($rs->customer_ref);
+	    $banks = $this->bank_model->get_active_bank();
+	    $ds['state'] = $ost;
+	    $ds['order'] = $rs;
+	    $ds['details'] = $details;
+	    $ds['addr']  = $ship_to;
+	    $ds['banks'] = $banks;
+	    $ds['payments'] = $this->order_payment_model->get_payments($code);
+	    $ds['allowEditDisc'] = getConfig('ALLOW_EDIT_DISCOUNT') == 1 ? TRUE : FALSE;
+	    $ds['allowEditPrice'] = getConfig('ALLOW_EDIT_PRICE') == 1 ? TRUE : FALSE;
+	    $ds['edit_order'] = TRUE; //--- ใช้เปิดปิดปุ่มแก้ไขราคาสินค้าไม่นับสต็อก
+	    $this->load->view('orders/order_edit', $ds);
+
+    }
+		else
+		{
+			$this->page_error();
+		}    
   }
 
 

@@ -228,6 +228,7 @@ class Items extends PS_Controller
 
     if(!empty($item))
     {
+			$item->image = $this->product_image_model->get_image_id_by_code($code);
       $this->load->view('masters/product_items/items_edit_view', $item);
     }
     else
@@ -644,89 +645,163 @@ class Items extends PS_Controller
 
 
 
-		public function addBrand($code)
+		public function add_attribute()
+		{
+			$sc = TRUE;
+			$attr = $this->input->post('attribute');
+			$code = $this->input->post('code');
+			$name = $this->input->post('name');
+
+			if(!empty($attr))
+			{
+				switch ($attr)
+				{
+					case 'color' :
+						$rs = $this->addColor($code, $name);
+					break;
+					case 'size' :
+						$rs = $this->addSize($code, $name);
+					break;
+					case 'unit_code' :
+						$rs = $this->addUnit($code, $name);
+					break;
+					case 'brand':
+						$rs = $this->addBrand($code, $name);
+					break;
+					case 'group':
+						$rs = $this->addGroup($code, $name);
+					break;
+					case 'subGroup':
+						$rs = $this->addSubGroup($code, $name);
+					break;
+					case 'category':
+						$rs = $this->addCategory($code, $name);
+					break;
+					case 'kind':
+						$rs = $this->addKind($code, $name);
+					break;
+					case 'type':
+						$rs = $this->addType($code, $name);
+					break;
+					default:
+						$sc = FALSE;
+						$this->error = "Invalid Attribute";
+					break;
+				}
+
+				if($rs === FALSE)
+				{
+					$sc = FALSE;
+					$error = $this->db->error();
+					$this->error = "Insert failed : ".$error['message'];
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid Attribute";
+			}
+
+			$this->response($sc);
+		}
+
+
+		public function addBrand($code, $name = NULL)
 		{
 			$arr = array(
 				'code' => $code,
-				'name' => $code
+				'name' => $name === NULL ? $code : $name
 			);
 
 			return $this->product_brand_model->add($arr);
 		}
 
 
-		public function addColor($code)
+		public function addColor($code, $name = NULL)
 		{
 			$arr = array(
 				'code' => $code,
-				'name' => $code
+				'name' => $name === NULL ? $code : $name
 			);
 
 			return $this->product_color_model->add($arr);
 		}
 
 
-		public function addSize($code)
+		public function addSize($code, $name = NULL)
 		{
 			$arr = array(
 				'code' => $code,
-				'name' => $code
+				'name' => $name === NULL ? $code : $name
 			);
 
 			return $this->product_size_model->add($arr);
 		}
 
 
-		public function addCategory($code)
+		public function addCategory($code, $name = NULL)
 		{
 			$arr = array(
 				'code' => $code,
-				'name' => $code
+				'name' => $name === NULL ? $code : $name
 			);
 
 			return $this->product_category_model->add($arr);
 		}
 
 
-		public function addKind($code)
+		public function addKind($code, $name = NULL)
 		{
 			$arr = array(
 				'code' => $code,
-				'name' => $code
+				'name' => $name === NULL ? $code : $name
 			);
 
 			return $this->product_kind_model->add($arr);
 		}
 
 
-		public function addType($code)
+		public function addType($code, $name = NULL)
 		{
 			$arr = array(
 				'code' => $code,
-				'name' => $code
+				'name' => $name === NULL ? $code : $name
 			);
 
 			return $this->product_type_model->add($arr);
 		}
 
-		public function addGroup($code)
+		public function addGroup($code, $name = NULL)
 		{
 			$arr = array(
 				'code' => $code,
-				'name' => $code
+				'name' => $name === NULL ? $code : $name
 			);
 
 			return $this->product_group_model->add($arr);
 		}
 
-		public function addSubGroup($code)
+		public function addSubGroup($code, $name = NULL)
 		{
 			$arr = array(
 				'code' => $code,
-				'name' => $code
+				'name' => $name === NULL ? $code : $name
 			);
 
 			return $this->product_sub_group_model->add($arr);
+		}
+
+
+		public function addUnit($code, $name = NULL)
+		{
+			$this->load->model('masters/unit_model');
+			$arr = array(
+				'code' => $code,
+				'name' => $name === NULL ? $code : $name
+			);
+
+			return $this->unit_model->add($arr);
+
 		}
 
 

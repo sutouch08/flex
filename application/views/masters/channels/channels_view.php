@@ -48,6 +48,7 @@
 					<th class="width-15 middle">รหัส</th>
 					<th class="width-20 middle">ชื่อ</th>
 					<th class="width-30 middle">ลูกค้าเริ่มต้น</th>
+					<th class="width-10 middle text-center">Default</th>
 					<th class="width-15 middle">ปรับปรุง</th>
 					<th></th>
 				</tr>
@@ -61,7 +62,13 @@
 						<td class="middle"><?php echo $rs->code; ?></td>
 						<td class="middle"><?php echo $rs->name; ?></td>
 						<td class="middle"><?php echo $rs->customer_name; ?></td>
+						<td class="middle text-center">
+							<?php if($rs->is_default) : ?>
+								<i class="fa fa-check green"></i>
+							<?php endif; ?>
+						</td>
             <td class="middle"><?php echo thai_date($rs->date_upd, TRUE, '/'); ?></td>
+
 						<td class="text-right">
 							<?php if($this->pm->can_edit) : ?>
 								<button type="button" class="btn btn-mini btn-warning" onclick="getEdit('<?php echo $rs->code; ?>')">
@@ -83,6 +90,6 @@
 	</div>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/masters/channels.js"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/channels.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

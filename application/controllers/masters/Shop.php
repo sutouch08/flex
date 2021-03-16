@@ -125,16 +125,31 @@ class Shop extends PS_Controller
 
 	public function edit($code)
 	{
-		$shop = $this->shop_model->get($code);
-
-		if(!empty($shop))
+		if($this->pm->can_edit)
 		{
-			$this->load->view('masters/shop/shop_edit', $shop);
+			$shop = $this->shop_model->get($code);
+
+			if(!empty($shop))
+			{
+				$users = $this->shop_model->get_shop_user($shop->id);
+
+				$ds = array(
+					'shop' => $shop,
+					'users' => $users
+				);
+
+				$this->load->view('masters/shop/shop_edit', $ds);
+			}
+			else
+			{
+				$this->page_error();
+			}
 		}
 		else
 		{
-			$this->page_error();
+			$this->deny_page();
 		}
+
 	}
 
 
@@ -250,6 +265,123 @@ class Shop extends PS_Controller
 
 
 
+	public function add_user()
+	{
+		$sc = TRUE;
+		if($this->pm->can_edit)
+		{
+			$shop_id = $this->input->post('shop_id');
+			$uname  = $this->input->post('uname');
+
+			if(! is_null($shop_id))
+			{
+				if( ! is_null($uname))
+				{
+					$user = $this->user_model->get($uname);
+
+					if(!empty($user))
+					{
+						$exists = $this->shop_model->is_exists_user($shop_id, $user->uname);
+
+						if(!$exists)
+						{
+							$date_add = date('Y-m-d');
+							$arr = array(
+								'shop_id' => $shop_id,
+								'uname' => $user->uname,
+								'date_add' => $date_add
+							);
+
+							if($this->shop_model->add_user($arr))
+							{
+								$id = $this->db->insert_id();
+
+								$data = array(
+									'id' => $id,
+									'uname' => $user->uname,
+									'name' => $user->name,
+									'date_add' => $date_add
+								);
+
+								echo json_encode($data);
+							}
+							else
+							{
+								$sc = FALSE;
+								$error = $this->db->error();
+								$this->error = "Insert Error : ".$error['message'];
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "User already exists";
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "Invalid User Name";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Missing required parameter: User Name";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Missing required parameter: Shop ID";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing Permission";
+		}
+
+		if($sc === FALSE)
+		{
+			echo $this->error;
+		}
+	}
+
+
+
+	public function remove_user()
+	{
+		$sc = TRUE;
+		if($this->pm->can_edit)
+		{
+			$id = $this->input->post('id');
+			if(! is_null($id))
+			{
+				if(! $this->shop_model->delete_shop_user($id))
+				{
+					$sc = FALSE;
+					$error = $this->db->error();
+					$this->error = "Delete failed : ".$error['message'];
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Missing required parameter: ID";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing Permission";
+		}
+
+		$this->response($sc);
+	}
+
+
+
 	public function get_zone_code_and_name()
 	{
 		$txt = trim($this->input->get('term'));
@@ -319,6 +451,40 @@ class Shop extends PS_Controller
 
 		echo json_encode($ds);
 
+	}
+
+
+
+	public function get_user_and_name()
+	{
+		$txt = trim($this->input->get('term'));
+		$ds = array();
+		if(! is_null($txt))
+		{
+			if($txt !== '*')
+			{
+				$this->db->group_start();
+				$this->db->like('uname', $txt);
+				$this->db->or_like('name', $txt);
+				$this->db->group_end();
+			}
+
+			$rs = $this->db->limit(20)->get('user');
+
+			if($rs->num_rows() > 0)
+			{
+				foreach($rs->result() as $user)
+				{
+					$ds[] = $user->uname.' | '.$user->name;
+				}
+			}
+			else
+			{
+				$ds[] = 'not found';
+			}
+		}
+
+		echo json_encode($ds);
 	}
 
 

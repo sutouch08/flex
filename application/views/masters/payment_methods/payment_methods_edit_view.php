@@ -45,7 +45,7 @@
     <label class="col-sm-3 control-label no-padding-right"></label>
     <div class="col-xs-12 col-sm-3">
 			<label>
-				<input type="checkbox" class="ace" name="term" id="term" value="1" <?php echo is_checked(1, $term); ?> />
+				<input type="checkbox" class="ace" name="term" id="term" value="1" <?php echo is_checked(1, $has_term); ?> />
 				<span class="lbl">&nbsp; &nbsp;เครติดเทอม</span>
 			</label>
     </div>
@@ -53,20 +53,33 @@
 
 	<div class="divider-hidden">
 
+		<div class="form-group">
+	    <label class="col-sm-3 control-label no-padding-right">&nbsp;</label>
+	    <div class="col-xs-12 col-sm-3">
+				<label>
+					<input type="checkbox" class="ace" name="is_default" id="is_default" value="1" <?php echo is_checked('1', $is_default); ?> />
+					<span class="lbl">&nbsp; &nbsp;ค่าเริ่มต้น</span>
+				</label>
+	    </div>
+	    <div class="help-block col-xs-12 col-sm-reset inline red" id="customer_name-error"></div>
+	  </div>
+
+		<div class="divider-hidden">
+
 	</div>
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right"></label>
     <div class="col-xs-12 col-sm-3">
       <p class="pull-right">
-        <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Save</button>
+        <button type="button" class="btn btn-sm btn-success" onclick="update()"><i class="fa fa-save"></i> Save</button>
       </p>
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline">
       &nbsp;
     </div>
   </div>
-	<input type="hidden" name="payment_methods_code" value="<?php echo $code; ?>" />
-	<input type="hidden" name="payment_methods_name" value="<?php echo $name; ?>" />
+
+	<input type="hidden" name="old_name" id="old_name" value="<?php echo $name; ?>" />
 	<input type="hidden" name="code" id="code" value="<?php echo $code; ?>" />
 </form>
 

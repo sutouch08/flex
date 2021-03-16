@@ -321,3 +321,131 @@ function toggleActive(option) {
 		return
 	}
 }
+
+
+$('#user-box').autocomplete({
+	source:HOME + 'get_user_and_name',
+	autoFocus:true,
+	close:function() {
+		var user = $(this).val();
+		var arr = user.split(' | ');
+		if(arr.length == 2) {
+			$(this).val(arr[0]);
+		}
+		else {
+			$(this).val('');
+		}
+	}
+})
+
+
+function add_user() {
+	var shop_id = $('#shop_id').val();
+	var uname = $.trim($('#user-box').val());
+	if(uname.length > 0)
+	{
+		load_in();
+		$.ajax({
+			url:HOME + 'add_user',
+			type:'POST',
+			cache:false,
+			data:{
+				'shop_id' : shop_id,
+				'uname' : uname
+			},
+			success:function(rs) {
+				load_out();
+				var rs = $.trim(rs);
+				if(isJson(rs)) {
+					var data = $.parseJSON(rs);
+					var source = $('#row-template').html();
+					var output = $('#table');
+					render_append(source, data, output);
+					reIndex();
+					swal({
+						title:'Success',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(function(){
+						$('#user-box').val('');
+						$('#user-box').focus();
+					},1100);
+
+
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:rs,
+						type:'error'
+					})
+				}
+			},
+			error:function(xhr, status, error) {
+				load_out();
+				var errorMessage = xhr.status +': '+ xhr.statusText;
+				swal({
+					title:'Error!',
+					text:'Error-' + errorMessage,
+					type:'error'
+				});
+			}
+		})
+	}
+}
+
+
+function removeUser(id, name){
+  swal({
+    title:'Are sure ?',
+    text:'ต้องการลบ ' + name + ' หรือไม่ ?',
+    type:'warning',
+    showCancelButton: true,
+		confirmButtonColor: '#FA5858',
+		confirmButtonText: 'ใช่, ฉันต้องการลบ',
+		cancelButtonText: 'ยกเลิก',
+		closeOnConfirm: false
+  },function(){
+    $.ajax({
+			url:HOME + 'remove_user',
+			type:'POST',
+			cache:false,
+			data:{
+				'id' : id
+			},
+			success:function(rs) {
+				var rs = $.trim(rs);
+				if(rs === 'success') {
+					swal({
+						title:'Deleted',
+						text:'ลบรายการเรียบร้อยแล้ว',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(function(){
+						$('#row-'+id).remove();
+						reIndex();
+					}, 1200);
+
+				} else {
+					swal({
+						title:'Error!',
+						text: rs,
+						type:'error'
+					})
+				}
+			},
+			error:function(xhr, status, error) {
+				var errorMessage = xhr.status + ": "+xhr.statusText;
+				swal({
+					title:'Error!',
+					text:'Error-'+ errorMessage,
+					type:'error'
+				})
+			}
+		})
+  })
+}

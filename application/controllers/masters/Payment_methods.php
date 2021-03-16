@@ -48,80 +48,74 @@ class Payment_methods extends PS_Controller
   public function add_new()
   {
     $this->load->helper('payment_method');
-    $data['code'] = $this->session->flashdata('code');
-    $data['name'] = $this->session->flashdata('name');
-    $data['role'] = $this->session->flashdata('role');
-    $this->load->view('masters/payment_methods/payment_methods_add_view', $data);
+    $this->load->view('masters/payment_methods/payment_methods_add_view');
   }
 
 
   public function add()
   {
+		$sc = TRUE;
+
     if($this->input->post('code'))
     {
-      $sc = TRUE;
       $code = $this->input->post('code');
       $name = $this->input->post('name');
 			$role = $this->input->post('role');
       $term = $this->input->post('term');
+
+			$has_default = $this->payment_methods_model->has_default();
+
       $ds = array(
         'code' => $code,
         'name' => $name,
 				'role' => $role,
-        'has_term' => $term === NULL ? 0 : $term
+        'has_term' => $term === NULL ? 0 : $term,
+				'is_default' => $has_default ? 0 : 1
       );
 
-      if($this->payment_methods_model->is_exists($code) === TRUE)
+      if($this->payment_methods_model->is_exists($code))
       {
         $sc = FALSE;
-        set_error("'".$code."' already exists");
+        $this->error = "รหัสซ้ำ กรุณากำหนดรหัสใหม่";
       }
 
-      if($this->payment_methods_model->is_exists_name($name) === TRUE)
+      if($this->payment_methods_model->is_exists_name($name))
       {
         $sc = FALSE;
-        set_error("'".$name."' already exists");
+        $this->error = "ชื่อซ้ำ กรุณากำหนดชื่อใหม่";
       }
 
-      if($sc === TRUE && $this->payment_methods_model->add($ds))
-      {
-        set_message('payment_methods created');
-      }
-      else
-      {
-        $sc = FALSE;
-        set_error('Cannot create payment_methods');
-      }
+			if($sc === TRUE)
+			{
+				if(! $this->payment_methods_model->add($ds))
+				{
+					$sc = FALSE;
+					$error = $this->db->error();
+					$this->error = "Insert failed : ".$error['message'];
+				}
+			}
 
-      if($sc === FALSE)
-      {
-        $this->session->set_flashdata('code', $code);
-        $this->session->set_flashdata('name', $name);
-        $this->session->set_flashdata('term', $term);
-      }
     }
     else
     {
-      set_error('Data not found');
+      $sc = FALSE;
+			$this->error = "Missing Required Parameter";
     }
 
-    redirect($this->home.'/add_new');
+    $this->response($sc);
   }
+
+
 
 
 
   public function edit($code)
   {
     $this->load->helper('payment_method');
-    $rs = $this->payment_methods_model->get_payment_methods($code);
-    $data = array(
-      'code' => $rs->code,
-      'name' => $rs->name,
-      'term' => $rs->has_term,
-      'role' => $rs->role
-    );
+    $ds = $this->payment_methods_model->get($code);
 
-    $this->load->view('masters/payment_methods/payment_methods_edit_view', $data);
+
+    $this->load->view('masters/payment_methods/payment_methods_edit_view', $ds);
   }
 
 
@@ -132,42 +126,41 @@ class Payment_methods extends PS_Controller
 
     if($this->input->post('code'))
     {
-      $old_code = $this->input->post('payment_methods_code');
-      $old_name = $this->input->post('payment_methods_name');
+      $old_name = $this->input->post('old_name');
       $code = $this->input->post('code');
       $name = $this->input->post('name');
       $term = $this->input->post('term');
       $role = $this->input->post('role');
+			$is_default = $this->input->post('is_default');
 
       $ds = array(
-        'code' => $code,
         'name' => $name,
         'has_term' => $term === NULL ? 0 : $term,
         'role' => $role
       );
 
-      if($sc === TRUE && $this->payment_methods_model->is_exists($code, $old_code) === TRUE)
-      {
-        $sc = FALSE;
-        set_error("'".$code."' already exists please choose another");
-      }
 
-      if($sc === TRUE && $this->payment_methods_model->is_exists_name($name, $old_name) === TRUE)
-      {
-        $sc = FALSE;
-        set_error("'".$name."' already exists please choose another");
-      }
+			if($this->payment_methods_model->is_exists_name($name, $old_name))
+			{
+				$sc = FALSE;
+				$this->error = "ชื่อซ้ำ กรุณากำหนดชื่อใหม่";
+			}
 
       if($sc === TRUE)
       {
-        if($this->payment_methods_model->update($old_code, $ds) === TRUE)
+        if(! $this->payment_methods_model->update($code, $ds))
         {
-          set_message('Payment channels updated');
+          $sc = FALSE;
+					$error = $this->db->error();
+					$this->error = "Update failed : ".$error['message'];
         }
         else
         {
-          $sc = FALSE;
-          set_error('Update payment channels not successfull');
+					if($is_default)
+					{
+						$this->payment_methods_model->set_default($code);
+					}
+
         }
       }
 
@@ -175,16 +168,12 @@ class Payment_methods extends PS_Controller
     else
     {
       $sc = FALSE;
-      set_error('Data not found');
+      $this->error = "Missing Required Parameter";
     }
 
-    if($sc === FALSE)
-    {
-      $code = $this->input->post('payment_methods_code');
-    }
-
-    redirect($this->home.'/edit/'.$code);
+    $this->response($sc);
   }
+
 
 
 

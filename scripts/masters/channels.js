@@ -1,3 +1,5 @@
+var HOME = BASE_URL + 'masters/channels/';
+
 function addNew(){
   window.location.href = BASE_URL + 'masters/channels/add_new';
 }
@@ -22,6 +24,136 @@ function clearFilter(){
   });
 }
 
+
+function save_add() {
+	var code = $('#code').val();
+	var name = $('#name').val();
+	var customer_code = $('#customer_code').val();
+	var customer_name = $('#customer_name').val();
+
+	if(code.length === 0) {
+		set_error($('#code'), $('#code-error'), 'Required');
+		return false;
+	}
+	else {
+		clear_error($('#code'), $('#code-error'));
+	}
+
+	if(name.length === 0) {
+		set_error($('#name'), $('#name-error'), 'Required');
+		return false;
+	}
+	else {
+		clear_error($('#name'), $('#name-error'));
+	}
+
+
+	$.ajax({
+		url:HOME + 'add',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : code,
+			'name' : name,
+			'customer_code' : customer_code,
+			'customer_name' : customer_name
+		},
+		success:function(rs) {
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+
+				setTimeout(function() {
+					addNew();
+				}, 1200)
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+			}
+		},
+		error:function(xhr, status, error) {
+			swal({
+				title:'Error!',
+				text:'Error-' + xhr.status+': '+xhr.statusText,
+				type:'error'
+			})
+		}
+	})
+}
+
+
+function update() {
+	var code = $('#code').val();
+	var name = $('#name').val();
+	var old_name = $('#channels_name').val();
+	var customer_code = $('#customer_code').val();
+	var customer_name = $('#customer_name').val();
+	var is_default = $('#is_default').is(':checked') ? 1 : 0;
+
+	if(code.length === 0) {
+		set_error($('#code'), $('#code-error'), 'Required');
+		return false;
+	}
+	else {
+		clear_error($('#code'), $('#code-error'));
+	}
+
+	if(name.length === 0) {
+		set_error($('#name'), $('#name-error'), 'Required');
+		return false;
+	}
+	else {
+		clear_error($('#name'), $('#name-error'));
+	}
+
+
+	$.ajax({
+		url:HOME + 'update',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : code,
+			'name' : name,
+			'customer_code' : customer_code,
+			'customer_name' : customer_name,
+			'channels_name' : old_name,
+			'is_default' : is_default
+		},
+		success:function(rs) {
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+			}
+		},
+		error:function(xhr, status, error) {
+			swal({
+				title:'Error!',
+				text:'Error-' + xhr.status+': '+xhr.statusText,
+				type:'error'
+			})
+		}
+	})
+}
 
 function getDelete(code, name){
   swal({

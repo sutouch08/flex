@@ -955,7 +955,7 @@ public function get_active_item_code_and_name()
     }
     else
     {
-      $sc[] = "not_fount";
+      $sc[] = "not_found";
     }
 
     echo json_encode($sc);
@@ -983,7 +983,7 @@ public function get_active_item_code_and_name()
     }
     else
     {
-      $sc[] = "not_fount";
+      $sc[] = "not_found";
     }
 
     echo json_encode($sc);

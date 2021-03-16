@@ -490,7 +490,7 @@ class Delivery_order extends PS_Controller
                 $message = 'เครดิตคงเหลือไม่เพียงพอ';
               }
 
-              if($sc === TRUE && $this->customers_model->update_used($order->customer_code, (($rs->final_price + $avgBillDiscAmount)* $buffer_qty)))
+              if($sc === TRUE && $this->customers_model->update_used($order->customer_code, (($rs->final_price + $avgBillDiscAmount)* $rs->qty)))
               {
                 $this->customers_model->update_balance($order->customer_code);
               }
@@ -498,9 +498,9 @@ class Delivery_order extends PS_Controller
 
 						$item = $this->products_model->get_attribute($rs->product_code);
 						//--- ข้อมูลสำหรับบันทึกยอดขาย
-						$total_amount = ($rs->final_price - $avgBillDiscAmount) * $buffer_qty;
+						$total_amount = ($rs->final_price - $avgBillDiscAmount) * $rs->qty;
 						$total_amount_ex = remove_vat($total_amount, $item->vat_rate);
-						$total_cost = $rs->cost * $buffer_qty;
+						$total_cost = $rs->cost * $rs->qty;
 						$arr = array(
 										'reference' => $order->code,
 										'role'   => $order->role,
@@ -533,14 +533,14 @@ class Delivery_order extends PS_Controller
 										'price'  => $rs->price,
 										'price_ex' => remove_vat($rs->price, get_zero($item->vat_rate)),
 										'sell'  => ($rs->final_price - $avgBillDiscAmount),
-										'qty'   => $buffer_qty,
+										'qty'   => $rs->qty,
 										'unit_code' => $item->unit_code,
 										'unit_name' => $item->unit_name,
 										'vat_code' => $item->vat_code,
 										'vat_rate' => get_zero($item->vat_rate),
 										'discount_label'  => discountLabel($rs->discount1, $rs->discount2, $rs->discount3),
 										'avgBillDiscAmount' => $avgBillDiscAmount, //--- average per single item count
-										'discount_amount' => ($rs->discount_amount + $avgBillDiscAmount) * $buffer_qty,
+										'discount_amount' => ($rs->discount_amount + $avgBillDiscAmount) * $rs->qty,
 										'total_amount'   => $total_amount,
 										'total_amount_ex' => $total_amount_ex,
 										'vat_amount' => $total_amount * (get_zero($item->vat_rate) * 0.01),
@@ -565,8 +565,8 @@ class Delivery_order extends PS_Controller
 										'sale_name' => $customer->sale_name,
 										'user' => $order->user,
 										'date_add'  => $sold_date,
-										'zone_code' => $rm->zone_code,
-										'warehouse_code'  => $rm->warehouse_code,
+										'zone_code' => NULL,
+										'warehouse_code'  => NULL,
 										'update_user' => get_cookie('uname'),
 										'budget_code' => $order->budget_code,
 										'is_count' => 0

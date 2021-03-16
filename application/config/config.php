@@ -24,7 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 $doc_folder = '/flex';
-$config['base_url'] = 'http://localhost/flex/';
+$config['base_url'] = '/flex/';
 $config['image_path'] = 'images/';
 $config['upload_path'] = 'upload/';
 $config['company_logo'] = 'images/company/company_logo.png';

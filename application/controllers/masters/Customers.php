@@ -627,56 +627,106 @@ class Customers extends PS_Controller
 	}
 
 
-	private function addGroup($code)
+	public function add_attribute()
+	{
+		$sc = TRUE;
+		$attr = $this->input->post('attribute');
+		$code = $this->input->post('code');
+		$name = $this->input->post('name');
+
+		if(!empty($attr))
+		{
+			switch ($attr)
+			{
+				case 'group':
+					$rs = $this->addGroup($code, $name);
+				break;
+				case 'kind':
+					$rs = $this->addKind($code, $name);
+				break;
+				case 'type':
+					$rs = $this->addType($code, $name);
+				break;
+				case 'class':
+					$rs = $this->addClass($code, $name);
+				break;
+				case 'area':
+					$rs = $this->addArea($code, $name);
+				break;
+				default:
+					$rs = $this->addGroup($code, $name);
+				break;
+			}
+
+			if($rs === FALSE)
+			{
+				$sc = FALSE;
+				$error = $this->db->error();
+				$this->error = "Insert failed : ".$error['message'];
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid Attribute";
+		}
+
+		$this->response($sc);
+	}
+
+
+	private function addGroup($code, $name = NULL)
 	{
 		$arr = array(
 			'code' => $code,
-			'name' => $code
+			'name' => empty($name) ? $code : $name
 		);
 
-		$this->customer_group_model->add($arr);
+		return $this->customer_group_model->add($arr);
 	}
 
-	private function addKind($code)
+	private function addKind($code, $name = NULL)
 	{
 		$arr = array(
 			'code' => $code,
-			'name' => $code
+			'name' => empty($name) ? $code : $name
 		);
 
-		$this->customer_kind_model->add($arr);
+		return $this->customer_kind_model->add($arr);
 	}
 
-	private function addType($code)
+	private function addType($code, $name = NULL)
 	{
 		$arr = array(
 			'code' => $code,
-			'name' => $code
+			'name' => empty($name) ? $code : $name
 		);
 
-		$this->customer_type_model->add($arr);
+		return $this->customer_type_model->add($arr);
 	}
 
-	private function addClass($code)
+	private function addClass($code, $name = NULL)
 	{
 		$arr = array(
 			'code' => $code,
-			'name' => $code
+			'name' => empty($name) ? $code : $name
 		);
 
-		$this->customer_class_model->add($arr);
+		return $this->customer_class_model->add($arr);
 	}
 
 
-	private function addArea($code)
+	private function addArea($code, $name = NULL)
 	{
 		$arr = array(
 			'code' => $code,
-			'name' => $code
+			'name' => empty($name) ? $code : $name
 		);
 
-		$this->customer_area_model->add($arr);
+		return $this->customer_area_model->add($arr);
 	}
+
+
 
   public function clear_filter()
 	{

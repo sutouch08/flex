@@ -1,3 +1,5 @@
+var HOME = BASE_URL + 'masters/payment_methods/';
+
 function addNew(){
   window.location.href = BASE_URL + 'masters/payment_methods/add_new';
 }
@@ -44,8 +46,169 @@ function getSearch(){
   $('#searchForm').submit();
 }
 
+
+
 $('.search').keyup(function(e){
 	if(e.keyCode === 13){
 		getSearch();
 	}
 })
+
+
+
+function save_add() {
+	var code = $('#code').val();
+	var name = $('#name').val();
+	var role = $('#role').val();
+	var term = $('#term').is(':checked') ? 1 : 0;
+	var error = 0;
+
+	if(code.length === 0) {
+		set_error($('#code'), $('#code-error'), "Required");
+		error++;
+	}
+	else {
+		clear_error($('#code'), $('#code-error'));
+	}
+
+	if(name.length === 0) {
+		set_error($('#name'), $('#name-error'), "Required");
+		error++;
+	}
+	else {
+		clear_error($('#name'), $('#name-error'))
+	}
+
+	if(role == "") {
+		set_error($('#role'), $('#role-error'), "Required");
+		error++;
+	}
+	else {
+		clear_error($('#role'), $('#role-error'));
+	}
+
+
+	if(error > 0) {
+		return false;
+	}
+
+	$.ajax({
+		url:HOME + 'add',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : code,
+			'name' : name,
+			'role' : role
+		},
+		success:function(rs) {
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+
+				setTimeout(function(){
+					addNew();
+				}, 1200);
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+			}
+		},
+		error:function(xhr, status, error) {
+			swal({
+				title:'Error!',
+				text:'Error-'+xhr.status + ' : ' + xhr.statusText,
+				type:'error'
+			})
+		}
+	})
+}
+
+
+
+function update() {
+	var code = $('#code').val();
+	var name = $('#name').val();
+	var old_name = $('#old_name').val();
+	var role = $('#role').val();
+	var term = $('#term').is(':checked') ? 1 : 0;
+	var is_default = $('#is_default').is(':checked') ? 1 : 0
+
+	var error = 0;
+
+	if(code.length === 0) {
+		set_error($('#code'), $('#code-error'), "Required");
+		error++;
+	}
+	else {
+		clear_error($('#code'), $('#code-error'));
+	}
+
+	if(name.length === 0) {
+		set_error($('#name'), $('#name-error'), "Required");
+		error++;
+	}
+	else {
+		clear_error($('#name'), $('#name-error'))
+	}
+
+	if(role == "") {
+		set_error($('#role'), $('#role-error'), "Required");
+		error++;
+	}
+	else {
+		clear_error($('#role'), $('#role-error'));
+	}
+
+
+	if(error > 0) {
+		return false;
+	}
+
+	$.ajax({
+		url:HOME + 'update',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : code,
+			'name' : name,
+			'old_name' : old_name,
+			'role' : role,
+			'term' : term,
+			'is_default' : is_default
+		},
+		success:function(rs) {
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				});
+			}
+		},
+		error:function(xhr, status, error) {
+			swal({
+				title:'Error!',
+				text:'Error-'+xhr.status + ' : ' + xhr.statusText,
+				type:'error'
+			})
+		}
+	})
+}

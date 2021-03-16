@@ -47,66 +47,68 @@ class Channels extends PS_Controller
 
   public function add_new()
   {
-    $data['code'] = $this->session->flashdata('code');
-    $data['name'] = $this->session->flashdata('name');
-    $data['customer_code'] = $this->session->flashdata('customer_code');
-    $data['customer_name'] = $this->session->flashdata('customer_name');
-    $this->load->view('masters/channels/channels_add_view', $data);
+    if($this->pm->can_add)
+		{
+			$this->load->view('masters/channels/channels_add_view');
+		}
+		else
+		{
+			$this->deny_page();
+		}
+
   }
 
 
   public function add()
   {
+		$sc = TRUE;
+
     if($this->input->post('code'))
     {
-      $sc = TRUE;
+
       $code = $this->input->post('code');
       $name = $this->input->post('name');
       $customer_code = $this->input->post('customer_code');
       $customer_name = $this->input->post('customer_name');
+			$has_default = $this->channels_model->has_default();
+
       $ds = array(
         'code' => $code,
         'name' => $name,
         'customer_code' => empty($customer_code) ? NULL : $customer_code,
-        'customer_name' => empty($customer_name) ? NULL : $customer_code
+        'customer_name' => empty($customer_name) ? NULL : $customer_name,
+				'is_default' => $has_default ? 0 : 1
       );
 
       if($this->channels_model->is_exists($code) === TRUE)
       {
         $sc = FALSE;
-        set_error("'".$code."' already exists");
+        $this->error = "รหัสซ้ำ กรุณากำหนดรหัสใหม่";
       }
 
       if($this->channels_model->is_exists_name($name) === TRUE)
       {
         $sc = FALSE;
-        set_error("'".$name."' already exists");
+        $this->error = "ชื่อซ้ำ กรุณากำหนดชื่อใหม่";
       }
 
-      if($sc === TRUE && $this->channels_model->add($ds))
+      if($sc === TRUE)
       {
-        set_message('Channels created');
-      }
-      else
-      {
-        $sc = FALSE;
-        set_error('Cannot create channels');
-      }
-
-      if($sc === FALSE)
-      {
-        $this->session->set_flashdata('code', $code);
-        $this->session->set_flashdata('name', $name);
-        $this->session->set_flashdata('customer_code', $customer_code);
-        $this->session->set_flashdata('customer_name', $customer_name);
+				if(! $this->channels_model->add($ds))
+				{
+					$sc = FALSE;
+					$error = $this->db->error();
+					$this->error = "Insert failed : ".$error['message'];
+				}
       }
     }
     else
     {
-      set_error('Data not found');
+			$sc = FALSE;
+			$this->error = "Missing required parameter";
     }
 
-    redirect($this->home.'/add_new');
+    $this->response($sc);
   }
 
 
@@ -125,58 +127,51 @@ class Channels extends PS_Controller
 
     if($this->input->post('code'))
     {
-      $old_code = $this->input->post('channels_code');
-      $old_name = $this->input->post('channels_name');
       $code = $this->input->post('code');
       $name = $this->input->post('name');
+			$old_name = $this->input->post('channels_name');
       $customer_code = $this->input->post('customer_code');
       $customer_name = $this->input->post('customer_name');
+			$is_default = $this->input->post('is_default');
+
+			if($this->channels_model->is_exists_name($name, $old_name))
+			{
+				$sc = FALSE;
+				$this->error = "ชื่อซ้ำ กรุณากำหนดชื่อใหม่";
+			}
 
       $ds = array(
-        'code' => $code,
         'name' => $name,
         'customer_code' => empty($customer_code) ? NULL : $customer_code,
         'customer_name' => empty($customer_name) ? NULL : $customer_name
       );
 
-      if($sc === TRUE && $this->channels_model->is_exists($code, $old_code) === TRUE)
-      {
-        $sc = FALSE;
-        set_error("'".$code."' already exists please choose another");
-      }
-
-      if($sc === TRUE && $this->channels_model->is_exists_name($name, $old_name) === TRUE)
-      {
-        $sc = FALSE;
-        set_error("'".$name."' already exists please choose another");
-      }
-
-      if($sc === TRUE)
-      {
-        if($this->channels_model->update($old_code, $ds) === TRUE)
-        {
-          set_message('Channels updated');
-        }
-        else
-        {
-          $sc = FALSE;
-          set_error('Update channels not successfull');
-        }
-      }
-
+			if($sc === TRUE)
+			{
+				if(! $this->channels_model->update($code, $ds))
+				{
+					$sc = FALSE;
+					$error = $this->db->error();
+					$this->error = "Update failed : ".$error['message'];
+				}
+				else
+				{
+					//--- set default
+					if($is_default)
+					{
+						$this->channels_model->set_default($code);
+					}
+				}
+			}
+      
     }
     else
     {
       $sc = FALSE;
-      set_error('Data not found');
+      $this->error = "Missing required parameter";
     }
 
-    if($sc === FALSE)
-    {
-      $code = $this->input->post('channels_code');
-    }
-
-    redirect($this->home.'/edit/'.$code);
+    $this->response($sc);
   }
 
 

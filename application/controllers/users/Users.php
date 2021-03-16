@@ -198,8 +198,11 @@ class Users extends PS_Controller{
 
 
 
-	public function valid_dname($dname, $id = '')
+	public function valid_dname()
 	{
+		$dname = $this->input->get('dname');
+		$id = $this->input->get('id');
+
 		$rs = $this->user_model->is_exists_display_name($dname, $id);
 
 		if($rs === TRUE)
@@ -214,8 +217,11 @@ class Users extends PS_Controller{
 
 
 
-	public function valid_uname($uname, $id = '')
+	public function valid_uname()
 	{
+		$uname = $this->input->get('uname');
+		$id = $this->input->get('id');
+
 		$rs = $this->user_model->is_exists_uname($uname, $id);
 		if($rs === TRUE)
 		{

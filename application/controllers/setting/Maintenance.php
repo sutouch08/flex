@@ -1,11 +1,16 @@
 <?php
 class Maintenance extends CI_Controller
 {
+	public $_SuperAdmin = FALSE;
+
   public function __construct()
   {
     parent::__construct();
     //--- get permission for user
-    $this->pm = get_permission('SCSYSC', get_cookie('uid'), get_cookie('id_profile'));
+		$uid = get_cookie('uid');
+		$this->_user = $this->user_model->get_user_by_uid($uid);
+		$this->_SuperAdmin = $this->_user->id_profile == -987654321 ? TRUE : FALSE;
+    //$this->pm = get_permission('SCSYSC', get_cookie('uid'), get_cookie('id_profile'));
     $this->load->model('setting/config_model');
   }
 
@@ -22,7 +27,7 @@ class Maintenance extends CI_Controller
 
   public function open_system()
   {
-    if($this->pm->can_add OR $this->pm->can_edit OR $this->pm->can_delete)
+    if($this->_SuperAdmin)
     {
       $rs = $this->config_model->update('CLOSE_SYSTEM', 0);
       echo $rs === TRUE ? 'success' : 'fail';

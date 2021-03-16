@@ -6,7 +6,7 @@
 
   <form id="systemForm">
     <div class="row">
-  	<?php if( $cando === TRUE ): //---- ถ้ามีสิทธิ์ปิดระบบ ---//	?>
+  	<?php if( $this->_SuperAdmin ): //---- ถ้ามีสิทธิ์ปิดระบบ ---//	?>
     	<div class="col-sm-3"><span class="form-control left-label">ปิดระบบ</span></div>
       <div class="col-sm-9">
       	<div class="btn-group input-medium">
@@ -20,7 +20,7 @@
 
     <?php endif; ?>
 
-    
+
 
       <div class="col-sm-9 col-sm-offset-3">
       	<button type="button" class="btn btn-sm btn-success" onClick="updateConfig('systemForm')"><i class="fa fa-save"></i> บันทึก</button>

@@ -185,5 +185,40 @@ class Channels_model extends CI_Model
 	}
 
 
+	public function has_default()
+	{
+		$rs = $this->db->where('is_default', 1)->count_all_results('channels');
+
+		if($rs > 0)
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+
+	public function set_default($code)
+	{
+		$this->db->trans_begin();
+
+		$ds = $this->db->set('is_default', 0)->where('is_default', 1)->update('channels');
+		$rs = $this->db->set('is_default', 1)->where('code', $code)->update('channels');
+
+		if($ds && $rs)
+		{
+			$this->db->trans_commit();
+			return TRUE;
+		}
+		else
+		{
+			$this->db->trans_rollback();
+			return FALSE;
+		}
+
+		return FALSE;
+	}
+
+
 }
 ?>

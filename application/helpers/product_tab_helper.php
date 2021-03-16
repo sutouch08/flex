@@ -656,7 +656,9 @@ function itemTabsTree($code = '', $script = TRUE)
 	else
 	{
 		$sc .= '<i class="fa fa-minus-square-o" id="catbox-0" onClick="toggleTree(0)"></i>';
-		$sc .= '<label class="padding-10"> TOP LEVEL </label>';
+		$sc .= '<label class="padding-10">';
+		$sc .= '<input type="checkbox" class="ace margin-right-10" name="tabs[]" value="0" '. $is_checked .' />';
+		$sc .= '<span class="lbl"> HOME</span></label>';
 		$sc .= '</li>';
 	}
 

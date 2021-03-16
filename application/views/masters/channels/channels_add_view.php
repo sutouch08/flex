@@ -16,8 +16,7 @@
     <label class="col-sm-3 control-label no-padding-right">รหัส</label>
     <div class="col-xs-12 col-sm-3">
 			<span class="input-icon input-icon-right width-100">
-      	<input type="text" name="code" id="code" class="width-100 code" maxlength="20"
-				value="<?php echo $code; ?>" onkeyup="validCode(this)" autofocus required />
+      	<input type="text" name="code" id="code" class="width-100 code" maxlength="20" value="" onkeyup="validCode(this)" autofocus required />
 				<i class="ace-icon fa fa-user"></i>
 			</span>
     </div>
@@ -30,7 +29,7 @@
     <label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
     <div class="col-xs-12 col-sm-3">
 			<span class="input-icon input-icon-right width-100">
-        <input type="text" name="name" id="name" class="width-100" maxlength="100"value="<?php echo $name; ?>" required />
+        <input type="text" name="name" id="name" class="width-100" maxlength="100" value="" required />
 				<i class="ace-icon fa fa-user"></i>
 			</span>
     </div>
@@ -41,11 +40,11 @@
     <label class="col-sm-3 control-label no-padding-right">ลูกค้าเริ่มต้น</label>
     <div class="col-xs-12 col-sm-3">
 			<span class="input-icon input-icon-right width-100">
-        <input type="text" name="customer_name" id="customer_name" class="width-100" value="<?php echo $customer_name; ?>" />
+        <input type="text" name="customer_name" id="customer_name" class="width-100" value="" />
 				<i class="ace-icon fa fa-user"></i>
 			</span>
     </div>
-    <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
+    <div class="help-block col-xs-12 col-sm-reset inline red" id="customer_name-error"></div>
   </div>
 
 	<div class="divider-hidden">
@@ -55,7 +54,7 @@
     <label class="col-sm-3 control-label no-padding-right"></label>
     <div class="col-xs-12 col-sm-3">
       <p class="pull-right">
-        <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Save</button>
+        <button type="button" class="btn btn-sm btn-success" onclick="save_add()"><i class="fa fa-save"></i> Save</button>
       </p>
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline">
@@ -66,5 +65,5 @@
 	<input type="hidden" name="customer_code" id="customer_code" value="" />
 </form>
 
-<script src="<?php echo base_url(); ?>scripts/masters/channels.js"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/channels.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

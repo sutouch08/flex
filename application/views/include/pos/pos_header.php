@@ -32,19 +32,14 @@
 		<div id="loader" style="position:absolute; padding: 15px 25px 15px 25px; background-color:#fff; opacity:0.0; box-shadow: 0px 0px 25px #CCC; top:-20px; display:none; z-index:10;">
         <center><i class="fa fa-spinner fa-5x fa-spin blue"></i></center><center>กำลังทำงาน....</center>
 		</div>
-		<?php if($this->session->flashdata('error')) : ?>
-							<input type="hidden" id="error" value="<?php echo $this->session->flashdata('error'); ?>" />
-		<?php endif; ?>
-		<?php if($this->session->flashdata('success')) : ?>
-							<input type="hidden" id="success" value="<?php echo $this->session->flashdata('success'); ?>" />
-		<?php endif; ?>
+
 		<!-- #section:basics/navbar.layout -->
 		<div id="navbar" class="navbar navbar-default">
 			<script type="text/javascript">
 				var BASE_URL = '<?php echo base_url(); ?>';
 			</script>
-			<div class="navbar-container" id="navbar-container">
-				<?php if(! isset($_GET['nomenu'])) : ?>
+			<div class="navbar-container no-padding" id="navbar-container">
+
 				<!-- #section:basics/sidebar.mobile.toggle -->
 				<button type="button" class="navbar-toggle menu-toggler pull-left" id="menu-toggler" data-target="#sidebar">
 					<span class="sr-only">Toggle sidebar</span>
@@ -52,25 +47,27 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<?php endif; ?>
+
 				<div class="navbar-header pull-left">
-					<a href="<?php echo ((empty($approve_view) && !isset($_GET['nomenu']) && !$this->isViewer) ? base_url() : '#'); ?>" class="navbar-brand" style="min-width:167px;">
+					<a href="#" class="navbar-brand">
 						<small>
-							<?php echo getConfig('COMPANY_NAME'); ?>
+							<?php echo $this->title; ?>
 						</small>
 					</a>
 				</div>
-				<?php if(! isset($_GET['nomenu'])) : ?>
-					<?php
-					if(!$this->isViewer)
-					{
-						$this->load->view('include/top_menu');
-					}
-					?>
+				<!--
+				<nav role="navigation" class="navbar-menu pull-left">
+					<ul class="nav navbar-nav">
+						<li><a href="#" class="clock" id="clock"><?php echo date('d/m/Y H:i:s'); ?></a></li>
+					</ul>
+				</nav>
+			-->
+
+
 				<div class="navbar-buttons navbar-header pull-right" role="navigation">
 					<ul class="nav ace-nav">
 
-						<li class="salmon">
+						<li class="salmon" style="border:none;">
 							<a data-toggle="dropdown" href="#" class="dropdown-toggle">
 
 								<span class="user-info">
@@ -82,7 +79,7 @@
 							</a>
 
 							<ul class="user-menu dropdown-menu-right dropdown-menu dropdown-caret dropdown-close">
-								<?php if(!$this->isViewer) : ?>
+
 								<li>
 									<a href="JavaScript:void(0)" onclick="changeUserPwd('<?php echo get_cookie('uname'); ?>')">
 										<i class="ace-icon fa fa-keys"></i>
@@ -90,7 +87,7 @@
 									</a>
 								</li>
 								<li class="divider"></li>
-								<?php endif; ?>
+
 								<li>
 									<a href="<?php echo base_url(); ?>users/authentication/logout">
 										<i class="ace-icon fa fa-power-off"></i>
@@ -101,9 +98,7 @@
 						</li>
 					</ul>
 				</div>
-			<?php else : ?>
-					<button type="button" class="close margin-top-10" onclick="window.close()"><i class="fa fa-times"></i></button>
-				<?php endif; ?>
+
 
 				<!-- /section:basics/navbar.dropdown -->
 			</div><!-- /.navbar-container -->
@@ -138,14 +133,7 @@
 					<div id="sidebar2" class="sidebar h-sidebar navbar-collapse collapse" data-sidebar="true" data-sidebar-scoll="true"
 					data-sidebar-hover="true" aria-expanded="false" style="height:1px;">
       <!-- second sidebar, horizontal -->
-				<?php
 
-				// if(!$this->isViewer && !isset($_GET['nomenu']))
-				// {
-				// 	$this->load->view('include/approve_form');
-				// 	$this->load->view('include/top_menu');
-				// }
-				 ?>
     			</div>
                 <?php if($this->session->flashdata("error") != null) :?>
 					<input type="hidden" id="error" value="<?php echo $this->session->flashdata("error"); ?>">
@@ -156,11 +144,23 @@
 
 								<!-- PAGE CONTENT BEGINS -->
 
-<?php
-//--- if user don't have permission to access this page then deny_page;
-//_can_view_page($this->pm->can_view);
-	if($this->pm->can_view == 0)
-	{
-		$this->load->view('deny_page');
-	}
-?>
+<script>
+function viewClock()
+{
+	var d = new Date(),
+    minutes = d.getMinutes().toString().length == 1 ? '0'+d.getMinutes() : d.getMinutes(),
+    hours = d.getHours().toString().length == 1 ? '0'+d.getHours() : d.getHours(),
+    months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'],
+    days = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+
+		clock = days[d.getDay()]+' '+d.getDate()+' '+months[d.getMonth()]+' '+(d.getFullYear() + 543)+' '+hours+':'+minutes;
+
+		$('#clock').text(clock);
+}
+
+var displayClock = setInterval(function(){
+	viewClock();
+}, 1000);
+
+
+</script>

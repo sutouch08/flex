@@ -20,8 +20,8 @@ class Configs extends PS_Controller
   public function index()
   {
     $groups = $this->config_model->get_group();
-    $ps = get_permission('SCSYSC');
-    $cando = ($ps->can_add + $ps->can_edit + $ps->can_delete) > 0 ? TRUE : FALSE;
+    //$ps = get_permission('SCSYSC');
+    //$cando = ($ps->can_add + $ps->can_edit + $ps->can_delete) > 0 ? TRUE : FALSE;
     $ds = array();
     foreach($groups as $rs)
     {
@@ -35,7 +35,7 @@ class Configs extends PS_Controller
        }
     }
 
-    $ds['cando'] = $cando;
+    //$ds['cando'] = $cando;
 
     $this->load->view('setting/configs', $ds);
   }

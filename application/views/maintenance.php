@@ -18,7 +18,7 @@
     <div>
         <p>Sorry for the inconvenience but we&rsquo;re performing some maintenance at the moment. If you need to you can always contact us, otherwise we&rsquo;ll be back online shortly!</p>
         <p>&mdash; The Team</p>
-				<?php if($this->pm->can_add OR $this->pm->can_edit OR $this->pm->can_delete) : ?>
+				<?php if($this->_SuperAdmin) : ?>
 					<p style="float:right;"><button style="padding:15px;" onclick="openSystem()">OPEN SYSTEM</button></p>
 					<script>
 						function openSystem(){

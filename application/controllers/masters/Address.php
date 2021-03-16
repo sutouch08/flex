@@ -65,13 +65,15 @@ class Address extends PS_Controller
 
     if(!empty($adr))
     {
+			$sub_district = empty($adr->sub_district) ? '' : 'ต.'.$adr->sub_district;
+			$district = empty($adr->district) ? '' : ' อ. '.$adr->district;
       $ds = array(
         'order' => $order,
         'details' => $details,
         'cusName' => $adr->name,
         'cusAdr1' => $adr->address,
-        'cusAdr2' => ('ต.'.$adr->sub_district.' อ. '.$adr->district),
-        'cusProv' => ('จ. '.$adr->province),
+        'cusAdr2' => ($sub_district . $district),
+        'cusProv' => empty($adr->province) ? '' : ('จ. '.$adr->province),
         'cusPostCode' => $adr->postcode,
         'cusPhone' => $adr->phone,
         'cusCode' => $order->customer_code,

@@ -15,7 +15,7 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">รหัส</label>
     <div class="col-xs-12 col-sm-3">
-      <input type="text" name="code" id="code" class="width-100 code" maxlength="15" value="<?php echo $code; ?>" onkeyup="validCode(this)" autofocus required />
+      <input type="text" name="code" id="code" class="width-100 code" maxlength="15" value="" onkeyup="validCode(this)" autofocus required />
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" id="code-error"></div>
   </div>
@@ -25,7 +25,7 @@
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
     <div class="col-xs-12 col-sm-3">
-			<input type="text" name="name" id="name" class="width-100" maxlength="50" value="<?php echo $name; ?>" required />
+			<input type="text" name="name" id="name" class="width-100" maxlength="50" value="" required />
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
   </div>
@@ -35,9 +35,10 @@
     <div class="col-xs-12 col-sm-3">
 			<select name="role" id="role" class="form-control input-sm" required>
 				<option value="">โปรดเลือก</option>
-				<?php echo select_payment_role($role); ?>
+				<?php echo select_payment_role(); ?>
 			</select>
     </div>
+		<div class="help-block col-xs-12 col-sm-reset inline red" id="role-error"></div>
   </div>
 
 
@@ -58,7 +59,7 @@
     <label class="col-sm-3 control-label no-padding-right"></label>
     <div class="col-xs-12 col-sm-3">
       <p class="pull-right">
-        <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Save</button>
+        <button type="button" class="btn btn-sm btn-success" onclick="save_add()"><i class="fa fa-save"></i> Save</button>
       </p>
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline">
@@ -68,5 +69,5 @@
 	<input type="hidden" name="payment_methods_code" id="payment_methods_code" value="0" />
 </form>
 
-<script src="<?php echo base_url(); ?>scripts/masters/payment_methods.js"></script>
+<script src="<?php echo base_url(); ?>scripts/masters/payment_methods.js?v=<?php echo date('YmdH'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

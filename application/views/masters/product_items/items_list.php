@@ -102,11 +102,11 @@
 
   <div class="col-sm-1 col-xs-6 padding-5">
     <label class="display-block not-show">buton</label>
-    <button type="submit" class="btn btn-sm btn-primary btn-block"><i class="fa fa-search"></i> ค้นหา</button>
+    <button type="submit" class="btn btn-sm btn-primary btn-block">ค้นหา</button>
   </div>
 	<div class="col-sm-1 col-xs-6 padding-5">
     <label class="display-block not-show">buton</label>
-    <button type="button" class="btn btn-sm btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
+    <button type="button" class="btn btn-sm btn-warning btn-block" onclick="clearFilter()">Reset</button>
   </div>
 </div>
 <hr class="margin-top-15 padding-5">

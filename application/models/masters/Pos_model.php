@@ -66,6 +66,72 @@ class Pos_model extends CI_Model
 	}
 
 
+	public function get_active_pos_list()
+	{
+		$this->db
+		->select('pos.*')
+		->select('shop.code AS shop_code, shop.name AS shop_name')
+		->select('zone.name AS zone_name')
+		->from('shop_pos AS pos')
+		->join('shop', 'pos.shop_id = shop.id', 'left')
+		->join('zone', 'shop.zone_code = zone.code', 'left')
+		->where('shop.active', 1)
+		->where('pos.active', 1)
+		->order_by('shop.code', 'ASC');
+
+		$rs = $this->db->get();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+	public function get_pos($id)
+	{
+		$this->db
+		->select('pos.*')
+		->select('shop.code AS shop_code, shop.name AS shop_name, shop.customer_code')
+		->select('zone.name AS zone_name')
+		->from('shop_pos AS pos')
+		->join('shop', 'pos.shop_id = shop.id', 'left')
+		->join('zone', 'shop.zone_code = zone.code', 'left')
+		->where('shop.active', 1)
+		->where('pos.active', 1)
+		->where('pos.id', $id);
+
+		$rs = $this->db->get();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
+
+
+	public function get_customer_shop_list($shop_id)
+	{
+		$rs = $this->db
+		->select('customers.code, customers.name')
+		->from('customers')
+		->join('customer_shop', 'customers.code = customer_shop.customer_code')
+		->where('customer_shop.shop_id', $shop_id)
+		->get();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return  NULL;
+	}
+
+
+
   //---- delete zone  must use only mistake on sap and delete zone in SAP already
   public function delete($code)
   {

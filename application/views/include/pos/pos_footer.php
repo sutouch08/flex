@@ -3,38 +3,59 @@
 						</div><!-- /.row -->
 					</div><!-- /.page-content -->
 
+				<!--
+			<div class="footer hidden-print" style="border-top:0px;">
+				<div class="footer-inner" style="border-top:0px;">
+					<div class="footer-content" style="border-top:0px;">
+						<div class="col-lg-6 col-sm-6 col-md-6">
+							<table class="table" style="margin-bottom:5px;">
+								<tr style="background-color:#d9edf7;">
+									<td class="width-25">Total Items</td>
+									<td class="width-25 text-right" id="total_item">0</td>
+									<td class="width-25">Total</td>
+									<td class="width-25 text-right" id="total_amount">0.00</td>
+								</tr>
+								<tr style="background-color:#d9edf7; color:#3c8dbc;">
+									<td class="width-25">Discount</td>
+									<td class="width-25 text-right" id="total_discount">0.00</td>
+									<td class="width-25">Tax</td>
+									<td class="width-25 text-right" id="total_tax">0.00</td>
+								</tr>
+								<tr style="height:60px; font-size:30px; background-color:black; color:lime;">
+									<td colspan="2" class="text-center">Total Payable</td>
+									<td colspan="2" class="text-right" id="net_amount">0.00</td>
+								</tr>
+							</table>
 
-			<div class="footer hidden-print">
-				<div class="footer-inner">
-					<!-- #section:basics/footer -->
-					<div class="footer-content">
-						<span class="font-size-10">
-							Copyright (c) <?php echo date('Y'); ?> TR System Innovation Co.,Ltd. All Rights Reserved.
-						</span>
-                        <!--
-						<span class="action-buttons">
-							<a href="#">
-								<i class="ace-icon fa fa-twitter-square light-blue bigger-150"></i>
-							</a>
+							<table class="table" style="margin-bottom:0px;">
+								<tr>
+									<td class="width-30" style="padding:0px; border:0;">
+										<button type="button" class="btn btn-warning btn-lagrg btn-block">Hold</button>
+									</td>
+									<td class="width-30" style="padding:0px; border:0;">
+										<button type="button" class="btn btn-purple btn-lagrg btn-block">Print Order</button>
+									</td>
+									<td rowspan="2" class="width-40" style="padding:0px; border:0;">
+										<button type="button" class="btn btn-success btn-block" style="height:85px;">Payment</button>
+									</td>
+								</tr>
 
-							<a href="#">
-								<i class="ace-icon fa fa-facebook-square text-primary bigger-150"></i>
-							</a>
+								<tr>
+									<td class="width-30" style="padding:0px; border:0;">
+										<button type="button" class="btn btn-danger btn-lagrg btn-block">Cancel</button>
+									</td>
+									<td class="width-30" style="padding:0px; border:0;">
+										<button type="button" class="btn btn-inverse btn-lagrg btn-block">Print Bill</button>
+									</td>
 
-							<a href="#">
-								<i class="ace-icon fa fa-rss-square orange bigger-150"></i>
-							</a>
-						</span>
-					</div>  -->
+								</tr>
 
-					<!-- /section:basics/footer -->
-
-
-			<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
-				<i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
-			</a>
-		</div><!-- /.footer -->
-		</div><!-- /.main-container -->
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		-->
 
 		<!-- page specific plugin scripts -->
 
