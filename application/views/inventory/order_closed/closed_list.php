@@ -1,5 +1,9 @@
 <?php $this->load->view('include/header'); ?>
 <?php $pm = get_permission('SOODIV', $this->_user->uid, get_cookie('id_profile')); ?>
+<?php $use_vat = getConfig('USE_VAT'); ?>
+<script>
+	var USE_VAT = <?php echo $use_vat; ?>
+</script>
 <div class="row">
 	<div class="col-sm-6 col-xs-6 padding-5">
     <h3 class="title">
@@ -9,8 +13,9 @@
 		<div class="col-sm-6 col-xs-6 padding-5">
 			<p class="pull-right top-p">
 				<?php if($pm->can_add OR $pm->can_edit) : ?>
-					<button type="button" class="btn btn-sm btn-primary" onclick="create_each_invoice()">เปิดใบกำกับแยกออเดอร์</button>
-					<button type="button" class="btn btn-sm btn-success" onclick="create_one_invoice()">เปิดใบกำกับรวมออเดอร์</button>
+					<?php $inv_option = $use_vat ? 'tax_invoice' : 'do_invoice'; ?>
+					<button type="button" class="btn btn-sm btn-primary" onclick="create_each_invoice('<?php echo $inv_option; ?>')">เปิดใบกำกับแยกออเดอร์</button>
+					<button type="button" class="btn btn-sm btn-success" onclick="create_one_invoice('<?php echo $inv_option; ?>')">เปิดใบกำกับรวมออเดอร์</button>
 				<?php endif; ?>
 			</p>
 		</div>
@@ -103,7 +108,7 @@
 					<td class="text-center">
 						<?php if($rs->role === 'S' && empty($rs->invoice_code)) : ?>
 							<label>
-								<input type="checkbox" class="ace chk" value="<?php echo $rs->code; ?>" />
+								<input type="checkbox" class="ace chk" value="<?php echo $rs->code; ?>" data-no="<?php echo $no; ?>" />
 								<span class="lbl"></span>
 							</label>
 						<?php endif; ?>
@@ -122,6 +127,7 @@
 						<?php if($rs->payment_role == 4 && $rs->is_paid == 0) : ?>
 							<span class="label label-danger">รอเงินเข้า</span>
 						<?php endif; ?>
+						<input type="hidden" id="orderCode-<?php echo $no; ?>" value="<?php echo $rs->code; ?>" />
           </td>
 
 					<td class="pointer text-center" onclick="viewDetail('<?php echo $rs->code; ?>')">
@@ -133,6 +139,7 @@
 						<?php if(!empty($rs->customer_ref)) : ?>
 							[<?php echo $rs->customer_ref; ?>]
 						<?php endif; ?>
+						<input type="hidden" id="customerCode-<?php echo $no; ?>" value="<?php echo $rs->customer_code; ?>" />
           </td>
 
           <td class="pointer text-center" onclick="viewDetail('<?php echo $rs->code; ?>')">
@@ -160,7 +167,7 @@
   </div>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/inventory/order_closed/closed.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/order_closed/closed_list.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/order_closed/closed.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/order_closed/closed_list.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

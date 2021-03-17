@@ -310,10 +310,11 @@ class Printer
 	public function page_start()
 	{
 		$page_break = "page-break-after:always;";
-		if($this->current_page == $this->total_page)
-		{
-			$page_break = "";
-		}
+		// if($this->current_page == $this->total_page)
+		// {
+		// 	$page_break = "";
+		// }
+
 		return "<div class='page_layout' style='width:".$this->page_width."mm; padding-top:5mm; height:".$this->page_height."mm; position:relative; margin:auto; ".$page_break."'>"; //// page start
 	}
 

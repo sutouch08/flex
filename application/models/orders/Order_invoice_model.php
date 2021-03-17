@@ -260,6 +260,29 @@ class Order_invoice_model extends CI_Model
 	}
 
 
+	public function get_sold_data_by_order($customer_code, array $order = array())
+	{
+		if(!empty($order))
+		{
+			$rs = $this->db
+			->select('os.*')
+			->from('order_sold AS os')
+			->join('orders AS od', 'os.reference = od.code', 'left')
+			->where_in('os.reference', $order)
+			->where('os.customer_code', $customer_code)
+			->where('od.invoice_code IS NULL', NULL, FALSE)
+			->get();
+
+			if($rs->num_rows() > 0)
+			{
+				return $rs->result();
+			}
+		}
+
+		return NULL;
+	}
+
+
 	public function get_max_code($pre)
   {
     $rs = $this->db
@@ -270,6 +293,19 @@ class Order_invoice_model extends CI_Model
 
     return $rs->row()->code;
   }
+
+
+
+	public function get_gen_invoice_list($gen_id)
+	{
+		$rs = $this->db->where('gen_id', $gen_id)->where('status', 1)->get('order_invoice');
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
 
 } //--- end class
  ?>
