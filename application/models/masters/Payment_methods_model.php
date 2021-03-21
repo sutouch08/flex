@@ -284,5 +284,21 @@ class Payment_methods_model extends CI_Model
 	}
 
 
+	public function get_pos_payment_list()
+	{
+		$qr  = "SELECT code, name, has_term, role ";
+		$qr .= "FROM payment_method ";
+		$qr .= "ORDER BY FIELD(role, '2', '3', '5', '1', '4') ASC, name ASC";
+
+		$rs = $this->db->query($qr);
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
 }
 ?>

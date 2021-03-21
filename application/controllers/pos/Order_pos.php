@@ -36,6 +36,7 @@ class Order_pos extends PS_Controller
 	{
 		if($this->pm->can_add)
 		{
+			$this->load->helper('payment_method');
 			$this->title = "POS";
 			$pos = $this->pos_model->get_pos($id);
 			if(!empty($pos))
@@ -56,6 +57,48 @@ class Order_pos extends PS_Controller
 	}
 
 
+	public function get_product_by_code()
+	{
+		$this->load->model('masters/products_model');
+		$this->load->model('orders/discount_model');
+
+		$code = trim($this->input->get('code'));
+		$customer_code = trim($this->input->get('customer_code'));
+
+		if(! is_null($code))
+    {
+      $item = $this->products_model->get($code);
+
+			if(!empty($item))
+			{
+				$vat_rate = $this->products_model->get_vat_rate($item->code);
+
+				$arr = array(
+					'id' => md5($item->code),
+					'code' => $item->code,
+					'name' => $item->name,
+					'price' => $item->price,
+					'sell_price' => $item->price,
+					'qty' => 1,
+					'discount' => 0,
+					'discount_amount' => 0,
+					'total' => $item->price,
+					'tax_rate' => $vat_rate,
+					'tax_amount' => $item->price * ($vat_rate * 0.01)
+				);
+
+				echo json_encode($arr);
+			}
+			else
+			{
+				echo "No item found";
+			}
+    }
+		else
+		{
+			echo "Invalid Item Code";
+		}
+	}
 
   public function get_product_by_barcode()
   {

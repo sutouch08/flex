@@ -102,7 +102,7 @@
 								<button type="button" class="btn btn-purple btn-lagrg btn-block">Print Order</button>
 							</td>
 							<td rowspan="2" class="width-40" style="padding:0px; border:0;">
-								<button type="button" class="btn btn-success btn-block" style="height:85px;">Payment</button>
+								<button type="button" class="btn btn-success btn-block" style="height:85px;" onclick="showPayment()">Payment</button>
 							</td>
 						</tr>
 

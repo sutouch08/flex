@@ -48,8 +48,8 @@ class Orders extends PS_Controller
       'ship_code'     => get_filter('shipCode', 'order_shipCode', ''),
       'channels'      => get_filter('channels', 'order_channels', ''),
       'payment'       => get_filter('payment', 'order_payment', ''),
-      'from_date'     => get_filter('fromDate', 'fromDate', ''),
-      'to_date'       => get_filter('toDate', 'toDate', ''),
+      'from_date'     => get_filter('fromDate', 'order_fromDate', ''),
+      'to_date'       => get_filter('toDate', 'order_toDate', ''),
       'is_paid'       => get_filter('is_paid', 'is_paid', 'all'),
 			'notSave' => get_filter('notSave', 'notSave', NULL),
       'onlyMe' => get_filter('onlyMe', 'onlyMe', NULL),
@@ -847,7 +847,7 @@ class Orders extends PS_Controller
 		else
 		{
 			$this->page_error();
-		}    
+		}
   }
 
 

@@ -110,245 +110,249 @@ class Import_order extends CI_Controller
             }
             else
             {
-              //---- order code from web site
-              $ref_code = $rs['I'];
+							if(!empty($rs['A']))
+							{
+								//---- order code from web site
+	              $ref_code = $rs['I'];
 
-							//---	วันที่เอกสาร
-							//$date_add = PHPExcel_Style_NumberFormat::toFormattedString($rs['J'], 'YYYY-MM-DD');
-							//$date_add = db_date($date_add, TRUE);
-							$date_add = db_date($rs['J'], TRUE);
+								//---	วันที่เอกสาร
+								//$date_add = PHPExcel_Style_NumberFormat::toFormattedString($rs['J'], 'YYYY-MM-DD');
+								//$date_add = db_date($date_add, TRUE);
+								$date_add = db_date($rs['J'], TRUE);
 
-							$remark = empty($rs['S']) ? NULL : trim($rs['S']);
+								$remark = empty($rs['S']) ? NULL : trim($rs['S']);
 
-              //---- กำหนดช่องทางการขาย
-              $channels = $this->channels_model->get(trim($rs['L']));
+	              //---- กำหนดช่องทางการขาย
+	              $channels = $this->channels_model->get(trim($rs['L']));
 
-              //--- หากไม่ระบุช่องทางขายมา หรือ ช่องทางขายไม่ถูกต้องใช้ default
-              if(empty($channels))
-              {
-                $channels = $this->channels_model->get_default();
-              }
+	              //--- หากไม่ระบุช่องทางขายมา หรือ ช่องทางขายไม่ถูกต้องใช้ default
+	              if(empty($channels))
+	              {
+	                $channels = $this->channels_model->get_default();
+	              }
 
-              //--- กำหนดช่องทางการชำระเงิน
-              $payment = $this->payment_methods_model->get(trim($rs['K']));
+	              //--- กำหนดช่องทางการชำระเงิน
+	              $payment = $this->payment_methods_model->get(trim($rs['K']));
 
-              if(empty($payment))
-              {
-                $payment = $this->payment_methods_model->get_default();
-              }
-
-              //------ เช็คว่ามีออเดอร์นี้อยู่ในฐานข้อมูลแล้วหรือยัง
-              //------ ถ้ามีแล้วจะได้ order_code กลับมา ถ้ายังจะได้ FALSE;
-              $order_code  = $this->orders_model->get_order_code_by_reference($ref_code);
-
-							//--- รันเลขที่เอกสารตามประเภทเอาสาร
-							$code = $order_code === FALSE ? $this->get_new_code($date_add) : $order_code;
-
-              //-- state ของออเดอร์ จะมีการเปลี่ยนแปลงอีกที
-              $state = 3;
-
-              //---- ถ้ายังไม่มีออเดอร์ ให้เพิ่มใหม่ หรือ มีออเดอร์แล้ว แต่ต้องการ update
-              //---- โดยการใส่ force update มาเป็น 1
-              if($order_code === FALSE OR ($order_code !== FALSE && $rs['R'] == 1))
-              {
-              	//---	ถ้าเป็นออเดอร์ขายหรือสปอนเซอร์ จะมี id_customer
-              	$customer_code = empty($channels) ? $default_customer : (empty($channels->customer_code) ? $default_customer : $channels->customer_code);
-
-                $customer = $this->customers_model->get($customer_code);
-
-              	//---	ถ้าเป็นออเดอร์ขาย จะมี id_sale
-              	$sale_code = $customer->sale_code;
-
-              	//---	หากเป็นออนไลน์ ลูกค้าออนไลน์ชื่ออะไร
-              	$customer_ref = addslashes(trim($rs['A']));
-
-                //---	ช่องทางการชำระเงิน
-                $payment_code = empty($payment) ? NULL : $payment->code;
-
-                //---	ช่องทางการขาย
-                $channels_code = empty($channels) ? NULL : $channels->code;
-
-                //--- ค่าจัดส่ง
-                $shipping_fee = $rs['P'] == '' ? 0.00 : $rs['P'];
-
-                //--- ค่าบริการอื่นๆ
-                $service_fee = $rs['Q'] == '' ? 0.00 : $rs['Q'];
+	              if(empty($payment))
+	              {
+	                $payment = $this->payment_methods_model->get_default();
+	              }
 
 
-                //---- กรณียังไม่มีออเดอร์
-                if($order_code === FALSE)
-                {
-                  //--- เตรียมข้อมูลสำหรับเพิ่มเอกสารใหม่
-                  $ds = array(
-                    'code' => $code,
-                    'role' => $role,
-                    'bookcode' => $bookcode,
-                    'reference' => $ref_code,
-                    'customer_code' => $customer_code,
-                    'customer_ref' => $customer_ref,
-                    'channels_code' => $channels_code,
-                    'payment_code' => $payment_code,
-                    'sale_code' => $sale_code,
-                    'state' => $state,
-                    'is_paid' => 1,
-                    'is_term' => empty($payment) ? 0 : $payment->has_term,
-										'shipping_fee' => $shipping_fee,
-                    'status' => 1,
-                    'date_add' => $date_add,
-                    'user' => get_cookie('uname'),
-										'remark' => $remark,
-										'is_import' => 1
-                  );
+	              //------ เช็คว่ามีออเดอร์นี้อยู่ในฐานข้อมูลแล้วหรือยัง
+	              //------ ถ้ามีแล้วจะได้ order_code กลับมา ถ้ายังจะได้ FALSE;
+	              $order_code  = $this->orders_model->get_order_code_by_reference($ref_code);
 
-                  //--- เพิ่มเอกสาร
-                  if($this->orders_model->add($ds) === TRUE)
-                  {
-                    $arr = array(
-                      'order_code' => $code,
-                      'state' => 3,
-                      'update_user' => get_cookie('uname')
-                    );
-                    //--- add state event
-                    $this->order_state_model->add_state($arr);
+								//--- รันเลขที่เอกสารตามประเภทเอาสาร
+								$code = $order_code === FALSE ? $this->get_new_code($date_add) : $order_code;
 
-                    $id_address = $this->address_model->get_id($customer_ref, trim($rs['B']));
-                    if($id_address === FALSE)
-                    {
-                      $arr = array(
-                        'code' => $customer_ref,
-                        'name' => $customer_ref,
-                        'address' => trim($rs['B']),
-                        'sub_district' => trim($rs['E']),
-                        'district' => trim($rs['D']),
-                        'province' => trim($rs['C']),
-                        'postcode' => trim($rs['F']),
-                        'phone' => trim($rs['H']),
-                        'alias' => 'Home',
-                        'is_default' => 1
-                      );
+	              //-- state ของออเดอร์ จะมีการเปลี่ยนแปลงอีกที
+	              $state = 3;
 
-                      $this->address_model->add_shipping_address($arr);
-                    }
-                    $import++;
-                  }
-                  else
-                  {
-                    $sc = FALSE;
-                    $message = $ref_code.': เพิ่มออเดอร์ไม่สำเร็จ';
-                  }
-                }
-                else
-                {
-                  $order = $this->orders_model->get($code);
-                  if($order->state <= 3)
-                  {
-                    //--- เตรียมข้อมูลสำหรับเพิ่มเอกสารใหม่
-                    //--- เตรียมข้อมูลสำหรับเพิ่มเอกสารใหม่
-                    $ds = array(
-                      'customer_code' => $customer_code,
-                      'customer_ref' => $customer_ref,
-                      'channels_code' => $channels_code,
-                      'payment_code' => $payment_code,
-                      'sale_code' => $sale_code,
-                      'state' => $state,
-                      'is_term' => $payment->has_term,
+	              //---- ถ้ายังไม่มีออเดอร์ ให้เพิ่มใหม่ หรือ มีออเดอร์แล้ว แต่ต้องการ update
+	              //---- โดยการใส่ force update มาเป็น 1
+	              if($order_code === FALSE OR ($order_code !== FALSE && $rs['R'] == 1))
+	              {
+	              	//---	ถ้าเป็นออเดอร์ขายหรือสปอนเซอร์ จะมี id_customer
+	              	$customer_code = empty($channels) ? $default_customer : (empty($channels->customer_code) ? $default_customer : $channels->customer_code);
+
+	                $customer = $this->customers_model->get($customer_code);
+
+	              	//---	ถ้าเป็นออเดอร์ขาย จะมี id_sale
+	              	$sale_code = empty($customer) ? NULL : $customer->sale_code;
+
+	              	//---	หากเป็นออนไลน์ ลูกค้าออนไลน์ชื่ออะไร
+	              	$customer_ref = addslashes(trim($rs['A']));
+
+	                //---	ช่องทางการชำระเงิน
+	                $payment_code = empty($payment) ? NULL : $payment->code;
+
+	                //---	ช่องทางการขาย
+	                $channels_code = empty($channels) ? NULL : $channels->code;
+
+	                //--- ค่าจัดส่ง
+	                $shipping_fee = $rs['P'] == '' ? 0.00 : $rs['P'];
+
+	                //--- ค่าบริการอื่นๆ
+	                $service_fee = $rs['Q'] == '' ? 0.00 : $rs['Q'];
+
+
+	                //---- กรณียังไม่มีออเดอร์
+	                if($order_code === FALSE)
+	                {
+	                  //--- เตรียมข้อมูลสำหรับเพิ่มเอกสารใหม่
+	                  $ds = array(
+	                    'code' => $code,
+	                    'role' => $role,
+	                    'bookcode' => $bookcode,
+	                    'reference' => $ref_code,
+	                    'customer_code' => $customer_code,
+	                    'customer_ref' => $customer_ref,
+	                    'channels_code' => $channels_code,
+	                    'payment_code' => $payment_code,
+	                    'sale_code' => $sale_code,
+	                    'state' => $state,
+	                    'is_paid' => 1,
+	                    'is_term' => empty($payment) ? 0 : $payment->has_term,
 											'shipping_fee' => $shipping_fee,
-                      'date_add' => $date_add,
-                      'user' => get_cookie('uname')
-                    );
+	                    'status' => 1,
+	                    'date_add' => $date_add,
+	                    'user' => get_cookie('uname'),
+											'remark' => $remark,
+											'is_import' => 1
+	                  );
 
-                    $this->orders_model->update($order_code, $ds);
-                  }
+	                  //--- เพิ่มเอกสาร
+	                  if($this->orders_model->add($ds) === TRUE)
+	                  {
+	                    $arr = array(
+	                      'order_code' => $code,
+	                      'state' => 3,
+	                      'update_user' => get_cookie('uname')
+	                    );
+	                    //--- add state event
+	                    $this->order_state_model->add_state($arr);
 
-                  $import++;
-                }
-              }
+	                    $id_address = $this->address_model->get_id($customer_ref, trim($rs['B']));
+	                    if($id_address === FALSE)
+	                    {
+	                      $arr = array(
+	                        'code' => $customer_ref,
+	                        'name' => $customer_ref,
+	                        'address' => trim($rs['B']),
+	                        'sub_district' => trim($rs['E']),
+	                        'district' => trim($rs['D']),
+	                        'province' => trim($rs['C']),
+	                        'postcode' => trim($rs['F']),
+	                        'phone' => trim($rs['H']),
+	                        'alias' => 'Home',
+	                        'is_default' => 1
+	                      );
+
+	                      $this->address_model->add_shipping_address($arr);
+	                    }
+	                    $import++;
+	                  }
+	                  else
+	                  {
+	                    $sc = FALSE;
+	                    $message = $ref_code.': เพิ่มออเดอร์ไม่สำเร็จ';
+	                  }
+	                }
+	                else
+	                {
+	                  $order = $this->orders_model->get($code);
+	                  if($order->state <= 3)
+	                  {
+	                    //--- เตรียมข้อมูลสำหรับเพิ่มเอกสารใหม่
+	                    //--- เตรียมข้อมูลสำหรับเพิ่มเอกสารใหม่
+	                    $ds = array(
+	                      'customer_code' => $customer_code,
+	                      'customer_ref' => $customer_ref,
+	                      'channels_code' => $channels_code,
+	                      'payment_code' => $payment_code,
+	                      'sale_code' => $sale_code,
+	                      'state' => $state,
+	                      'is_term' => $payment->has_term,
+												'shipping_fee' => $shipping_fee,
+	                      'date_add' => $date_add,
+	                      'user' => get_cookie('uname')
+	                    );
+
+	                    $this->orders_model->update($order_code, $ds);
+	                  }
+
+	                  $import++;
+	                }
+	              }
 
 
-              //---- เตรียมข้อมูลสำหรับเพิมรายละเอียดออเดอร์
-              $item = $this->products_model->get(trim($rs['M']));
+	              //---- เตรียมข้อมูลสำหรับเพิมรายละเอียดออเดอร์
+	              $item = $this->products_model->get(trim($rs['M']));
 
-              if(empty($item))
-              {
-                $sc = FALSE;
-                $message = 'ไม่พบข้อมูลสินค้าในระบบ : '.$rs['M'];
-                break;
-              }
+	              if(empty($item))
+	              {
+	                $sc = FALSE;
+	                $message = 'ไม่พบข้อมูลสินค้าในระบบ : '.$rs['M'];
+	                break;
+	              }
 
-              //---- เช็คข้อมูล ว่ามีรายละเอียดนี้อยู่ในออเดอร์แล้วหรือยัง
-              //---- ถ้ามีข้อมูลอยู่แล้ว (TRUE)ให้ข้ามการนำเข้ารายการนี้ไป
-              if($this->orders_model->is_exists_detail($code, $item->code) === FALSE)
-              {
-                //--- ถ้ายังไม่มีรายการอยู่ เพิ่มใหม่
-                $arr = array(
-                  "order_code"	=> $code,
-                  "style_code"		=> $item->style_code,
-                  "product_code"	=> $item->code,
-                  "product_name"	=> $item->name,
-                  "cost"  => $item->cost,
-                  "price"	=> ($rs['O']/$rs['N']),
-                  "qty"		=> $rs['N'],
-									"unit_code" => $item->unit_code,
-									"vat_code" => $item->vat_code,
-									"vat_rate" => get_zero($item->vat_rate),
-                  "discount1"	=> 0,
-                  "discount2" => 0,
-                  "discount3" => 0,
-                  "discount_amount" => 0,
-                  "total_amount"	=> $rs['O'],
-                  "id_rule"	=> NULL,
-                  "is_count" => $item->count_stock,
-									"is_import" => 1
-                );
-
-                if( $this->orders_model->add_detail($arr) === FALSE )
-                {
-                  $sc = FALSE;
-                  $message = 'เพิ่มรายละเอียดรายการไม่สำเร็จ : '.$ref_code;
-                  break;
-                }
-                else
-                {
-                  //$this->update_api_stock($item->code);
-                }
-              }
-              else
-              {
-                //----  ถ้ามี force update และ สถานะออเดอร์ไม่เกิน 3 (รอจัดสินค้า)
-                if($rs['R'] == 1 && $state <= 3)
-                {
-                  $od  = $this->orders_model->get_order_detail($code, $item->code);
-
-                  $arr = array(
-                    "style_code"		=> $item->style_code,
-                    "product_code"	=> $item->code,
-                    "product_name"	=> $item->name,
-                    "cost"  => $item->cost,
-                    "price"	=> ($rs['O']/$rs['N']),
-                    "qty"		=> $rs['N'],
-                    "discount1"	=> 0,
-                    "discount2" => 0,
-                    "discount3" => 0,
-                    "discount_amount" => 0,
-                    "total_amount"	=> $rs['O'],
-                    "id_rule"	=> NULL,
-                    "is_count" => $item->count_stock,
+	              //---- เช็คข้อมูล ว่ามีรายละเอียดนี้อยู่ในออเดอร์แล้วหรือยัง
+	              //---- ถ้ามีข้อมูลอยู่แล้ว (TRUE)ให้ข้ามการนำเข้ารายการนี้ไป
+	              if($this->orders_model->is_exists_detail($code, $item->code) === FALSE)
+	              {
+	                //--- ถ้ายังไม่มีรายการอยู่ เพิ่มใหม่
+	                $arr = array(
+	                  "order_code"	=> $code,
+	                  "style_code"		=> $item->style_code,
+	                  "product_code"	=> $item->code,
+	                  "product_name"	=> $item->name,
+	                  "cost"  => $item->cost,
+	                  "price"	=> ($rs['O']/$rs['N']),
+	                  "qty"		=> $rs['N'],
+										"unit_code" => $item->unit_code,
+										"vat_code" => $item->vat_code,
+										"vat_rate" => get_zero($item->vat_rate),
+	                  "discount1"	=> 0,
+	                  "discount2" => 0,
+	                  "discount3" => 0,
+	                  "discount_amount" => 0,
+	                  "total_amount"	=> $rs['O'],
+	                  "id_rule"	=> NULL,
+	                  "is_count" => $item->count_stock,
 										"is_import" => 1
-                  );
+	                );
 
-                  if($this->orders_model->update_detail($od->id, $arr) === FALSE)
-                  {
-                    $sc = FALSE;
-                    $message = 'เพิ่มรายละเอียดรายการไม่สำเร็จ : '.$ref_code;
-                    break;
-                  }
-                  else
-                  {
-                    //$this->update_api_stock($item->code);
-                  }
-                } //--- enf force update
-              } //--- end if exists detail
+	                if( $this->orders_model->add_detail($arr) === FALSE )
+	                {
+	                  $sc = FALSE;
+	                  $message = 'เพิ่มรายละเอียดรายการไม่สำเร็จ : '.$ref_code;
+	                  break;
+	                }
+	                else
+	                {
+	                  //$this->update_api_stock($item->code);
+	                }
+	              }
+	              else
+	              {
+	                //----  ถ้ามี force update และ สถานะออเดอร์ไม่เกิน 3 (รอจัดสินค้า)
+	                if($rs['R'] == 1 && $state <= 3)
+	                {
+	                  $od  = $this->orders_model->get_order_detail($code, $item->code);
 
+	                  $arr = array(
+	                    "style_code"		=> $item->style_code,
+	                    "product_code"	=> $item->code,
+	                    "product_name"	=> $item->name,
+	                    "cost"  => $item->cost,
+	                    "price"	=> ($rs['O']/$rs['N']),
+	                    "qty"		=> $rs['N'],
+	                    "discount1"	=> 0,
+	                    "discount2" => 0,
+	                    "discount3" => 0,
+	                    "discount_amount" => 0,
+	                    "total_amount"	=> $rs['O'],
+	                    "id_rule"	=> NULL,
+	                    "is_count" => $item->count_stock,
+											"is_import" => 1
+	                  );
+
+	                  if($this->orders_model->update_detail($od->id, $arr) === FALSE)
+	                  {
+	                    $sc = FALSE;
+	                    $message = 'เพิ่มรายละเอียดรายการไม่สำเร็จ : '.$ref_code;
+	                    break;
+	                  }
+	                  else
+	                  {
+	                    //$this->update_api_stock($item->code);
+	                  }
+	                } //--- enf force update
+	              } //--- end if exists detail
+							}
+              
             } //--- end header column
 
             $i++;

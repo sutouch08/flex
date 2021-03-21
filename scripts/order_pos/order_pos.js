@@ -4,6 +4,36 @@ function goToPOS(id) {
 	window.location.href = HOME + 'pos/'+id;
 }
 
+function removeItem(id) {
+	$('#row-'+id).remove();
+	recalTotal();
+}
+
+$('#pd-box').autocomplete({
+	source:BASE_URL + 'auto_complete/get_item_code_and_name',
+	autoFocus:true,
+	close:function() {
+		var rs = $(this).val();
+		var arr = rs.split(' | ');
+		if(arr.length == 2) {
+			$(this).val(arr[0]);
+		}
+		else {
+			$(this).val('');
+		}
+	}
+})
+
+
+$('#pd-box').keyup(function(e){
+	if(e.keyCode === 13) {
+		var code = $(this).val();
+		if(code.length) {
+			$(this).val('');
+			get_product_by_code(code);
+		}
+	}
+})
 
 $('#barcode-box').keyup(function(e){
 	if(e.keyCode === 13) {
@@ -20,42 +50,8 @@ $('#barcode-box').keyup(function(e){
 				},
 				success:function(rs) {
 					if(isJson(rs)) {
-						var ds = $.parseJSON(rs);
-						var id = ds.id;
-						if($('#qty-'+id).length) {
 
-							var c_qty =  $('#qty-'+id).val();
-							var n_qty = ds.qty;
-
-
-							if(isInteger(c_qty)) {
-								c_qty = parseInt(c_qty);
-							}
-							else {
-								c_qty = parseDefault(parseFloat(c_qty), 0);
-							}
-
-							if(isInteger(n_qty)) {
-								n_qty = parseInt(n_qty);
-							}
-							else {
-								n_qty = parseDefault(parseFloat(n_qty), 0);
-							}
-
-							qty = c_qty + n_qty;
-
-							$('#qty-'+id).val(qty);
-
-							recalItem(id);
-						}
-						else {
-							var source = $('#row-template').html();
-							var output = $('#item-table');
-
-							render_append(source, ds, output);
-							percent_init();
-							recalItem(id);
-						}
+						addToOrder(rs);
 					}
 					else {
 						swal({
@@ -76,6 +72,80 @@ $('#barcode-box').keyup(function(e){
 		}
 	}
 })
+
+
+function get_product_by_code(code)
+{
+	if(code.length > 0) {
+		$.ajax({
+			url:HOME + 'get_product_by_code',
+			type:'GET',
+			cache:false,
+			data:{
+				'code' : code
+			},
+			success:function(rs) {
+				if(isJson(rs)) {
+
+					addToOrder(rs);
+				}
+				else {
+					swal({
+						title:'Error',
+						text:rs,
+						type:'error'
+					});
+				}
+			},
+			error:function(xhr, status, error) {
+				swal({
+					title:'Error!',
+					text:'Error-'+xhr.status+': '+xhr.statusText,
+					type:'error'
+				});
+			}
+		})
+	}
+}
+
+function addToOrder(rs) {
+	var ds = $.parseJSON(rs);
+	var id = ds.id;
+	if($('#qty-'+id).length) {
+
+		var c_qty =  $('#qty-'+id).val();
+		var n_qty = ds.qty;
+
+
+		if(isInteger(c_qty)) {
+			c_qty = parseInt(c_qty);
+		}
+		else {
+			c_qty = parseDefault(parseFloat(c_qty), 0);
+		}
+
+		if(isInteger(n_qty)) {
+			n_qty = parseInt(n_qty);
+		}
+		else {
+			n_qty = parseDefault(parseFloat(n_qty), 0);
+		}
+
+		qty = c_qty + n_qty;
+
+		$('#qty-'+id).val(qty);
+
+		recalItem(id);
+	}
+	else {
+		var source = $('#row-template').html();
+		var output = $('#item-table');
+
+		render_append(source, ds, output);
+		percent_init();
+		recalItem(id);
+	}
+}
 
 
 function recalItem(id) {
@@ -149,4 +219,18 @@ function percent_init() {
 			recalItem($(this).data('id'));
 		}
 	})
+}
+
+
+function showPayment() {
+	var amountText = $('#net_amount').text();
+	var amount = parseDefault(parseFloat(removeCommas(amountText)), 0.00);
+
+	if(amount > 0) {
+		$('#payableAmount').val(amount);
+		$('#payAmountLabel').text(amountText);
+
+		$('#paymentModal').modal('show');
+	}
+
 }

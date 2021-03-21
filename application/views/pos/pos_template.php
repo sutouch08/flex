@@ -7,7 +7,7 @@
 		<input type="hidden" id="taxAmount-{{id}}" value="{{tax_amount}}">
 		<input type="hidden" id="sellPrice-{{id}}" value="{{sell_price}}">
 		<input type="hidden" id="discAmount-{{id}}" value="{{discount_amount}}">
-		{{name}} ({{code}})
+		<input type="text" class="form-control input-xs no-border" value="{{name}} ({{code}})" />
 	</td>
 	<td class="middle" style="padding-left:5px; padding-right:5px;">
 		<input type="number" class="form-control input-xs text-center no-border" id="price-{{id}}" value="{{price}}" onchange="recalItem('{{id}}')" onclick="$(this).select();" />
@@ -24,3 +24,43 @@
 	</td>
 </tr>
 </script>
+
+
+
+<div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width:500px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<h4 class="modal-title-site" >ชำระเงิน</h4>
+            </div>
+            <div class="modal-body">
+							<div class="row">
+								<div class="col-sm-12 col-xs-12 padding-5">
+									<span id="payAmountLabel" style="font-size:25px; color:#75ce66;"></span>
+									<input type="hidden" id="payableAmount" />
+	            	</div>
+								<div class="col-sm-6 col-xs-6 padding-5">
+									<label>รับเงิน</label>
+									<div class="input-group">
+							      <input type="number" class="form-control input-lg text-center" id="receiveAmount" value="" placeholder="รับเงิน (Space)">
+							      <span class="input-group-btn">
+							        <button type="button" class="btn btn-primary btn-lg no-radius payment" onclick="justBalance()">รับพอดี</button>
+							      </span>
+    							</div>
+									<!--<input type="number" class="form-control input-lg text-right" id="recieveAmount" value="0.00" onfocus="$(this).select();"/> -->
+								</div>
+								<div class="col-sm-6 col-xs-6 padding-5">
+									<label>ชำระโดย</label>
+									<select class="form-control input-lg" id="payBy">
+										<?php echo select_pos_payment_method(); ?>
+									</select>
+								</div>
+							</div>
+            </div>
+            <div class="modal-footer">
+               <button class="btn btn-sm btn-info btn-block" data-dismiss="modal" data-clipboard-action="copy" data-clipboard-target="#summaryText">Copy</button>
+            </div>
+        </div>
+    </div>
+</div>
