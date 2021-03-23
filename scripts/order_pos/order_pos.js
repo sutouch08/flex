@@ -250,6 +250,12 @@ function changePayment() {
 	//--- role = 5 ==> บัตรเครดิต
 	var payment = $('#payBy').val();
 	var role = $('#payBy option:selected').data('role');
+	//--- reset field
+	$('#receiveAmount').val('');
+	$('#changeAmount').val('');
+	$('#btn-submit').attr('disabled','disabled');
+	$('#bank_role').addClass('hide');
+
 	if(role == 1) {
 		//---- credit
 		$('#receiveAmount').attr('disabled', 'disabled');
@@ -258,11 +264,14 @@ function changePayment() {
 	}
 	else if(role == 2) {
 		//--- cash
+		$('#receiveAmount').removeAttr('disabled');
 		$('#receiveAmount').focus();
 	}
 	else if(role == 3) {
 		//--- bank transfer
 		$('#bank_role').removeClass('hide');
+		$('#receiveAmount').removeAttr('disabled');
+		$('#receiveAmount').focus();
 	}
 	else if(role == 4) {
 		//--- cod
@@ -271,16 +280,30 @@ function changePayment() {
 		$('#btn-submit').focus();
 	}
 	else if(role == 5) {
-
+		//--- Credit card
+		var amount = parseDefault(parseFloat($('#payableAmount').val()), 0);
+		if(amount > 0) {
+			$('#receiveAmount').removeAttr('disabled');
+			$('#changeAmount').val('');
+			$('#receiveAmount').val(amount);
+			$('#btn-submit').removeAttr('disabled');
+			$('#btn-submit').focus();
+		}
 	}
-
-
 }
+
+
+
 
 function justBalance() {
 	var amount = parseDefault(parseFloat($('#payableAmount').val()), 0);
 	if(amount > 0) {
-		$('#receiveAmount').val(amount);
+		var role = $('#payBy option:selected').data('role');
+		if(role == 2 || role == 3 || role == 5) {
+			$('#receiveAmount').val(amount);
+			calChange();
+			$('#btn-submit').removeAttr('disabled');
+		}
 	}
 }
 
@@ -288,9 +311,7 @@ function justBalance() {
 $('#receiveAmount').keyup(function() {
 	var amount = parseDefault(parseFloat($('#payableAmount').val()), 0);
 	var receive = parseDefault(parseFloat($(this).val()), 0);
-	var change = receive - amount;
-	$('#changeAmount').val(change);
-
+	calChange();
 	if(receive >= amount) {
 		$('#btn-submit').removeAttr('disabled');
 	}
@@ -298,3 +319,10 @@ $('#receiveAmount').keyup(function() {
 		$('#btn-submit').attr('disabled', 'disabled');
 	}
 })
+
+function calChange() {
+	var amount = parseDefault(parseFloat($('#payableAmount').val()), 0);
+	var receive = parseDefault(parseFloat($('#receiveAmount').val()), 0);
+	var change = receive - amount;
+	$('#changeAmount').val(change);
+}

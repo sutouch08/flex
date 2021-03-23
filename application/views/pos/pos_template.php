@@ -50,7 +50,7 @@
 
 								<div id="bank_role" class="col-sm-12 col-xs-12 hide">
 									<label>เลือกบัญชี</label>
-									<select class="form-control input-sm" id="bank_account">
+									<select class="form-control input-lg" id="bank_account">
 										<?php echo select_bank_account(); ?>
 									</select>
 								</div>
@@ -58,7 +58,7 @@
 								<div class="col-sm-12 col-xs-12">
 									<label>รับเงิน</label>
 									<div class="input-group">
-							      <input type="number" class="form-control input-lg text-center" id="receiveAmount" value="" placeholder="รับเงิน (Space)">
+							      <input type="number" class="form-control input-lg text-center" id="receiveAmount" value="" placeholder="รับเงิน">
 							      <span class="input-group-btn">
 							        <button type="button" class="btn btn-primary btn-lg no-radius payment" onclick="justBalance()">รับพอดี</button>
 							      </span>
