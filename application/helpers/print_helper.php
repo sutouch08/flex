@@ -133,9 +133,9 @@ function get_header($order)
 
 
 
-function barcodeImage($barcode)
+function barcodeImage($barcode, $height = 8)
 {
-	return '<img src="'.base_url().'assets/barcode/barcode.php?text='.$barcode.'" style="height:8mm;" />';
+	return '<img src="'.base_url().'assets/barcode/barcode.php?text='.$barcode.'" style="height:'.$height.'mm;" />';
 }
 
 

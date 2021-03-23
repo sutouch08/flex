@@ -10,6 +10,7 @@ class PS_Controller extends CI_Controller
 	public $_SuperAdmin = FALSE;
 	public $_user;
 	public $error;
+	public $_use_vat;
 
   public function __construct()
   {
@@ -26,7 +27,7 @@ class PS_Controller extends CI_Controller
       redirect('setting/maintenance');
     }
 
-
+		$this->_use_vat = getConfig('USE_VAT') == 1 ? TRUE : FALSE;
     $uid = get_cookie('uid');
 		$this->_user = $this->user_model->get_user_by_uid($uid);
 

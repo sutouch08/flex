@@ -58,6 +58,9 @@ $header['right']['A'] = array(
 	array('label' => 'ผู้ขาย', 'value' => $order->emp_name)
 );
 
+$header['right']['B'] = array(
+	array('label' => '', 'value' => barcodeImage($order->code, 12))
+);
 
 
 

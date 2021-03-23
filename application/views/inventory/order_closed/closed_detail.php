@@ -65,9 +65,19 @@
   <div class="row">
     <div class="col-sm-12 text-right">
       <button type="button" class="btn btn-sm btn-info" onclick="printAddress()"><i class="fa fa-print"></i> ใบนำส่ง</button>
-      <button type="button" class="btn btn-sm btn-primary" onclick="printOrder()"><i class="fa fa-print"></i> ใบส่งของ/ใบกำกับ </button>
-			<button type="button" class="btn btn-sm btn-primary" onclick="printOrderNoPrice()"><i class="fa fa-print"></i> ใบส่งของ/ใบกำกับ (ไม่แสดงราคา)</button>
-      <button type="button" class="btn btn-sm btn-success" onclick="printOrderBarcode()"><i class="fa fa-print"></i> ใบส่งของ/ใบกำกับ (barcode)</button>
+			<?php if(!empty($order->invoice_code)) : ?>
+				<?php if($this->_use_vat) : ?>
+					<button type="button" class="btn btn-sm btn-info" onclick="print_tax_receipt('<?php echo $order->invoice_code; ?>')"><i class="fa fa-print"></i> พิมพ์ใบเสร็จรับเงิน</button>
+					<button type="button" class="btn btn-sm btn-info" onclick="print_tax_invoice('<?php echo $order->invoice_code; ?>')"><i class="fa fa-print"></i> พิมพ์ใบแจ้งหนี้</button>
+				<?php else : ?>
+					<button type="button" class="btn btn-sm btn-info" onclick="print_do_invoice('<?php echo $order->invoice_code; ?>')"><i class="fa fa-print"></i> พิมพ์ใบแจ้งหนี้</button>
+					<button type="button" class="btn btn-sm btn-info" onclick="print_do_receipt('<?php echo $order->invoice_code; ?>')"><i class="fa fa-print"></i> พิมพ์ใบเสร็จ</button>
+				<?php endif; ?>
+			<?php endif; ?>
+			<button type="button" class="btn btn-sm btn-primary" onclick="printOrder()"><i class="fa fa-print"></i> ใบส่งของ </button>
+			<button type="button" class="btn btn-sm btn-primary" onclick="printOrderNoPrice()"><i class="fa fa-print"></i> ใบส่งของ (ไม่แสดงราคา)</button>
+      <button type="button" class="btn btn-sm btn-success" onclick="printOrderBarcode()"><i class="fa fa-print"></i> ใบส่งของ (barcode)</button>
+
 
       <?php if($use_qc) : ?>
       <button type="button" class="btn btn-sm btn-warning" onclick="showBoxList()"><i class="fa fa-print"></i> Packing List (ปะหน้ากล่อง)</button>
@@ -284,13 +294,13 @@
   <?php $this->load->view('inventory/order_closed/box_list');  ?>
   <?php endif; ?>
 
-  <script src="<?php echo base_url(); ?>scripts/print/print_address.js"></script>
-  <script src="<?php echo base_url(); ?>scripts/print/print_order.js?v=<?php echo date('YmdH'); ?>"></script>
-  <script src="<?php echo base_url(); ?>scripts/print/print_address.js"></script>
+  <script src="<?php echo base_url(); ?>scripts/print/print_order.js?v=<?php echo date('Ymd'); ?>"></script>
+  <script src="<?php echo base_url(); ?>scripts/print/print_address.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php else : ?>
   <?php $this->load->view('inventory/delivery_order/invalid_state'); ?>
 <?php endif; ?>
-<script src="<?php echo base_url(); ?>scripts/inventory/order_closed/closed.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/order_closed/closed.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/print/print_invoice.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>
