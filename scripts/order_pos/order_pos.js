@@ -234,3 +234,67 @@ function showPayment() {
 	}
 
 }
+
+
+$('#paymentModal').on('shown.bs.modal', function() {
+	$('#receiveAmount').focus();
+})
+
+
+
+function changePayment() {
+	//--- role = 1 ==> เครดิต
+	//--- role = 2 ==> เงินสด
+	//--- role = 3 ==> โอนเงิน
+	//--- role = 4 ==> COD
+	//--- role = 5 ==> บัตรเครดิต
+	var payment = $('#payBy').val();
+	var role = $('#payBy option:selected').data('role');
+	if(role == 1) {
+		//---- credit
+		$('#receiveAmount').attr('disabled', 'disabled');
+		$('#btn-submit').removeAttr('disabled');
+		$('#btn-submit').focus();
+	}
+	else if(role == 2) {
+		//--- cash
+		$('#receiveAmount').focus();
+	}
+	else if(role == 3) {
+		//--- bank transfer
+		$('#bank_role').removeClass('hide');
+	}
+	else if(role == 4) {
+		//--- cod
+		$('#receiveAmount').attr('disabled', 'disabled');
+		$('#btn-submit').removeAttr('disabled');
+		$('#btn-submit').focus();
+	}
+	else if(role == 5) {
+
+	}
+
+
+}
+
+function justBalance() {
+	var amount = parseDefault(parseFloat($('#payableAmount').val()), 0);
+	if(amount > 0) {
+		$('#receiveAmount').val(amount);
+	}
+}
+
+
+$('#receiveAmount').keyup(function() {
+	var amount = parseDefault(parseFloat($('#payableAmount').val()), 0);
+	var receive = parseDefault(parseFloat($(this).val()), 0);
+	var change = receive - amount;
+	$('#changeAmount').val(change);
+
+	if(receive >= amount) {
+		$('#btn-submit').removeAttr('disabled');
+	}
+	else {
+		$('#btn-submit').attr('disabled', 'disabled');
+	}
+})

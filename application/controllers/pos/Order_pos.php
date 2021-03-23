@@ -14,6 +14,7 @@ class Order_pos extends PS_Controller
 		$this->home = base_url().'pos/order_pos';
 		$this->load->model('masters/shop_model');
 		$this->load->model('masters/pos_model');
+    $this->load->helper('bank');
   }
 
 

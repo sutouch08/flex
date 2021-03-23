@@ -36,11 +36,26 @@
             </div>
             <div class="modal-body">
 							<div class="row">
-								<div class="col-sm-12 col-xs-12 padding-5">
+								<div class="col-sm-12 col-xs-12 text-center">
 									<span id="payAmountLabel" style="font-size:25px; color:#75ce66;"></span>
 									<input type="hidden" id="payableAmount" />
 	            	</div>
-								<div class="col-sm-6 col-xs-6 padding-5">
+
+								<div class="col-sm-12 col-xs-12">
+									<label>ชำระโดย</label>
+									<select class="form-control input-lg" id="payBy" onchange="changePayment()">
+										<?php echo select_pos_payment_method(); ?>
+									</select>
+								</div>
+
+								<div id="bank_role" class="col-sm-12 col-xs-12 hide">
+									<label>เลือกบัญชี</label>
+									<select class="form-control input-sm" id="bank_account">
+										<?php echo select_bank_account(); ?>
+									</select>
+								</div>
+
+								<div class="col-sm-12 col-xs-12">
 									<label>รับเงิน</label>
 									<div class="input-group">
 							      <input type="number" class="form-control input-lg text-center" id="receiveAmount" value="" placeholder="รับเงิน (Space)">
@@ -48,18 +63,19 @@
 							        <button type="button" class="btn btn-primary btn-lg no-radius payment" onclick="justBalance()">รับพอดี</button>
 							      </span>
     							</div>
-									<!--<input type="number" class="form-control input-lg text-right" id="recieveAmount" value="0.00" onfocus="$(this).select();"/> -->
+
 								</div>
-								<div class="col-sm-6 col-xs-6 padding-5">
-									<label>ชำระโดย</label>
-									<select class="form-control input-lg" id="payBy">
-										<?php echo select_pos_payment_method(); ?>
-									</select>
+
+								<div class="col-sm-12 col-xs-12">
+									<label class="not-show">Change</label>
+									<input type="number" class="form-control input-lg text-center" id="changeAmount" placeholder="เงินทอน" disabled>
+
 								</div>
+
 							</div>
             </div>
             <div class="modal-footer">
-               <button class="btn btn-sm btn-info btn-block" data-dismiss="modal" data-clipboard-action="copy" data-clipboard-target="#summaryText">Copy</button>
+               <button class="btn btn-lg btn-info" id="btn-submit" onclick="submitPayment()" disabled>Submit</button>
             </div>
         </div>
     </div>
