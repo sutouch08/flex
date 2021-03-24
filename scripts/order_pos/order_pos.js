@@ -42,11 +42,11 @@ $('#barcode-box').keyup(function(e){
 		if(barcode.length) {
 			$(this).val('');
 			$.ajax({
-				url:HOME + 'get_product_by_barcode',
+				url:HOME + 'get_product_by_code',
 				type:'GET',
 				cache:false,
 				data:{
-					'barcode' : barcode
+					'code' : barcode
 				},
 				success:function(rs) {
 					if(isJson(rs)) {
@@ -76,13 +76,17 @@ $('#barcode-box').keyup(function(e){
 
 function get_product_by_code(code)
 {
+	var payment_code =  $('#payBy').val();
+	var customer_code = $('#customer').val();
 	if(code.length > 0) {
 		$.ajax({
 			url:HOME + 'get_product_by_code',
 			type:'GET',
 			cache:false,
 			data:{
-				'code' : code
+				'code' : code,
+				'payment_code' : payment_code,
+				'customer_code' : customer_code
 			},
 			success:function(rs) {
 				if(isJson(rs)) {
@@ -325,4 +329,21 @@ function calChange() {
 	var receive = parseDefault(parseFloat($('#receiveAmount').val()), 0);
 	var change = receive - amount;
 	$('#changeAmount').val(change);
+}
+
+
+function submitPayment() {
+	var customer = $('#customer').val();
+	if(customer.length == 0) {
+		swal('กรุณาระบุลูกค้า');
+		return false;
+	}
+
+
+
+	$('.sell-item').each(function() {
+		var id = $(this).data('id');
+		var code = $(this).val();
+	})
+
 }

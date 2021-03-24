@@ -300,13 +300,29 @@ class Products_model extends CI_Model
 
 
 
-  public function get_product_by_barcode($barcode)
+  public function get_product_by_barcode($code)
   {
-    $rs = $this->db->where('barcode', $barcode)->or_where('code', $barcode)->get('products');
-    if($rs->num_rows() === 1)
+		$rs = $this->db
+		->select('products.*, vat.rate AS vat_rate')
+		->from('products')
+		->join('vat', 'products.vat_code = vat.code', 'left')
+		->group_start()
+		->where('products.barcode', $code)
+		->or_where('products.code', $code)
+		->group_end()
+		->get();
+
+    if($rs->num_rows() == 1)
     {
       return $rs->row();
     }
+
+
+    // $rs = $this->db->where('barcode', $barcode)->or_where('code', $barcode)->get('products');
+    // if($rs->num_rows() === 1)
+    // {
+    //   return $rs->row();
+    // }
 
     return FALSE;
   }
@@ -339,7 +355,7 @@ class Products_model extends CI_Model
 		->join('vat', 'products.vat_code = vat.code', 'left')
 		->where('products.code', $code)
 		->get();
-		
+
     if($rs->num_rows() == 1)
     {
       return $rs->row();

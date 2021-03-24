@@ -1,12 +1,13 @@
 <script id="row-template" type="text/x-handlebarsTemplate">
 <tr id="row-{{id}}">
 	<td class="middle" style="padding-left:5px; padding-right:5px;">
-		<input type="hidden" id="pdCode-{{id}}" value="{{code}}">
+		<input type="hidden" class="sell-item" data-id="{{id}}" id="pdCode-{{id}}" value="{{code}}">
 		<input type="hidden" id="pdName-{{id}}" value="{{name}}">
 		<input type="hidden" id="taxRate-{{id}}" value="{{tax_rate}}">
 		<input type="hidden" id="taxAmount-{{id}}" value="{{tax_amount}}">
 		<input type="hidden" id="sellPrice-{{id}}" value="{{sell_price}}">
 		<input type="hidden" id="discAmount-{{id}}" value="{{discount_amount}}">
+		<input type="hidden" id="unitCode-{{id}}" value="{{unit_code}}">
 		<input type="text" class="form-control input-xs no-border" value="{{name}} ({{code}})" />
 	</td>
 	<td class="middle" style="padding-left:5px; padding-right:5px;">

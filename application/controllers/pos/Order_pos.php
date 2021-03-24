@@ -7,6 +7,7 @@ class Order_pos extends PS_Controller
 	public $menu_group_code = 'SO';
   public $menu_sub_group_code = 'ORDER';
 	public $title = '';
+	public $channels_code;
 
   public function __construct()
   {
@@ -14,7 +15,12 @@ class Order_pos extends PS_Controller
 		$this->home = base_url().'pos/order_pos';
 		$this->load->model('masters/shop_model');
 		$this->load->model('masters/pos_model');
+		$this->load->model('orders/order_pos_model');
+		$this->load->model('orders/discount_model');
     $this->load->helper('bank');
+		$this->load->helper('discount');
+
+		$this->channels_code = getConfig('POS_CHANNELS');
   }
 
 
@@ -65,27 +71,50 @@ class Order_pos extends PS_Controller
 
 		$code = trim($this->input->get('code'));
 		$customer_code = trim($this->input->get('customer_code'));
+		$payment_code = $this->input->get('payment_code');
 
 		if(! is_null($code))
     {
-      $item = $this->products_model->get($code);
+      //$item = $this->products_model->get($code);
+			$item = $this->products_model->get_product_by_barcode($code);
 
 			if(!empty($item))
 			{
-				$vat_rate = $this->products_model->get_vat_rate($item->code);
+				//--- default value if dont have any discount
+				// $sc = array(
+				// 	'discount1' => 0, //--- ส่วนลดเป็นจำนวนเงิน (ยอดต่อหน่วย)
+				// 	'unit1' => 'percent', //--- หน่วยของส่วนลด ('percent', 'amount')
+				// 	'discLabel1' => 0, //--- ข้อความที่ใช้แสดงส่วนลด เช่น 30%, 30
+				// 	'discount2' => 0,
+				// 	'unit2' => 'percent',
+				// 	'discLabel2' => 0,
+				// 	'discount3' => 0,
+				// 	'unit3' => 'percent',
+				// 	'discLabel3' => 0,
+				// 	'amount' => 0, //--- เอายอดส่วนลดที่ได้ มา คูณ ด้วย จำนวนสั่ง เป้นส่วนลดทั้งหมด
+				// 	'id_rule' => NULL
+				// ); //-- end array
 
+				$qty = 1;
+				$discount = $this->discount_model->get_item_discount($item->code, $customer_code, $qty, $payment_code, $this->channels_code, date('Y-m-d'));
+				$vat_rate = $this->products_model->get_vat_rate($item->code);
+				$item_disc_amount = empty($discount['amount']) ? 0 : round($discount['amount'] / $qty, 2);
+				$sell_price = $item->price - $item_disc_amount;
+				$total_amount = round($sell_price * $qty, 2);
 				$arr = array(
 					'id' => md5($item->code),
 					'code' => $item->code,
 					'name' => $item->name,
 					'price' => $item->price,
-					'sell_price' => $item->price,
-					'qty' => 1,
-					'discount' => 0,
-					'discount_amount' => 0,
-					'total' => $item->price,
+					'sell_price' => $sell_price,
+					'qty' => $qty,
+					'unit_code' => $item->unit_code,
+					'discount' => discountLabel($discount['discLabel1'], $discount['discLabel2'], $discount['discLabel3']),
+					'discount_amount' => $discount['amount'],
+					'total' => $total_amount,
 					'tax_rate' => $vat_rate,
-					'tax_amount' => $item->price * ($vat_rate * 0.01)
+					'tax_amount' => $total_amount * ($vat_rate * 0.01),
+					'count_stock' => $item->count_stock ? 'Y' : 'N'
 				);
 
 				echo json_encode($arr);
