@@ -36,7 +36,7 @@ class Pos_model extends CI_Model
 		if(! is_null($code))
 		{
 			$rs = $this->db
-			->select('pos.*, shop.code AS shop_code, shop.name AS shop_name')
+			->select('pos.*, shop.code AS shop_code, shop.name AS shop_name, shop.zone_code')
 			->from('shop_pos AS pos')
 			->join('shop', 'pos.shop_id = shop.id', 'left')
 			->where('pos.code', $code)

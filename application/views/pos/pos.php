@@ -23,6 +23,20 @@
 
 						<div class="form-group">
 							<div class="col-md-6 col-sm-6 col-xs-12 padding-5">
+								<select class="form-control input-sm" id="payBy" onchange="changePayment()">
+									<?php echo select_pos_payment_method(); ?>
+								</select>
+							</div>
+							<div class="col-md-6 col-sm-6 col-xs-12 padding-5">
+								<select class="form-control input-sm" id="bank_account" disabled>
+									<?php echo select_bank_account(); ?>
+								</select>
+							</div>
+						</div>
+
+
+						<div class="form-group">
+							<div class="col-md-6 col-sm-6 col-xs-12 padding-5">
 								<input type="text" class="form-control input-sm" name="pd-box" id="pd-box" placeholder="ค้นหาสินค้าด้วย รหัสหรือชื่อสินค้า" />
 							</div>
 							<div class="col-md-6 col-sm-6 col-xs-12 padding-5">
@@ -122,6 +136,8 @@
 		</table>
 	</div>
 </div>
+<input type="hidden" id="channels_code" value="<?php echo $channels_code; ?>">
+<input type="hidden" id="zone_code" value="<?php echo $zone_code; ?>">
 
 <?php $this->load->view('pos/pos_template'); ?>
 

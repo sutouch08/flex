@@ -50,6 +50,7 @@ class Order_pos extends PS_Controller
 			{
 				$this->title = $pos->name;
 				$pos->customer_list = $this->pos_model->get_customer_shop_list($pos->shop_id);
+        $pos->channels = $this->channels_code;
 				$this->load->view('pos/pos', $pos);
 			}
 			else
@@ -114,7 +115,7 @@ class Order_pos extends PS_Controller
 					'total' => $total_amount,
 					'tax_rate' => $vat_rate,
 					'tax_amount' => $total_amount * ($vat_rate * 0.01),
-					'count_stock' => $item->count_stock ? 'Y' : 'N'
+					'item_type' => $item->count_stock ? 'I' : 'S' //--- I = item (count stock), S = Service (non count stock)
 				);
 
 				echo json_encode($arr);

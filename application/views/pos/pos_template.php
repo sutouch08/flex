@@ -5,9 +5,11 @@
 		<input type="hidden" id="pdName-{{id}}" value="{{name}}">
 		<input type="hidden" id="taxRate-{{id}}" value="{{tax_rate}}">
 		<input type="hidden" id="taxAmount-{{id}}" value="{{tax_amount}}">
+		<input type="hidden" id="stdPrice-{{id}}" value="{{price}}">
 		<input type="hidden" id="sellPrice-{{id}}" value="{{sell_price}}">
 		<input type="hidden" id="discAmount-{{id}}" value="{{discount_amount}}">
 		<input type="hidden" id="unitCode-{{id}}" value="{{unit_code}}">
+		<input type="hidden" id="itemType-{{id}}" value="{{item_type}}">
 		<input type="text" class="form-control input-xs no-border" value="{{name}} ({{code}})" />
 	</td>
 	<td class="middle" style="padding-left:5px; padding-right:5px;">
@@ -42,19 +44,7 @@
 									<input type="hidden" id="payableAmount" />
 	            	</div>
 
-								<div class="col-sm-12 col-xs-12">
-									<label>ชำระโดย</label>
-									<select class="form-control input-lg" id="payBy" onchange="changePayment()">
-										<?php echo select_pos_payment_method(); ?>
-									</select>
-								</div>
 
-								<div id="bank_role" class="col-sm-12 col-xs-12 hide">
-									<label>เลือกบัญชี</label>
-									<select class="form-control input-lg" id="bank_account">
-										<?php echo select_bank_account(); ?>
-									</select>
-								</div>
 
 								<div class="col-sm-12 col-xs-12">
 									<label>รับเงิน</label>

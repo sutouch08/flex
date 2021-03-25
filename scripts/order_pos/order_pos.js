@@ -9,20 +9,7 @@ function removeItem(id) {
 	recalTotal();
 }
 
-$('#pd-box').autocomplete({
-	source:BASE_URL + 'auto_complete/get_item_code_and_name',
-	autoFocus:true,
-	close:function() {
-		var rs = $(this).val();
-		var arr = rs.split(' | ');
-		if(arr.length == 2) {
-			$(this).val(arr[0]);
-		}
-		else {
-			$(this).val('');
-		}
-	}
-})
+
 
 
 $('#pd-box').keyup(function(e){
@@ -38,6 +25,8 @@ $('#pd-box').keyup(function(e){
 $('#barcode-box').keyup(function(e){
 	if(e.keyCode === 13) {
 		var barcode = $.trim($(this).val());
+		var payment_code = $('#payBy').val();
+		var customer_code = $('#customer').val();
 
 		if(barcode.length) {
 			$(this).val('');
@@ -46,7 +35,9 @@ $('#barcode-box').keyup(function(e){
 				type:'GET',
 				cache:false,
 				data:{
-					'code' : barcode
+					'code' : barcode,
+					'customer_code' : customer_code,
+					'payment_code' : payment_code
 				},
 				success:function(rs) {
 					if(isJson(rs)) {
@@ -69,6 +60,22 @@ $('#barcode-box').keyup(function(e){
 					});
 				}
 			})
+		}
+	}
+})
+
+
+$('#barcode-box').autocomplete({
+	source:BASE_URL + 'auto_complete/get_item_code_and_name',
+	autoFocus:true,
+	close:function() {
+		var rs = $(this).val();
+		var arr = rs.split(' | ');
+		if(arr.length == 2) {
+			$(this).val(arr[0]);
+		}
+		else {
+			$(this).val('');
 		}
 	}
 })
@@ -258,7 +265,7 @@ function changePayment() {
 	$('#receiveAmount').val('');
 	$('#changeAmount').val('');
 	$('#btn-submit').attr('disabled','disabled');
-	$('#bank_role').addClass('hide');
+	$('#bank_account').attr('disabled', 'disabled');
 
 	if(role == 1) {
 		//---- credit
@@ -273,7 +280,7 @@ function changePayment() {
 	}
 	else if(role == 3) {
 		//--- bank transfer
-		$('#bank_role').removeClass('hide');
+		$('#bank_account').removeAttr('disabled');
 		$('#receiveAmount').removeAttr('disabled');
 		$('#receiveAmount').focus();
 	}
@@ -334,16 +341,48 @@ function calChange() {
 
 function submitPayment() {
 	var customer = $('#customer').val();
+	var channels = $('#channels_code').val();
+	var payment_code = $('#payBy').val();
+	var acc_no = $('#bank_account').val();
+	var payment_role = $('#payBy option:selected').data('role');
+
 	if(customer.length == 0) {
 		swal('กรุณาระบุลูกค้า');
 		return false;
 	}
 
+	if(channels.length == 0) {
+		swal('Missing configuration : POS_CHANNELS');
+		return false;
+	}
 
+	if(payment_code == '') {
+		swal('กรุณาระบุช่องทางการชำระเงิน');
+		return false;
+	}
+
+	if(payment_role == 3 && acc_no.length == 0) {
+		swal('กรุณาระบุเลขที่บัญชี');
+		return false;
+	}
+
+	var items = [];
 
 	$('.sell-item').each(function() {
 		var id = $(this).data('id');
 		var code = $(this).val();
+		var name = $('#pdName-'+id).val();
+		var item_type = $('#itemType-'+id).val();
+		var unit_code = $('#unitCode-'+id).val();
+		var std_price = parseDefault(parseFloat($('#stdPrice-'+id).val()),0); //--- standard price
+		var price = parseDefault(parseFloat($('#price-'+id).val()),0); //---- input price
+		var sell_price = parseDefault(parseFloat($('#sellPrice-'+id).val()), 0); //--- price after discount
+		var discount_label = $('#disc-'+id).val();
+		var discount_amount = parseDefault(parseFloat($('#discAmount-'+id).val()),0);
+		var qty = parseDefault(parseFloat($('#qty-'+id).val()), 1);
+		var total_amount = sell_price * qty;
+		var tax_rate = $('#taxRate-'+id).val();
+		var tax_amount = $('#taxAmount-'+id).val();
 	})
 
 }
