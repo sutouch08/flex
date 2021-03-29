@@ -93,11 +93,13 @@ class Pos_model extends CI_Model
 	{
 		$this->db
 		->select('pos.*')
-		->select('shop.code AS shop_code, shop.name AS shop_name, shop.customer_code')
-		->select('zone.name AS zone_name')
+		->select('shop.code AS shop_code, shop.name AS shop_name')
+		->select('customers.code AS customer_code, customers.name AS customer_name')
+		->select('shop.zone_code, zone.name AS zone_name, zone.warehouse_code')
 		->from('shop_pos AS pos')
 		->join('shop', 'pos.shop_id = shop.id', 'left')
 		->join('zone', 'shop.zone_code = zone.code', 'left')
+		->join('customers', 'shop.customer_code = customers.code', 'left')
 		->where('shop.active', 1)
 		->where('pos.active', 1)
 		->where('pos.id', $id);

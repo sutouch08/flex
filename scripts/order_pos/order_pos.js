@@ -1,7 +1,16 @@
 var HOME = BASE_URL + 'pos/order_pos/';
 
 function goToPOS(id) {
-	window.location.href = HOME + 'pos/'+id;
+	window.location.href = HOME + 'main/'+id;
+}
+
+
+function goAdd(id) {
+	window.location.href = HOME + 'add/'+id;
+}
+
+function viewDeail(code) {
+	window.location.href = HOME + 'pos/view_detail/'+code;
 }
 
 function removeItem(id) {
@@ -319,39 +328,64 @@ function justBalance() {
 }
 
 
-$('#receiveAmount').keyup(function() {
-	var amount = parseDefault(parseFloat($('#payableAmount').val()), 0);
-	var receive = parseDefault(parseFloat($(this).val()), 0);
-	calChange();
-	if(receive >= amount) {
-		$('#btn-submit').removeAttr('disabled');
+$('#receiveAmount').keyup(function(e) {
+	if(e.keyCode == 13) {
+		submitPayment();
 	}
 	else {
-		$('#btn-submit').attr('disabled', 'disabled');
+		var amount = parseDefault(parseFloat($('#payableAmount').val()), 0);
+		var receive = parseDefault(parseFloat($(this).val()), 0);
+		calChange();
+		if(receive >= amount) {
+			$('#btn-submit').removeAttr('disabled');
+		}
+		else {
+			$('#btn-submit').attr('disabled', 'disabled');
+		}
 	}
+
 })
 
 function calChange() {
 	var amount = parseDefault(parseFloat($('#payableAmount').val()), 0);
 	var receive = parseDefault(parseFloat($('#receiveAmount').val()), 0);
 	var change = receive - amount;
-	$('#changeAmount').val(change);
+	$('#changeAmount').val(change.toFixed(2));
 }
 
 
 function submitPayment() {
-	var customer = $('#customer').val();
-	var channels = $('#channels_code').val();
+	var customer_code = $('#customer').val();
+	var customer_name = $('#customer option:selected').text();
+	var channels_code = $('#channels_code').val();
 	var payment_code = $('#payBy').val();
 	var acc_no = $('#bank_account').val();
 	var payment_role = $('#payBy option:selected').data('role');
+	var zone_code = $('#zone_code').val();
+	var warehouse_code = $('#warehouse_code').val();
+	var pos_code = $('#pos_code').val();
+	var prefix = $('#prefix').val();
+	var shop_id = $('#shop_id').val();
 
-	if(customer.length == 0) {
+	var amount = parseDefault(parseFloat($('#payableAmount').val()), 0);
+	var receive_amount = parseDefault(parseFloat($('#receiveAmount').val()), 0);
+	var change = receive_amount - amount;
+
+	if(payment_role == 2 || payment_role == 3 || payment_role == 5) {
+		if(amount > receive_amount) {
+			swal("ยอดเงินไม่ครบ");
+			return false;
+		}
+	}
+
+
+
+	if(customer_code.length == 0) {
 		swal('กรุณาระบุลูกค้า');
 		return false;
 	}
 
-	if(channels.length == 0) {
+	if(channels_code.length == 0) {
 		swal('Missing configuration : POS_CHANNELS');
 		return false;
 	}
@@ -383,6 +417,75 @@ function submitPayment() {
 		var total_amount = sell_price * qty;
 		var tax_rate = $('#taxRate-'+id).val();
 		var tax_amount = $('#taxAmount-'+id).val();
+
+		var item = {
+			'code' : code,
+			'name' : name,
+			'item_type' : item_type,
+			'unit_code' : unit_code,
+			'std_price' : std_price,
+			'price' : price,
+			'sell_price' : sell_price,
+			'discount_label' : discount_label,
+			'discount_amount' : discount_amount,
+			'qty' : qty,
+			'total_amount' : total_amount,
+			'vat_rate' : tax_rate,
+			'vat_amount' : tax_amount,
+			'zone_code' : zone_code
+		}
+
+		items.push(item);
 	})
+
+	if(items.length > 0) {
+		var order = {
+			'prefix' : prefix,
+			'customer_code' : customer_code,
+			'customer_name' : customer_name,
+			'channels_code' : channels_code,
+			'payment_code' : payment_code,
+			'acc_no' : acc_no,
+			'payment_role' : payment_role,
+			'shop_id' : shop_id,
+			'warehouse_code' : warehouse_code,
+			'pos_code' : pos_code,
+			'amount' : amount,
+			'received' : receive_amount,
+			'changed' : change.toFixed(2),
+			'details' : items
+		}
+
+		$.ajax({
+			url:HOME + 'add',
+			type:'POST',
+			dataType:'json',
+			contentType:'application:json',
+			processData:false,
+			data: JSON.stringify(order),
+			complete: function(data) {
+				var rs = data.responseText;
+				if(isJson(rs)) {
+					var ds = $.parseJSON(rs);
+					viewDeail(ds.order_code);
+				}
+				else {
+					swal({
+						title:'Error!',
+						text: rs,
+						type:'error'
+					})
+				}
+			},
+			error:function(xhr, status, error) {
+				swal({
+					title:'Error!',
+					text: xhr.responseText,
+					type:'error'
+				})
+			}
+
+		})
+	}
 
 }

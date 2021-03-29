@@ -23,6 +23,7 @@ class Import_order extends CI_Controller
   {
     $sc = TRUE;
     $import = 0;
+		$import_id = uniqid();
     $file = isset( $_FILES['uploadFile'] ) ? $_FILES['uploadFile'] : FALSE;
   	$path = $this->config->item('upload_path').'orders/';
     $file	= 'uploadFile';
@@ -119,6 +120,13 @@ class Import_order extends CI_Controller
 								//$date_add = PHPExcel_Style_NumberFormat::toFormattedString($rs['J'], 'YYYY-MM-DD');
 								//$date_add = db_date($date_add, TRUE);
 								$date_add = db_date($rs['J'], TRUE);
+
+								if($date_add < '2020-01-01 00:00:00')
+								{
+									$sc = FALSE;
+									$this->error = "วันที่ไม่ถูกต้อง";
+									break;
+								}
 
 								$remark = empty($rs['S']) ? NULL : trim($rs['S']);
 
@@ -257,7 +265,8 @@ class Import_order extends CI_Controller
 	                      'is_term' => $payment->has_term,
 												'shipping_fee' => $shipping_fee,
 	                      'date_add' => $date_add,
-	                      'user' => get_cookie('uname')
+	                      'user' => get_cookie('uname'),
+												'remark' => $remark
 	                    );
 
 	                    $this->orders_model->update($order_code, $ds);
@@ -301,7 +310,8 @@ class Import_order extends CI_Controller
 	                  "total_amount"	=> $rs['O'],
 	                  "id_rule"	=> NULL,
 	                  "is_count" => $item->count_stock,
-										"is_import" => 1
+										"is_import" => 1,
+										"import_id" => $import_id
 	                );
 
 	                if( $this->orders_model->add_detail($arr) === FALSE )
@@ -310,49 +320,77 @@ class Import_order extends CI_Controller
 	                  $message = 'เพิ่มรายละเอียดรายการไม่สำเร็จ : '.$ref_code;
 	                  break;
 	                }
-	                else
-	                {
-	                  //$this->update_api_stock($item->code);
-	                }
+
 	              }
 	              else
 	              {
 	                //----  ถ้ามี force update และ สถานะออเดอร์ไม่เกิน 3 (รอจัดสินค้า)
-	                if($rs['R'] == 1 && $state <= 3)
+	                if($state <= 3)
 	                {
-	                  $od  = $this->orders_model->get_order_detail($code, $item->code);
+										$od  = $this->orders_model->get_order_detail($code, $item->code);
+										if(!empty($rs['R']))
+										{
+											if($od->import_id == $import_id)
+											{
+												$qty = $od->qty + $rs['N'];
+												$arr = array(
+			                    "qty"		=> $qty,
+			                    "total_amount"	=> $od->price * $qty
+			                  );
+											}
+											else
+											{
+												$arr = array(
+			                    "style_code"		=> $item->style_code,
+			                    "product_code"	=> $item->code,
+			                    "product_name"	=> $item->name,
+			                    "cost"  => $item->cost,
+			                    "price"	=> ($rs['O']/$rs['N']),
+			                    "qty"		=> $rs['N'],
+			                    "discount1"	=> 0,
+			                    "discount2" => 0,
+			                    "discount3" => 0,
+			                    "discount_amount" => 0,
+			                    "total_amount"	=> $rs['O'],
+			                    "id_rule"	=> NULL,
+			                    "is_count" => $item->count_stock,
+													"is_import" => 1,
+													"import_id" => $import_id
+			                  );
+											}
 
-	                  $arr = array(
-	                    "style_code"		=> $item->style_code,
-	                    "product_code"	=> $item->code,
-	                    "product_name"	=> $item->name,
-	                    "cost"  => $item->cost,
-	                    "price"	=> ($rs['O']/$rs['N']),
-	                    "qty"		=> $rs['N'],
-	                    "discount1"	=> 0,
-	                    "discount2" => 0,
-	                    "discount3" => 0,
-	                    "discount_amount" => 0,
-	                    "total_amount"	=> $rs['O'],
-	                    "id_rule"	=> NULL,
-	                    "is_count" => $item->count_stock,
-											"is_import" => 1
-	                  );
-
-	                  if($this->orders_model->update_detail($od->id, $arr) === FALSE)
-	                  {
-	                    $sc = FALSE;
-	                    $message = 'เพิ่มรายละเอียดรายการไม่สำเร็จ : '.$ref_code;
-	                    break;
-	                  }
+											if($this->orders_model->update_detail($od->id, $arr) === FALSE)
+		                  {
+		                    $sc = FALSE;
+		                    $message = 'เพิ่มรายละเอียดรายการไม่สำเร็จ : '.$ref_code;
+		                    break;
+		                  }
+										}
 	                  else
-	                  {
-	                    //$this->update_api_stock($item->code);
-	                  }
+										{
+											//---- ถ้าไม่ได้ force update และ import_id เดียวกัน ก็ Update ยอดรวม
+											//---- แต่ถ้าเป็นคนละ import_id (upload คนละครั้งกันก็ข้ามไป)
+											if($od->import_id == $import_id)
+											{
+												$qty = $od->qty + $rs['N'];
+												$arr = array(
+			                    "qty"		=> $qty,
+			                    "total_amount"	=> $od->price * $qty
+			                  );
+											}
+
+											if($this->orders_model->update_detail($od->id, $arr) === FALSE)
+		                  {
+		                    $sc = FALSE;
+		                    $message = 'เพิ่มรายละเอียดรายการไม่สำเร็จ : '.$ref_code;
+		                    break;
+		                  }
+										}
+
 	                } //--- enf force update
 	              } //--- end if exists detail
 							}
-              
+
             } //--- end header column
 
             $i++;

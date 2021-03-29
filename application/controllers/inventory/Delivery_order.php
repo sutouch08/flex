@@ -595,29 +595,34 @@ class Delivery_order extends PS_Controller
             $this->load->model('account/order_credit_model');
 
             $sold_amount = $this->invoice_model->get_total_sold_amount($code);
-            $dept_amount = $sold_amount;
-            $customer = $this->customers_model->get($order->customer_code);
-            $arr = array(
-              'order_code' => $code,
-              'customer_code' => $order->customer_code,
-              'delivery_date' => date('Y-m-d'),
-              'due_date' => added_date(date('Y-m-d'), $customer->credit_term),
-              'over_due_date' => added_date(date('Y-m-d'), $customer->credit_term + getConfig('OVER_DUE_DATE')),
-              'amount' => $dept_amount,
-              'paid' => $order->deposit,
-              'balance' => $dept_amount - $order->deposit
-            );
 
-            if($this->order_credit_model->is_exists($code))
-            {
-              $this->order_credit_model->update($code, $arr);
-            }
-            else
-            {
-              $this->order_credit_model->add($arr);
-            }
-            //--- recal balance
-            $this->order_credit_model->recal_balance($code);
+						if(!empty($sold_amount))
+						{
+							$dept_amount = $sold_amount;
+							$customer = $this->customers_model->get($order->customer_code);
+	            $arr = array(
+	              'order_code' => $code,
+	              'customer_code' => $order->customer_code,
+	              'delivery_date' => date('Y-m-d'),
+	              'due_date' => added_date(date('Y-m-d'), $customer->credit_term),
+	              'over_due_date' => added_date(date('Y-m-d'), $customer->credit_term + getConfig('OVER_DUE_DATE')),
+	              'amount' => $dept_amount,
+	              'paid' => $order->deposit,
+	              'balance' => $dept_amount - $order->deposit
+	            );
+
+	            if($this->order_credit_model->is_exists($code))
+	            {
+	              $this->order_credit_model->update($code, $arr);
+	            }
+	            else
+	            {
+	              $this->order_credit_model->add($arr);
+	            }
+	            //--- recal balance
+	            $this->order_credit_model->recal_balance($code);
+						}
+
           }
         }
 

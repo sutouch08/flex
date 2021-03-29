@@ -2191,7 +2191,7 @@ class Orders extends PS_Controller
               'phone' => $rs->phone,
               'email' => $rs->email,
               'alias' => $rs->alias,
-              'default' => empty($order_code) ? ($rs->is_default == 1? 1 : 0) : ($rs->id == $order->address_id) ? 1 : ''
+              'default' => empty($order_code) ? ($rs->is_default == 1? 1 : 0) : (($rs->id == $order->address_id) ? 1 : '')
             );
             array_push($ds, $arr);
           }

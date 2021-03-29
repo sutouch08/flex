@@ -7,7 +7,10 @@
 				<td class="width-60" style="height:100px; border:0px; padding-left:15px; padding-right:15px; padding-bottom:0px;">
 					<form class="form-horizontal" role="form">
 						<div class="form-group">
-							<div class="col-sm-10 col-xs-8 padding-5">
+							<div class="col-sm-4 col-xs-3 padding-5">
+								<input type="text" class="form-control input-sm text-center" value="<?php echo $order_code; ?>" readonly />
+							</div>
+							<div class="col-sm-6 col-xs-5 padding-5">
 								<select class="form-control input-sm" id="customer" name="customer">
 									<?php if(!empty($customer_list)) : ?>
 										<?php foreach($customer_list as $list) : ?>
@@ -24,7 +27,7 @@
 						<div class="form-group">
 							<div class="col-md-6 col-sm-6 col-xs-12 padding-5">
 								<select class="form-control input-sm" id="payBy" onchange="changePayment()">
-									<?php echo select_pos_payment_method(); ?>
+									<?php echo select_pos_payment_method($payment_code); ?>
 								</select>
 							</div>
 							<div class="col-md-6 col-sm-6 col-xs-12 padding-5">
@@ -136,8 +139,13 @@
 		</table>
 	</div>
 </div>
+<input type="hidden" id="order_code" value="<?php echo $order_code; ?>">
 <input type="hidden" id="channels_code" value="<?php echo $channels_code; ?>">
 <input type="hidden" id="zone_code" value="<?php echo $zone_code; ?>">
+<input type="hidden" id="pos_code" value="<?php echo $pos_code; ?>">
+<input type="hidden" id="prefix" value="<?php echo $prefix; ?>">
+<input type="hidden" id="shop_id" value="<?php echo $shop_id; ?>">
+<input type="hidden" id="warehouse_code" value="<?php echo $warehouse_code; ?>">
 
 <?php $this->load->view('pos/pos_template'); ?>
 
