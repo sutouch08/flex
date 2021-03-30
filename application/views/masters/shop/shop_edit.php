@@ -45,6 +45,47 @@
     </div>
   </div>
 
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">ข้อความหัวบิล 1</label>
+    <div class="col-xs-12 col-sm-5 col-md-3 padding-5">
+			<input type="text" name="bill_logo" id="bill_logo" maxlength="50" class="form-control input-sm" value="<?php echo $shop->bill_logo; ?>"  />
+    </div>
+  </div>
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">ข้อความหัวบิล 2</label>
+    <div class="col-xs-12 col-sm-5 col-md-3 padding-5">
+			<input type="text" name="bill_header" id="bill_header" maxlength="100" class="form-control input-sm" value="<?php echo $shop->bill_header; ?>"  />
+    </div>
+  </div>
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">ข้อความหัวบิล 3</label>
+    <div class="col-xs-12 col-sm-5 col-md-3 padding-5">
+			<input type="text" name="bill_text" id="bill_text" maxlength="100" class="form-control input-sm" value="<?php echo $shop->bill_text; ?>"  />
+    </div>
+  </div>
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">เลขประจำตัวผู้เสียภาษี</label>
+    <div class="col-xs-12 col-sm-5 col-md-3 padding-5">
+			<input type="text" name="tax_id" id="tax_id" maxlength="20" class="form-control input-sm" value="<?php echo $shop->tax_id; ?>"  />
+    </div>
+  </div>
+
+	<?php $btn_yes = $shop->use_vat == 1 ? 'btn-success' : ''; ?>
+	<?php $btn_no = $shop->use_vat == 0 ? 'btn-success' : ''; ?>
+
+	<div class="form-group">
+ 	 <label class="col-sm-3 control-label no-padding-right">VAT</label>
+ 	 <div class="col-xs-12 col-sm-5 col-md-3 padding-5">
+ 		<div class="btn-group width-100">
+ 			<button type="button" class="btn btn-sm width-50 <?php echo $btn_yes; ?>" id="btn-vat-yes" onclick="toggleVat(1)">มี</button>
+			<button type="button" class="btn btn-sm width-50 <?php echo $btn_no; ?>" id="btn-vat-no" onclick="toggleVat(0)">ไม่มี</button>
+ 		</div>
+ 	 </div>
+  </div>
+
 <?php $btn_yes = $shop->active == 1 ? 'btn-success' : ''; ?>
 <?php $btn_no = $shop->active == 0 ? 'btn-danger' : ''; ?>
 	<div class="form-group">
@@ -57,6 +98,7 @@
  	 </div>
   </div>
 
+	<input type="hidden" id="use_vat" name="use_vat" value="<?php echo $shop->use_vat; ?>" />
 	<input type="hidden" id="active" name="active" value="<?php echo $shop->active; ?>" />
 
 <?php if($this->pm->can_edit) : ?>

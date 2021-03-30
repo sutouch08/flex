@@ -103,6 +103,7 @@ class Items extends PS_Controller
     if($this->input->post('code'))
     {
       $code = $this->input->post('code');
+
       if($this->products_model->is_exists($code))
       {
         set_error($code.' '.'already_exists');
@@ -114,6 +115,7 @@ class Items extends PS_Controller
         $api = $this->input->post('is_api');
         $active = $this->input->post('active');
         $user = get_cookie('uname');
+				$tabs = $this->input->post('tabs');
 
         $arr = array(
           'code' => trim($this->input->post('code')),
@@ -142,6 +144,7 @@ class Items extends PS_Controller
 
         if($this->products_model->add($arr))
         {
+					$this->product_tab_model->updateTabsItem($code, $tabs);
           set_message('insert success');
         }
         else

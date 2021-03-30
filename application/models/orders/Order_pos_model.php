@@ -7,6 +7,72 @@ class Order_pos_model extends CI_Model
   }
 
 
+	public function get($code)
+	{
+		$rs = $this->db->where('code', $code)->get('order_pos');
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
+
+
+
+  public function get_not_save_order($pos_id)
+  {
+    $rs = $this->db->select('code')->where('pos_id', $pos_id)->where('status', 0)->get('order_pos');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->code;
+    }
+
+    return NULL;
+  }
+
+
+
+	public function get_detail($id)
+	{
+		$rs = $this->db->where('id', $id)->get('order_pos_detail');
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
+
+
+
+
+	public function get_details($order_code)
+	{
+		$rs = $this->db->where('order_code', $order_code)->get('order_pos_detail');
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
+
+	public function get_order_detail_by_product($order_code, $product_code)
+	{
+		$rs = $this->db->where('order_code', $order_code)->where('product_code', $product_code)->get('order_pos_detail');
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
+
 
 	public function add(array $ds = array())
 	{
@@ -18,14 +84,47 @@ class Order_pos_model extends CI_Model
 		return FALSE;
 	}
 
+
+	public function update($code, $ds = array())
+	{
+		if(!empty($ds))
+		{
+			return $this->db->where('code', $code)->update('order_pos', $ds);
+		}
+
+		return FALSE;
+	}
+
+
+
 	public function add_detail(array $ds = array())
 	{
 		if(!empty($ds))
 		{
-			return $this->db->insert('order_pos_detail', $ds);
+			if($this->db->insert('order_pos_detail', $ds))
+			{
+				return $this->db->insert_id();
+			}
 		}
 
 		return FALSE;
+	}
+
+
+	public function update_detail($id, $ds = array())
+	{
+		if(!empty($ds))
+		{
+			return $this->db->where('id', $id)->update('order_pos_detail', $ds);
+		}
+
+		return FALSE;
+	}
+
+
+	public function delete_detail($id)
+	{
+		return $this->db->where('id', $id)->delete('order_pos_detail');
 	}
 
 

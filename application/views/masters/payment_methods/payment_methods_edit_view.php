@@ -41,13 +41,14 @@
     </div>
   </div>
 
-	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right"></label>
+	<?php $hide = ($role == 3 ? '' : 'hide'); ?>
+	<div class="form-group <?php echo $hide; ?>" id="bank_account">
+    <label class="col-sm-3 control-label no-padding-right">เลขที่บัญชี</label>
     <div class="col-xs-12 col-sm-3">
-			<label>
-				<input type="checkbox" class="ace" name="term" id="term" value="1" <?php echo is_checked(1, $has_term); ?> />
-				<span class="lbl">&nbsp; &nbsp;เครติดเทอม</span>
-			</label>
+			<select name="acc_no" id="acc_no" class="form-control input-sm">
+				<option value="">โปรดเลือก</option>
+				<?php echo select_bank_account($acc_id); ?>
+			</select>
     </div>
   </div>
 

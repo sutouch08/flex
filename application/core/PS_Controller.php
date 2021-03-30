@@ -58,14 +58,16 @@ class PS_Controller extends CI_Controller
   }
 
 
-  public function error_page()
+  public function error_page($err = NULL)
   {
-    return $this->load->view('page_error');
+		$error = array('error_message' => $err);
+    return $this->load->view('page_error', $error);
   }
 
-	public function page_error()
+	public function page_error($err = NULL)
   {
-    return $this->load->view('page_error');
+		$error = array('error_message' => $err);
+    return $this->load->view('page_error', $error);
   }
 }
 

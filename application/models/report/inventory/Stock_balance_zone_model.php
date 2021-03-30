@@ -38,7 +38,6 @@ class Stock_balance_zone_model extends CI_Model
       $this->db->where('products.style_code <=', $ds['pdTo']);
     }
 
-    $this->db->group_by('stock.product_code');
     $this->db->order_by('products.style_code', 'ASC');
     $this->db->order_by('products.color_code', 'ASC');
     $this->db->order_by('product_size.position', 'ASC');
@@ -95,7 +94,7 @@ class Stock_balance_zone_model extends CI_Model
     }
 
 
-    $qr .= "GROUP BY pd.code ";
+    $qr .= "GROUP BY pd.code, s.zone_code ";
     $qr .= "ORDER BY pd.style_code ASC, ";
     $qr .= "pd.color_code ASC, ";
     $qr .= "ps.position ASC";

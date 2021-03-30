@@ -47,7 +47,7 @@ function select_pos_payment_method($code = "")
 	{
 		foreach($payments as $rs)
 		{
-			$sc .= '<option value="'.$rs->code.'" data-term="'.$rs->has_term.'" data-role="'.$rs->role.'" '.is_selected($rs->code, $code).'>'.$rs->name.'</option>';
+			$sc .= '<option value="'.$rs->code.'" data-acc="'.$rs->acc_id.'" data-role="'.$rs->role.'" '.is_selected($rs->code, $code).'>'.$rs->name.'</option>';
 		}
 	}
 

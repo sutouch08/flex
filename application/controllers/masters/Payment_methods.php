@@ -48,6 +48,7 @@ class Payment_methods extends PS_Controller
   public function add_new()
   {
     $this->load->helper('payment_method');
+		$this->load->helper('bank');
     $this->load->view('masters/payment_methods/payment_methods_add_view');
   }
 
@@ -61,7 +62,8 @@ class Payment_methods extends PS_Controller
       $code = $this->input->post('code');
       $name = $this->input->post('name');
 			$role = $this->input->post('role');
-      $term = $this->input->post('term');
+			$acc_id = get_null($this->input->post('acc_no'));
+      $term = ($role == 1 OR $role == 4) ? 1 : 0;
 
 			$has_default = $this->payment_methods_model->has_default();
 
@@ -69,7 +71,8 @@ class Payment_methods extends PS_Controller
         'code' => $code,
         'name' => $name,
 				'role' => $role,
-        'has_term' => $term === NULL ? 0 : $term,
+				'acc_id' => $acc_id,
+        'has_term' => $term,
 				'is_default' => $has_default ? 0 : 1
       );
 
@@ -112,6 +115,7 @@ class Payment_methods extends PS_Controller
   public function edit($code)
   {
     $this->load->helper('payment_method');
+		$this->load->helper('bank');
     $ds = $this->payment_methods_model->get($code);
 
 
@@ -129,14 +133,16 @@ class Payment_methods extends PS_Controller
       $old_name = $this->input->post('old_name');
       $code = $this->input->post('code');
       $name = $this->input->post('name');
-      $term = $this->input->post('term');
       $role = $this->input->post('role');
+			$acc_id = get_null($this->input->post('acc_no'));
+			$term = ($role == 1 OR $role == 4) ? 1 : 0;
 			$is_default = $this->input->post('is_default');
 
       $ds = array(
         'name' => $name,
-        'has_term' => $term === NULL ? 0 : $term,
-        'role' => $role
+        'has_term' => $term,
+        'role' => $role,
+				'acc_id' => $acc_id
       );
 
 

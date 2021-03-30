@@ -43,6 +43,11 @@ function save() {
 	var zoneCode = $('#zone_code').val();
 	var customer = $('#customer').val();
 	var customerCode = $('#customer_code').val();
+	var bill_logo = $('#bill_logo').val();
+	var bill_header = $('#bill_header').val();
+	var bill_text = $('#bill_text').val();
+	var use_vat = $('#use_vat').val();
+	var tax_id = $('#tax_id').val();
 	var active = $('#active').val();
 
 	if(code.length === 0) {
@@ -78,6 +83,14 @@ function save() {
 		$('#customer').removeClass('has-error');
 	}
 
+	if(use_vat == 1 && tax_id.length == 0) {
+		$('#tax_id').addClass('has-error');
+		return false;
+	}
+	else {
+		$('#tax_id').removeClass('has-error');
+	}
+
 
 	load_in();
 	$.ajax({
@@ -89,6 +102,11 @@ function save() {
 			'name' : name,
 			'zone_code' : zoneCode,
 			'customer_code' : customerCode,
+			'bill_logo' : bill_logo,
+			'bill_header' : bill_header,
+			'bill_text' : bill_text,
+			'use_vat' : use_vat,
+			'tax_id' : tax_id,
 			'active' : active
 		},
 		success:function(rs) {
@@ -135,6 +153,11 @@ function update() {
 	var zoneCode = $('#zone_code').val();
 	var customer = $('#customer').val();
 	var customerCode = $('#customer_code').val();
+	var bill_logo = $('#bill_logo').val();
+	var bill_header = $('#bill_header').val();
+	var bill_text = $('#bill_text').val();
+	var use_vat = $('#use_vat').val();
+	var tax_id = $('#tax_id').val();
 	var active = $('#active').val();
 
 
@@ -163,6 +186,15 @@ function update() {
 		$('#customer').removeClass('has-error');
 	}
 
+	if(use_vat == 1 && tax_id.length == 0) {
+		$('#tax_id').addClass('has-error');
+		return false;
+	}
+	else {
+		$('#tax_id').removeClass('has-error');
+	}
+
+
 
 	load_in();
 	$.ajax({
@@ -175,6 +207,11 @@ function update() {
 			'old_name' : old_name,
 			'zone_code' : zoneCode,
 			'customer_code' : customerCode,
+			'bill_logo' : bill_logo,
+			'bill_header' : bill_header,
+			'bill_text' : bill_text,
+			'use_vat' : use_vat,
+			'tax_id' : tax_id,
 			'active' : active
 		},
 		success:function(rs) {
@@ -318,6 +355,23 @@ function toggleActive(option) {
 	if(option == 0) {
 		$('#btn-active-yes').removeClass('btn-success')
 		$('#btn-active-no').addClass('btn-danger')
+		return
+	}
+}
+
+
+function toggleVat(option) {
+	$('#use_vat').val(option);
+
+	if(option == 1) {
+		$('#btn-vat-yes').addClass('btn-success')
+		$('#btn-vat-no').removeClass('btn-success')
+		return
+	}
+
+	if(option == 0) {
+		$('#btn-vat-yes').removeClass('btn-success')
+		$('#btn-vat-no').addClass('btn-success')
 		return
 	}
 }

@@ -60,6 +60,16 @@
     </div>
   </div>
 
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">ขนาดกระดาษ</label>
+    <div class="col-xs-12 col-sm-5 col-md-3 padding-5">
+			<select class="form-control input-sm" name="paper_size" id="paper_size">
+				<option value="57" <?php echo is_selected($paper_size, '57'); ?>>57 mm.</option>
+				<option value="80" <?php echo is_selected($paper_size, '80'); ?>>80 mm.</option>
+			</select>
+    </div>
+  </div>
+
 <?php $btn_yes = $active == 1 ? 'btn-success' : ''; ?>
 <?php $btn_no = $active == 0 ? 'btn-danger' : ''; ?>
 	<div class="form-group">

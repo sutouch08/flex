@@ -44,6 +44,7 @@ function save() {
 	var pos_no = $('#pos_no').val();
 	var shop_id = $('#shop').val();
 	var active = $('#active').val();
+	var paper_size = $('#paper_size').val();
 
 	if(code.length === 0) {
 		$('#code').addClass('has-error');
@@ -91,7 +92,8 @@ function save() {
 			'pos_no' : pos_no,
 			'pos_code' : pos_code,
 			'shop_id' : shop_id,
-			'active' : active
+			'active' : active,
+			'paper_size' : paper_size
 		},
 		success:function(rs) {
 			load_out();
@@ -138,6 +140,7 @@ function update() {
 	var pos_no = $('#pos_no').val();
 	var shop_id = $('#shop').val();
 	var active = $('#active').val();
+	var paper_size = $('#paper_size').val();
 
 
 	if(name.length === 0) {
@@ -179,7 +182,8 @@ function update() {
 			'pos_no' : pos_no,
 			'pos_code' : pos_code,
 			'shop_id' : shop_id,
-			'active' : active
+			'active' : active,
+			'paper_size' : paper_size
 		},
 		success:function(rs) {
 			load_out();

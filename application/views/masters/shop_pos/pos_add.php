@@ -59,6 +59,16 @@
   </div>
 
 	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">ขนาดกระดาษ</label>
+    <div class="col-xs-12 col-sm-5 col-md-3 padding-5">
+			<select class="form-control input-sm" name="paper_size" id="paper_size">
+				<option value="57">57 mm.</option>
+				<option value="80">80 mm.</option>
+			</select>
+    </div>
+  </div>
+
+	<div class="form-group">
  	 <label class="col-sm-3 control-label no-padding-right">เปิดใช้งาน</label>
  	 <div class="col-xs-12 col-sm-5 col-md-3 padding-5">
  		<div class="btn-group width-100">

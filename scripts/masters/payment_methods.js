@@ -60,7 +60,7 @@ function save_add() {
 	var code = $('#code').val();
 	var name = $('#name').val();
 	var role = $('#role').val();
-	var term = $('#term').is(':checked') ? 1 : 0;
+	var acc_no = $('#acc_no').val();
 	var error = 0;
 
 	if(code.length === 0) {
@@ -99,7 +99,8 @@ function save_add() {
 		data:{
 			'code' : code,
 			'name' : name,
-			'role' : role
+			'role' : role,
+			'acc_no' : acc_no
 		},
 		success:function(rs) {
 			var rs = $.trim(rs);
@@ -139,7 +140,7 @@ function update() {
 	var name = $('#name').val();
 	var old_name = $('#old_name').val();
 	var role = $('#role').val();
-	var term = $('#term').is(':checked') ? 1 : 0;
+	var acc_no = $('#acc_no').val();
 	var is_default = $('#is_default').is(':checked') ? 1 : 0
 
 	var error = 0;
@@ -182,7 +183,7 @@ function update() {
 			'name' : name,
 			'old_name' : old_name,
 			'role' : role,
-			'term' : term,
+			'acc_no' : acc_no,
 			'is_default' : is_default
 		},
 		success:function(rs) {
@@ -211,4 +212,14 @@ function update() {
 			})
 		}
 	})
+}
+
+
+function toggleRole() {
+	var role = $('#role').val();
+	$('#bank_account').addClass('hide');
+	if(role == 3) {
+		$('#bank_account').removeClass('hide');
+	}
+
 }

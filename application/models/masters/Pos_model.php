@@ -29,9 +29,18 @@ class Pos_model extends CI_Model
     return FALSE;
   }
 
+	public function get($id)
+	{
+		$rs = $this->db->where('id', $id)->get('shop_pos');
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row();
+		}
 
+		return NULL;
+	}
 
-	public function get($code = NULL)
+	public function get_by_code($code = NULL)
 	{
 		if(! is_null($code))
 		{

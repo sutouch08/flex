@@ -154,7 +154,7 @@ class Stock_balance_zone extends PS_Controller
 
 
     //---  Report title
-    $report_title = 'รายงานสินค้าคงเหลือ ณ วันที่  '.thai_date(date('Y-m-d'), '/').'      (  วันที่พิมพ์รายงาน : '.date('d/m/Y').'  เวลา : '.date('H:i:s').' )';
+    $report_title = 'รายงานสินค้าคงเหลือ ณ วันที่  '.thai_date($date, '/').'      (  วันที่พิมพ์รายงาน : '.date('d/m/Y').'  เวลา : '.date('H:i:s').' )';
     $wh_title     = 'คลัง :  '. ($allWhouse == 1 ? 'ทั้งหมด' : $wh_list);
     $pd_title     = 'สินค้า :  '. ($allProduct == 1 ? 'ทั้งหมด' : '('.$pdFrom.') - ('.$pdTo.')');
     $zone_title   = 'โซน : '.($allZone == 1 ? 'ทั้งหมด' : $zoneCode);

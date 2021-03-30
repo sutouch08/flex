@@ -33,7 +33,7 @@
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">ประเภท</label>
     <div class="col-xs-12 col-sm-3">
-			<select name="role" id="role" class="form-control input-sm" required>
+			<select name="role" id="role" class="form-control input-sm" onchange="toggleRole()" required>
 				<option value="">โปรดเลือก</option>
 				<?php echo select_payment_role(); ?>
 			</select>
@@ -41,16 +41,16 @@
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="role-error"></div>
   </div>
 
-
-	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right"></label>
+	<div class="form-group hide" id="bank_account">
+    <label class="col-sm-3 control-label no-padding-right">เลขที่บัญชี</label>
     <div class="col-xs-12 col-sm-3">
-			<label>
-				<input type="checkbox" class="ace" name="term" id="term" value="1" />
-				<span class="lbl">&nbsp; &nbsp;เครติดเทอม</span>
-			</label>
+			<select name="acc_no" id="acc_no" class="form-control input-sm">
+				<option value="">โปรดเลือก</option>
+				<?php echo select_bank_account(); ?>
+			</select>
     </div>
   </div>
+
 
 	<div class="divider-hidden">
 

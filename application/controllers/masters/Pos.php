@@ -93,6 +93,7 @@ class Pos extends PS_Controller
 							'pos_code' => get_null(trim($this->input->post('pos_code'))),
 							'shop_id' => $this->input->post('shop_id'),
 							'active' => $this->input->post('active'),
+							'paper_size' => $this->input->post('paper_size'),
 							'uname' => $this->_user->uname
 						);
 
@@ -131,7 +132,7 @@ class Pos extends PS_Controller
 
 	public function edit($code)
 	{
-		$pos = $this->pos_model->get($code);
+		$pos = $this->pos_model->get_by_code($code);
 
 		if(!empty($pos))
 		{
@@ -179,6 +180,7 @@ class Pos extends PS_Controller
 							'pos_code' => get_null(trim($this->input->post('pos_code'))),
 							'shop_id' => $this->input->post('shop_id'),
 							'active' => $this->input->post('active'),
+							'paper_size' => $this->input->post('paper_size'),
 							'uname' => $this->_user->uname
 						);
 

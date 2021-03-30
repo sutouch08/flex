@@ -13,9 +13,40 @@ function viewDeail(code) {
 	window.location.href = HOME + 'pos/view_detail/'+code;
 }
 
+function viewBill(code) {
+	window.location.href = HOME + 'pos/bill/'+code;
+}
+
 function removeItem(id) {
-	$('#row-'+id).remove();
-	recalTotal();
+	$.ajax({
+		url:HOME + 'remove_item',
+		type:'POST',
+		cache:false,
+		data:{
+			'id' : id
+		},
+		success:function(rs) {
+			if(rs === 'success') {
+				$('#row-'+id).remove();
+				recalTotal();
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				})
+			}
+		},
+		error:function(xhr, status, error) {
+			swal({
+				title:'Error!!',
+				type:'error',
+				text:'Delete failed - '+ xhr.status+' : '+xhr+statusText
+			});
+		}
+	})
+
 }
 
 
@@ -26,7 +57,7 @@ $('#pd-box').keyup(function(e){
 		var code = $(this).val();
 		if(code.length) {
 			$(this).val('');
-			get_product_by_code(code);
+			add_item(code);
 		}
 	}
 })
@@ -34,42 +65,11 @@ $('#pd-box').keyup(function(e){
 $('#barcode-box').keyup(function(e){
 	if(e.keyCode === 13) {
 		var barcode = $.trim($(this).val());
-		var payment_code = $('#payBy').val();
-		var customer_code = $('#customer').val();
-
 		if(barcode.length) {
-			$(this).val('');
-			$.ajax({
-				url:HOME + 'get_product_by_code',
-				type:'GET',
-				cache:false,
-				data:{
-					'code' : barcode,
-					'customer_code' : customer_code,
-					'payment_code' : payment_code
-				},
-				success:function(rs) {
-					if(isJson(rs)) {
-
-						addToOrder(rs);
-					}
-					else {
-						swal({
-							title:'Error',
-							text:rs,
-							type:'error'
-						});
-					}
-				},
-				error:function(xhr, status, error) {
-					swal({
-						title:'Error!',
-						text:'Error-'+xhr.status+': '+xhr.statusText,
-						type:'error'
-					});
-				}
-			})
+			$('#barcode-box').val('');
+			add_item(barcode);
 		}
+
 	}
 })
 
@@ -90,19 +90,26 @@ $('#barcode-box').autocomplete({
 })
 
 
-function get_product_by_code(code)
+function add_item(product_code)
 {
+	var order_code = $('#order_code').val();
 	var payment_code =  $('#payBy').val();
 	var customer_code = $('#customer').val();
-	if(code.length > 0) {
+	var zone_code = $('#zone_code').val();
+	var channels_code = $('#channels_code').val();
+
+	if(product_code.length > 0) {
 		$.ajax({
-			url:HOME + 'get_product_by_code',
+			url:HOME + 'add_to_order', //--'get_product_by_code',
 			type:'GET',
 			cache:false,
 			data:{
-				'code' : code,
+				'order_code' : order_code,
+				'product_code' : product_code,
 				'payment_code' : payment_code,
-				'customer_code' : customer_code
+				'customer_code' : customer_code,
+				'channels_code' : channels_code,
+				'zone_code' : zone_code
 			},
 			success:function(rs) {
 				if(isJson(rs)) {
@@ -131,29 +138,13 @@ function get_product_by_code(code)
 function addToOrder(rs) {
 	var ds = $.parseJSON(rs);
 	var id = ds.id;
+
 	if($('#qty-'+id).length) {
 
-		var c_qty =  $('#qty-'+id).val();
-		var n_qty = ds.qty;
+		var source = $('#update-template').html();
+		var output = $('#row-'+id);
 
-
-		if(isInteger(c_qty)) {
-			c_qty = parseInt(c_qty);
-		}
-		else {
-			c_qty = parseDefault(parseFloat(c_qty), 0);
-		}
-
-		if(isInteger(n_qty)) {
-			n_qty = parseInt(n_qty);
-		}
-		else {
-			n_qty = parseDefault(parseFloat(n_qty), 0);
-		}
-
-		qty = c_qty + n_qty;
-
-		$('#qty-'+id).val(qty);
+		render(source, ds, output);
 
 		recalItem(id);
 	}
@@ -166,6 +157,62 @@ function addToOrder(rs) {
 		recalItem(id);
 	}
 }
+
+
+
+function updateItem(id) {
+	var price = parseDefault(parseFloat($('#price-'+id).val()), 0);
+	var qty = $('#qty-'+id).val();
+	var qty = isInteger(qty) ? parseDefault(parseInt(qty), 0) : parseDefault(parseFloat(qty), 0);
+	var disc = $('#disc-'+id).val();
+
+	if(qty <= 0) {
+		$('#qty-'+id).val(1);
+		recalItem(id);
+	}
+	else {
+		$.ajax({
+			url:HOME + 'update_item',
+			type:'POST',
+			cache:false,
+			data:{
+				'id' : id,
+				'price' : price,
+				'qty' : qty,
+				'discount_label' : disc
+			},
+			success:function(rs) {
+				if(rs == 'success') {
+					//--- update current
+					$('#currentQty-'+id).val(qty);
+					$('#currentPrice-'+id).val(price);
+					$('#currentDisc-'+id).val(disc);
+					recalItem(id);
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:rs,
+						type:'eror'
+					});
+
+					//--- roll back data
+					var c_qty = $('#currentQty-'+id).val();
+					var c_price = $('#currentPrice-'+id).val();
+					var c_disc = $('#currentDisc-'+id).val();
+
+					$('#qty-'+id).val(c_qty);
+					$('#price-'+id).val(c_price);
+					$('#disc-'+id).val(c_disc);
+
+					recalItem(id);
+				}
+			}
+		})
+	}
+}
+
+
 
 
 function recalItem(id) {
@@ -245,13 +292,24 @@ function percent_init() {
 function showPayment() {
 	var amountText = $('#net_amount').text();
 	var amount = parseDefault(parseFloat(removeCommas(amountText)), 0.00);
+	var role = $('#payBy option:selected').data('role');
+	var acc_no = $('#bank_account').val();
+	if(role == 3 && acc_no == '') {
+		swal('กรุณาระบุเลขที่บัญชี');
+		return false;
+	}
+
+	if($('.sell-item').length == 0) {
+		swal('ไม่พบรายการสินค้า');
+		return false;
+	}
 
 	if(amount > 0) {
 		$('#payableAmount').val(amount);
 		$('#payAmountLabel').text(amountText);
-
-		$('#paymentModal').modal('show');
 	}
+
+	$('#paymentModal').modal('show');
 
 }
 
@@ -270,6 +328,8 @@ function changePayment() {
 	//--- role = 5 ==> บัตรเครดิต
 	var payment = $('#payBy').val();
 	var role = $('#payBy option:selected').data('role');
+	var acc_id = $('#payBy option:selected').data('acc');
+
 	//--- reset field
 	$('#receiveAmount').val('');
 	$('#changeAmount').val('');
@@ -290,6 +350,10 @@ function changePayment() {
 	else if(role == 3) {
 		//--- bank transfer
 		$('#bank_account').removeAttr('disabled');
+		if(acc_id > 0) {
+			$('#bank_account').val(acc_id);
+		}
+
 		$('#receiveAmount').removeAttr('disabled');
 		$('#receiveAmount').focus();
 	}
@@ -355,17 +419,12 @@ function calChange() {
 
 
 function submitPayment() {
-	var customer_code = $('#customer').val();
-	var customer_name = $('#customer option:selected').text();
-	var channels_code = $('#channels_code').val();
+	$('#paymentModal').modal('hide');
+	var order_code = $('#order_code').val();
 	var payment_code = $('#payBy').val();
 	var acc_no = $('#bank_account').val();
 	var payment_role = $('#payBy option:selected').data('role');
-	var zone_code = $('#zone_code').val();
 	var warehouse_code = $('#warehouse_code').val();
-	var pos_code = $('#pos_code').val();
-	var prefix = $('#prefix').val();
-	var shop_id = $('#shop_id').val();
 
 	var amount = parseDefault(parseFloat($('#payableAmount').val()), 0);
 	var receive_amount = parseDefault(parseFloat($('#receiveAmount').val()), 0);
@@ -379,17 +438,6 @@ function submitPayment() {
 	}
 
 
-
-	if(customer_code.length == 0) {
-		swal('กรุณาระบุลูกค้า');
-		return false;
-	}
-
-	if(channels_code.length == 0) {
-		swal('Missing configuration : POS_CHANNELS');
-		return false;
-	}
-
 	if(payment_code == '') {
 		swal('กรุณาระบุช่องทางการชำระเงิน');
 		return false;
@@ -400,92 +448,229 @@ function submitPayment() {
 		return false;
 	}
 
-	var items = [];
+	if($('.sell-item').length == 0) {
+		swal('ไม่พบรายการขาย');
+		return  false;
+	}
 
-	$('.sell-item').each(function() {
-		var id = $(this).data('id');
-		var code = $(this).val();
-		var name = $('#pdName-'+id).val();
-		var item_type = $('#itemType-'+id).val();
-		var unit_code = $('#unitCode-'+id).val();
-		var std_price = parseDefault(parseFloat($('#stdPrice-'+id).val()),0); //--- standard price
-		var price = parseDefault(parseFloat($('#price-'+id).val()),0); //---- input price
-		var sell_price = parseDefault(parseFloat($('#sellPrice-'+id).val()), 0); //--- price after discount
-		var discount_label = $('#disc-'+id).val();
-		var discount_amount = parseDefault(parseFloat($('#discAmount-'+id).val()),0);
-		var qty = parseDefault(parseFloat($('#qty-'+id).val()), 1);
-		var total_amount = sell_price * qty;
-		var tax_rate = $('#taxRate-'+id).val();
-		var tax_amount = $('#taxAmount-'+id).val();
-
-		var item = {
-			'code' : code,
-			'name' : name,
-			'item_type' : item_type,
-			'unit_code' : unit_code,
-			'std_price' : std_price,
-			'price' : price,
-			'sell_price' : sell_price,
-			'discount_label' : discount_label,
-			'discount_amount' : discount_amount,
-			'qty' : qty,
-			'total_amount' : total_amount,
-			'vat_rate' : tax_rate,
-			'vat_amount' : tax_amount,
-			'zone_code' : zone_code
-		}
-
-		items.push(item);
-	})
-
-	if(items.length > 0) {
-		var order = {
-			'prefix' : prefix,
-			'customer_code' : customer_code,
-			'customer_name' : customer_name,
-			'channels_code' : channels_code,
+	load_in();
+	$.ajax({
+		url:HOME + 'save_order',
+		type:'POST',
+		data: {
+			'order_code' : order_code,
 			'payment_code' : payment_code,
 			'acc_no' : acc_no,
 			'payment_role' : payment_role,
-			'shop_id' : shop_id,
 			'warehouse_code' : warehouse_code,
-			'pos_code' : pos_code,
 			'amount' : amount,
 			'received' : receive_amount,
-			'changed' : change.toFixed(2),
-			'details' : items
-		}
+			'changed' : change.toFixed(2)
+		},
+		success:function(rs) {
+			load_out();
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'success',
+					type:'success',
+					timer:1000
+				})
+				setTimeout(function(){
+					viewDeail(order_code);
+				},1200)
 
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error',
+					html:true
+				})
+			}
+		},
+		error:function(xhr, status, error) {
+			load_out();
+			swal({
+				title:'Error!',
+				text: xhr.responseText,
+				type:'error',
+				html:true
+			})
+		}
+	})
+}
+
+
+
+function change_customer() {
+	var order_code = $('#order_code').val();
+	var customer_code = $('#customer').val();
+	var customer_name = $('#customer option:selected').text();
+	var c_customer = $('#current_customer').val();
+	var payment_code = $('#payBy_code').val();
+	var channels_code = $('#channels_code').val();
+
+	var count = $('.sell-item').length;
+
+	if(count > 0) {
+		swal({
+			title: 'ต้องการคำนวนส่วนลดใหม่หรือไม่',
+			type:'warning',
+			showCancelButton:true,
+			confirmButtonColor: '#6fb3e0',
+			confirmButtonText:'คำนวณส่วนลดใหม่',
+			cancelButtonColor:'#428bca',
+			cancelButtonText:'ไม่คำนวณ',
+			closeOnConfirm:false
+		}, function(isConfirm){
+			if(isConfirm) {
+
+				$.ajax({
+					url:HOME + 'update_order',
+					type:'POST',
+					cache:false,
+					data:{
+						'order_code' : order_code,
+						'customer_code' : customer_code,
+						'customer_name' : customer_name,
+						'payment_code' : payment_code,
+						'channels_code' : channels_code,
+						'recal_discount' : 1
+					},
+					success:function(rs) {
+
+						if(rs === 'success') {
+							swal({
+								title:'Success',
+								type:'success',
+								timer:1000
+							});
+
+							setTimeout(function(){
+								window.location.reload();
+							}, 1200);
+						}
+						else {
+							swal({
+								title:'Error!',
+								text:rs,
+								type:'error'
+							});
+
+							$('#customer').val(c_customer);
+						}
+					},
+					error:function(xhr, status, error) {
+
+						swal({
+							title:'Error!',
+							text:'Error-'+xhr.status+' : '+xhr.statusText,
+							type:'error'
+						})
+
+						$('#customer').val(c_customer);
+					}
+				})
+			}
+			else {
+
+				$.ajax({
+					url:HOME + 'update_order',
+					type:'POST',
+					cache:false,
+					data:{
+						'order_code' : order_code,
+						'customer_code' : customer_code,
+						'recal_discount' : 0
+					},
+					success:function(rs) {
+
+						if(rs === 'success') {
+							swal({
+								title:'Success',
+								type:'success',
+								timer:1000
+							});
+
+							setTimeout(function(){
+								window.location.reload();
+							}, 1200);
+						}
+						else {
+							swal({
+								title:'Error!',
+								text:rs,
+								type:'error'
+							});
+
+							$('#customer').val(c_customer);
+						}
+					},
+					error:function(xhr, status, error) {
+
+						swal({
+							title:'Error!',
+							text:'Error-'+xhr.status+' : '+xhr.statusText,
+							type:'error'
+						})
+
+						$('#customer').val(c_customer);
+					}
+				})
+			}
+		})
+	}
+	else {
 		$.ajax({
-			url:HOME + 'add',
+			url:HOME + 'update_order',
 			type:'POST',
-			dataType:'json',
-			contentType:'application:json',
-			processData:false,
-			data: JSON.stringify(order),
-			complete: function(data) {
-				var rs = data.responseText;
-				if(isJson(rs)) {
-					var ds = $.parseJSON(rs);
-					viewDeail(ds.order_code);
+			cache:false,
+			data:{
+				'order_code' : order_code,
+				'customer_code' : customer_code,
+				'recal_discount' : 0
+			},
+			success:function(rs) {
+
+				if(rs === 'success') {
+					swal({
+						title:'Success',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(function(){
+						window.location.reload();
+					}, 1200);
 				}
 				else {
 					swal({
 						title:'Error!',
-						text: rs,
+						text:rs,
 						type:'error'
-					})
+					});
+
+					$('#customer').val(c_customer);
 				}
 			},
 			error:function(xhr, status, error) {
+
 				swal({
 					title:'Error!',
-					text: xhr.responseText,
+					text:'Error-'+xhr.status+' : '+xhr.statusText,
 					type:'error'
 				})
-			}
 
+				$('#customer').val(c_customer);
+			}
 		})
 	}
-
 }
+
+
+
+$(document).ready(function(){
+	percent_init();
+})

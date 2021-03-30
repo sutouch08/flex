@@ -44,6 +44,45 @@
   </div>
 
 	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">ข้อความหัวบิล 1</label>
+    <div class="col-xs-12 col-sm-5 col-md-3 padding-5">
+			<input type="text" name="bill_logo" id="bill_logo" maxlength="50" class="form-control input-sm" value=""  />
+    </div>
+  </div>
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">ข้อความหัวบิล 2</label>
+    <div class="col-xs-12 col-sm-5 col-md-3 padding-5">
+			<input type="text" name="bill_header" id="bill_header" maxlength="100" class="form-control input-sm" value=""  />
+    </div>
+  </div>
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">ข้อความหัวบิล 3</label>
+    <div class="col-xs-12 col-sm-5 col-md-3 padding-5">
+			<input type="text" name="bill_text" id="bill_text" maxlength="100" class="form-control input-sm" value=""  />
+    </div>
+  </div>
+
+	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">เลขประจำตัวผู้เสียภาษี</label>
+    <div class="col-xs-12 col-sm-5 col-md-3 padding-5">
+			<input type="text" name="tax_id" id="tax_id" maxlength="20" class="form-control input-sm" value=""  />
+    </div>
+  </div>
+
+
+	<div class="form-group">
+ 	 <label class="col-sm-3 control-label no-padding-right">VAT</label>
+ 	 <div class="col-xs-12 col-sm-5 col-md-3 padding-5">
+ 		<div class="btn-group width-100">
+ 			<button type="button" class="btn btn-sm width-50 btn-success" id="btn-vat-yes" onclick="toggleVat(1)">มี</button>
+			<button type="button" class="btn btn-sm width-50" id="btn-vat-no" onclick="toggleVat(0)">ไม่มี</button>
+ 		</div>
+ 	 </div>
+  </div>
+
+	<div class="form-group">
  	 <label class="col-sm-3 control-label no-padding-right">เปิดใช้งาน</label>
  	 <div class="col-xs-12 col-sm-5 col-md-3 padding-5">
  		<div class="btn-group width-100">
@@ -54,6 +93,7 @@
   </div>
 
 	<input type="hidden" id="active" name="active" value="1" />
+	<input type="hidden" id="use_vat" name="use_vat" value="1" />
 
 <?php if($this->pm->can_add) : ?>
 	<div class="form-group">

@@ -87,6 +87,11 @@ class Shop extends PS_Controller
 							'name' => trim($this->input->post('name')),
 							'zone_code' => trim($this->input->post('zone_code')),
 							'customer_code' => trim($this->input->post('customer_code')),
+							'bill_logo' => get_null(trim($this->input->post('bill_logo'))),
+							'bill_header' => get_null(trim($this->input->post('bill_header'))),
+							'bill_text' => get_null(trim($this->input->post('bill_text'))),
+							'tax_id' => get_null(trim($this->input->post('tax_id'))),
+							'use_vat' => $this->input->post('use_vat'),
 							'active' => $this->input->post('active')
 						);
 
@@ -127,7 +132,7 @@ class Shop extends PS_Controller
 	{
 		if($this->pm->can_edit)
 		{
-			$shop = $this->shop_model->get($code);
+			$shop = $this->shop_model->get_by_code($code);
 
 			if(!empty($shop))
 			{
@@ -185,6 +190,11 @@ class Shop extends PS_Controller
 							'name' => trim($this->input->post('name')),
 							'zone_code' => trim($this->input->post('zone_code')),
 							'customer_code' => trim($this->input->post('customer_code')),
+							'bill_logo' => get_null(trim($this->input->post('bill_logo'))),
+							'bill_header' => get_null(trim($this->input->post('bill_header'))),
+							'bill_text' => get_null(trim($this->input->post('bill_text'))),
+							'use_vat' => $this->input->post('use_vat'),
+							'tax_id' => get_null(trim($this->input->post('tax_id'))),
 							'active' => $this->input->post('active')
 						);
 
