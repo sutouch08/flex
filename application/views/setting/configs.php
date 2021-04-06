@@ -14,7 +14,9 @@
 			<li class="active"><a href="#company" data-toggle="tab">บริษัท</a></li>
 			<li class=""><a href="#inventory" data-toggle="tab">คลังสินค้า</a></li>
 		  <li class=""><a href="#order" data-toggle="tab">ออเดอร์</a></li>
-		  <li class=""><a href="#document" data-toggle="tab">เอกสาร</a></li>
+	<?php if($USE_POS) : ?>
+		  <li class=""><a href="#pos" data-toggle="tab">POS</a></li>
+	<?php endif; ?>
 	<?php if($this->_SuperAdmin) : ?>
 			<li class=""><a href="#system" data-toggle="tab">ระบบ</a></li>
 	<?php endif; ?>
@@ -41,6 +43,15 @@
 
 		<!---  ตั้งค่าออเดอร์  --------------------------------------------------->
 		<?php $this->load->view('setting/setting_order'); ?>
+
+
+		<!---  ตั้งค่า POS --------------------------------------------------->
+		<?php
+			if($USE_POS)
+			{
+				$this->load->view('setting/setting_pos');
+			}
+		 ?>
 
 		<!---  ตั้งค่าเอกสาร  --------------------------------------------------->
 		<?php $this->load->view('setting/setting_document'); ?>

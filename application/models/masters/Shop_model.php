@@ -11,12 +11,40 @@ class Shop_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->db->insert('shop', $ds);
+      if($this->db->insert('shop', $ds))
+			{
+				return $this->db->insert_id();
+			}
     }
 
     return FALSE;
   }
 
+
+
+	public function add_customer($ds = array())
+	{
+		if(!empty($ds))
+		{
+			return $this->db->insert('customer_shop', $ds);
+		}
+
+		return FALSE;
+	}
+
+
+	public function is_exists_customer($shop_id, $customer_code)
+	{
+		$this->db->where('shop_id', $shop_id)->where('customer_code', $customer_code);
+		$rs = $this->db->count_all_results('customer_shop');
+
+		if($rs > 0)
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
 
   //--- update zone with sync only
   public function update($code, $ds = array())

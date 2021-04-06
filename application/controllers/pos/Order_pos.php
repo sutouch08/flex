@@ -81,6 +81,7 @@ class Order_pos extends PS_Controller
 						'channels_code' => $channels_code,
 						'payment_code' => $payment_code,
 						'payment_role' => empty($payment) ? 2 : $payment->role,
+						'acc_no' => empty($payment) ? NULL : $payment->acc_id,
 						'shop_id' => $pos->shop_id,
 						'pos_id' => $pos->id,
 						'pos_code' => $pos->pos_code,
@@ -129,20 +130,46 @@ class Order_pos extends PS_Controller
 	}
 
 
-
-	public function pos($id)
+	public function edit($pos_id, $order_code)
 	{
-		if($this->pm->can_add)
+		if($this->pm->can_add OR $this->pm->can_edit)
 		{
+			$this->load->model('masters/payment_methods_model');
 			$this->load->helper('payment_method');
 			$this->title = "POS";
-			$pos = $this->pos_model->get_pos($id);
+			$pos = $this->pos_model->get_pos($pos_id);
+
 			if(!empty($pos))
 			{
-				$this->title = $pos->name;
-				$pos->customer_list = $this->pos_model->get_customer_shop_list($pos->shop_id);
-        $pos->channels_code = $this->channels_code;
-				$this->load->view('pos/pos', $pos);
+				$order = $this->order_pos_model->get($order_code);
+
+				if(!empty($order))
+				{
+					if($order->status != 2)
+					{
+						$this->error = "Invalid Order Status";
+						$this->page_error($this->error);
+					}
+					else if($order->pos_id != $pos_id)
+					{
+						$this->error = "Invalid pos_id";
+						$this->page_error;
+					}
+					else
+					{
+						$details = $this->order_pos_model->get_details($order->code);
+						$this->title = $pos->name;
+						$pos->order = $order;
+						$pos->details = $details;
+						$pos->customer_list = $this->pos_model->get_customer_shop_list($pos->shop_id);
+						$this->load->view('pos/pos', $pos);
+					}
+				}
+				else
+				{
+					$this->page_error();
+				}
+
 			}
 			else
 			{
@@ -152,6 +179,105 @@ class Order_pos extends PS_Controller
 		else
 		{
 			$this->deny_page();
+		}
+	}
+
+
+
+	public function hold_bill()
+	{
+		$sc = TRUE;
+
+		$order_code = trim($this->input->post('order_code'));
+		$ref_note = trim($this->input->post('reference_note'));
+
+		if(!empty($order_code) && $ref_note != '')
+		{
+			$status = $this->order_pos_model->get_status($order_code);
+			if($status === FALSE)
+			{
+				$sc = FALSE;
+				$this->error = "Invalid Order Number";
+			}
+			else
+			{
+				if($status == 3)
+				{
+					$sc = FALSE;
+					$this->error = "Hold Failed : Order already Canceled";
+				}
+
+				if($status == 1)
+				{
+					$sc = FALSE;
+					$this->error = "Hold failed : Order already Closed";
+				}
+
+				if($status == 0)
+				{
+					$this->db->trans_begin();
+					//---- hole details
+					if(! $this->order_pos_model->hold_details($order_code))
+					{
+						$sc = FALSE;
+						$this->error = "Hold detail failed";
+					}
+
+					if($sc === TRUE)
+					{
+						if(! $this->order_pos_model->hold_order($order_code, $ref_note))
+						{
+							$sc = FALSE;
+							$this->error = "Hold failed : Update status failed";
+						}
+					}
+
+					if($sc === TRUE)
+					{
+						$this->db->trans_commit();
+					}
+					else
+					{
+						$this->db->trans_rollback();
+					}
+				}
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter";
+		}
+
+		$this->response($sc);
+	}
+
+
+
+
+	public function get_hold_bills($pos_id)
+	{
+		$bills = $this->order_pos_model->get_hold_orders($pos_id);
+
+		if(!empty($bills))
+		{
+			$ds = array();
+
+			foreach($bills as $rs)
+			{
+				$arr = array(
+					'order_code' => $rs->code,
+					'pos_id' => $rs->pos_id,
+					'ref_note' => $rs->reference_note
+				);
+
+				array_push($ds, $arr);
+			}
+
+			echo json_encode($ds);
+		}
+		else {
+			echo "ไม่พบรายการ";
 		}
 	}
 
@@ -712,6 +838,51 @@ class Order_pos extends PS_Controller
 			$this->page_error();
 		}
 
+	}
+
+
+
+	public function get_product_data()
+	{
+		$code = trim($this->input->get('product_code'));
+		$zone_code = trim($this->input->get('zone_code'));
+
+		if(! is_null($code) && $code != '')
+		{
+			$this->load->model('masters/products_model');
+			$this->load->model('stock/stock_model');
+			$this->load->helper('product_images');
+
+
+			$item = $this->products_model->get_product_by_barcode($code);
+
+			if(!empty($item))
+			{
+				$stock = $this->stock_model->get_stock_zone($zone_code, $item->code);
+				$image = get_product_image($item->code, 'default');
+
+				$arr = array(
+					'item_type' => $item->count_stock ? 'Item' : 'Service',
+					'item_code' => $item->code,
+					'item_name' => $item->name,
+					'cost' => number($item->cost),
+					'price' => number($item->price),
+					'vat_rate' => $item->vat_rate,
+					'qty' => number($stock),
+					'img' => $image
+				);
+
+				echo json_encode($arr);
+			}
+			else
+			{
+				echo "Product Not Found";
+			}
+		}
+		else
+		{
+			echo "Missing required parameter : product code";
+		}
 	}
 
 	public function get_new_code($prefix, $date = NULL)

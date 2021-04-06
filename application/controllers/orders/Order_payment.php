@@ -30,7 +30,7 @@ class Order_payment extends PS_Controller
       'user'  => get_filter('user', 'user', ''),
       'from_date' => get_filter('from_date', 'from_date', ''),
       'to_date'  => get_filter('to_date', 'to_date', ''),
-      'valid' => get_filter('valid', 'valid', 0)
+      'valid' => get_filter('valid', 'valid', '0')
     );
 
 		//--- แสดงผลกี่รายการต่อหน้า

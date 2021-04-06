@@ -46,6 +46,7 @@ function save() {
 	var bill_logo = $('#bill_logo').val();
 	var bill_header = $('#bill_header').val();
 	var bill_text = $('#bill_text').val();
+	var bill_footer = $('#bill_footer').val();
 	var use_vat = $('#use_vat').val();
 	var tax_id = $('#tax_id').val();
 	var active = $('#active').val();
@@ -105,6 +106,7 @@ function save() {
 			'bill_logo' : bill_logo,
 			'bill_header' : bill_header,
 			'bill_text' : bill_text,
+			'bill_footer' : bill_footer,
 			'use_vat' : use_vat,
 			'tax_id' : tax_id,
 			'active' : active
@@ -156,6 +158,7 @@ function update() {
 	var bill_logo = $('#bill_logo').val();
 	var bill_header = $('#bill_header').val();
 	var bill_text = $('#bill_text').val();
+	var bill_footer = $('#bill_footer').val();
 	var use_vat = $('#use_vat').val();
 	var tax_id = $('#tax_id').val();
 	var active = $('#active').val();
@@ -210,6 +213,7 @@ function update() {
 			'bill_logo' : bill_logo,
 			'bill_header' : bill_header,
 			'bill_text' : bill_text,
+			'bill_footer' : bill_footer,
 			'use_vat' : use_vat,
 			'tax_id' : tax_id,
 			'active' : active

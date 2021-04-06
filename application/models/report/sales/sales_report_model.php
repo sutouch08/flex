@@ -21,7 +21,7 @@ class Sales_report_model extends CI_Model
       $this->db->join('payment_method AS pm', 'sold.payment_code = pm.code', 'left');
       $this->db->join('customers AS cus', 'sold.customer_code = cus.code', 'left');
       $this->db->join('order_credit AS credit', 'sold.reference = credit.order_code', 'left');
-      $this->db->where('sold.role', 'S');
+      $this->db->where_in('sold.role', array('S', 'O'));
       $this->db->where('sold.date_upd >=', $ds['fromDate']);
       $this->db->where('sold.date_upd <=', $ds['toDate']);
 
@@ -66,7 +66,7 @@ class Sales_report_model extends CI_Model
       $this->db->join('payment_method AS pm', 'sold.payment_code = pm.code', 'left');
       $this->db->join('customers AS cus', 'sold.customer_code = cus.code', 'left');
       $this->db->join('order_credit AS credit', 'sold.reference = credit.order_code', 'left');
-      $this->db->where('sold.role', 'S');
+      $this->db->where_in('sold.role', array('S', 'O'));
       $this->db->where('sold.date_upd >=', $ds['fromDate']);
       $this->db->where('sold.date_upd <=', $ds['toDate']);
 
@@ -105,7 +105,7 @@ class Sales_report_model extends CI_Model
 			}
 			else
 			{
-				$this->db->where_in('role', array('S', 'M'));
+				$this->db->where_in('role', array('S', 'O', 'M'));
 			}
 
 			$this->db

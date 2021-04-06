@@ -4,3 +4,6 @@
 *.ico
 *.mp3
 *.pdf
+*.xls
+*.xlsx
+application/config/database.php

@@ -59,6 +59,9 @@
 				<?php echo select_unit($style->unit_code); ?>
 			</select>
 		</div>
+		<div class="col-sm-2 col-xs-4 padding-5">
+			<button type="button" class="btn btn-xs btn-success btn-block" onclick="addAttribute('unit_code')"><i class="fa fa-plus"></i></button>
+		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="unit-error"></div>
 	</div>
 
@@ -83,6 +86,9 @@
 			<?php echo select_product_brand($style->brand_code); ?>
 			</select>
 		</div>
+		<div class="col-sm-2 col-xs-4 padding-5">
+			<button type="button" class="btn btn-xs btn-success btn-block" onclick="addAttribute('brand')"><i class="fa fa-plus"></i></button>
+		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="brand-error"></div>
 	</div>
 
@@ -93,6 +99,9 @@
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_group($style->group_code); ?>
 			</select>
+		</div>
+		<div class="col-sm-2 col-xs-4 padding-5">
+			<button type="button" class="btn btn-xs btn-success btn-block" onclick="addAttribute('group')"><i class="fa fa-plus"></i></button>
 		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="group-error"></div>
 	</div>
@@ -105,6 +114,9 @@
 			<?php echo select_product_sub_group($style->sub_group_code); ?>
 			</select>
 		</div>
+		<div class="col-sm-2 col-xs-4 padding-5">
+			<button type="button" class="btn btn-xs btn-success btn-block" onclick="addAttribute('subGroup')"><i class="fa fa-plus"></i></button>
+		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="subGroup-error"></div>
 	</div>
 
@@ -115,6 +127,9 @@
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_category($style->category_code); ?>
 			</select>
+		</div>
+		<div class="col-sm-2 col-xs-4 padding-5">
+			<button type="button" class="btn btn-xs btn-success btn-block" onclick="addAttribute('category')"><i class="fa fa-plus"></i></button>
 		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="category-error"></div>
 	</div>
@@ -127,6 +142,9 @@
 			<?php echo select_product_kind($style->kind_code); ?>
 			</select>
 		</div>
+		<div class="col-sm-2 col-xs-4 padding-5">
+			<button type="button" class="btn btn-xs btn-success btn-block" onclick="addAttribute('kind')"><i class="fa fa-plus"></i></button>
+		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="kind-error"></div>
 	</div>
 
@@ -137,6 +155,9 @@
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_type($style->type_code); ?>
 			</select>
+		</div>
+		<div class="col-sm-2 col-xs-4 padding-5">
+			<button type="button" class="btn btn-xs btn-success btn-block" onclick="addAttribute('type')"><i class="fa fa-plus"></i></button>
 		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="type-error"></div>
 	</div>
@@ -207,3 +228,5 @@
 
 <input type="hidden" id="style" value="<?php echo $style->code; ?>" />
 </form>
+
+<?php $this->load->view('masters/products/attribute_modal'); ?>

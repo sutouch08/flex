@@ -46,7 +46,7 @@
 		<input type="hidden" id="currentQty-{{id}}" value="{{qty}}">
 		<input type="hidden" id="currentPrice-{{id}}" value="{{price}}">
 		<input type="hidden" id="currentDisc-{{id}}" value="{{discount_label}}">
-		
+
 		<input type="text" class="form-control input-xs no-border" value="{{product_name}} ({{product_code}})" />
 	</td>
 	<td class="middle" style="padding-left:5px; padding-right:5px;">
@@ -69,7 +69,7 @@
 <div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="max-width:500px;">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header" style="border-bottom:solid 1px #f4f4f4;">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 								<h4 class="modal-title-site" >ชำระเงิน</h4>
             </div>
@@ -107,3 +107,80 @@
         </div>
     </div>
 </div>
+
+
+<div class="modal fade" id="holdOptionModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width:500px;">
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom:solid 1px #f4f4f4;">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<h4 class="modal-title-site" >พักบิล</h4>
+            </div>
+            <div class="modal-body">
+							<div class="row">
+								<div class="col-sm-12 col-xs-12">
+									<label>Reference Note</label>
+									<input type="text" class="form-control input-lg" id="reference-note" maxlength="50" placeholder="กรุณาระบุข้อความอ้างอิงในการพักบิล">
+								</div>
+							</div>
+            </div>
+            <div class="modal-footer">
+               <button class="btn btn-lg btn-info" id="btn-submit" onclick="holdBill()">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width:500px;">
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom:solid 1px #f4f4f4;">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<h4 class="modal-title-site" id="item-code-label"></h4>
+            </div>
+            <div class="modal-body">
+							<div class="row">
+								<div class="col-sm-12 col-xs-12">
+									<table class="table table-striped">
+										<tbody id="item-data"></tbody>
+									</table>
+								</div>
+							</div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script id="item-template" type="text/x-handlebarsTemplate">
+	<tr>
+		<td rowspan="7" class="width-30"><img class="img-responsive border-1" src="{{img}}" /></td>
+		<td class="width-30">Product Type</td>
+		<td class="width-40">{{item_type}}</td>
+	</tr>
+	<tr>
+		<td class="width-30">Product Name</td>
+		<td class="width-40">{{item_name}}</td>
+	</tr>
+	<tr>
+		<td class="width-30">Product Code</td>
+		<td class="width-40">{{item_code}}</td>
+	</tr>
+	<tr>
+		<td class="width-30">Cost</td>
+		<td class="width-40">{{cost}}</td>
+	</tr>
+	<tr>
+		<td class="width-30">Price</td>
+		<td class="width-40">{{price}}</td>
+	</tr>
+	<tr>
+		<td class="width-30">Tax Rate</td>
+		<td class="width-40">{{vat_rate}}</td>
+	</tr>
+	<tr>
+		<td class="width-30">Quantity</td>
+		<td class="width-40">{{qty}}</td>
+	</tr>
+</script>

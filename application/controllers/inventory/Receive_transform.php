@@ -447,6 +447,7 @@ class Receive_transform extends PS_Controller
     $run_digit = getConfig('RUN_DIGIT_RECEIVE_TRANSFORM');
     $pre = $prefix .'-'.$Y.$M;
     $code = $this->receive_transform_model->get_max_code($pre);
+	
     if(!empty($code))
     {
       $run_no = mb_substr($code, ($run_digit*-1), NULL, 'UTF-8') + 1;

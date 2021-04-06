@@ -258,6 +258,7 @@ class Receive_transform_model extends CI_Model
   public function get_max_code($code)
   {
     $rs = $this->db
+		->select_max('code')
     ->like('code', $code, 'after')
     ->order_by('code', 'DESC')
     ->get('receive_transform');
@@ -267,7 +268,7 @@ class Receive_transform_model extends CI_Model
       return $rs->row()->code;
     }
 
-    return FALSE;
+    return NULL;
   }
 
 

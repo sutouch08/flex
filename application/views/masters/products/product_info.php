@@ -39,7 +39,10 @@
 				<?php echo select_unit(); ?>
 			</select>
 		</div>
-		<div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
+		<div class="col-sm-2 col-xs-4 padding-5">
+			<button type="button" class="btn btn-xs btn-success btn-block" onclick="addAttribute('unit_code')"><i class="fa fa-plus"></i></button>
+		</div>
+		<div class="help-block col-xs-12 col-sm-reset inline red" id="unit-error"></div>
 	</div>
 
 	<?php if(getConfig('USE_VAT')) : ?>
@@ -63,6 +66,9 @@
 			<?php echo select_product_brand(); ?>
 			</select>
 		</div>
+		<div class="col-sm-2 col-xs-4 padding-5">
+			<button type="button" class="btn btn-xs btn-success btn-block" onclick="addAttribute('brand')"><i class="fa fa-plus"></i></button>
+		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="brand-error"></div>
 	</div>
 
@@ -73,6 +79,9 @@
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_group(); ?>
 			</select>
+		</div>
+		<div class="col-sm-2 col-xs-4 padding-5">
+			<button type="button" class="btn btn-xs btn-success btn-block" onclick="addAttribute('group')"><i class="fa fa-plus"></i></button>
 		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="group-error"></div>
 	</div>
@@ -85,6 +94,9 @@
 			<?php echo select_product_sub_group(); ?>
 			</select>
 		</div>
+		<div class="col-sm-2 col-xs-4 padding-5">
+			<button type="button" class="btn btn-xs btn-success btn-block" onclick="addAttribute('subGroup')"><i class="fa fa-plus"></i></button>
+		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="subGroup-error"></div>
 	</div>
 
@@ -95,6 +107,9 @@
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_category(); ?>
 			</select>
+		</div>
+		<div class="col-sm-2 col-xs-4 padding-5">
+			<button type="button" class="btn btn-xs btn-success btn-block" onclick="addAttribute('category')"><i class="fa fa-plus"></i></button>
 		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="category-error"></div>
 	</div>
@@ -107,6 +122,9 @@
 			<?php echo select_product_kind(); ?>
 			</select>
 		</div>
+		<div class="col-sm-2 col-xs-4 padding-5">
+			<button type="button" class="btn btn-xs btn-success btn-block" onclick="addAttribute('kind')"><i class="fa fa-plus"></i></button>
+		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="kind-error"></div>
 	</div>
 
@@ -117,6 +135,9 @@
 				<option value="">กรุณาเลือก</option>
 			<?php echo select_product_type(); ?>
 			</select>
+		</div>
+		<div class="col-sm-2 col-xs-4 padding-5">
+			<button type="button" class="btn btn-xs btn-success btn-block" onclick="addAttribute('type')"><i class="fa fa-plus"></i></button>
 		</div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="type-error"></div>
 	</div>
@@ -187,3 +208,5 @@
 	<input type="hidden" name="valid" id="valid" value=""/>
 </div>
 </form>
+
+<?php $this->load->view('masters/products/attribute_modal'); ?>

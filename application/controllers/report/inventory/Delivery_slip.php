@@ -37,11 +37,11 @@ class Delivery_slip extends PS_Controller
 			$perpage = 20;
 		}
 
-		$segment  = 4; //-- url segment
-		$rows     = $this->delivery_slip_model->count_rows($filter, 8);
+		$segment  = 5; //-- url segment
+		$rows     = $this->delivery_slip_model->count_rows($filter,8);
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	    = pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-		$orders   = $this->delivery_slip_model->get_list($filter, $perpage, $this->uri->segment($segment), 8);
+		$orders   = $this->delivery_slip_model->get_list($filter, $perpage, $this->uri->segment($segment),8);
 
     $filter['orders'] = $orders;
 

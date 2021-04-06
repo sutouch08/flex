@@ -33,6 +33,52 @@ class Order_pos_model extends CI_Model
   }
 
 
+  public function get_status($code)
+  {
+    $rs = $this->db->select('status')->where('code', $code)->get('order_pos');
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->status;
+    }
+
+    return FALSE;
+  }
+
+	public function hold_details($order_code)
+	{
+		return $this->db->set('status', 2)->where('order_code', $order_code)->update('order_pos_detail');
+	}
+
+
+	public function hold_order($code, $ref_note)
+	{
+		$arr = array(
+			'status' => 2,
+			'reference_note' => $ref_note
+		);
+
+		return $this->db->where('code', $code)->update('order_pos', $arr);
+	}
+
+
+
+	public function get_hold_orders($pos_id)
+	{
+		$rs = $this->db
+		->select('code, pos_id, reference_note')
+		->where('pos_id', $pos_id)
+		->where('status', 2)
+		->get('order_pos');
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
 
 	public function get_detail($id)
 	{

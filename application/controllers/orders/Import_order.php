@@ -287,32 +287,34 @@ class Import_order extends CI_Controller
 	                break;
 	              }
 
+								//--- ถ้ายังไม่มีรายการอยู่ เพิ่มใหม่
+								$arr = array(
+									"order_code"	=> $code,
+									"style_code"		=> $item->style_code,
+									"product_code"	=> $item->code,
+									"product_name"	=> $item->name,
+									"cost"  => $item->cost,
+									"price"	=> ($rs['O']/$rs['N']),
+									"qty"		=> $rs['N'],
+									"unit_code" => $item->unit_code,
+									"vat_code" => $item->vat_code,
+									"vat_rate" => get_zero($item->vat_rate),
+									"discount1"	=> 0,
+									"discount2" => 0,
+									"discount3" => 0,
+									"discount_amount" => 0,
+									"total_amount"	=> $rs['O'],
+									"id_rule"	=> NULL,
+									"is_count" => $item->count_stock,
+									"is_import" => 1,
+									"import_id" => $import_id
+								);
+
 	              //---- เช็คข้อมูล ว่ามีรายละเอียดนี้อยู่ในออเดอร์แล้วหรือยัง
 	              //---- ถ้ามีข้อมูลอยู่แล้ว (TRUE)ให้ข้ามการนำเข้ารายการนี้ไป
 	              if($this->orders_model->is_exists_detail($code, $item->code) === FALSE)
 	              {
-	                //--- ถ้ายังไม่มีรายการอยู่ เพิ่มใหม่
-	                $arr = array(
-	                  "order_code"	=> $code,
-	                  "style_code"		=> $item->style_code,
-	                  "product_code"	=> $item->code,
-	                  "product_name"	=> $item->name,
-	                  "cost"  => $item->cost,
-	                  "price"	=> ($rs['O']/$rs['N']),
-	                  "qty"		=> $rs['N'],
-										"unit_code" => $item->unit_code,
-										"vat_code" => $item->vat_code,
-										"vat_rate" => get_zero($item->vat_rate),
-	                  "discount1"	=> 0,
-	                  "discount2" => 0,
-	                  "discount3" => 0,
-	                  "discount_amount" => 0,
-	                  "total_amount"	=> $rs['O'],
-	                  "id_rule"	=> NULL,
-	                  "is_count" => $item->count_stock,
-										"is_import" => 1,
-										"import_id" => $import_id
-	                );
+
 
 	                if( $this->orders_model->add_detail($arr) === FALSE )
 	                {

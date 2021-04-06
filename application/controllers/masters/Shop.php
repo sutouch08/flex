@@ -80,26 +80,40 @@ class Shop extends PS_Controller
 						$this->error = "โซนซ้ำ โซนนี้ถูกใช้งานแล้ว กรุณากำหนดโซนอื่น";
 					}
 
+					$customer_code = trim($this->input->post('customer_code'));
+
 					if($sc === TRUE)
 					{
 						$arr = array(
 							'code' => trim($this->input->post('code')),
 							'name' => trim($this->input->post('name')),
 							'zone_code' => trim($this->input->post('zone_code')),
-							'customer_code' => trim($this->input->post('customer_code')),
+							'customer_code' => $customer_code,
 							'bill_logo' => get_null(trim($this->input->post('bill_logo'))),
 							'bill_header' => get_null(trim($this->input->post('bill_header'))),
 							'bill_text' => get_null(trim($this->input->post('bill_text'))),
+							'bill_footer' => get_null(trim($this->input->post('bill_footer'))),
 							'tax_id' => get_null(trim($this->input->post('tax_id'))),
 							'use_vat' => $this->input->post('use_vat'),
 							'active' => $this->input->post('active')
 						);
 
-						if(! $this->shop_model->add($arr))
+						$shop_id = $this->shop_model->add($arr);
+
+						if($shop_id === FALSE)
 						{
 							$sc = FALSE;
 							$error = $this->db->error();
 							$this->error = $error['message'];
+						}
+						else
+						{
+							$arr = array(
+								'customer_code' => $customer_code,
+								'shop_id' => $shop_id
+							);
+
+							$this->shop_model->add_customer($arr);
 						}
 					}
 
@@ -184,15 +198,20 @@ class Shop extends PS_Controller
 						$this->error = "โซนซ้ำ โซนนี้ถูกใช้งานแล้ว กรุณากำหนดโซนอื่น";
 					}
 
+					$customer_code = trim($this->input->post('customer_code'));
+
+					$shop = $this->shop_model->get_by_code($code);
+
 					if($sc === TRUE)
 					{
 						$arr = array(
 							'name' => trim($this->input->post('name')),
 							'zone_code' => trim($this->input->post('zone_code')),
-							'customer_code' => trim($this->input->post('customer_code')),
+							'customer_code' => $customer_code,
 							'bill_logo' => get_null(trim($this->input->post('bill_logo'))),
 							'bill_header' => get_null(trim($this->input->post('bill_header'))),
 							'bill_text' => get_null(trim($this->input->post('bill_text'))),
+							'bill_footer' => get_null(trim($this->input->post('bill_footer'))),
 							'use_vat' => $this->input->post('use_vat'),
 							'tax_id' => get_null(trim($this->input->post('tax_id'))),
 							'active' => $this->input->post('active')
@@ -203,6 +222,18 @@ class Shop extends PS_Controller
 							$sc = FALSE;
 							$error = $this->db->error();
 							$this->error = "Update Failed : ".$error['message'];
+						}
+						else
+						{
+							if(! $this->shop_model->is_exists_customer($shop->id, $customer_code))
+							{
+								$arr = array(
+									'customer_code' => $customer_code,
+									'shop_id' => $shop->id
+								);
+
+								$this->shop_model->add_customer($arr);
+							}
 						}
 					}
 

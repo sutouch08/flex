@@ -43,8 +43,8 @@
   <div class="col-sm-1 col-1-harf padding-5">
     <label>สถานะ</label>
 		<select class="form-control input-sm" name="valid" onchange="getSearch()">
-      <option value="0" <?php echo is_selected($valid, 0); ?>>รอตรวจสอบ</option>
-      <option value="1" <?php echo is_selected($valid, 1); ?>>ยืนยันแล้ว</option>
+      <option value="0" <?php echo is_selected($valid, '0'); ?>>รอตรวจสอบ</option>
+      <option value="1" <?php echo is_selected($valid, '1'); ?>>ยืนยันแล้ว</option>
     </select>
   </div>
 

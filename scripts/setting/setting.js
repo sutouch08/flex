@@ -43,6 +43,22 @@ function closeSystem()
 }
 
 
+function togglePOS(option)
+{
+	$('#use_pos').val(option);
+	if(option == 1) {
+		$('#btn-pos-yes').addClass('btn-primary');
+		$('#btn-pos-no').removeClass('btn-primary');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-pos-yes').removeClass('btn-primary');
+		$('#btn-pos-no').addClass('btn-primary');
+		return;
+	}
+}
+
 
 function toggleManualCode(option)
 {

@@ -9,12 +9,9 @@ function goAdd(id) {
 	window.location.href = HOME + 'add/'+id;
 }
 
-function viewDeail(code) {
-	window.location.href = HOME + 'pos/view_detail/'+code;
-}
 
 function viewBill(code) {
-	window.location.href = HOME + 'pos/bill/'+code;
+	window.location.href = HOME + 'bill/'+code;
 }
 
 function removeItem(id) {
@@ -54,13 +51,43 @@ function removeItem(id) {
 
 $('#pd-box').keyup(function(e){
 	if(e.keyCode === 13) {
-		var code = $(this).val();
-		if(code.length) {
-			$(this).val('');
-			add_item(code);
-		}
+		get_product_data();
 	}
 })
+
+
+function get_product_data() {
+	var zone_code = $('#zone_code').val();
+	var code = $('#pd-box').val();
+	if(code.length) {
+
+		$('#item-code-label').text(code);
+		$.ajax({
+			url:HOME + 'get_product_data',
+			type:'GET',
+			cache:false,
+			data:{
+				'product_code' : code,
+				'zone_code' : zone_code
+			},
+			success:function(rs) {
+				var rs = $.trim(rs);
+				if(isJson(rs)) {
+					var ds = $.parseJSON(rs);
+					var source = $('#item-template').html();
+					var output = $('#item-data');
+
+					render(source, ds, output);
+
+					$('#productModal').modal('show');
+				}
+				else {
+					swal("Product not found");
+				}
+			}
+		})
+	}
+}
 
 $('#barcode-box').keyup(function(e){
 	if(e.keyCode === 13) {
@@ -477,7 +504,7 @@ function submitPayment() {
 					timer:1000
 				})
 				setTimeout(function(){
-					viewDeail(order_code);
+					viewBill(order_code);
 				},1200)
 
 			}
@@ -669,6 +696,109 @@ function change_customer() {
 	}
 }
 
+
+function showHoldOption() {
+	if($('.sell-item').length == 0) {
+		swal('ไม่พบรายการสินค้า');
+		return false;
+	}
+
+	$('#holdOptionModal').modal('show');
+}
+
+
+$('#holdOptionModal').on('shown.bs.modal', function(){
+	$('#reference-note').focus();
+});
+
+
+function holdBill() {
+	var order_code = $('#order_code').val();
+	var ref_note = $.trim($('#reference-note').val());
+	var pos_id = $('#pos_id').val();
+
+	if(ref_note.length == 0) {
+		$('#reference-note').addClass('has-error');
+		return false;
+	}
+	else {
+		$('#reference-note').removeClass('has-error');
+	}
+
+	$('#holdOptionModal').modal('hide');
+
+	load_in();
+	$.ajax({
+		url:HOME + 'hold_bill',
+		type:'POST',
+		cache:false,
+		data:{
+			'order_code' : order_code,
+			'reference_note' : ref_note
+		},
+		success:function(rs) {
+			load_out();
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+
+				setTimeout(function() {
+					goToPOS(pos_id);
+				},1200)
+			}
+			else {
+				swal({
+					title:'Error',
+					text:rs,
+					type:'error'
+				})
+			}
+		},
+		error:function(xhr, status, err) {
+			load_out();
+			swal({
+				title:'Error!',
+				type:'error',
+				text: xhr.responseText,
+				html:true
+			});
+		}
+	})
+}
+
+
+function showHoldBill(pos_id) {
+	$.ajax({
+		url:HOME + 'get_hold_bills/'+pos_id,
+		type:'GET',
+		cache:false,
+		success:function(rs) {
+			var rs = $.trim(rs);
+			if(isJson(rs)) {
+				var ds = $.parseJSON(rs);
+				var source = $('#list-template').html();
+				var output = $('#hold-list');
+
+				render(source, ds, output);
+			}
+			else {
+				$('#hold-list').html('<tr><td align="center">'+ rs + '</td></tr>');
+			}
+
+			$('#holdListModal').modal('show');
+		}
+	})
+}
+
+
+
+function goToBill(pos_id, order_code) {
+	window.location.href = HOME + 'edit/'+pos_id+'/'+order_code;
+}
 
 
 $(document).ready(function(){

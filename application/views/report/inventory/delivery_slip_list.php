@@ -77,7 +77,7 @@
       </thead>
       <tbody>
 <?php if(!empty($orders))  : ?>
-<?php $no = $this->uri->segment(4) + 1; ?>
+<?php $no = $this->uri->segment(5) + 1; ?>
 <?php   foreach($orders as $rs)  : ?>
 
         <tr class="font-size-12">

@@ -67,6 +67,14 @@
   </div>
 
 	<div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">ข้อความท้ายบิล</label>
+    <div class="col-xs-12 col-sm-5 col-md-3 padding-5">
+			<input type="text" name="bill_footer" id="bill_footer" maxlength="250" class="form-control input-sm" value="<?php echo $shop->bill_footer; ?>"  />
+    </div>
+  </div>
+
+
+	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">เลขประจำตัวผู้เสียภาษี</label>
     <div class="col-xs-12 col-sm-5 col-md-3 padding-5">
 			<input type="text" name="tax_id" id="tax_id" maxlength="20" class="form-control input-sm" value="<?php echo $shop->tax_id; ?>"  />

@@ -19,8 +19,11 @@ function view_detail(code) {
 }
 
 
-function getDelete() {
-	var code = $('#code').val();
+function getDelete(code) {
+	if(code === undefined){
+		var code = $('#code').val();
+	}
+
 	swal({
 		title:'คุณแน่ใจ ?',
 		text:'ต้องการยกเลิก '+code+' หรือไม่?',

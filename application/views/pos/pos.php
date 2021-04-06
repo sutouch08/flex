@@ -43,20 +43,23 @@
 								</select>
 							</div>
 							<div class="col-md-6 col-sm-6 col-xs-12 padding-5">
-								<select class="form-control input-sm" id="bank_account" disabled>
+								<select class="form-control input-sm" id="bank_account" <?php if($order->payment_role != 3 ) { echo 'disabled'; } ?>>
 									<option value="">เลือกบัญชี</option>
-									<?php echo select_bank_account(); ?>
+									<?php echo select_bank_account($order->acc_no); ?>
 								</select>
 							</div>
 						</div>
 
 
 						<div class="form-group">
-							<div class="col-md-6 col-sm-6 col-xs-12 padding-5">
-								<input type="text" class="form-control input-sm" name="pd-box" id="pd-box" placeholder="ค้นหาสินค้าด้วย รหัสหรือชื่อสินค้า" />
+							<div class="col-md-4 col-sm-4 col-xs-8 padding-5">
+								<input type="text" class="form-control input-sm" name="pd-box" id="pd-box" placeholder="ตรวจสอบราคาสินค้า" />
+							</div>
+							<div class="col-md-2 col-sm-2 col-xs-4 padding-5">
+								<button type="button" class="btn btn-xs btn-primary btn-block" onclick="get_product_data()">ตรวจสอบสินค้า</button>
 							</div>
 							<div class="col-md-6 col-sm-6 col-xs-12 padding-5">
-								<input type="text" class="form-control input-sm" name="barcode-box" id="barcode-box" placeholder="บาร์โค้ดสินค้า"  autofocus>
+								<input type="text" class="form-control input-sm" name="barcode-box" id="barcode-box" placeholder="บาร์โค้ดหรือรหัสสินค้า"  autofocus>
 							</div>
 						</div>
 
@@ -70,14 +73,8 @@
 						$this->load->helper('product_images');
 						$this->load->helper('product_tab');
 
-						if(getConfig('PRODUCT_TAB_TYPE') === 'item')
-						{
-							$this->load->view('pos/pos_item_tab');
-						}
-						else
-						{
-							$this->load->view('orders/order_tab_menu');
-						}
+						$this->load->view('pos/pos_item_tab');
+
 					?>
 				</td>
 			<?php endif; ?>
@@ -172,7 +169,7 @@
 					<table class="table" style="margin-bottom:0px;">
 						<tr>
 							<td class="width-30" style="padding:0px; border:0;">
-								<button type="button" class="btn btn-warning btn-lagrg btn-block">Hold</button>
+								<button type="button" class="btn btn-warning btn-lagrg btn-block" onclick="showHoldOption()">Hold</button>
 							</td>
 							<td class="width-30" style="padding:0px; border:0;">
 								<button type="button" class="btn btn-purple btn-lagrg btn-block">Print Order</button>
@@ -199,6 +196,7 @@
 	</div>
 </div>
 
+<input type="hidden" id="pos_id" value="<?php echo $id; ?>">
 <input type="hidden" id="order_code" value="<?php echo $order->code; ?>">
 
 <input type="hidden" id="channels_code" value="<?php echo $order->channels_code; ?>">

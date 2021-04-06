@@ -37,16 +37,7 @@ $btn_tab_item = $PRODUCT_TAB_TYPE == 'item' ? 'btn-success' : '';
     </div>
     <div class="divider-hidden"></div>
 	-->
-		<div class="col-sm-3"><span class="form-control left-label">ช่องทางขาย POS</span></div>
-		<div class="col-sm-9">
-			<select class="form-control input-medium" name="POS_CHANNELS" >
-				<option value="">ไม่ระบุ</option>
-				<?php echo select_channels($POS_CHANNELS); ?>
-			</select>
-			<span class="help-block">กำหนดช่องทางขายที่ใช้สำหรับการขาย POS (จำเป็นต้องระบุหากมีการขายแบบ POS มีผลต่อเงื่อนไขส่วนลด)</span>
-		</div>
-		<div class="divider-hidden"></div>
-
+		
 		<div class="col-sm-3"><span class="form-control left-label">การจำกัดการแสดงผลสต็อก</span></div>
 		<div class="col-sm-9">
 			<input type="text" class="form-control input-sm input-small text-center" name="STOCK_FILTER" required value="<?php echo $STOCK_FILTER; ?>" />

@@ -2,6 +2,8 @@
 <?php
     $open     = $CLOSE_SYSTEM == 0 ? 'btn-success' : '';
     $close    = $CLOSE_SYSTEM == 1 ? 'btn-danger' : '';
+		$pos_yes = $USE_POS == 1 ? 'btn-primary' : '';
+		$pos_no = $USE_POS == 0 ? 'btn-primary' : '';
 ?>
 
   <form id="systemForm">
@@ -18,6 +20,16 @@
       </div>
       <div class="divider-hidden"></div>
 
+			<div class="col-sm-3"><span class="form-control left-label">ระบบ POS</span></div>
+      <div class="col-sm-9">
+      	<div class="btn-group input-medium">
+        	<button type="button" class="btn btn-sm <?php echo $pos_yes; ?>" style="width:50%;" id="btn-pos-yes" onClick="togglePOS(1)">เปิด</button>
+          <button type="button" class="btn btn-sm <?php echo $pos_no; ?>" style="width:50%;" id="btn-pos-no" onClick="togglePOS(0)">ปิด</button>
+        </div>
+        <span class="help-block">เปิด/ปิด การใช้งานระบบ POS</span>
+      	<input type="hidden" name="USE_POS" id="use_pos" value="<?php echo $USE_POS; ?>" />
+      </div>
+      <div class="divider-hidden"></div>
     <?php endif; ?>
 
 

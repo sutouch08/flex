@@ -98,10 +98,17 @@
             <td colspan="2" align="right">Pay By</td><td colspan="2" align="right"><?php echo $pay_by; ?></td>
         </tr>
     </table>
-    <center style="margin-bottom:10px;"> THANK YOU </center>
+		<?php if(! is_null($shop->bill_footer) && $shop->bill_footer != "") : ?>
+    <div class="row">
+    	<div class="col-sm-12 col-xs-12 padding-5 text-center padding-bottom-10">
+    		<?php echo $shop->bill_footer; ?>
+    	</div>
+    </div>
+		<?php endif; ?>
 		<div class="row hidden-print">
 			<div class='col-sm-12 col-xs-12 padding-5' style="border-top:solid 1px #CCC; padding-top:10px;">
-				<button class='btn btn-sm btn-primary btn-block' onclick='print()'><i class='fa fa-print'></i>&nbspพิมพ์ (Enter)</button>
+				<button class='btn btn-sm btn-primary btn-block margin-bottom-10' onclick='print_bill()'>Print (Enter)</button>
+				<button class='btn btn-sm btn-warning btn-block' onclick='go_back()'>Back To POS (ESC)</button>
 			</div>
 		</div>
 
@@ -112,11 +119,13 @@
 	{
 		window.print();
 	}
+
 	$(document).keyup(function(e){
 		if(e.keyCode == 27)
 		{
-			window.close();
+			go_back();
 		}
+
 		if(e.keyCode == 13)
 		{
 			print_bill();
@@ -129,7 +138,7 @@
 
 	function go_back()
 	{
-		window.location.href = "<?php echo $this->home; ?>";
+		window.location.href = "<?php echo $this->home; ?>/main/<?php echo $order->pos_id; ?>";
 	}
 
 </script>

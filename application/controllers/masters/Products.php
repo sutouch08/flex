@@ -16,6 +16,7 @@ class Products extends PS_Controller
     //--- load model
     $this->load->model('masters/products_model');
     $this->load->model('masters/product_group_model');
+		$this->load->model('masters/product_sub_group_model');
     $this->load->model('masters/product_kind_model');
     $this->load->model('masters/product_type_model');
     $this->load->model('masters/product_style_model');
@@ -1061,6 +1062,138 @@ class Products extends PS_Controller
 	{
     $filter = array('code','name','group','sub_group','category','kind','type','brand','year');
     clear_filter($filter);
+	}
+
+
+	public function add_attribute()
+	{
+		$sc = TRUE;
+		$attr = $this->input->post('attribute');
+		$code = $this->input->post('code');
+		$name = $this->input->post('name');
+
+		if(!empty($attr))
+		{
+			switch ($attr)
+			{
+				case 'unit_code' :
+					$rs = $this->addUnit($code, $name);
+				break;
+				case 'brand':
+					$rs = $this->addBrand($code, $name);
+				break;
+				case 'group':
+					$rs = $this->addGroup($code, $name);
+				break;
+				case 'subGroup':
+					$rs = $this->addSubGroup($code, $name);
+				break;
+				case 'category':
+					$rs = $this->addCategory($code, $name);
+				break;
+				case 'kind':
+					$rs = $this->addKind($code, $name);
+				break;
+				case 'type':
+					$rs = $this->addType($code, $name);
+				break;
+				default:
+					$sc = FALSE;
+					$this->error = "Invalid Attribute";
+				break;
+			}
+
+			if($rs === FALSE)
+			{
+				$sc = FALSE;
+				$error = $this->db->error();
+				$this->error = "Insert failed : ".$error['message'];
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid Attribute";
+		}
+
+		$this->response($sc);
+	}
+
+
+	public function addBrand($code, $name = NULL)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $name === NULL ? $code : $name
+		);
+
+		return $this->product_brand_model->add($arr);
+	}
+
+
+	public function addCategory($code, $name = NULL)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $name === NULL ? $code : $name
+		);
+
+		return $this->product_category_model->add($arr);
+	}
+
+
+	public function addKind($code, $name = NULL)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $name === NULL ? $code : $name
+		);
+
+		return $this->product_kind_model->add($arr);
+	}
+
+
+	public function addType($code, $name = NULL)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $name === NULL ? $code : $name
+		);
+
+		return $this->product_type_model->add($arr);
+	}
+
+	public function addGroup($code, $name = NULL)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $name === NULL ? $code : $name
+		);
+
+		return $this->product_group_model->add($arr);
+	}
+
+	public function addSubGroup($code, $name = NULL)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => $name === NULL ? $code : $name
+		);
+
+		return $this->product_sub_group_model->add($arr);
+	}
+
+
+	public function addUnit($code, $name = NULL)
+	{
+		$this->load->model('masters/unit_model');
+		$arr = array(
+			'code' => $code,
+			'name' => $name === NULL ? $code : $name
+		);
+
+		return $this->unit_model->add($arr);
+
 	}
 }
 
