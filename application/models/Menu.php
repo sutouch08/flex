@@ -8,6 +8,19 @@ class Menu extends CI_Model{
     parent::__construct();
   }
 
+
+	public function set_active_group($code, $active)
+	{
+		return $this->db->set('active', $active)->where('code', $code)->update('menu_group');
+	}
+
+
+	public function set_active_menu($code, $active)
+	{
+		return $this->db->set('active', $active)->where('code', $code)->update('menu');
+	}
+
+
   public function get_active_menu_groups($type = 'side')
   {
     $rs = $this->db
@@ -18,6 +31,17 @@ class Menu extends CI_Model{
     return $rs->result();
   }
 
+
+	public function get_valid_menu_groups()
+	{
+		$rs = $this->db->where('valid', 1)->order_by('position', 'ASC')->get('menu_group');
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
 
   public function get_menu_groups()
   {
@@ -122,6 +146,18 @@ class Menu extends CI_Model{
     return FALSE;
   }
 
+
+
+	public function get_menus_list_by_group($group_code)
+	{
+		$rs = $this->db->where('valid', 1)->where('group_code', $group_code)->get('menu');
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
 
 }
 ?>

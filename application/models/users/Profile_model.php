@@ -75,6 +75,8 @@ class Profile_model extends CI_Model
 
   public function get_profiles($name = '', $perpage = 0, $offset = 0)
   {
+		$this->db->where('id >', 0);
+
     if($name != '')
     {
       $this->db->like('name', $name);
@@ -94,15 +96,15 @@ class Profile_model extends CI_Model
 
   public function count_rows($name = '')
   {
-    $this->db->select('id');
+		$this->db->where('id >', 0);
+
     if($name !== '')
     {
       $this->db->like('name', $name);
     }
 
-    $rs = $this->db->get('profile');
+    return $this->db->count_all_results('profile');
 
-    return $rs->num_rows();
   }
 
 } //--- End class

@@ -37,8 +37,6 @@ class Configs extends PS_Controller
        }
     }
 
-    //$ds['cando'] = $cando;
-
     $this->load->view('setting/configs', $ds);
   }
 
@@ -59,6 +57,54 @@ class Configs extends PS_Controller
           $this->error .= "{$name}, ";
         }
       }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "Form content not found";
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
+
+	public function update_menu_config()
+  {
+    $sc = TRUE;
+    if($this->input->post())
+    {
+      $this->error = "Cannot update : ";
+      $group = $this->input->post('group');
+			$menu = $this->input->post('menu');
+
+			if(!empty($group))
+			{
+				//---- update group
+	      foreach($group as $code => $value)
+	      {
+	        if(! $this->menu->set_active_group($code, $value))
+	        {
+	          $sc = FALSE;
+	          $this->error .= "Group[{$code}], ";
+	        }
+	      }
+			}
+
+
+			if(!empty($menu))
+			{
+				//---- update group
+	      foreach($menu as $code => $value)
+	      {
+	        if(! $this->menu->set_active_menu($code, $value))
+	        {
+	          $sc = FALSE;
+	          $this->error .= "Menu[{$code}], ";
+	        }
+	      }
+			}
+
     }
     else
     {

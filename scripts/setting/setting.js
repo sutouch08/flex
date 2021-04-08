@@ -3,8 +3,13 @@ function updateConfig(formName)
 {
 	load_in();
 	var formData = $("#"+formName).serialize();
+	var url = BASE_URL + "setting/configs/update_config";
+	if( formName == 'menuForm'){
+		url = BASE_URL + "setting/configs/update_menu_config";
+	}
+
 	$.ajax({
-		url: BASE_URL + "setting/configs/update_config",
+		url: url,
 		type:"POST",
     cache:"false",
     data: formData,
@@ -354,6 +359,26 @@ function toggleAutoClose(option){
 		$('#btn-po-yes').removeClass('btn-success');
 		$('#btn-po-no').addClass('btn-danger');
 		return;
+	}
+}
+
+
+function toggleGroup(el, code) {
+	if(el.is(':checked')) {
+		$('#group-'+code).val(1);
+	}
+	else {
+		$('#group-'+code).val(0);
+	}
+}
+
+
+function toggleMenu(el, code) {
+	if(el.is(':checked')) {
+		$('#menu-'+code).val(1);
+	}
+	else {
+		$('#menu-'+code).val(0);
 	}
 }
 

@@ -55,6 +55,22 @@ class Pos extends PS_Controller
 	}
 
 
+	public function is_restrict_prefix($prefix)
+	{
+		$rs = $this->db
+		->where('group_code', 'Document')
+		->where('value', $prefix)
+		->count_all_results('config');
+
+		if($rs == 1)
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+
 	public function add()
 	{
 		$sc = TRUE;
@@ -81,6 +97,12 @@ class Pos extends PS_Controller
 					{
 						$sc = FALSE;
 						$this->error = "Prefix ซ้ำ กรุณากำหนดใหม่";
+					}
+
+					if($sc === TRUE && $this->is_restrict_prefix(trim($this->input->post('prefix'))))
+					{
+						$sc = FALSE;
+						$this->error = "ไม่สามารถใช้ Prefix นี้ได้เนื่องจากซ้ำกับเอกสารอื่น สามารถตรวจสอบ Prefix เอกสารอื่นๆ ได้ที่เมนู การกำหนดค่า => การกำหนดค่า => เอกสาร ";
 					}
 
 					if($sc === TRUE)
@@ -169,6 +191,12 @@ class Pos extends PS_Controller
 					{
 						$sc = FALSE;
 						$this->error = "Prefix ซ้ำ กรุณากำหนดใหม่";
+					}
+
+					if($sc === TRUE && $this->is_restrict_prefix(trim($this->input->post('prefix'))))
+					{
+						$sc = FALSE;
+						$this->error = "ไม่สามารถใช้ Prefix นี้ได้เนื่องจากซ้ำกับเอกสารอื่น สามารถตรวจสอบ Prefix เอกสารอื่นๆ ได้ที่เมนู การกำหนดค่า => การกำหนดค่า => เอกสาร ";
 					}
 
 					if($sc === TRUE)
