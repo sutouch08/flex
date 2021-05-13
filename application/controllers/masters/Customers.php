@@ -561,8 +561,8 @@ class Customers extends PS_Controller
 						$class = get_null(trim($rs['G']));
 						$area = get_null(trim($rs['H']));
 						$sale = get_null(trim($rs['I']));
-						$term = get_null(trim($rs['J']));
-						$amount = get_null(trim($rs['K']));
+						$term = get_zero(trim($rs['J']));
+						$amount = get_zero(trim($rs['K']));
 						$notes = get_null(trim($rs['L']));
 
 						if(!empty($group) && ! $this->customer_group_model->is_exists($group))

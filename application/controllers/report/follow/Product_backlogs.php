@@ -179,17 +179,19 @@ class Product_backlogs extends PS_Controller
 		$row = 5;
 
 		$this->excel->getActiveSheet()->setCellValue("A{$row}", '#');
-		$this->excel->getActiveSheet()->setCellValue("B{$row}", 'รหัส');
-		$this->excel->getActiveSheet()->setCellValue("C{$row}", 'สินค้า');
-		$this->excel->getActiveSheet()->setCellValue("D{$row}", 'ออเดอร์');
-		$this->excel->getActiveSheet()->setCellValue("E{$row}", 'ลูกค้า');
-		$this->excel->getActiveSheet()->setCellValue("F{$row}", 'ช่องทางขาย');
-		$this->excel->getActiveSheet()->setCellValue("G{$row}", 'การชำระเงิน');
-		$this->excel->getActiveSheet()->setCellValue("H{$row}", 'สถานะ');
-		$this->excel->getActiveSheet()->setCellValue("I{$row}", 'จำนวน');
-		$this->excel->getActiveSheet()->setCellValue("J{$row}", 'มูลค่า');
+		$this->excel->getActiveSheet()->setCellValue("B{$row}", 'บาร์โค้ด');
+		$this->excel->getActiveSheet()->setCellValue("C{$row}", 'รหัส');
+		$this->excel->getActiveSheet()->setCellValue("D{$row}", 'สินค้า');
+		$this->excel->getActiveSheet()->setCellValue("E{$row}", 'ออเดอร์');
+		$this->excel->getActiveSheet()->setCellValue("F{$row}", 'รหัสลูกค้า');
+		$this->excel->getActiveSheet()->setCellValue("G{$row}", 'ลูกค้า');
+		$this->excel->getActiveSheet()->setCellValue("H{$row}", 'ช่องทางขาย');
+		$this->excel->getActiveSheet()->setCellValue("I{$row}", 'การชำระเงิน');
+		$this->excel->getActiveSheet()->setCellValue("J{$row}", 'สถานะ');
+		$this->excel->getActiveSheet()->setCellValue("K{$row}", 'จำนวน');
+		$this->excel->getActiveSheet()->setCellValue("L{$row}", 'มูลค่า');
 
-		$this->excel->getActiveSheet()->getStyle("A{$row}:J{$row}")->getAlignment()->setHorizontal('center');
+		$this->excel->getActiveSheet()->getStyle("A{$row}:L{$row}")->getAlignment()->setHorizontal('center');
 
 		$row++;
 
@@ -199,15 +201,17 @@ class Product_backlogs extends PS_Controller
 			foreach($data as $rs)
 			{
 				$this->excel->getActiveSheet()->setCellValue("A{$row}", $no);
-				$this->excel->getActiveSheet()->setCellValue("B{$row}", $rs->product_code);
-				$this->excel->getActiveSheet()->setCellValue("C{$row}", $rs->product_name);
-				$this->excel->getActiveSheet()->setCellValue("D{$row}", $rs->order_code);
-				$this->excel->getActiveSheet()->setCellValue("E{$row}", $rs->customer_name);
-				$this->excel->getActiveSheet()->setCellValue("F{$row}", $rs->channels_name);
-				$this->excel->getActiveSheet()->setCellValue("G{$row}", $rs->payment_name);
-				$this->excel->getActiveSheet()->setCellValue("H{$row}", $rs->status_name);
-				$this->excel->getActiveSheet()->setCellValue("I{$row}", $rs->qty);
-				$this->excel->getActiveSheet()->setCellValue("J{$row}", $rs->amount);
+				$this->excel->getActiveSheet()->setCellValue("B{$row}", $rs->barcode);
+				$this->excel->getActiveSheet()->setCellValue("C{$row}", $rs->product_code);
+				$this->excel->getActiveSheet()->setCellValue("D{$row}", $rs->product_name);
+				$this->excel->getActiveSheet()->setCellValue("E{$row}", $rs->order_code);
+				$this->excel->getActiveSheet()->setCellValue("F{$row}", $rs->customer_code);
+				$this->excel->getActiveSheet()->setCellValue("G{$row}", $rs->customer_name);
+				$this->excel->getActiveSheet()->setCellValue("H{$row}", $rs->channels_name);
+				$this->excel->getActiveSheet()->setCellValue("I{$row}", $rs->payment_name);
+				$this->excel->getActiveSheet()->setCellValue("J{$row}", $rs->status_name);
+				$this->excel->getActiveSheet()->setCellValue("K{$row}", $rs->qty);
+				$this->excel->getActiveSheet()->setCellValue("L{$row}", $rs->amount);
 				$no++;
 				$row++;
 			}
@@ -217,14 +221,14 @@ class Product_backlogs extends PS_Controller
 			$this->excel->getActiveSheet()->getStyle("A5:A{$re}")->getAlignment()->setHorizontal('center');
 
 			$this->excel->getActiveSheet()->setCellValue("A{$row}", "รวม");
-			$this->excel->getActiveSheet()->mergeCells("A{$row}:H{$row}");
+			$this->excel->getActiveSheet()->mergeCells("A{$row}:J{$row}");
 			$this->excel->getActiveSheet()->getStyle("A{$row}")->getAlignment()->setHorizontal('right');
 
-			$this->excel->getActiveSheet()->setCellValue("I{$row}", "=SUM(I6:I{$re})");
-			$this->excel->getActiveSheet()->setCellValue("J{$row}", "=SUM(J6:J{$re})");
+			$this->excel->getActiveSheet()->setCellValue("K{$row}", "=SUM(K6:K{$re})");
+			$this->excel->getActiveSheet()->setCellValue("L{$row}", "=SUM(L6:L{$re})");
 
-			$this->excel->getActiveSheet()->getStyle("I5:I{$row}")->getNumberFormat()->setFormatCode('#,##0');
-			$this->excel->getActiveSheet()->getStyle("J5:J{$row}")->getNumberFormat()->setFormatCode('#,##0');
+			$this->excel->getActiveSheet()->getStyle("K5:K{$row}")->getNumberFormat()->setFormatCode('#,##0');
+			$this->excel->getActiveSheet()->getStyle("L5:L{$row}")->getNumberFormat()->setFormatCode('#,##0');
 		}
 
 

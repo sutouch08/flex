@@ -170,7 +170,7 @@
 <?php else : ?>
   <?php redirect($this->home.'/view_detail/'.$document->code); ?>
 <?php endif; ?>
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform.js"></script>
-<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform_add.js"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/inventory/receive_transform/receive_transform_add.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

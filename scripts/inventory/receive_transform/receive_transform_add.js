@@ -77,7 +77,7 @@ function save(){
 	}
 
 	//--- มีรายการในใบสั่งซื้อหรือไม่
-	if(count = 0){
+	if(count == 0){
 		swal('Error!', 'ไม่พบรายการรับเข้า','error');
 		return false;
 	}
@@ -129,7 +129,7 @@ function save(){
 		}
 	});
 
-	if(ds.length < 9){
+	if(ds.length < 8){
 		swal('ไม่พบรายการรับเข้า');
 		return false;
 	}

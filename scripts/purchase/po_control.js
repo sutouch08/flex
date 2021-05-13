@@ -55,7 +55,7 @@ function getProductGrid(){
 					var width = rs[1];
 					var pdCode = rs[2];
 					var style = rs[3];
-					$("#modal").css("width", width +"px");
+					//$("#modal").css("width", width +"px");
 					$("#modalTitle").html(pdCode);
 					$("#id_style").val(style);
 					$("#modalBody").html(grid);

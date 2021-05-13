@@ -14,12 +14,14 @@ class Product_backlogs_model extends CI_Model
 		{
 			$this->db
 			->select('od.order_code, od.product_code, od.product_name, od.qty, od.total_amount AS amount')
-			->select('c.name AS customer_name')
+			->select('pd.barcode')
+			->select('c.code AS customer_code, c.name AS customer_name')
 			->select('ch.name AS channels_name')
 			->select('pm.name AS payment_name')
 			->select('st.name AS status_name')
 			->from('order_details AS od')
 			->join('orders AS o', 'od.order_code = o.code', 'left')
+			->join('products AS pd', 'od.product_code = pd.code', 'left')
 			->join('customers AS c', 'o.customer_code = c.code', 'left')
 			->join('channels AS ch', 'o.channels_code = ch.code', 'left')
 			->join('payment_method AS pm', 'o.payment_code = pm.code', 'left')

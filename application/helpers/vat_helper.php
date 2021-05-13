@@ -26,7 +26,7 @@ function vat_price($price, $option = 'I', $rate = 7)
 {
 	if($price <= 0)
 	{
-		return 0;
+		return $price;
 	}
 
 	if($option === 'I')

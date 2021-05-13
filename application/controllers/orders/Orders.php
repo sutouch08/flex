@@ -332,16 +332,16 @@ class Orders extends PS_Controller
           'role' => $role,
           'bookcode' => $book_code,
 					'qt_no' => $quotation_no,
-          'reference' => $this->input->post('reference'),
-          'customer_code' => $this->input->post('customerCode'),
-          'customer_ref' => $this->input->post('cust_ref'),
+          'reference' => trim($this->input->post('reference')),
+          'customer_code' => trim($this->input->post('customerCode')),
+          'customer_ref' => trim($this->input->post('cust_ref')),
           'channels_code' => $this->input->post('channels'),
           'payment_code' => $this->input->post('payment'),
           'sale_code' => $sale_code,
           'is_term' => ($has_term === TRUE ? 1 : 0),
           'user' => get_cookie('uname'),
           'sender_id' => $sender_id,
-          'remark' => addslashes($this->input->post('remark'))
+          'remark' => trim($this->input->post('remark'))
         );
 
         if($this->orders_model->add($ds) === TRUE)
@@ -880,16 +880,16 @@ class Orders extends PS_Controller
       else
       {
         $ds = array(
-          'reference' => $this->input->post('reference'),
-          'customer_code' => $this->input->post('customer_code'),
-          'customer_ref' => $this->input->post('customer_ref'),
+          'reference' => trim($this->input->post('reference')),
+          'customer_code' => trim($this->input->post('customer_code')),
+          'customer_ref' => trim($this->input->post('customer_ref')),
           'channels_code' => $this->input->post('channels_code'),
           'payment_code' => $this->input->post('payment_code'),
           'sale_code' => $sale_code,
           'is_term' => $has_term,
           'sender_id' => get_null($this->input->post('sender_id')),
           'date_add' => db_date($this->input->post('date_add')),
-          'remark' => $this->input->post('remark'),
+          'remark' => trim($this->input->post('remark')),
 					'qt_no' => $this->input->post('qt_no'),
           'status' => 0
         );
