@@ -19,7 +19,7 @@
 				<?php endif; ?>
 
 				<button type="button" class="btn btn-sm btn-purple" onclick="getSummary()"><i class="fa fa-bolt"></i> สรุปข้อมูล</button>
-				
+
 				<button type="button" class="btn btn-sm btn-default" onclick="printOrderSheet()"><i class="fa fa-print"></i> พิมพ์</button>
 				<!--
 				<?php if($this->pm->can_delete && $order->never_expire == 0) : ?>
@@ -49,11 +49,11 @@
 <?php $this->load->view('orders/order_view_detail'); ?>
 <?php $this->load->view('orders/order_online_modal'); ?>
 <script src="<?php echo base_url(); ?>assets/js/clipboard.min.js"></script>
-<script src="<?php echo base_url(); ?>scripts/orders/orders.js"></script>
-<script src="<?php echo base_url(); ?>scripts/orders/order_add.js"></script>
-<script src="<?php echo base_url(); ?>scripts/orders/order_online.js"></script>
-<script src="<?php echo base_url(); ?>scripts/print/print_order.js"></script>
-<script src="<?php echo base_url(); ?>scripts/print/print_address.js"></script>
+<script src="<?php echo base_url(); ?>scripts/orders/orders.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/orders/order_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/orders/order_online.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/print/print_order.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/print/print_address.js?v=<?php echo date('Ymd'); ?>"></script>
 
 
 <?php $this->load->view('include/footer'); ?>

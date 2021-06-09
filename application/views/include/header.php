@@ -153,6 +153,9 @@
                 	<input type="hidden" id="success" value="<?php echo $this->session->flashdata("success"); ?>">
                <?php endif; ?>
 					<div class="page-content">
+						<?php if($this->show_warning) : ?>
+							<?php $this->load->view('include/warning_header'); ?>
+						<?php endif; ?>
 
 								<!-- PAGE CONTENT BEGINS -->
 

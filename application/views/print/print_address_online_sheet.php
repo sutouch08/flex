@@ -54,7 +54,7 @@ if(!empty($details))
   $leftCol	.= 			'<span style="font-size:12px; font-weight:bold; display:block;">ชื่อ - ที่อยู่จัดส่งลูกค้า</span>';
   $leftCol 	.=			'<span style="font-size:12px; display:block;">รหัสลูกค้า : '.$cusCode.'</span>';
   $leftCol 	.=			'<span style="font-size:12px; display:block;">'.$cusName.'</span>';
-  $leftCol	.=			'<span style="font-size:12px; display:block; white-space:pre-warp;">'.$cusAdr1.' '.$cusAdr2.' '.$cusProv.' '.$cusPostCode.'</span>';
+  $leftCol	.=			'<span style="font-size:12px; display:block; white-space:pre-wrap;">'.$cusAdr1.' '.$cusAdr2.' '.$cusProv.' '.$cusPostCode.'</span>';
   $leftCol	.= 		'</div>';
   $leftCol	.= '</div>';
 

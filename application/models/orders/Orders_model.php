@@ -140,6 +140,27 @@ class Orders_model extends CI_Model
 
 
 
+	public function is_limit($role = 'S', $limit = 0)
+	{
+		if($limit != 0)
+		{
+			$start_date = date('Y-m-01 00:00:00');
+			$end_date = date('Y-m-t');
+			$count = $this->db
+			->where('role', $role)
+			->where('createDate >=', date('Y-m-01 00:00:00'))
+			->where('createDate <=', date('Y-m-t 23:59:59'))
+			->count_all_results('orders');
+
+			if($count >= $limit)
+			{
+				return TRUE;
+			}
+		}
+
+		return FALSE;
+	}
+
 
   public function get_order_detail($order_code, $item_code)
   {

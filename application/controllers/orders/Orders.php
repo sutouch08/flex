@@ -219,6 +219,27 @@ class Orders extends PS_Controller
 	}
 
 
+	public function update_remark()
+	{
+		$sc = TRUE;
+		$code = trim($this->input->post('code'));
+		$sender_id = $this->input->post('sender_id');
+		$remark = get_null(trim($this->input->post('remark')));
+
+		$arr = array(
+			'sender_id' => $sender_id,
+			'remark' => $remark
+		);
+
+		if(!$this->orders_model->update($code, $arr))
+		{
+			$sc = FALSE;
+			$this->error = "Update failed";
+		}
+
+		$this->response($sc);
+	}
+
 
 	public function update_shipping_fee()
 	{
@@ -294,7 +315,18 @@ class Orders extends PS_Controller
 
   public function add_new()
   {
-    $this->load->view('orders/orders_add');
+		$role = 'S';
+		$limit = get_zero(getConfig('SYSTEM_ORDER_LIMIT'));
+
+		if(! $this->orders_model->is_limit($role, $limit))
+		{
+			$this->load->view('orders/orders_add');
+		}
+    else
+		{
+			set_error("ไม่สามารถเพิ่มเอกสารได้เนื่องจากจำนวนเอกสารเกินจำนวนที่จำกัด");
+			redirect($this->home);
+		}
   }
 
 
@@ -303,71 +335,81 @@ class Orders extends PS_Controller
   {
     if($this->input->post('customerCode'))
     {
-      $this->load->model('inventory/invoice_model');
-
-      $book_code = getConfig('BOOK_CODE_ORDER');
-      $date_add = db_date($this->input->post('date'));
-      $code = $this->get_new_code($date_add);
-      $role = 'S'; //--- S = ขาย
-      $has_term = $this->payment_methods_model->has_term($this->input->post('payment'));
-      $sale_code = get_null($this->customers_model->get_sale_code($this->input->post('customerCode')));
-      $sender_id = get_null($this->input->post('sender_id'));
-			$quotation_no = get_null(trim($this->input->post('qt_no'))); //-- ใบเสนราคา
-
-      //--- check over due
-      $is_strict = getConfig('STRICT_OVER_DUE') == 1 ? TRUE : FALSE;
-      $overDue = $is_strict ? $this->invoice_model->is_over_due($this->input->post('customerCode')) : FALSE;
-
-      //--- ถ้ามียอดค้างชำระ และ เป็นออเดอร์แบบเครดิต
-      //--- ไม่ให้เพิ่มออเดอร์
-      if($overDue && $has_term)
+			$role = 'S'; //--- S = ขาย
+			$limit = get_zero(getConfig('SYSTEM_ORDER_LIMIT'));
+      if(! $this->orders_model->is_limit($role, $limit))
       {
-        set_error('มียอดค้างชำระเกินกำหนดไม่อนุญาติให้ขาย');
-        redirect($this->home.'/add_new');
-      }
-      else
-      {
-        $ds = array(
-          'code' => $code,
-          'role' => $role,
-          'bookcode' => $book_code,
-					'qt_no' => $quotation_no,
-          'reference' => trim($this->input->post('reference')),
-          'customer_code' => trim($this->input->post('customerCode')),
-          'customer_ref' => trim($this->input->post('cust_ref')),
-          'channels_code' => $this->input->post('channels'),
-          'payment_code' => $this->input->post('payment'),
-          'sale_code' => $sale_code,
-          'is_term' => ($has_term === TRUE ? 1 : 0),
-          'user' => get_cookie('uname'),
-          'sender_id' => $sender_id,
-          'remark' => trim($this->input->post('remark'))
-        );
+        $this->load->model('inventory/invoice_model');
 
-        if($this->orders_model->add($ds) === TRUE)
+        $book_code = getConfig('BOOK_CODE_ORDER');
+        $date_add = db_date($this->input->post('date'));
+        $code = $this->get_new_code($date_add);
+
+        $has_term = $this->payment_methods_model->has_term($this->input->post('payment'));
+        $sale_code = get_null($this->customers_model->get_sale_code($this->input->post('customerCode')));
+        $sender_id = get_null($this->input->post('sender_id'));
+  			$quotation_no = get_null(trim($this->input->post('qt_no'))); //-- ใบเสนราคา
+
+        //--- check over due
+        $is_strict = getConfig('STRICT_OVER_DUE') == 1 ? TRUE : FALSE;
+        $overDue = $is_strict ? $this->invoice_model->is_over_due($this->input->post('customerCode')) : FALSE;
+
+        //--- ถ้ามียอดค้างชำระ และ เป็นออเดอร์แบบเครดิต
+        //--- ไม่ให้เพิ่มออเดอร์
+        if($overDue && $has_term)
         {
-					//----- ถ้าระบุใบเสนอราคามา โหลดรายการใบเสนอราคาเข้าออเดอร์ด้วย(ข้ามการตรวจสอบสต็อก)
-					if(!empty($quotation_no))
-					{
-						$this->load_quotation($code, $quotation_no);
-					}
-
-
-          $arr = array(
-            'order_code' => $code,
-            'state' => 1,
-            'update_user' => get_cookie('uname')
-          );
-
-          $this->order_state_model->add_state($arr);
-
-          redirect($this->home.'/edit_detail/'.$code);
+          set_error('มียอดค้างชำระเกินกำหนดไม่อนุญาติให้ขาย');
+          redirect($this->home.'/add_new');
         }
         else
         {
-          set_error('เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
-          redirect($this->home.'/add_new');
+          $ds = array(
+            'code' => $code,
+            'role' => $role,
+            'bookcode' => $book_code,
+  					'qt_no' => $quotation_no,
+            'reference' => trim($this->input->post('reference')),
+            'customer_code' => trim($this->input->post('customerCode')),
+            'customer_ref' => trim($this->input->post('cust_ref')),
+            'channels_code' => $this->input->post('channels'),
+            'payment_code' => $this->input->post('payment'),
+            'sale_code' => $sale_code,
+            'is_term' => ($has_term === TRUE ? 1 : 0),
+            'user' => get_cookie('uname'),
+            'sender_id' => $sender_id,
+            'remark' => trim($this->input->post('remark'))
+          );
+
+          if($this->orders_model->add($ds) === TRUE)
+          {
+  					//----- ถ้าระบุใบเสนอราคามา โหลดรายการใบเสนอราคาเข้าออเดอร์ด้วย(ข้ามการตรวจสอบสต็อก)
+  					if(!empty($quotation_no))
+  					{
+  						$this->load_quotation($code, $quotation_no);
+  					}
+
+
+            $arr = array(
+              'order_code' => $code,
+              'state' => 1,
+              'update_user' => get_cookie('uname')
+            );
+
+            $this->order_state_model->add_state($arr);
+
+            redirect($this->home.'/edit_detail/'.$code);
+          }
+          else
+          {
+            set_error('เพิ่มเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
+            redirect($this->home.'/add_new');
+          }
         }
+      }
+      else
+      {
+        set_error("ไม่สามารถเพิ่มเอกสารได้เนื่องจากจำนวนเอกสารเกินจำนวนที่จำกัด");
+        redirect($this->home.'/add_new');
       }
     }
     else
@@ -830,7 +872,8 @@ class Orders extends PS_Controller
 	    }
 
 	    $details = $this->orders_model->get_order_details($code);
-	    $ship_to = $this->address_model->get_shipping_address($rs->customer_ref);
+	    //$ship_to = $this->address_model->get_shipping_address($rs->customer_ref, $rs->customer_code);
+			$ship_to = empty($rs->customer_ref) ? $this->address_model->get_ship_to_address($rs->customer_code) : $this->address_model->get_shipping_address($rs->customer_ref);
 	    $banks = $this->bank_model->get_active_bank();
 	    $ds['state'] = $ost;
 	    $ds['order'] = $rs;

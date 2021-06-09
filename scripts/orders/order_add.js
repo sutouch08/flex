@@ -211,6 +211,54 @@ function getEdit(){
 	date = $("#date").val();
 }
 
+function editRemark() {
+	$('#sender_id').removeAttr('disabled');
+	$('#remark').removeAttr('disabled');
+	$('#btn-edit').addClass('hide');
+	$('#btn-update').removeClass('hide');
+	$('#remark').focus();
+}
+
+function updateRemark() {
+	var order_code = $('#order_code').val();
+	var sender_id = $('#sender_id').val();
+	var remark = $.trim($('#remark').val());
+
+	load_in();
+	$.ajax({
+		url:BASE_URL + 'orders/orders/update_remark',
+		type:'POST',
+		cache:false,
+		data:{
+			'code' : order_code,
+			'sender_id' : sender_id,
+			'remark' : remark
+		},
+		success:function(rs) {
+			load_out();
+			var rs = $.trim(rs);
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+
+				$('#remark').attr('disabled', 'disabled');
+				$('#btn-update').addClass('hide');
+				$('#btn-edit').removeClass('hide');
+			}
+			else {
+				swal({
+					title:'Error',
+					text:rs,
+					type:'error'
+				})
+			}
+		}
+	})
+}
+
 
 //---- เพิ่มรายการสินค้าเช้าออเดอร์
 function addToOrder(){

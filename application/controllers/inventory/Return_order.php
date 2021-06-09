@@ -130,7 +130,7 @@ class Return_order extends PS_Controller
 							$disc = parse_discount_text($discText, $price);
 
               $amount = $qty * ($price - $disc['discount_amount']);
-							$vat_amount = $amount * $pd->vat_rate;
+							$vat_amount = $amount * ($pd->vat_rate * 0.01);
 
               $arr = array(
                 'return_code' => $code,

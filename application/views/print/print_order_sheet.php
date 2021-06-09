@@ -2,7 +2,7 @@
 $this->load->helper('print');
 $total_row 	= empty($details) ? 0 :count($details);
 $config 		= array(
-	"row" => 10,
+	"row" => 9,
 	"total_row" => $total_row,
 	"font_size" => 10,
 	"text_color" => "text-blue" //--- hilight text color class

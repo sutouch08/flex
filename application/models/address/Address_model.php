@@ -49,6 +49,17 @@ class Address_model extends CI_Model
     return array();
   }
 
+	public function get_ship_to_address($code)
+  {
+    $rs = $this->db->where('customer_code', $code)->get('address_ship_to');
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
 
 
   public function add_shipping_address(array $ds = array())

@@ -83,8 +83,8 @@ function getDelete(code) {
 
 function print_invoice() {
 	//--- properties for print
-	var center    = ($(document).width())/2;
-	var prop 			= "height=900. left="+center+", scrollbars=yes";
+	var center = ($(document).width() - 800)/2;
+	var prop = "width=800, height=900, left="+center+", scrollbars=yes";
 	var code = $('#code').val();
 	var target  = HOME + 'print_invoice/'+code;
   window.open(target, '_blank', prop);
@@ -99,8 +99,8 @@ function clearFilter() {
 
 function print_do_invoice() {
 	//--- properties for print
-	var center    = ($(document).width())/2;
-	var prop 			= "height=900. left="+center+", scrollbars=yes";
+	var center = ($(document).width() - 800)/2;
+	var prop = "width=800, height=900, left="+center+", scrollbars=yes";
 	var code = $('#code').val();
 	var target  = HOME + 'print_do_invoice/'+code;
   window.open(target, '_blank', prop);
@@ -108,8 +108,8 @@ function print_do_invoice() {
 
 function print_do_receipt() {
 	//--- properties for print
-	var center    = ($(document).width())/2;
-	var prop 			= "height=900. left="+center+", scrollbars=yes";
+	var center = ($(document).width() - 800)/2;
+	var prop = "width=800, height=900, left="+center+", scrollbars=yes";
 	var code = $('#code').val();
 	var target  = HOME + 'print_do_receipt/'+code;
   window.open(target, '_blank', prop);
@@ -117,8 +117,8 @@ function print_do_receipt() {
 
 function print_tax_receipt() {
 	//--- properties for print
-	var center    = ($(document).width())/2;
-	var prop 			= "height=900. left="+center+", scrollbars=yes";
+	var center = ($(document).width() - 800)/2;
+	var prop = "width=800, height=900, left="+center+", scrollbars=yes";
 	var code = $('#code').val();
 	var target  = HOME + 'print_tax_receipt/'+code;
   window.open(target, '_blank', prop);
@@ -127,8 +127,8 @@ function print_tax_receipt() {
 
 function print_tax_invoice() {
 	//--- properties for print
-	var center    = ($(document).width())/2;
-	var prop 			= "height=900. left="+center+", scrollbars=yes";
+	var center = ($(document).width() - 800)/2;
+	var prop = "width=800, height=900, left="+center+", scrollbars=yes";
 	var code = $('#code').val();
 	var target  = HOME + 'print_tax_invoice/'+code;
   window.open(target, '_blank', prop);

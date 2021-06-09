@@ -56,7 +56,7 @@ function db_date($date = '', $time = FALSE, $sp = '-')
 {
   $date = empty($date) ? date('Y-m-d') : $date;
 
-  if($time = TRUE)
+  if($time === TRUE)
   {
     $c_time = date('H:i:s', strtotime($date));
     $c_time = $c_time == '00:00:00' ? date('H:i:s') : $c_time;

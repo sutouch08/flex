@@ -18,3 +18,7 @@
 <script src="<?php echo base_url(); ?>assets/js/handlebars-v3.js"></script>
 <script src="<?php echo base_url(); ?>assets/js/chosen.jquery.js"></script>
 <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/sweet-alert.css">
+<?php if($this->show_warning) : ?>
+<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/jquery.gritter.css" />
+<script src="<?php echo base_url(); ?>assets/js/jquery.gritter.js"></script>
+<?php endif; ?>

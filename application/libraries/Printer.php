@@ -508,16 +508,20 @@ class Printer
 		else
 		{
 			$c = count($data);
-			$box_width = $c >= 4 ? 25 : ($c == 1 ? 33 :round(100/$c, 0));
+			$box_width = $c >= 4 ? 25 : 33;
 			$space = $c+1;
-			$margin = $c == 1 ? 5 : (190/$space)/$c/2;
+			$margin = 1;//$c == 1 ? 5 : (190/$space)/$c/4;
+			//
+			// $box_width = $c >= 4 ? 25 : ($c == 1 ? 33 :round(100/$c, 0));
+			// $space = $c+1;
+			// $margin = $c == 1 ? 5 : (190/$space)/$c/2;
 			//$margin = round(((190 - ($box_width * 0.01 * 190))/$c) , 0);
 			$height = $this->footer_row * $this->row_height;
 			$row1 = $this->row_height;
 			$row2 = 8;
 			$row4 = 10;
 			$row3 = $height - ($row1+$row2+$row4) - 2;
-			$footer = "<div style='width:190mm; height:".$height."mm; margin:auto; position:absolute; bottom:10mm; left:5mm;'>";
+			$footer = "<div style='width:190mm; height:".$height."mm; margin:auto; position:absolute; bottom:5mm; left:5mm;'>";
 			foreach($data as $n=>$value)
 			{
 				$footer .="<div style='width:".$box_width."%; height:".$height."mm; text-align:center; float:right; padding-left:{$margin}mm; padding-right:{$margin}mm;'>";
