@@ -74,7 +74,18 @@ class Printer
 		$header .= "	<link href='".base_url()."assets/css/print.css' rel='stylesheet' />";
 		$header .= "	<script src='".base_url()."assets/js/jquery.min.js'></script>";
 		$header .= "	<script src='".base_url()."assets/js/bootstrap.min.js'></script> ";
-		$header .= "	<style> .page_layout{ border: solid 1px #333; border-radius:5px; 	} @media print{ 	.page_layout{ border: none; } } 	</style>";
+		$header .= "
+		<style>
+			.page_layout{
+				border: solid 1px #333;
+				border-radius:5px;
+			} 
+			@media print{
+				.page_layout{
+					border: none;
+				}
+			}
+		</style>";
 		$header .= "	</head>";
 		$header .= "	<body>";
 		$header .= "	<div class='modal fade' id='xloader' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true' data-backdrop='static'>";
@@ -410,8 +421,8 @@ class Printer
 					$under_line = ($rob == 1 && $count == $item) ? 'border-bottom:solid 2px #333;' : '';
 					$padding_top = ($count == 1) ? 'padding-top:5px;' : '';
 					$top .= "<tr class='font-size-12'>";
-					$top .= "<td class='{$this->text_color}' style='padding-bottom:5px; width:30%; {$under_line} {$padding_top}'>{$row['label']}</td>";
-					$top .= "<td class='' style='padding-bottom:5px; width:70%; {$under_line} {$padding_top}'>{$row['value']}</td>";
+					$top .= "<td class='{$this->text_color}' style='padding-bottom:5px; width:30%; vertical-align:text-top; {$under_line} {$padding_top}'>{$row['label']}</td>";
+					$top .= "<td class='' style='padding-bottom:5px; width:70%; white-space:pre-wrap; {$under_line} {$padding_top}'>{$row['value']}</td>";
 					$top .= "</tr>";
 				}
 

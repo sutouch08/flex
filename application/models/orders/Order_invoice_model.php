@@ -32,6 +32,25 @@ class Order_invoice_model extends CI_Model
 	}
 
 
+	public function get_collapse_details($code)
+	{
+		$rs = $this->db
+		->select('product_code, product_name, sum(qty) AS qty, price, unit_code, unit_name')
+		->select('vat_code, vat_rate, discount_label, sum(discount_amount) AS discount_amount')
+		->select('sum(amount) AS amount, sum(vat_amount) AS vat_amount, status')
+		->where('invoice_code', $code)
+		->group_by('product_code, price, unit_code, vat_rate, discount_label')
+		->get('order_invoice_detail');
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
 
 	public function add(array $ds = array())
 	{

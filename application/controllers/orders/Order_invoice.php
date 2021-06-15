@@ -338,7 +338,7 @@ class Order_invoice extends PS_Controller
 			$ds = array();
 			foreach($data as $order)
 			{
-				$details = $this->order_invoice_model->get_details($order->code);
+				$details = $this->order_invoice_model->get_collapse_details($order->code);
 
 				$sale = $this->customers_model->get_saleman($order->customer_code);
 
@@ -382,7 +382,7 @@ class Order_invoice extends PS_Controller
 			$ds = array();
 			foreach($data as $order)
 			{
-				$details = $this->order_invoice_model->get_details($order->code);
+				$details = $this->order_invoice_model->get_collapse_details($order->code);
 
 				$sale = $this->customers_model->get_saleman($order->customer_code);
 
@@ -447,7 +447,8 @@ class Order_invoice extends PS_Controller
 		{
 			$this->load->library('printer');
 
-			$details = $this->order_invoice_model->get_details($code);
+			//$details = $this->order_invoice_model->get_details($code);
+			$details = $this->order_invoice_model->get_collapse_details($code); //--- ดึงราย โดยรวมยอดรายการที่ รหัสสินค้าเดียวกัน ราคาเท่ากัน ส่วนลดเท่ากันให้เป็นรายการเดียว
 			$sale = $this->customers_model->get_saleman($order->customer_code);
 			$address = array(
 				'address' => $order->address,
@@ -478,7 +479,8 @@ class Order_invoice extends PS_Controller
 		{
 			$this->load->library('printer');
 
-			$details = $this->order_invoice_model->get_details($code);
+			//$details = $this->order_invoice_model->get_details($code);
+			$details = $this->order_invoice_model->get_collapse_details($code); //--- ดึงราย โดยรวมยอดรายการที่ รหัสสินค้าเดียวกัน ราคาเท่ากัน ส่วนลดเท่ากันให้เป็นรายการเดียว
 			$sale = $this->customers_model->get_saleman($order->customer_code);
 			$address = array(
 				'address' => $order->address,
