@@ -36,6 +36,8 @@ class Stock_balance extends PS_Controller
     $currentDate = $this->input->get('currentDate');
     $date = $this->input->get('date');
 
+		$allResult = $this->input->get('allResult');
+
     $wh_list = '';
     if(!empty($warehouse))
     {
@@ -52,14 +54,24 @@ class Stock_balance extends PS_Controller
     $sc['whList']   = $allWhouse == 1 ? 'ทั้งหมด' : $wh_list;
     $sc['productList']   = $allProduct == 1 ? 'ทั้งหมด' : '('.$pdFrom.') - ('.$pdTo.')';
 
+		$ds = array(
+			'allProduct' => $allProduct,
+			'pdFrom' => $pdFrom,
+			'pdTo' => $pdTo,
+			'allWhouse' => $allWhouse,
+			'warehouse' => $warehouse,
+			'date' => $date,
+			'allResult' => $allResult
+		);
+
 
     if($currentDate == 1)
     {
-      $result = $this->stock_balance_model->get_current_stock_balance($allProduct, $pdFrom, $pdTo, $allWhouse, $warehouse);
+      $result = $this->stock_balance_model->get_current_stock_balance($ds);
     }
     else
     {
-      $result = $this->stock_balance_model->get_stock_balance_prev_date($allProduct, $pdFrom, $pdTo, $allWhouse, $warehouse, $date);
+      $result = $this->stock_balance_model->get_stock_balance_prev_date($ds);
     }
 
     $bs = array();
@@ -71,21 +83,25 @@ class Stock_balance extends PS_Controller
       $totalAmount = 0;
       foreach($result as $rs)
       {
-        $arr = array(
-          'no' => number($no),
-          'barcode' => $rs->barcode,
-          'pdCode' => $rs->code,
-          'pdName' => $rs->name,
-          'cost' => number($rs->cost, 2),
-          'qty' => number($rs->qty),
-          'amount' => number($rs->cost * $rs->qty, 2)
-        );
+				if(!empty($allResult) OR $rs->qty != 0)
+				{
+					$arr = array(
+	          'no' => number($no),
+	          'barcode' => $rs->barcode,
+	          'pdCode' => $rs->code,
+	          'pdName' => $rs->name,
+	          'cost' => number($rs->cost, 2),
+	          'qty' => number($rs->qty),
+	          'amount' => number($rs->cost * $rs->qty, 2)
+	        );
 
-        array_push($bs, $arr);
-        $no++;
+	        array_push($bs, $arr);
+	        $no++;
 
-        $totalQty += $rs->qty;
-        $totalAmount += ($rs->qty * $rs->cost);
+	        $totalQty += $rs->qty;
+	        $totalAmount += ($rs->qty * $rs->cost);
+				}
+
       }
 
       $arr = array(
@@ -124,6 +140,8 @@ class Stock_balance extends PS_Controller
     $currentDate = $this->input->post('currentDate');
     $date = $this->input->post('date');
 
+		$allResult = $this->input->post('allResult');
+
     $wh_list = '';
     if(!empty($warehouse))
     {
@@ -141,13 +159,23 @@ class Stock_balance extends PS_Controller
     $wh_title     = 'คลัง :  '. ($allWhouse == 1 ? 'ทั้งหมด' : $wh_list);
     $pd_title     = 'สินค้า :  '. ($allProduct == 1 ? 'ทั้งหมด' : '('.$pdFrom.') - ('.$pdTo.')');
 
+		$ds = array(
+			'allProduct' => $allProduct,
+			'pdFrom' => $pdFrom,
+			'pdTo' => $pdTo,
+			'allWhouse' => $allWhouse,
+			'warehouse' => $warehouse,
+			'date' => $date,
+			'allResult' => $allResult
+		);
+
     if($currentDate == 1)
     {
-      $result = $this->stock_balance_model->get_current_stock_balance($allProduct, $pdFrom, $pdTo, $allWhouse, $warehouse);
+      $result = $this->stock_balance_model->get_current_stock_balance($ds);
     }
     else
     {
-      $result = $this->stock_balance_model->get_stock_balance_prev_date($allProduct, $pdFrom, $pdTo, $allWhouse, $warehouse, $date);
+      $result = $this->stock_balance_model->get_stock_balance_prev_date($ds);
     }
 
     //--- load excel library
@@ -179,15 +207,19 @@ class Stock_balance extends PS_Controller
       $no = 1;
       foreach($result as $rs)
       {
-        $this->excel->getActiveSheet()->setCellValue('A'.$row, $no);
-        $this->excel->getActiveSheet()->setCellValue('B'.$row, $rs->barcode);
-        $this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->code);
-        $this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->name);
-        $this->excel->getActiveSheet()->setCellValue('E'.$row, $rs->cost);
-        $this->excel->getActiveSheet()->setCellValue('F'.$row, $rs->qty);
-        $this->excel->getActiveSheet()->setCellValue('G'.$row, '=E'.$row.'*F'.$row);
-        $no++;
-        $row++;
+				if(!empty($allResult) OR $rs->qty != 0)
+				{
+					$this->excel->getActiveSheet()->setCellValue('A'.$row, $no);
+	        $this->excel->getActiveSheet()->setCellValue('B'.$row, $rs->barcode);
+	        $this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->code);
+	        $this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->name);
+	        $this->excel->getActiveSheet()->setCellValue('E'.$row, $rs->cost);
+	        $this->excel->getActiveSheet()->setCellValue('F'.$row, $rs->qty);
+	        $this->excel->getActiveSheet()->setCellValue('G'.$row, '=E'.$row.'*F'.$row);
+	        $no++;
+	        $row++;
+				}
+
       }
 
       $res = $row -1;

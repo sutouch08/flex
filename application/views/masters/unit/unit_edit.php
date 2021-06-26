@@ -1,7 +1,7 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
 	<div class="col-sm-6 col-xs-6 padding-5">
-    <h3 class="title"><?php echo $this->title; ?></h3>
+    <h3 class="title"> <i class="fa fa-bolt"></i> <?php echo $this->title; ?></h3>
   </div>
 	<div class="col-sm-6 col-xs-6 padding-5">
 		<p class="pull-right top-p">
@@ -9,7 +9,7 @@
 		</p>
 	</div>
 </div><!-- End Row -->
-<hr class="title-block"/>
+<hr class="padding-5"/>
 <form class="form-horizontal" id="addForm" method="post">
 
 	<div class="form-group">

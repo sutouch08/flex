@@ -69,6 +69,22 @@ function toggleAllWarehouse(option){
 }
 
 
+function toggleResult(option) {
+	$('#allResult').val(option);
+	if(option == 1) {
+		$('#btn-all').addClass('btn-primary');
+		$('#btn-stock').removeClass('btn-primary');
+		return;
+	}
+
+	if(option == 0) {
+		$('#btn-all').removeClass('btn-primary');
+		$('#btn-stock').addClass('btn-primary');
+	}
+}
+
+
+
 function toggleDate(option){
   $('#currentDate').val(option);
   if(option == 1){
@@ -98,6 +114,7 @@ function getReport(){
   var pdFrom = $('#pdFrom').val();
   var pdTo = $('#pdTo').val();
   var date = $('#date').val();
+	var allResult = $('#allResult').val();
 
   if(allProduct == 0){
     if(pdFrom.length == 0){
@@ -144,6 +161,7 @@ function getReport(){
   var data = [
     {'name' : 'allProduct', 'value' : allProduct},
     {'name' : 'allWhouse' , 'value' : allWhouse},
+		{'name' : 'allResult', 'value' : allResult},
     {'name' : 'currentDate' , 'value' : currentDate},
     {'name' : 'pdFrom', 'value' : pdFrom},
     {'name' : 'pdTo', 'value' : pdTo},
@@ -184,6 +202,7 @@ function getReport(){
 function doExport(){
   var allProduct = $('#allProduct').val();
   var allWhouse = $('#allWarehouse').val();
+	var allResult = $('#allResult').val();
   var currentDate = $('#currentDate').val();
   var pdFrom = $('#pdFrom').val();
   var pdTo = $('#pdTo').val();
@@ -234,6 +253,7 @@ function doExport(){
   var data = [
     {'name' : 'allProduct', 'value' : allProduct},
     {'name' : 'allWhouse' , 'value' : allWhouse},
+		{'name' : 'allResult', 'value' : allResult},
     {'name' : 'currentDate' , 'value' : currentDate},
     {'name' : 'pdFrom', 'value' : pdFrom},
     {'name' : 'pdTo', 'value' : pdTo},

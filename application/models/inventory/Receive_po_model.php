@@ -286,7 +286,7 @@ class Receive_po_model extends CI_Model
 
 
 
-  public function get_data(array $ds = array(), $perpage = '', $offset = '', $role = 'S')
+  public function get_data(array $ds = array(), $perpage = 20, $offset = 0, $role = 'S')
   {
     //---- เลขที่เอกสาร
     if(!empty($ds['code']))
@@ -321,11 +321,8 @@ class Receive_po_model extends CI_Model
       $this->db->where('date_add <=', to_date($ds['to_date']));
     }
 
-    if($perpage != '')
-    {
-      $offset = $offset === NULL ? 0 : $offset;
-      $this->db->limit($perpage, $offset);
-    }
+
+		$this->db->order_by('date_add', 'DESC')->limit($perpage, $offset);
 
     $rs = $this->db->get('receive_product');
     return $rs->result();

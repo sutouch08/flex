@@ -85,6 +85,8 @@ class Return_order extends PS_Controller
       $this->load->model('inventory/movement_model');
 			$this->load->model('inventory/delivery_order_model');
 			$this->load->model('stock/stock_model');
+			$this->load->model('masters/channels_model');
+			$this->load->model('masters/payment_methods_model');
 			$this->load->helper('discount');
 
       //--- start transection
@@ -123,7 +125,8 @@ class Return_order extends PS_Controller
 								break;
 							}
 
-							$is_term = $this->orders_model->is_term($inv);
+							$order = $this->orders_model->get($inv);
+							$is_term = $order->is_term;
 
 							$price = $prices[$item][$inv];
 							$discText = $discount[$item][$inv];
@@ -190,6 +193,10 @@ class Return_order extends PS_Controller
 											'reference' => $doc->code,
 											'role'   => 'S',
 											'role_name' => 'ขาย',
+											'channels_code' => $order->channels_code,
+											'channels_name' => $this->channels_model->get_name($order->channels_code),
+											'payment_code' => $order->payment_code,
+											'payment_name' => $this->payment_methods_model->get_name($order->payment_code),
 											'product_code'  => $pd->code,
 											'product_name'  => $pd->name,
 											'product_style' => $pd->style_code,

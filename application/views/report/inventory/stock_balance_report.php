@@ -1,12 +1,12 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row hidden-print">
-	<div class="col-sm-6">
+	<div class="col-sm-6 padding-5">
     <h3 class="title">
       <i class="fa fa-bar-chart"></i>
       <?php echo $this->title; ?>
     </h3>
     </div>
-		<div class="col-sm-6">
+		<div class="col-sm-6 padding-5">
 			<p class="pull-right top-p">
         <button type="button" class="btn btn-sm btn-success" onclick="getReport()"><i class="fa fa-bar-chart"></i> <?php label('report'); ?></button>
 				<button type="button" class="btn btn-sm btn-primary" onclick="doExport()"><i class="fa fa-file-excel-o"></i> <?php label('export'); ?></button>
@@ -14,46 +14,56 @@
 			</p>
 		</div>
 </div><!-- End Row -->
-<hr class="hidden-print"/>
+<hr class="padding-5 hidden-print"/>
 <form class="hidden-print" id="reportForm" method="post" action="<?php echo $this->home; ?>/do_export">
 <div class="row">
-  <div class="col-sm-2 padding-5 first">
-    <label class="display-block"><?php label('items'); ?></label>
+  <div class="col-sm-2 padding-5">
+    <label class="display-block">สินค้า</label>
     <div class="btn-group width-100">
-      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-pd-all" onclick="toggleAllProduct(1)"><?php label('all'); ?></button>
-      <button type="button" class="btn btn-sm width-50" id="btn-pd-range" onclick="toggleAllProduct(0)"><?php label('specify'); ?></button>
+      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-pd-all" onclick="toggleAllProduct(1)">ทั้งหมด</button>
+      <button type="button" class="btn btn-sm width-50" id="btn-pd-range" onclick="toggleAllProduct(0)">ระบุ</button>
     </div>
   </div>
-  <div class="col-sm-2 padding-5">
+  <div class="col-sm-1 col-1-harf padding-5">
     <label class="display-block not-show">start</label>
     <input type="text" class="form-control input-sm text-center" id="pdFrom" name="pdFrom" disabled>
   </div>
-  <div class="col-sm-2 padding-5">
+  <div class="col-sm-1 col-1-harf padding-5">
     <label class="display-block not-show">End</label>
     <input type="text" class="form-control input-sm text-center" id="pdTo" name="pdTo" disabled>
   </div>
   <div class="col-sm-2 padding-5">
-    <label class="display-block"><?php label('warehouse'); ?></label>
+    <label class="display-block">คลัง</label>
     <div class="btn-group width-100">
-      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-wh-all" onclick="toggleAllWarehouse(1)"><?php label('all'); ?></button>
-      <button type="button" class="btn btn-sm width-50" id="btn-wh-range" onclick="toggleAllWarehouse(0)"><?php label('specify'); ?></button>
+      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-wh-all" onclick="toggleAllWarehouse(1)">ทั้งหมด</button>
+      <button type="button" class="btn btn-sm width-50" id="btn-wh-range" onclick="toggleAllWarehouse(0)">ระบุ</button>
     </div>
   </div>
-  <div class="col-sm-2 padding-5">
-    <label class="display-block"><?php label('date'); ?></label>
+  <div class="col-sm-1 col-1-harf padding-5">
+    <label class="display-block">วันที่</label>
     <div class="btn-group width-100">
-      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-date-now" onclick="toggleDate(1)"><?php label('current'); ?></button>
-      <button type="button" class="btn btn-sm width-50" id="btn-date-range" onclick="toggleDate(0)"><?php label('specify'); ?></button>
+      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-date-now" onclick="toggleDate(1)">ปัจจุบัน</button>
+      <button type="button" class="btn btn-sm width-50" id="btn-date-range" onclick="toggleDate(0)">ระบุ</button>
     </div>
   </div>
-  <div class="col-sm-2 padding-5 last">
+  <div class="col-sm-1 col-1-harf padding-5">
     <label class="display-block not-show">start</label>
     <input type="text" class="form-control input-sm text-center" id="date" name="date" readonly disabled>
   </div>
 
+	<div class="col-sm-2 padding-5">
+		<label class="display-block">ผลลัพธ์</label>
+		<div class="btn-group width-100">
+      <button type="button" class="btn btn-sm btn-primary width-50" id="btn-all" onclick="toggleResult(1)">ทั้งหมด</button>
+      <button type="button" class="btn btn-sm width-50" id="btn-stock" onclick="toggleResult(0)">ที่มียอด</button>
+    </div>
+	</div>
+
   <input type="hidden" id="allProduct" name="allProduct" value="1">
   <input type="hidden" id="allWarehouse" name="allWhouse" value="1">
   <input type="hidden" id="currentDate" name="currentDate" value="1">
+	<input type="hidden" id="allResult" name="allResuult" value="1">
+	<input type="hidden" id="token" value="<?php echo uniqid(); ?>">
 </div>
 
 
@@ -144,5 +154,5 @@
   </table>
 </script>
 
-<script src="<?php echo base_url(); ?>scripts/report/inventory/stock_balance.js"></script>
+<script src="<?php echo base_url(); ?>scripts/report/inventory/stock_balance.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

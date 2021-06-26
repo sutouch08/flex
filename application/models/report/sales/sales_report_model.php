@@ -6,6 +6,138 @@ class Sales_report_model extends CI_Model
     parent::__construct();
   }
 
+	public function get_sum_item_sales_by_date_upd(array $ds = array())
+  {
+    if(!empty($ds))
+    {
+			$this->db
+			->select('product_code, product_name, price_ex AS price')
+			->select_sum('qty')
+			->select_sum('total_amount_ex', 'amount')
+			->where_in('role', array('S', 'O'))
+			->where('date_upd >=', $ds['fromDate'])
+			->where('date_upd <=', $ds['toDate']);
+
+			if(empty($ds['allProduct']) && !empty($ds['pdFrom']) && !empty($ds['pdTo']))
+			{
+				$this->db->where('product_code >=', $ds['pdFrom'])->where('product_code <=', $ds['pdTo']);
+			}
+
+			$this->db->group_by('product_code');
+
+			if(!empty($ds['orderBy']))
+			{
+				$this->db->order_by($ds['orderBy'], 'DESC');
+			}
+			else
+			{
+				$this->db->order_by('amount', 'DESC');
+			}
+
+      $rs = $this->db->get('order_sold');
+
+      if($rs->num_rows() > 0)
+      {
+        return $rs->result();
+      }
+
+      return FALSE;
+    }
+
+    return FALSE;
+  }
+
+
+
+	///---- sale by customer
+	public function get_sum_customer_sales_by_date_upd(array $ds = array())
+  {
+    if(!empty($ds))
+    {
+			$this->db
+			->select('customer_code, customer_name')
+			->select_sum('qty')
+			->select_sum('total_amount_ex', 'amount')
+			->where_in('role', array('S', 'O'))
+			->where('date_upd >=', $ds['fromDate'])
+			->where('date_upd <=', $ds['toDate']);
+
+			if(empty($ds['allCustomer']) && !empty($ds['cusFrom']) && !empty($ds['cusTo']))
+			{
+				$this->db->where('customer_code >=', $ds['cusFrom'])->where('customer_code <=', $ds['cusTo']);
+			}
+
+			$this->db->group_by('customer_code');
+
+			if(!empty($ds['orderBy']))
+			{
+				$this->db->order_by($ds['orderBy'], 'DESC');
+			}
+			else
+			{
+				$this->db->order_by('amount', 'DESC');
+			}
+
+      $rs = $this->db->get('order_sold');
+
+      if($rs->num_rows() > 0)
+      {
+        return $rs->result();
+      }
+
+      return FALSE;
+    }
+
+    return FALSE;
+  }
+
+
+
+
+	///---- sale by channels
+	public function get_sum_channels_sales_by_date_upd(array $ds = array())
+  {
+    if(!empty($ds))
+    {
+			$this->db
+			->select('channels_code AS code, channels_name AS name')
+			->select_sum('qty')
+			->select_sum('total_amount_ex', 'amount')
+			->where_in('role', array('S', 'O'))
+			->where('date_upd >=', $ds['fromDate'])
+			->where('date_upd <=', $ds['toDate']);
+
+			if(empty($ds['allChannels']) && !empty($ds['channels']))
+			{
+				$this->db->where_in('channels_code', $ds['channels']);
+			}
+
+			$this->db->group_by('channels_code');
+
+			if(!empty($ds['orderBy']))
+			{
+				$this->db->order_by($ds['orderBy'], 'DESC');
+			}
+			else
+			{
+				$this->db->order_by('amount', 'DESC');
+			}
+
+      $rs = $this->db->get('order_sold');
+
+      if($rs->num_rows() > 0)
+      {
+        return $rs->result();
+      }
+
+      return FALSE;
+    }
+
+    return FALSE;
+  }
+
+
+
 
   public function get_order_sold_by_date_upd(array $ds = array())
   {
