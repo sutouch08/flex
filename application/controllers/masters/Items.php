@@ -544,31 +544,38 @@ class Items extends PS_Controller
 	              {
 	                $this->addColor($color_code);
 	              }
-	              else if(!empty($size_code) && ! $this->product_size_model->is_exists($size_code))
+
+	              if(!empty($size_code) && ! $this->product_size_model->is_exists($size_code))
 	              {
 	                $this->addSize($size_code);
 	              }
-	              else if(!empty($group_code) && ! $this->product_group_model->is_exists($group_code))
+
+	              if(!empty($group_code) && ! $this->product_group_model->is_exists($group_code))
 	              {
 	                $this->addGroup($group_code);
 	              }
-	              else if(!empty($sub_group_code) && ! $this->product_sub_group_model->is_exists($sub_group_code))
+
+	              if(!empty($sub_group_code) && ! $this->product_sub_group_model->is_exists($sub_group_code))
 	              {
 	                $this->addSubGroup($sub_group_code);
 	              }
-	              else if(!empty($category_code) && ! $this->product_category_model->is_exists($category_code))
+
+	              if(!empty($category_code) && ! $this->product_category_model->is_exists($category_code))
 	              {
 	                $this->addCategory($category_code);
 	              }
-	              else if(!empty($kind_code) && ! $this->product_kind_model->is_exists($kind_code))
+
+	              if(!empty($kind_code) && ! $this->product_kind_model->is_exists($kind_code))
 	              {
 	                $this->addKind($kind_code);
 	              }
-	              else if(!empty($type_code) && ! $this->product_type_model->is_exists($type_code))
+
+	              if(!empty($type_code) && ! $this->product_type_model->is_exists($type_code))
 	              {
 	                $this->addType($type_code);
 	              }
-	              else if(!empty($brand_code) && ! $this->product_brand_model->is_exists($brand_code))
+
+	              if(!empty($brand_code) && ! $this->product_brand_model->is_exists($brand_code))
 	              {
 	                $this->addBrand($brand_code);
 	              }

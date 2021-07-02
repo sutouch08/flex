@@ -17,6 +17,7 @@ class Customers extends PS_Controller
     $this->load->model('masters/customer_type_model');
     $this->load->model('masters/customer_class_model');
     $this->load->model('masters/customer_area_model');
+		$this->load->model('masters/saleman_model');
     $this->load->helper('customer');
   }
 
@@ -340,100 +341,6 @@ class Customers extends PS_Controller
 
 
 
-  public function do_export($code)
-  {
-    $this->load->model('masters/slp_model');
-    $cs = $this->customers_model->get($code);
-    if(!empty($cs))
-    {
-      $ds = array(
-        'CardCode' => $cs->code,
-        'CardName' => $cs->name,
-        'CardType' => $cs->CardType,
-        'GroupCode' => $cs->GroupCode,
-        'CmpPrivate' => $cs->cmpPrivate,
-        'SlpCode' => $cs->sale_code,
-        //'SlpName' => $this->slp_model->get_name($cs->sale_code),
-        'Currency' => getConfig('CURRENCY'),
-        'GroupNum' => $cs->GroupNum,
-        'VatStatus' => 'Y',
-        'LicTradNum' => $cs->Tax_Id,
-        'DebPayAcct' => $cs->DebPayAcct,
-        'U_BPBACKLIST' => 'N',
-        'F_E_Commerce' => 'A',
-        'F_E_CommerceDate' => $cs->date_upd
-      );
-
-      if($this->customers_model->sap_customer_exists($cs->code))
-      {
-        $ds['F_E_Commerce'] = 'U';
-
-        return $this->customers_model->update_sap_customer($cs->code, $ds);
-      }
-      else
-      {
-        return $this->customers_model->add_sap_customer($ds);
-      }
-
-    }
-
-    return FALSE;
-  }
-
-
-
-  public function export_customer($code)
-  {
-    $rs = $this->do_export($code);
-    if($rs === TRUE)
-    {
-      echo 'success';
-    }
-    else
-    {
-      echo 'Export fail';
-    }
-  }
-
-
-
-
-  public function syncData()
-  {
-    $ds = $this->customers_model->get_update_data();
-    if(!empty($ds))
-    {
-      foreach($ds as $rs)
-      {
-        $arr = array(
-          'code' => $rs->code,
-          'name' => $rs->name,
-          'Tax_Id' => $rs->Tax_Id,
-          'DebPayAcct' => $rs->DebPayAcct,
-          'CardType' => $rs->CardType,
-          'GroupCode' => $rs->GroupCode,
-          'cmpPrivate' => $rs->CmpPrivate,
-          'GroupNum' => $rs->GroupNum,
-          'sale_code' => $rs->sale_code,
-          'CreditLine' => $rs->CreditLine
-        );
-
-        if($this->customers_model->is_exists($rs->code) === TRUE)
-        {
-          $this->customers_model->update($rs->code, $arr);
-        }
-        else
-        {
-          $this->customers_model->add($arr);
-        }
-      }
-    }
-
-    set_message('Sync completed');
-  }
-
-
-
 	public function download_template($token)
 	{
 		//--- load excel library
@@ -590,6 +497,11 @@ class Customers extends PS_Controller
 							$this->addArea($area);
 						}
 
+						if(!empty($sale) && !$this->saleman_model->is_exists($sale))
+						{
+							$this->addSale($sale, NULL, $area);
+						}
+
 						$arr = array(
 							'code' => $code,
 							'name' => $name,
@@ -724,6 +636,18 @@ class Customers extends PS_Controller
 		);
 
 		return $this->customer_area_model->add($arr);
+	}
+
+
+	private function addSale($code, $name = NULL, $area = NULL)
+	{
+		$arr = array(
+			'code' => $code,
+			'name' => empty($name) ? $code : $name,
+			'area_code' => empty($area) ? NULL : $area
+		);
+
+		return $this->saleman_model->add($arr);
 	}
 
 
