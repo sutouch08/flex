@@ -37,6 +37,19 @@ class Address_model extends CI_Model
   }
 
 
+	public function get_shipping_address_id($code)
+	{
+		$rs = $this->db->select('id')->where('code', $code)->order_by('is_default', 'DESC')->limit(1)->get('address_ship_to');
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row()->id;
+		}
+
+		return NULL;
+	}
+
+
 
   public function get_shipping_address($code)
   {
@@ -66,7 +79,10 @@ class Address_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->db->insert('address_ship_to', $ds);
+      if($this->db->insert('address_ship_to', $ds))
+			{
+				return $this->db->insert_id();
+			}
     }
 
     return FALSE;

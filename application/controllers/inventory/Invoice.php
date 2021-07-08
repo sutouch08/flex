@@ -8,7 +8,7 @@ class Invoice extends PS_Controller
   public $menu_sub_group_code = 'PICKPACK';
 	public $title = 'รายการเปิดบิลแล้ว';
   public $filter;
-	
+
   public function __construct()
   {
     parent::__construct();
@@ -151,7 +151,17 @@ class Invoice extends PS_Controller
 
   public function clear_filter()
   {
-    $filter = array('code','invoice_code','customer','user','role','channels','from_date','to_date');
+		$filter = array(
+      'code' ,
+			'invoice_code',
+      'customer',
+      'role',
+      'channels',
+      'payment',
+      'from_date',
+      'to_date'
+    );
+		
     clear_filter($filter);
   }
 

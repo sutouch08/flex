@@ -94,6 +94,24 @@ class Orders_model extends CI_Model
   }
 
 
+	public function get_with_payment_role($code)
+	{
+		$rs = $this->db
+		->select('orders.*, payment_method.role AS payment_role')
+		->from('orders')
+		->join('payment_method', 'orders.payment_code = payment_method.code', 'left')
+		->where('orders.code', $code)
+		->get();
+
+		if($rs->num_rows() == 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
+
+
 
   public function add_detail(array $ds = array())
   {

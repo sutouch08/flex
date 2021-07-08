@@ -340,14 +340,19 @@ class Orders extends PS_Controller
       if(! $this->orders_model->is_limit($role, $limit))
       {
         $this->load->model('inventory/invoice_model');
+				$this->load->model('address/address_model');
 
         $book_code = getConfig('BOOK_CODE_ORDER');
         $date_add = db_date($this->input->post('date'));
         $code = $this->get_new_code($date_add);
 
+				$customer_code = trim($this->input->post('customerCode'));
+				$customer_ref = trim($this->input->post('cust_ref'));
+
         $has_term = $this->payment_methods_model->has_term($this->input->post('payment'));
         $sale_code = get_null($this->customers_model->get_sale_code($this->input->post('customerCode')));
         $sender_id = get_null($this->input->post('sender_id'));
+				$id_address = empty($customer_ref) ? $this->address_model->get_shipping_address_id($customer_code) : $this->address_model->get_shipping_address_id($customer_ref);
   			$quotation_no = get_null(trim($this->input->post('qt_no'))); //-- ใบเสนราคา
 
         //--- check over due
@@ -376,6 +381,7 @@ class Orders extends PS_Controller
             'sale_code' => $sale_code,
             'is_term' => ($has_term === TRUE ? 1 : 0),
             'user' => get_cookie('uname'),
+						'address_id' => $id_address,
             'sender_id' => $sender_id,
             'remark' => trim($this->input->post('remark'))
           );
@@ -902,15 +908,19 @@ class Orders extends PS_Controller
     if($this->input->post('order_code'))
     {
       $this->load->model('inventory/invoice_model');
+			$this->load->model('address/address_model');
 
+			$customer_code = trim($this->input->post('customer_code'));
+			$customer_ref = trim($this->input->post('customer_ref'));
       $code = $this->input->post('order_code');
       $recal = $this->input->post('recal');
       $has_term = $this->payment_methods_model->has_term($this->input->post('payment_code'));
-      $sale_code = $this->customers_model->get_sale_code($this->input->post('customer_code'));
+      $sale_code = $this->customers_model->get_sale_code($customer_code);
+			$id_address = empty($customer_ref) ? $this->address_model->get_shipping_address_id($customer_code) : $this->address_model->get_shipping_address_id($customer_ref);
 
       //--- check over due
       $is_strict = is_true(getConfig('STRICT_OVER_DUE'));
-      $overDue = $is_strict ? $this->invoice_model->is_over_due($this->input->post('customerCode')) : FALSE;
+      $overDue = $is_strict ? $this->invoice_model->is_over_due($customer_code) : FALSE;
 
 
       //--- ถ้ามียอดค้างชำระ และ เป็นออเดอร์แบบเครดิต
@@ -924,12 +934,13 @@ class Orders extends PS_Controller
       {
         $ds = array(
           'reference' => trim($this->input->post('reference')),
-          'customer_code' => trim($this->input->post('customer_code')),
-          'customer_ref' => trim($this->input->post('customer_ref')),
+          'customer_code' => $customer_code,
+          'customer_ref' => $customer_ref,
           'channels_code' => $this->input->post('channels_code'),
           'payment_code' => $this->input->post('payment_code'),
           'sale_code' => $sale_code,
           'is_term' => $has_term,
+					'address_id' => $id_address,
           'sender_id' => get_null($this->input->post('sender_id')),
           'date_add' => db_date($this->input->post('date_add')),
           'remark' => trim($this->input->post('remark')),

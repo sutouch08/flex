@@ -52,7 +52,6 @@ function checkAll() {
 
 
 function getReport() {
-
 	var mapForm = document.createElement("form");
 	mapForm.target = "_blank";
 	mapForm.method = "POST";
@@ -80,4 +79,38 @@ function getReport() {
 
 function doExport() {
 	$('#reportForm').submit();
+}
+
+
+function exportKerryTemplate() {
+	var token = Math.floor(Math.random() * Date.now());
+	var mapForm = document.createElement("form");
+	//mapForm.target = "_blank";
+	mapForm.method = "POST";
+	mapForm.action = HOME + "exportKerryTemplate";
+
+	// Create an input
+	$('.chk').each(function() {
+		if(this.checked === true) {
+			var mapInput = document.createElement("input");
+			mapInput.type = "hidden";
+			mapInput.name = "code[]";
+			mapInput.value = this.value;
+			// Add the input to the form
+			mapForm.appendChild(mapInput);
+		}
+	});
+
+	var mapInput = document.createElement("input");
+	mapInput.type = "hidden";
+	mapInput.name = "token";
+	mapInput.value = token;
+	mapForm.appendChild(mapInput);
+
+	// Add the form to dom
+	document.body.appendChild(mapForm);
+
+	// // Just submit
+	get_download(token);
+	mapForm.submit();
 }

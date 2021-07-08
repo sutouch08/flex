@@ -223,6 +223,7 @@ class Import_order extends CI_Controller
 	                    $this->order_state_model->add_state($arr);
 
 	                    $id_address = $this->address_model->get_id($customer_ref, trim($rs['B']));
+
 	                    if($id_address === FALSE)
 	                    {
 	                      $arr = array(
@@ -238,8 +239,11 @@ class Import_order extends CI_Controller
 	                        'is_default' => 1
 	                      );
 
-	                      $this->address_model->add_shipping_address($arr);
+	                      $id_address = $this->address_model->add_shipping_address($arr);
+
+												$this->orders_model->set_address_id($code, $id_address);
 	                    }
+
 	                    $import++;
 	                  }
 	                  else

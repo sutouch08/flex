@@ -86,7 +86,7 @@ class Delivery_order_model extends CI_Model
 
 
 
-  public function get_data(array $ds = array(), $perpage = '', $offset = '', $state = 7)
+  public function get_data(array $ds = array(), $perpage = 20, $offset = 0, $state = 7)
   {
     //$total_query = "(SELECT SUM(total_amount) FROM order_details WHERE order_code = orders.code) AS total_amount";
     $this->db->select('orders.*')
@@ -146,11 +146,8 @@ class Delivery_order_model extends CI_Model
       $this->db->where('orders.date_add <=', to_date($ds['to_date']));
     }
 
-    if($perpage != '')
-    {
-      $offset = $offset === NULL ? 0 : $offset;
-      $this->db->limit($perpage, $offset);
-    }
+		$this->db->order_by('orders.date_add', 'DESC')->limit($perpage, $offset);
+
 
     $rs = $this->db->get();
 
