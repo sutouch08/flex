@@ -77,12 +77,12 @@
     	<table class="table table-striped table-bordered">
         	<thead>
             	<tr class="font-size-12">
-              	<th class="width-5 text-center"><?php label('Num'); ?>	</th>
-                <th class="width-15 text-center"><?php label('item_code'); ?></th>
-                <th class="width-35"><?php label('item_name'); ?></th>
-								<th class="width-10 text-right"><?php label('price'); ?></th>
-                <th class="width-10 text-right"><?php label('qty'); ?></th>
-								<th class="width-15 text-right"><?php label('amount'); ?></th>
+              	<th class="width-5 text-center">#</th>
+                <th class="width-15 text-center">รหัสสินค้า</th>
+                <th class="width-35">ชื่อสินค้า</th>
+								<th class="width-10 text-right">ราคา</th>
+                <th class="width-10 text-right">จำนวน</th>
+								<th class="width-15 text-right">มูลค่า</th>
 								<th class="width-5 text-right"></th>
               </tr>
             </thead>
@@ -119,7 +119,7 @@
 							</tr>
 						<?php else : ?>
 							<tr id="pre_label">
-								<td align='center' colspan='7'><h4>-----  <?php label('no_content'); ?>  -----</h4></td>
+								<td align='center' colspan='7'><h4>-----  ไม่พบรายการ  -----</h4></td>
 							</tr>
 						<?php endif; ?>
 			      </tbody>
@@ -149,6 +149,8 @@
       </div>
     </div>
 </div>
+
+
 <script src="<?php echo base_url(); ?>scripts/validate_credentials.js"></script>
 <?php else : ?>
   <?php redirect($this->home.'/view_detail/'.$doc->code); ?>

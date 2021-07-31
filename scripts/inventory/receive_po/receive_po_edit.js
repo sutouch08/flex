@@ -74,9 +74,11 @@ function editHeader(){
 }
 
 function updated(){
-	$('.edit').attr('disabled', 'disabled');
-	$('#btn-update').addClass('hide');
-	$('#btn-edit').removeClass('hide');
+	window.location.reload();
+	//
+	// $('.edit').attr('disabled', 'disabled');
+	// $('#btn-update').addClass('hide');
+	// $('#btn-edit').removeClass('hide');
 }
 
 function updateHeader(){
@@ -146,10 +148,10 @@ $('#poCode').keyup(function(e) {
 });
 
 
-function removeRow(id, code){
+function removeRow(id, itemCode){
 	swal({
 		title: "คุณแน่ใจ ?",
-		text: "ต้องการลบ '" + code + "' หรือไม่ ?",
+		text: "ต้องการลบ '" + itemCode + "' หรือไม่ ?",
 		type: "warning",
 		showCancelButton: true,
 		confirmButtonColor: "#DD6B55",
@@ -167,8 +169,11 @@ function removeRow(id, code){
 						swal({
               title: 'Deleted',
               type: 'success',
-              timer: 1000 });
-						window.location.reload();
+              timer: 1000
+						});
+
+						let code = $('#code').val();
+						updateReceiveTable(code);
 					}else{
 						swal("Error !", rs , "error");
 					}
@@ -178,7 +183,7 @@ function removeRow(id, code){
 }
 
 
-function clearAll(){
+function removeAll(){
 	var code = $('#code').val();
 	swal({
 		title: "คุณแน่ใจ ?",
@@ -197,14 +202,14 @@ function clearAll(){
 				success: function(rs){
 					var rs = $.trim(rs);
 					if( rs == 'success' ){
+						updateReceiveTable(code);
+
 						swal({
               title: 'Deleted',
               type: 'success',
               timer: 1000
 						 });
-						setTimeout(function(){
-							window.location.reload();
-						}, 1500);
+
 					}else{
 						swal("Error !", rs , "error");
 					}

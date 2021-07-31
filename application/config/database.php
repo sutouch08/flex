@@ -74,11 +74,11 @@ $active_group = 'default';
 $query_builder = TRUE;
 
 $db['default'] = array(
-	'dsn'	=> 'mysql:host=flex-crop.com;port=3306;dbname=flexcrop_dev',
-	'hostname' => 'flex-crop.com',
-	'username' => 'flexcrop_admin',
+	'dsn'	=> 'mysql:host=localhost;port=3306;dbname=flex',
+	'hostname' => 'localhost',
+	'username' => 'root',
 	'password' => 'ZT20o15u21c3H808',
-	'database' => 'flexcrop_dev',
+	'database' => 'flex',
 	'dbdriver' => 'pdo',
 	'dbprefix' => '',
 	'pconnect' => FALSE,

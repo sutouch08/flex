@@ -115,6 +115,116 @@ class Receive_po extends PS_Controller
   }
 
 
+	//---- insert single item to document
+	public function add_item()
+	{
+		$sc = TRUE;
+
+		$code = trim($this->input->post('code'));
+
+		if(!empty($code))
+		{
+			$doc = $this->receive_po_model->get($code);
+			if(!empty($doc))
+			{
+				if($doc->status == 0)
+				{
+					$item_code = trim($this->input->post('item_code'));
+					$qty = $this->input->post('qty');
+
+					if(!empty($item_code))
+					{
+						if($qty > 0)
+						{
+							//-- check item
+							$this->load->model('masters/products_model');
+
+							$item = $this->products_model->get($item_code);
+
+							if(!empty($item))
+							{
+								$detail = $this->receive_po_model->get_detail_by_product($code, $item->code);
+
+								if(!empty($detail))
+								{
+									$uQty = $detail->qty + $qty;
+									$amount = $uQty * $detail->price;
+
+									$arr = array(
+										'qty' => $uQty,
+										'amount' => $amount
+									);
+
+									if(!$this->receive_po_model->update_detail($detail->id, $arr))
+									{
+										$sc = FALSE;
+										$this->error = "Update failed";
+									}
+								}
+								else
+								{
+			            $arr = array(
+			              'receive_code' => $code,
+			              'style_code' => $item->style_code,
+			              'product_code' => $item->code,
+			              'product_name' => $item->name,
+			              'price' => $item->cost,
+			              'qty' => $qty,
+			              'amount' => $item->cost * $qty,
+			              'status' => 'N'
+			            );
+
+			            if(! $this->receive_po_model->add_detail($arr))
+									{
+										$sc = FALSE;
+										$this->error = "Add Item failed";
+									}
+								}
+							}
+							else
+							{
+								$sc = FALSE;
+								$this->error = "Item not found";
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "Item Qty must be greater than 0";
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "Missing required parameter : Item code";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Invalid Document Status";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid Document code";
+			}
+
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter: Document code";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+
+
+
   public function add_details($code)
   {
     $sc = TRUE;
@@ -148,7 +258,6 @@ class Receive_po extends PS_Controller
 
             $arr = array(
               'receive_code' => $code,
-              'po_code' => empty($pod) ? NULL : $pod->po_code,
               'style_code' => $item->style_code,
               'product_code' => $item->code,
               'product_name' => $item->name,
@@ -185,6 +294,65 @@ class Receive_po extends PS_Controller
 
     echo $sc === TRUE ? 'success' : $this->error;
   }
+
+
+
+	public function update_receive_table()
+	{
+		$sc = TRUE;
+		$ds = array();
+		$code = $this->input->get('code');
+		if(!empty($code))
+		{
+			$details = $this->receive_po_model->get_details($code);
+
+			if(!empty($details))
+			{
+				$no = 1;
+				$total_qty = 0;
+				$total_amount = 0;
+
+				foreach($details as $rs)
+				{
+					$arr = array(
+						'no' => $no,
+						'id' => $rs->id,
+						'product_code' => $rs->product_code,
+						'product_name' => $rs->product_name,
+						'price' => number($rs->price, 2),
+						'qty' => number($rs->qty),
+						'amount' => number($rs->amount, 2),
+						'open' => $rs->status === 'N' ? TRUE : FALSE
+					);
+
+					array_push($ds, $arr);
+					$no++;
+					$total_qty += $rs->qty;
+					$total_amount += $rs->amount;
+				}
+
+				$arr = array(
+					'total_qty' => number($total_qty),
+					'total_amount' => number($total_amount, 2)
+				);
+
+				array_push($ds, $arr);
+			}
+			else
+			{
+				$arr = array("nodata" => "Nodata");
+				array_push($ds, $arr);
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter : Document code";
+		}
+
+
+		echo $sc === TRUE ? json_encode($ds) : $this->error;
+	}
 
 
 

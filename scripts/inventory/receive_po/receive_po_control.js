@@ -10,16 +10,6 @@ $('#pd-code').keyup(function(e){
 });
 
 
-
-$('#item-code').autocomplete({
-  source:BASE_URL + 'auto_complete/get_item_code',
-  autoFocus:true,
-  close:function(){
-    $('#item-qty').focus();
-  }
-});
-
-
 function getProductGrid(){
 	var pdCode 	= $("#pd-code").val();
 	if( pdCode.length > 0  ){
@@ -67,7 +57,7 @@ function insert_item()
   $('.input-qty').each(function(){
     //let pdCode = $(this).attr('id');
 		let pdCode = $(this).data('pdcode');
-    var qty = parseDefault(parseInt($(this).val()), 0);
+    var qty = parseDefault(parseFloat($(this).val()), 0);
 
     if(qty > 0){
       var item = {
@@ -122,6 +112,113 @@ function insert_item()
 }
 
 
+$('#item-code').autocomplete({
+  source:BASE_URL + 'auto_complete/get_item_code',
+  autoFocus:true,
+  close:function(){
+		if($(this).val() == "not found") {
+			$(this).val('');
+		}
+  }
+});
+
+$('#item-code').keyup(function(e) {
+	if(e.keyCode === 13) {
+		var itemCode = $(this).val();
+		if(itemCode.length) {
+			$('#item-qty').val(1);
+			$('#item-qty').focus().select();
+		}
+	}
+});
+
+
+$('#item-qty').keyup(function(e) {
+	if(e.keyCode === 13) {
+		addItem();
+	}
+})
+
+function addItem()
+{
+	var code = $('#code').val();
+	var itemCode = $('#item-code').val();
+	var qty = parseDefault(parseFloat($('#item-qty').val()), 0);
+
+	if(itemCode.length && qty > 0) {
+		$('#btn-add-item').attr('disabled', 'disabled');
+	  $.ajax({
+	    url:HOME + 'add_item',
+			type:'POST',
+			cache:false,
+			data:{
+				'code' : code,
+				'item_code' : itemCode,
+				'qty' : qty
+			},
+			success:function(rs) {
+				$('#btn-add-item').removeAttr('disabled');
+
+				if(rs == 'success'){
+					updateReceiveTable(code);
+					$('#item-code').val('');
+					$('#item-qty').val('');
+					$('#item-code').focus();
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:rs,
+						type:'error',
+						html:true
+					});
+				}
+			}
+	  });
+	}
+}
+
+
+function updateReceiveTable(code) {
+	load_in();
+	$.ajax({
+		url:HOME + 'update_receive_table',
+		type:'GET',
+		cache:false,
+		data: {
+			'code' : code
+		},
+		success:function(rs) {
+			load_out();
+			var rs = $.trim(rs);
+			if(isJson(rs)) {
+				var data = $.parseJSON(rs);
+				var source = $('#receiveTableTemplate').html();
+				var output = $('#receiveTable');
+
+				render(source, data, output);
+			}
+			else {
+				swal({
+					title:'Error',
+					text: rs,
+					type:'error',
+					html:true
+				});
+			}
+		},
+		error:function(rs) {
+			load_out();
+			swal({
+				title: "Error",
+				text:rs.responseText,
+				type:'error',
+				html:true
+			});
+		}
+	})
+}
+
 
 function getData(){
 	var po = $("#poCode").val();
@@ -164,9 +261,8 @@ function insertPoItems()
 	var items = [];
 
   $('.receive_qty').each(function(){
-    //let pdCode = $(this).attr('id');
 		let pdCode = $(this).data('pdcode');
-    var qty = parseDefault(parseInt($(this).val()),0);
+    var qty = parseDefault(parseFloat($(this).val()),0);
 
     if(qty > 0){
       var item = {
@@ -208,9 +304,8 @@ function insertPoItems()
 					timer:1000
 				});
 
-				setTimeout(function(){
-					window.location.reload();
-				},1500);
+				updateReceiveTable(code);
+
 			}else{
 				swal({
 					title:'Error!',

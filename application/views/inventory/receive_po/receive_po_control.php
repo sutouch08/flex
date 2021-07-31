@@ -1,24 +1,43 @@
 
 <div class="row">
-  <div class="col-sm-2 padding-5 first">
-    <label><?php label('style'); ?></label>
-    <input type="text" class="form-control input-sm text-center" name="pdCode" id="pd-code" value="" autofocus>
-  </div>
+	<div class="col-sm-10">
+		<?php if(empty($doc->po_code)) : ?>
+		<div class="row">
+			<div class="col-sm-2 padding-5 first">
+		    <label>รุ่นสินค้า</label>
+		    <input type="text" class="form-control input-sm text-center" name="pdCode" id="pd-code" value="" autofocus>
+		  </div>
+		  <div class="col-sm-1 padding-5">
+		    <label class="display-block not-show">search</label>
+		    <button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductGrid()">ดึงรายการ</button>
+		  </div>
+
+			<div class="col-sm-3 col-sm-offset-2 padding-5">
+				<label>รหัสสินค้า</label>
+				<input type="text" class="form-control input-sm text-center" name="itemCode" id="item-code" value=""/>
+			</div>
+			<div class="col-sm-1 padding-5">
+				<label>จำนวน</label>
+				<input type="number" class="form-control input-sm text-center" name="itemQty" id="item-qty" value=""/>
+			</div>
+			<div class="col-sm-1 padding-5">
+				<label class="display-block not-show">get</label>
+				<button type="button" class="btn btn-xs btn-primary btn-block" id="btn-add-item" onclick="addItem()">เพิ่ม</button>
+			</div>
+		</div>
+		<?php endif; ?>
+	</div>
+
+
   <div class="col-sm-1 padding-5">
-    <label class="display-block not-show">search</label>
-    <button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductGrid()">ดึงรายการ</button>
-  </div>
-
-
-  <div class="col-sm-1 col-sm-offset-6 padding-5">
     <?php if(!empty($doc->po_code)) : ?>
     <label class="display-block not-show">getPo</label>
-    <button type="button" class="btn btn-xs btn-info btn-block" onclick="getData()"><?php label('get_po'); ?></button>
+    <button type="button" class="btn btn-xs btn-info btn-block" onclick="getData()">ดึงใบสั่งซื้อ</button>
     <?php endif; ?>
   </div>
-  <div class="col-sm-2 padding-5 last">
+  <div class="col-sm-1 padding-5 last">
     <label class="display-block not-show">delete</label>
-    <button type="button" class="btn btn-xs btn-danger btn-block" onclick="clearAll()"><?php label('delete_all'); ?></button>
+    <button type="button" class="btn btn-xs btn-danger btn-block" onclick="removeAll()">ลบทั้งหมด</button>
   </div>
 </div>
 <hr class="margin-top-15">
@@ -31,7 +50,6 @@
   			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="modalTitle">title</h4>
-        <center><span style="color: red;">ใน ( ) = ยอดคงเหลือทั้งหมด   ไม่มีวงเล็บ = สั่งได้ทันที</span></center>
 			 </div>
 			 <div class="modal-body" id="modalBody"></div>
 			 <div class="modal-footer">
@@ -77,6 +95,41 @@
 </div>
 
 
+
+<script id="receiveTableTemplate" type="text/x-handlebarsTemplate">
+	{{#each this}}
+		{{#if nodata}}
+		<tr>
+			<td colspan="7" class="middle text-center">---- ไม่พบรายการ ----</td>
+		</tr>
+		{{else}}
+			{{#if @last}}
+				<tr>
+				<td colspan="4" class="middle text-right"><strong>รวม</strong></td>
+				<td class="middle text-right"><strong>{{total_qty}}</strong></td>
+				<td class="middle text-right"><strong>{{total_amount}}</strong></td>
+				<td></td>
+				</tr>
+			{{else}}
+					<tr>
+						<td class="middle text-center no">{{no}}</td>
+						<td class="moddle">{{product_code}}</td>
+						<td class="middle">{{product_name}}</td>
+						<td class="middle text-right">{{price}}</td>
+						<td class="middle text-right">{{qty}}</td>
+						<td class="middle text-right">{{amount}}</td>
+						<td class="middle text-center">
+							{{#if open}}
+								<button type="button" class="btn btn-minier btn-danger" onclick="removeRow({{id}}, '{{product_code}}')">
+									<i class="fa fa-trash"></i>
+								</button>
+							{{/if}}
+						</td>
+					</tr>
+			{{/if}}
+		{{/if}}
+	{{/each}}
+</script>
 
 <script id="row-template" type="text/x-handlebarsTemplate">
 {{#each this}}
