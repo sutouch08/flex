@@ -81,17 +81,17 @@
 
 <div class="row">
 	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped border-1">
+		<table class="table table-striped border-1" style="table-layout:fixed">
 			<thead>
 				<tr>
 					<th class="width-5 text-center">#</th>
 					<th class="width-10 text-center">วันที่</th>
 					<th class="width-15">เลขที่</th>
-					<th class="width-15">อ้างอิง</th>
+					<th class="">อ้างอิง</th>
 					<th class="width-15">ลูกค้า</th>
 					<th class="width-10 text-right">มูลค่า</th>
 					<th class="width-10 text-center">สถานะ</th>
-					<th></th>
+					<th class="width-10 text-right"></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -102,7 +102,7 @@
 					<td class="middle text-center no"><?php echo $no; ?></td>
 					<td class="middle text-center"><?php echo thai_date($rs->doc_date); ?></td>
 					<td class="middle"><?php echo $rs->code; ?></td>
-					<td class="middle"><?php echo $rs->reference; ?></td>
+					<td class="middle" style="overflow:hidden;"><?php echo $rs->reference; ?></td>
 					<td class="middle"><?php echo $rs->customer_code." : ".$rs->customer_name; ?></td>
 					<td class="middle text-right"><?php echo number($rs->total_amount, 2); ?></td>
 					<td class="middle text-center">

@@ -163,14 +163,18 @@ class Receive_po extends PS_Controller
 								}
 								else
 								{
+									$pod = empty($doc->po_code) ? NULL : $this->po_model->get_detail($doc->po_code, $item->code);
+			            $price = empty($pod) ? $item->cost : $pod->price;
+
 			            $arr = array(
 			              'receive_code' => $code,
+										'po_code' => (empty($pod) ? NULL : $pod->po_code),
 			              'style_code' => $item->style_code,
 			              'product_code' => $item->code,
 			              'product_name' => $item->name,
-			              'price' => $item->cost,
+			              'price' => $price,
 			              'qty' => $qty,
-			              'amount' => $item->cost * $qty,
+			              'amount' => $price * $qty,
 			              'status' => 'N'
 			            );
 
@@ -258,6 +262,7 @@ class Receive_po extends PS_Controller
 
             $arr = array(
               'receive_code' => $code,
+							'po_code' => (empty($pod) ? NULL : $pod->po_code),
               'style_code' => $item->style_code,
               'product_code' => $item->code,
               'product_name' => $item->name,
