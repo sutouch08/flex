@@ -59,13 +59,13 @@
 										<div class="col-lg-2 col-md-3 col-sm-4 col-xs-6 padding-0 center">
 											<div class="product padding-5">
 												<div class="image">
-													<a href="javascript:void(0)" onclick="get_product_by_code('<?php echo $ds->code; ?>')">
+													<a href="javascript:void(0)" onclick="add_item('<?php echo $ds->code; ?>')">
 														<img class="img-responsive border-1" src="<?php echo get_product_image($ds->code, 'default'); ?>" />
 													</a>
 												</div>
 												<div class="discription" style="font-size:10px; min-height:50px;">
-													<a href="javascript:void(0)" onclick="get_product_by_code('<?php echo $ds->code; ?>')">
-														<span class="display-block"><?php echo $ds->name; ?></span>
+													<a href="javascript:void(0)" onclick="add_item('<?php echo $ds->code; ?>')">
+														<span class="display-block" style="white-space:pre-wrap;"><?php echo $ds->name; ?></span>
 														<span><?php echo number($ds->price, 2); ?></span>
 													</a>
 												</div>

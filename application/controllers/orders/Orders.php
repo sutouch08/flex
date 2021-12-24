@@ -1331,7 +1331,7 @@ class Orders extends PS_Controller
       $code = $item->code;
 			$name = $use_product_name === TRUE ? $item->name : $item->code;
 
-			$sc 	.= '<td class="middle text-center" style="border-right:0px;">';
+			$sc 	.= '<td class="middle text-center" style="border-right:0px; white-space:pre-wrap;">';
 			$sc 	.= '<strong>' .	$name. '</strong>';
 			$sc 	.= '</td>';
 
@@ -1393,7 +1393,7 @@ class Orders extends PS_Controller
       $code = $item->code;
 			$name = $use_product_name === TRUE ? $item->name : $item->code;
 
-			$sc 	.= '<td class="middle text-center" style="border-right:0px;">';
+			$sc 	.= '<td class="middle text-center" style="border-right:0px; white-space:pre-wrap;">';
 			$sc 	.= '<strong>' .	$name. '</strong>';
 			$sc 	.= '</td>';
 
@@ -1623,7 +1623,7 @@ class Orders extends PS_Controller
       $limit = $qty === FALSE ? 1000000 : (($auz === TRUE OR $is_po === TRUE) ? 1000000 : $qty);
       $code = $attr == 'color' ? $item->color_code : $item->size_code;
 
-			$sc 	.= '<td class="middle text-center width-25" style="border-right:0px;">';
+			$sc 	.= '<td class="middle text-center width-25" style="border-right:0px; white-space:pre-wrap;">';
 			$sc 	.= '<strong>' .	$code. '</strong>';
 			$sc 	.= '</td>';
 
@@ -1678,7 +1678,7 @@ class Orders extends PS_Controller
 		foreach( $sizes as $size_code => $size )
 		{
 			$sc 	.= '<tr style="font-size:14px;">';
-			$sc 	.= '<td class="text-center middle" style="width:80px;"><strong>'.$size_code.'</strong></td>';
+			$sc 	.= '<td class="text-center middle" style="width:80px; white-space:pre-wrap;"><strong>'.$size_code.'</strong></td>';
 
 			foreach( $colors as $color_code => $color )
 			{
@@ -1769,7 +1769,7 @@ class Orders extends PS_Controller
     $sc = '<tr class="font-size-12"><td>&nbsp;</td>';
     foreach( $colors as $code => $name )
     {
-      $sc .= '<td class="text-center middle"><strong>'.$code.'</strong></td>';
+      $sc .= '<td class="text-center middle" style="white-space:pre-wrap;"><strong>'.$code.'</strong></td>';
     }
     $sc .= '</tr>';
     return $sc;
