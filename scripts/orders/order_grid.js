@@ -64,7 +64,7 @@ function getOrderItemGrid(code) {
 					}
 
 					//$("#modal").css("width", width +"px");
-					//$("#modal-content").css("width", width +"px");
+					$("#modal-item").css("width", width +"px");
 					$("#modalItemTitle").html(pdCode);
 					//$("#id_style").val(style);
 					$("#modalItemBody").html(grid);

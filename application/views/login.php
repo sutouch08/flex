@@ -33,9 +33,9 @@
 		<div class="container-login100">
 			<div class="wrap-login100 p-b-20">
 				<form class="login100-form validate-form" method="post" action="authentication/validate_credentials">
-					<span class="login100-form-title p-b-70">
+					<!--<span class="login100-form-title p-b-70">
 						Welcome
-					</span>
+					</span>-->
 					<span class="login100-form-avatar">
 						<img src="<?php echo base_url(); ?>assets/images/vf.jpg" alt="AVATAR">
 					</span>

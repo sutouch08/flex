@@ -13,11 +13,11 @@
 		</select>
 	</div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label class="display-block not-show">stock</label>
 		<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getSearch()">ตรวจสอบสต็อก</button>
 	</div>
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label class="display-block not-show">stock</label>
 		<button type="button" class="btn btn-xs btn-info btn-block" onclick="findOrder()">ตรวจสอบออเดอร์</button>
 	</div>

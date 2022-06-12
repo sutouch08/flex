@@ -7,19 +7,28 @@ class User_model extends CI_Model
   }
 
 
+	public function add(array $ds = array())
+	{
+		if(!empty($ds))
+		{
+			return $this->db->insert('user', $ds);
+		}
 
-  public function new_user(array $data = array())
-  {
-    if(!empty($data))
-    {
-      return $this->db->insert('user', $data);
-    }
-
-    return FALSE;
-  }
-
+		return FALSE;
+	}
 
 
+	public function update($id, array $ds = array())
+	{
+		if(!empty($ds))
+		{
+			return $this->db->where('id', $id)->update('user', $ds);
+		}
+
+		return FALSE;
+	}
+
+	
 
   public function update_user($id, array $ds = array())
   {
@@ -143,33 +152,77 @@ class User_model extends CI_Model
 
 
 
+	public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
+	{
+		$this->db
+		->select('u.id, u.id_profile, u.uname, u.name AS dname, u.date_add, u.active')
+		->select('p.name AS pname')
+		->from('user AS u')
+		->join('profile AS p', 'u.id_profile = p.id', 'left');
+
+		if(isset($ds['uname']) && $ds['uname'] != "")
+		{
+			$this->db->like('u.uname', $ds['uname']);
+		}
+
+		if(isset($ds['dname']) && $ds['dname'] != '')
+		{
+			$this->db->like('u.name', $ds['dname']);
+		}
+
+		if($ds['profile'] != 'all')
+		{
+			$this->db->where('u.id_profile', $ds['profile']);
+		}
+
+		if($ds['status'] != 'all')
+		{
+			$this->db->where('u.active', $ds['status']);
+		}
+
+		$rs = $this->db->order_by('u.uname', 'desc')->limit($perpage, $offset)->get();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
 
 
-  public function count_rows($uname = '', $dname = '', $profile = '')
+
+
+
+  public function count_rows(array $ds = array())
   {
-    $qr = "SELECT u.id ";
-    $qr .= "FROM user AS u ";
-    $qr .= "LEFT JOIN profile AS p ON u.id_profile = p.id ";
-    $qr .= "WHERE u.id != 0 ";
+		$this->db
+		->select('u.id, u.id_profile, u.uname, u.name AS dname, u.date_add, u.active')
+		->select('p.name AS pname')
+		->from('user AS u')
+		->join('profile AS p', 'u.id_profile = p.id', 'left');
 
-    if($uname !== '')
-    {
-      $qr .= "AND u.uname LIKE '%".$uname."%' ";
-    }
+		if(isset($ds['uname']) && $ds['uname'] != "")
+		{
+			$this->db->like('u.uname', $ds['uname']);
+		}
 
-    if($dname !== '')
-    {
-      $qr .= "AND u.name LIKE '%".$dname."%' ";
-    }
+		if(isset($ds['dname']) && $ds['dname'] != '')
+		{
+			$this->db->like('u.name', $ds['dname']);
+		}
 
-    if($profile !== '')
-    {
-      $qr .= "AND p.name LIKE '%".$profile."%' ";
-    }
+		if($ds['profile'] != 'all')
+		{
+			$this->db->where('u.id_profile', $ds['profile']);
+		}
 
-    $rs = $this->db->query($qr);
+		if($ds['status'] != 'all')
+		{
+			$this->db->where('u.active', $ds['status']);
+		}
 
-    return $rs->num_rows();
+		return $this->db->count_all_results();
   }
 
 

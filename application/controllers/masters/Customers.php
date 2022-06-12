@@ -189,6 +189,7 @@ class Customers extends PS_Controller
       $country = $this->input->post('country');
       $ds = array(
         'customer_code' => $code,
+				'customer_name' => trim($this->input->post('customer_name')),
         'branch_code' => empty($branch_code) ? '000' : $branch_code,
         'branch_name' => empty($branch_name) ? 'สำนักงานใหญ่' : $branch_name,
         'address' => $this->input->post('address'),
@@ -229,6 +230,7 @@ class Customers extends PS_Controller
       $branch_name = $this->input->post('branch_name');
       $country = $this->input->post('country');
       $ds = array(
+				'customer_name' => trim($this->input->post('customer_name')),
         'branch_code' => empty($branch_code) ? '000' : $branch_code,
         'branch_name' => empty($branch_name) ? 'สำนักงานใหญ่' : $branch_name,
         'address' => $this->input->post('address'),
@@ -317,25 +319,45 @@ class Customers extends PS_Controller
 
 
 
-  public function delete($code)
+  public function delete()
   {
-    if($code != '')
+		$code = trim($this->input->post('code'));
+    $sc = TRUE;
+
+    if($code != "" && $code != NULL)
     {
-      if($this->customers_model->delete($code))
-      {
-        set_message('ลบข้อมูลเรียบร้อยแล้ว');
-      }
-      else
-      {
-        set_error('ลบข้อมูลไม่สำเร็จ');
-      }
+			//--- check transcetion
+			if($this->customers_model->is_exists_transection($code))
+			{
+				$sc = FALSE;
+				$this->error = "ไม่สามารถลบสินค้าได้เนื่องจากมีทรานเซ็คชั่นเกิดขึ้นแล้ว";			
+			}
+
+			if($sc === TRUE)
+			{
+				//--- delete customer address
+	      if(! $this->customers_model->delete_address($code))
+	      {
+	        $sc = FALSE;
+					$this->error = "ลบที่อยู่ไม่สำเร็จ";
+	      }
+				else
+				{
+					if(! $this->customers_model->delete($code))
+					{
+						$sc = FALSE;
+						$this->error = "ลบข้อมูลไม่สำเร็จ";
+					}
+				}
+			}
     }
     else
     {
-      set_error('ไม่พบข้อมูล');
+			$sc = FALSE;
+			$this->error = "Missing required parameter: Code";
     }
 
-    redirect($this->home);
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 

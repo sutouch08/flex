@@ -72,40 +72,48 @@ class Profile_model extends CI_Model
 
 
 
+	public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
+	{
+		if(!empty($ds['name']) && $ds['name'] != "")
+		{
+			$this->db->like('name', $ds['name']);
+		}
 
-  public function get_profiles($name = '', $perpage = 0, $offset = 0)
+		$rs = $this->db->order_by('name', 'DESC')->limit($perpage, $offset)->get('profile');
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
+  public function get_profiles()
   {
-		$this->db->where('id >', 0);
+		$rs = $this->db->order_by('name', 'ASC')->get('profile');
 
-    if($name != '')
-    {
-      $this->db->like('name', $name);
-    }
+		if($rs->num_rows() > 0)
+		{
+			return  $rs->result();
+		}
 
-    if($perpage > 0)
-    {
-      $offset = $offset === NULL ? 0 : $offset;
-      $this->db->limit($perpage, $offset);
-    }
-
-    $rs = $this->db->get('profile');
-    return $rs->result();
+		return NULL;
   }
 
 
 
-  public function count_rows($name = '')
-  {
-		$this->db->where('id >', 0);
+	public function count_rows(array $ds = array())
+	{
+		if(!empty($ds['name']) && $ds['name'] != "")
+		{
+			$this->db->like('name', $ds['name']);
+		}
 
-    if($name !== '')
-    {
-      $this->db->like('name', $name);
-    }
+		return $this->db->count_all_results('profile');
+	}
 
-    return $this->db->count_all_results('profile');
-
-  }
 
 } //--- End class
 

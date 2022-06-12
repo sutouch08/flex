@@ -1,26 +1,28 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-3 col-xs-12 padding-5">
+	<div class="col-lg-3 col-md-3 col-sm-3 padding-5">
     <h3 class="title hidden-xs">
       <?php echo $this->title; ?>
     </h3>
-		<h3 class="title text-center visible-xs margin-bottom-10">
-      <?php echo $this->title; ?>
-    </h3>
     </div>
-    <div class="col-sm-9 col-xs-12 padding-5">
+		<div class="col-xs-12 padding-5 text-center visible-xs" style="background-color:#eee;">
+			<h3 class="margin-top-0">
+	      <?php echo $this->title; ?>
+	    </h3>
+		</div>
+    <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 padding-5">
     	<p class="pull-right" style="margin-bottom:1px;">
-				<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
+				<button type="button" class="btn btn-xs btn-warning top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
 				<?php if(($this->pm->can_add OR $this->pm->can_edit) && $order->status == 1 && $order->is_paid == 0) : ?>
-				<button type="button" class="btn btn-sm btn-info" onclick="payOrder()"><i class="fa fa-credit-card"></i> แจ้งชำระเงิน</button>
+				<button type="button" class="btn btn-xs btn-info top-btn" onclick="payOrder()"><i class="fa fa-credit-card"></i> แจ้งชำระเงิน</button>
 				<?php endif; ?>
 				<?php if(($this->pm->can_add OR $this->pm->can_edit) && $order->status == 1) : ?>
-				<button type="button" class="btn btn-sm btn-grey" onClick="inputDeliveryNo()"><i class="fa fa-truck"></i> บันทึกการจัดส่ง</button>
+				<button type="button" class="btn btn-xs btn-grey top-btn" onClick="inputDeliveryNo()"><i class="fa fa-truck"></i> บันทึกการจัดส่ง</button>
 				<?php endif; ?>
 
-				<button type="button" class="btn btn-sm btn-purple" onclick="getSummary()"><i class="fa fa-bolt"></i> สรุปข้อมูล</button>
+				<button type="button" class="btn btn-xs btn-purple top-btn" onclick="getSummary()"><i class="fa fa-bolt"></i> สรุปข้อมูล</button>
 
-				<button type="button" class="btn btn-sm btn-default" onclick="printOrderSheet()"><i class="fa fa-print"></i> พิมพ์</button>
+				<button type="button" class="btn btn-xs btn-default top-btn" onclick="printOrderSheet()"><i class="fa fa-print"></i> พิมพ์</button>
 				<!--
 				<?php if($this->pm->can_delete && $order->never_expire == 0) : ?>
 				<button type="button" class="btn btn-sm btn-primary" onclick="setNotExpire(1)">ยกเว้นการหมดอายุ</button>
@@ -30,13 +32,13 @@
 				<?php endif; ?>
 			-->
 				<?php if($this->pm->can_delete && $order->is_expired == 1) : ?>
-								<button type="button" class="btn btn-sm btn-warning" onclick="unExpired()">ทำให้ไม่หมดอายุ</button>
+								<button type="button" class="btn btn-xs btn-warning top-btn" onclick="unExpired()">ทำให้ไม่หมดอายุ</button>
 				<?php endif; ?>
 				<?php if($order->state < 4 && ($this->pm->can_add OR $this->pm->can_edit) && $order->is_paid == 0) : ?>
-				<button type="button" class="btn btn-sm btn-yellow" onclick="editDetail()"><i class="fa fa-pencil"></i> แก้ไขรายการ</button>
+				<button type="button" class="btn btn-xs btn-yellow top-btn" onclick="editDetail()"><i class="fa fa-pencil"></i> แก้ไขรายการ</button>
 				<?php endif; ?>
 				<?php if($order->status == 0) : ?>
-					<button type="button" class="btn btn-sm btn-success" onclick="saveOrder()"><i class="fa fa-save"></i> บันทึก</button>
+					<button type="button" class="btn btn-xs btn-success top-btn" onclick="saveOrder()"><i class="fa fa-save"></i> บันทึก</button>
 				<?php endif; ?>
       </p>
     </div>

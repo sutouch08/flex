@@ -144,7 +144,6 @@ class Customers_model extends CI_Model
 
   public function count_rows($code = '', $name = '', $group = '', $kind = '', $type = '', $class = '', $area = '')
   {
-    $this->db->select('code');
 
     if($code != '')
     {
@@ -184,9 +183,8 @@ class Customers_model extends CI_Model
     }
 
 
-    $rs = $this->db->get('customers');
+    return $this->db->count_all_results('customers');
 
-    return $rs->num_rows();
   }
 
 
@@ -216,6 +214,18 @@ class Customers_model extends CI_Model
     return NULL;
   }
 
+
+	public function get_bill_name($code)
+	{
+		$rs = $this->db->select('customer_name')->where('customer_code', $code)->get('address_bill_to');
+
+		if($rs->num_rows() == 1)
+		{
+			return $rs->row()->customer_name;
+		}
+
+		return NULL;
+	}
 
 
   public function get_data($code = '', $name = '', $group = '', $kind = '', $type = '', $class = '', $area = '', $perpage = '', $offset = '')
@@ -404,6 +414,68 @@ class Customers_model extends CI_Model
 		}
 
 		return NULL;
+	}
+
+
+	public function is_exists_transection($code)
+	{
+		$orders = $this->exists_order($code);
+		$pos = $this->exists_order_pos($code);
+		$sq = $this->exists_quotation($code);
+		$shop = $this->exists_shop($code);
+
+		$transection = $orders + $pos + $sq + $shop;
+
+		if($transection > 0)
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	public function exists_order($code)
+	{
+		return $this->db->where('customer_code', $code)->count_all_results('orders');
+	}
+
+	public function exists_order_pos($code)
+	{
+		return $this->db->where('customer_code', $code)->count_all_results('order_pos');
+	}
+
+	public function exists_quotation($code)
+	{
+		return $this->db->where('customer_code', $code)->count_all_results('order_quotation');
+	}
+
+
+	public function exists_shop($code)
+	{
+		return $this->db->where('customer_code', $code)->count_all_results('shop');
+	}
+
+
+
+	public function delete_address($code)
+	{
+		$this->db->trans_begin();
+
+		$bill_to = $this->db->where('customer_code', $code)->delete('address_bill_to');
+		$ship_to = $this->db->where('customer_code', $code)->delete('address_ship_to');
+
+		if($bill_to && $ship_to)
+		{
+			$this->db->trans_commit();
+			return TRUE;
+		}
+		else
+		{
+			$this->db->trans_rollback();
+			return FALSE;
+		}
+
+		return TRUE;
 	}
 }
 ?>

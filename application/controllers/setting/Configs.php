@@ -15,6 +15,8 @@ class Configs extends PS_Controller
     $this->load->model('setting/config_model');
 		$this->load->helper('channels');
 		$this->load->helper('payment_method');
+		$this->load->helper('warehouse');
+		$this->load->helper('zone');
   }
 
 

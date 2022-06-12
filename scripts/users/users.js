@@ -1,3 +1,5 @@
+var HOME = BASE_URL + 'users/users/';
+
 var validUname = true;
 var validDname = true;
 var validPwd = true;
@@ -5,22 +7,22 @@ var validPwd = true;
 
 
 function newUser(){
-  window.location.href = BASE_URL+'users/users/add_user';
+  window.location.href = HOME+'add_user';
 }
 
 
 
 function goBack(){
-  window.location.href = BASE_URL+'users/users';
+  window.location.href = HOME;
 }
 
 function getEdit(id){
-  window.location.href = BASE_URL + 'users/users/edit_user/'+id;
+  window.location.href = HOME + 'edit_user/'+id;
 }
 
 
 function getReset(id){
-  window.location.href = BASE_URL + 'users/users/reset_password/'+id;
+  window.location.href = HOME + 'reset_password/'+id;
 }
 
 
@@ -38,7 +40,7 @@ function getDelete(id, uname){
 		closeOnConfirm: false
   },function(){
     $.ajax({
-      url: BASE_URL + 'users/users/delete_user/'+id,
+      url: HOME + 'delete_user/'+id,
       type:'GET',
       cache:false,
       success:function(rs){
@@ -77,12 +79,46 @@ function addUser(){
   var cmp = $('#cm-pwd').val();
   var profile = $('#profile').val();
   var status = $('input[name=status]:checked').val();
+	var sale_code = $('#sale_id').val();
 
   if( !validDname || !validUname || !validPwd ){
     return false;
   }
 
-  $('#addForm').submit();
+	$.ajax({
+		url:HOME + 'new_user',
+		type:'POST',
+		cache:false,
+		data:{
+			'dname' : dname,
+			'uname' : uname,
+			'pwd' : pwd,
+			'profile' : profile,
+			'status' : status,
+			'sale_code' : sale_code
+		},
+		success:function(rs) {
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+
+				setTimeout(function() {
+					newUser();
+				}, 1200);
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				})
+			}
+		}
+	})
+
 } //--- end function
 
 
@@ -93,12 +129,41 @@ function updateUser(){
   var uname = $('#uname').val();
   var profile = $('#profile').val();
   var status = $('input[name=status]:checked').val();
+	var sale_code = $('#sale_id').val();
 
   if( !validDname || !validUname ){
     return false;
   }
 
-  $('#editForm').submit();
+	$.ajax({
+		url:HOME + 'update_user',
+		type:'POST',
+		cache:false,
+		data:{
+			'user_id' : id,
+			'dname' : dname,
+			'uname' : uname,
+			'profile' : profile,
+			'status' : status,
+			'sale_code' : sale_code
+		},
+		success:function(rs) {
+			if(rs === 'success') {
+				swal({
+					title:'Success',
+					type:'success',
+					timer:1000
+				});
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				})
+			}
+		}
+	})
 
 }
 

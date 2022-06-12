@@ -88,7 +88,7 @@
     <table class="table table-striped border-1">
       <thead>
         <tr>
-					<th class="width-5 text-center"></th>
+					<th class="text-center" style="width:20px;"></th>
           <th class="width-5 text-center">ลำดับ</th>
           <th class="width-8 text-center">วันที่</th>
           <th class="width-15">เลขที่เอกสาร</th>

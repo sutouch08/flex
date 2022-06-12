@@ -54,23 +54,37 @@ class Saleman extends PS_Controller{
 	public function add()
 	{
 		$sc = TRUE;
+
 		if($this->pm->can_add)
 		{
-			if($this->input->post('code') && $this->input->post('name'))
-			{
-				if(!$this->saleman_model->is_exists($this->input->post('code')))
-				{
-					$arr = array(
-						'code' => $this->input->post('code'),
-						'name' => $this->input->post('name'),
-						'active' => empty($this->input->post('active')) ? 0 : 1
-					);
+			$code = trim($this->input->post('code'));
+			$name = trim($this->input->post('name'));
+			$active = $this->input->post('active') == 1 ? 1 : 0;
 
-					if(!$this->saleman_model->add($arr))
+			if($code != '' && $name != '')
+			{
+				if(! $this->saleman_model->is_exists($code))
+				{
+					if(! $this->saleman_model->is_exists_name($name))
+					{
+						$arr = array(
+							'code' => $code,
+							'name' => $name,
+							'active' => $active
+						);
+
+						if(!$this->saleman_model->add($arr))
+						{
+							$sc = FALSE;
+							$this->error = "เพิ่มข้อมูลไม่สำเร็จ";
+						}
+					}
+					else
 					{
 						$sc = FALSE;
-						$this->error = "เพิ่มข้อมูลไม่สำเร็จ";
+						$this->error = "ชื่อพนังงานขายซ้ำ";
 					}
+
 				}
 				else
 				{
@@ -91,16 +105,7 @@ class Saleman extends PS_Controller{
 			$this->error = "คุณไม่มีสิทธิ์ในการเพิ่มข้อมูล";
 		}
 
-		if($sc === TRUE)
-		{
-			set_message('Success');
-		}
-		else
-		{
-			set_error($this->error);
-		}
-
-		redirect($this->home.'/add_new');
+		echo $sc === TRUE ? 'success' : $this->error;
 	}
 
 
@@ -115,17 +120,20 @@ class Saleman extends PS_Controller{
 
 
 
-	public function update($code)
+	public function update()
 	{
 		$sc = TRUE;
-		if($this->input->post('code') && $this->input->post('name'))
+		$code = $this->input->post('code');
+		$name = trim($this->input->post('name'));
+		$active = $this->input->post('active');
+
+		if($code && $name)
 		{
-			if(!$this->saleman_model->is_duplicate($this->input->post('code'), $code))
+			if(! $this->saleman_model->is_exists_name($name, $code))
 			{
 				$arr = array(
-					'code' => $this->input->post('code'),
-					'name' => $this->input->post('name'),
-					'active' => empty($this->input->post('active')) ? 0 : 1
+					'name' => $name,
+					'active' => $active
 				);
 
 				if(!$this->saleman_model->update($code, $arr))
@@ -137,9 +145,8 @@ class Saleman extends PS_Controller{
 			else
 			{
 				$sc = FALSE;
-				$this->error = "รหัสซ้ำ";
+				$this->error = "ชื่อพนังงานขายซ้ำ";
 			}
-
 		}
 		else
 		{
@@ -147,16 +154,7 @@ class Saleman extends PS_Controller{
 			$this->error = "ไม่พบข้อมูลในฟอร์ม";
 		}
 
-		if($sc === TRUE)
-		{
-			set_message("ปรับปรุงข้อมูลเรียบร้อยแล้ว");
-			redirect($this->home.'/edit/'.$this->input->post('code'));
-		}
-		else
-		{
-			set_error($this->error);
-			redirect($this->home.'/edit/'.$code);
-		}
+		echo $sc === TRUE ? 'success' : $this->error;
 	}
 
 
@@ -179,6 +177,23 @@ class Saleman extends PS_Controller{
 		}
 	}
 
+
+
+
+	public function is_exists_name()
+	{
+		$code = trim($this->input->post('code'));
+		$name = trim($this->input->post('name'));
+
+		if($this->saleman_model->is_exists_name($name, $code))
+		{
+			echo "ชื่อพนักงานขายซ้ำ";
+		}
+		else
+		{
+			echo "ok";
+		}
+	}
 
 
 	public function has_transection($code)

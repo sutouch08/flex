@@ -64,6 +64,7 @@ class Order_invoice extends PS_Controller
 		$sc = TRUE;
 		$customer_code = $this->input->post('customer_code');
 		$customer = $this->customers_model->get($customer_code);
+		$customer_name = $this->customer_model->get_bill_name($customer_code);
 		$doc_date = db_date($this->input->post('doc_date'));
 
 		if(!empty($customer))
@@ -77,7 +78,7 @@ class Order_invoice extends PS_Controller
 				'doc_date' => $doc_date,
 				'vat_type' => $this->input->post('vat_type'),
 				'customer_code' => $customer->code,
-				'customer_name' => $customer->name,
+				'customer_name' => empty($customer_name) ? $customer->name : $customer_name,
 				'tax_id' => get_null($customer->Tax_Id),
 				'remark' => get_null(trim($this->input->post('remark'))),
 				'uname' => $this->_user->uname
@@ -261,6 +262,12 @@ class Order_invoice extends PS_Controller
 								$sc = FALSE;
 								$this->error = "Update order invoice reference failed";
 							}
+
+							if(! $this->order_invoice_model->update_order_sold($order_code, array('inv_code' => NULL)))
+							{
+								$sc = FALSE;
+								$this->error = "Update order sold invoice reference failed";
+							}
 						}
 					}
 				}
@@ -325,6 +332,68 @@ class Order_invoice extends PS_Controller
 		}
 	}
 
+	public function print_selected_tax_invoice()
+	{
+		$invoice = $this->input->post('data');
+
+		$invoices = explode(',', $invoice);
+
+		if(!empty($invoices))
+		{
+			$this->load->library('printer');
+			$this->title = "ใบแจ้งหนี้/ใบกำกับภาษี";
+			$use_vat = getConfig('USE_VAT') ? TRUE : FALSE;
+
+			$data = $this->order_invoice_model->get_invoice_list($invoices);
+
+			if(!empty($data))
+			{
+				$ds = array();
+				foreach($data as $order)
+				{
+					$details = $this->order_invoice_model->get_collapse_details($order->code);
+
+					$sale = $this->customers_model->get_saleman($order->customer_code);
+
+					$bill_name = $this->customers_model->get_bill_name($order->customer_code);
+
+					if(!empty($bill_name))
+					{
+						$order->customer_name = $bill_name;
+					}
+
+					$address = array(
+						'address' => $order->address,
+						'sub_district' => $order->sub_district,
+						'district' => $order->district,
+						'province' => $order->province,
+						'postcode' => $order->postcode
+					);
+
+					$inv = new stdClass();
+					$inv->title = $this->title;
+					$inv->order = $order;
+					$inv->address = parse_address($address);
+					$inv->details = $details;
+					$inv->saleman = $sale;
+					$inv->use_vat = $use_vat;
+
+					$ds[] = $inv;
+				} //--- end foreach
+
+				$arr = array(
+					'data' => $ds
+				);
+				$this->load->view('print/print_multiple_tax_invoice', $arr);
+			}
+		}
+		else
+		{
+			$this->error_page();
+		}
+	}
+
+
 
 	public function print_multiple_tax_invoice($gen_id)
 	{
@@ -341,6 +410,13 @@ class Order_invoice extends PS_Controller
 				$details = $this->order_invoice_model->get_collapse_details($order->code);
 
 				$sale = $this->customers_model->get_saleman($order->customer_code);
+
+				$bill_name = $this->customers_model->get_bill_name($order->customer_code);
+
+				if(!empty($bill_name))
+				{
+					$order->customer_name = $bill_name;
+				}
 
 				$address = array(
 					'address' => $order->address,
@@ -365,6 +441,65 @@ class Order_invoice extends PS_Controller
 				'data' => $ds
 			);
 			$this->load->view('print/print_multiple_tax_invoice', $arr);
+		}
+	}
+
+
+
+	public function print_selected_do_invoice()
+	{
+		$do = $this->input->post('data');
+
+		$do = explode(',', $do);
+
+		if(!empty($do))
+		{
+			$this->load->library('printer');
+			$this->title = "ใบส่งสินค้า/ใบแจ้งหนี้";
+			$use_vat = getConfig('USE_VAT') ? TRUE : FALSE;
+
+			$data = $this->order_invoice_model->get_invoice_list($do);
+
+			if(!empty($data))
+			{
+				$ds = array();
+				foreach($data as $order)
+				{
+					$details = $this->order_invoice_model->get_collapse_details($order->code);
+
+					$sale = $this->customers_model->get_saleman($order->customer_code);
+					$bill_name = $this->customers_model->get_bill_name($order->customer_code);
+
+					if(!empty($bill_name))
+					{
+						$order->customer_name = $bill_name;
+					}
+
+
+					$address = array(
+						'address' => $order->address,
+						'sub_district' => $order->sub_district,
+						'district' => $order->district,
+						'province' => $order->province,
+						'postcode' => $order->postcode
+					);
+
+					$inv = new stdClass();
+					$inv->title = $this->title;
+					$inv->order = $order;
+					$inv->address = parse_address($address);
+					$inv->details = $details;
+					$inv->saleman = $sale;
+					$inv->use_vat = $use_vat;
+
+					$ds[] = $inv;
+				} //--- end foreach
+
+				$arr = array(
+					'data' => $ds
+				);
+				$this->load->view('print/print_multiple_tax_invoice', $arr);
+			}
 		}
 	}
 
@@ -386,6 +521,13 @@ class Order_invoice extends PS_Controller
 
 				$sale = $this->customers_model->get_saleman($order->customer_code);
 
+				$bill_name = $this->customers_model->get_bill_name($order->customer_code);
+
+				if(!empty($bill_name))
+				{
+					$order->customer_name = $bill_name;
+				}
+
 				$address = array(
 					'address' => $order->address,
 					'sub_district' => $order->sub_district,
@@ -411,6 +553,7 @@ class Order_invoice extends PS_Controller
 			$this->load->view('print/print_multiple_tax_invoice', $arr);
 		}
 	}
+
 
 
 	public function print_tax_receipt($code)
@@ -450,6 +593,14 @@ class Order_invoice extends PS_Controller
 			//$details = $this->order_invoice_model->get_details($code);
 			$details = $this->order_invoice_model->get_collapse_details($code); //--- ดึงราย โดยรวมยอดรายการที่ รหัสสินค้าเดียวกัน ราคาเท่ากัน ส่วนลดเท่ากันให้เป็นรายการเดียว
 			$sale = $this->customers_model->get_saleman($order->customer_code);
+
+			$bill_name = $this->customers_model->get_bill_name($order->customer_code);
+
+			if(!empty($bill_name))
+			{
+				$order->customer_name = $bill_name;
+			}
+
 			$address = array(
 				'address' => $order->address,
 				'sub_district' => $order->sub_district,
@@ -482,6 +633,13 @@ class Order_invoice extends PS_Controller
 			//$details = $this->order_invoice_model->get_details($code);
 			$details = $this->order_invoice_model->get_collapse_details($code); //--- ดึงราย โดยรวมยอดรายการที่ รหัสสินค้าเดียวกัน ราคาเท่ากัน ส่วนลดเท่ากันให้เป็นรายการเดียว
 			$sale = $this->customers_model->get_saleman($order->customer_code);
+			$bill_name = $this->customers_model->get_bill_name($order->customer_code);
+
+			if(!empty($bill_name))
+			{
+				$order->customer_name = $bill_name;
+			}
+			
 			$address = array(
 				'address' => $order->address,
 				'sub_district' => $order->sub_district,
@@ -861,6 +1019,12 @@ class Order_invoice extends PS_Controller
 								$sc = FALSE;
 								$this->error = "Update order invoice reference failed";
 							}
+
+							if(! $this->order_invoice_model->update_order_sold($order_code, array('inv_code' => $code)))
+							{
+								$sc = FALSE;
+								$this->error = "Update order sold invoice reference failed";
+							}
 						}
 						else
 						{
@@ -1146,6 +1310,12 @@ class Order_invoice extends PS_Controller
 									$sc = FALSE;
 									$this->error = "Update order invoice reference failed";
 								}
+
+								if(! $this->order_invoice_model->update_order_sold($order_code, array('inv_code' => $code)))
+								{
+									$sc = FALSE;
+									$this->error = "Update order sold invoice reference failed";
+								}
 							}
 						}
 
@@ -1335,6 +1505,13 @@ class Order_invoice extends PS_Controller
 									{
 										$sc = FALSE;
 										$this->error = "Update order invoice reference failed : {$code}";
+									}
+
+
+									if(! $this->order_invoice_model->update_order_sold($order_code, array('inv_code' => $code)))
+									{
+										$sc = FALSE;
+										$this->error = "Update order sold invoice reference failed";
 									}
 								}
 

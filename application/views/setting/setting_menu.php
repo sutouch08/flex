@@ -6,7 +6,7 @@
 <div class="tab-pane fade" id="menu">
 	<form id="menuForm" method="post" action="<?php echo $this->home; ?>/update_menu_config">
   	<div class="row">
-    	<div class="col-sm-12">
+    	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 				<table class="table table-striped table-bordered table-hover">
 					<thead>
 						<tr class="hide">

@@ -1208,7 +1208,7 @@ class Orders extends PS_Controller
 		if(!empty($item))
 		{
 			$sc = $this->getOrderItemGrid($item, $view);
-			$sc .= ' | 150';
+			$sc .= ' | ';
 			$sc .= ' | '.$item->code.' : '.$item->name;
 			$sc .= ' | '.$item->code;
 			$sc .= ' | '.number($item->price, 2);
@@ -1303,56 +1303,65 @@ class Orders extends PS_Controller
 		$sc 	 .= "<table class='table table-bordered'>";
 		$i 		  = 0;
     $auz = getConfig('ALLOW_UNDER_ZERO') == 1 ? TRUE : FALSE;
-		$use_product_name = getConfig('USE_PRODUCT_NAME') == 1 ? TRUE : FALSE;
+		$use_product_name = getConfig('USE_PRODUCT_NAME'); // == 1 ? TRUE : FALSE;
 
-    foreach($items as $item )
+    if(!empty($items))
     {
-    //  $sc 	.= $i%2 == 0 ? '<tr>' : '';
-		  $sc .= "<tr>";
-			$isVisual = $item->count_stock == 1 ? FALSE : TRUE;
-      $active	= $item->active == 0 ? 'Disactive' : ( $item->can_sell == 0 ? 'N/S' : ( $item->is_deleted == 1 ? 'Deleted' : TRUE ) );
-			$qty 		= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->get_sell_stock($item->code) ) : 0 ) : FALSE; //--- สต็อกที่สั่งซื้อได้
-			//$disabled  = $isVisual === TRUE  && $active == TRUE ? '' : ( ($active !== TRUE OR $qty < 1 ) ? 'disabled' : '');
-      $disabled  = ($isVisual === TRUE OR $auz === TRUE) && $active == TRUE ? '' : ( ($active !== TRUE OR $qty < 1 ) ? 'disabled' : '');
-
-      if( $qty < 1 && $active === TRUE )
+      foreach($items as $item )
       {
-        $txt = $auz === TRUE ? '<span class="font-size-12 red">'.$qty.'</span>' : '<span class="font-size-12 red">Sold out</span>';
-        $txt = $qty == 0 ? '<span class="font-size-12 red">Sold out</span>' : $txt;
+      //  $sc 	.= $i%2 == 0 ? '<tr>' : '';
+  		  $sc .= "<tr>";
+  			$isVisual = $item->count_stock == 1 ? FALSE : TRUE;
+        $active	= $item->active == 0 ? 'Disactive' : ( $item->can_sell == 0 ? 'N/S' : ( $item->is_deleted == 1 ? 'Deleted' : TRUE ) );
+  			$qty 		= $isVisual === FALSE ? ( $active == TRUE ? $this->showStock( $this->get_sell_stock($item->code) ) : 0 ) : FALSE; //--- สต็อกที่สั่งซื้อได้
+  			//$disabled  = $isVisual === TRUE  && $active == TRUE ? '' : ( ($active !== TRUE OR $qty < 1 ) ? 'disabled' : '');
+        $disabled  = ($isVisual === TRUE OR $auz === TRUE) && $active == TRUE ? '' : ( ($active !== TRUE OR $qty < 1 ) ? 'disabled' : '');
+
+        if( $qty < 1 && $active === TRUE )
+        {
+          $txt = $auz === TRUE ? '<span class="font-size-12 red">'.$qty.'</span>' : '<span class="font-size-12 red">Sold out</span>';
+          $txt = $qty == 0 ? '<span class="font-size-12 red">Sold out</span>' : $txt;
+        }
+        else
+        {
+          $txt = $active === TRUE ? '' : '<span class="font-size-12 blue">'.$active.'</span>';
+        }
+
+        $available = $qty === FALSE && $active === TRUE ? '' : ( ($qty < 1 || $active !== TRUE ) ? $txt : $qty);
+        $limit = $qty === FALSE ? 1000000 : ($auz === TRUE ? 1000000 : $qty);
+
+        $code = $item->code;
+  			$name = $use_product_name === 1 ? $item->name : ($use_product_name == 0 ? $item->code : $item->code.' : '.$item->name);
+
+  			$sc 	.= '<td class="middle text-left" style="border-right:0px; white-space:pre-wrap;">';
+        $sc   .= '<p class="margin-bottom-0">'.$item->name.'</p>';
+        $sc   .= '<p class="margin-bottom-0 font-size-10">'.$item->code.'</p>';
+  			//$sc 	.= '<strong>' .	$name. '</strong>';
+  			$sc 	.= '</td>';
+
+  			$sc 	.= '<td class="middle one-attribute" style="width:80px;">';
+
+        if( $view === FALSE )
+  			{
+  			$sc 	.= '<input type="number" class="form-control input-sm order-grid input-qty display-block text-center" name="qty[0]['.$item->code.']" id="'.$item->code.'" onkeyup="valid_qty($(this), '.$limit.')" '.$disabled.' />';
+  			}
+
+        $sc 	.= 	'<center>';
+        $sc   .= '<span class="font-size-10">';
+        $sc   .= $qty === FALSE && $active === TRUE ? '' : ( ($qty < 1 || $active !== TRUE ) ? $txt : $qty);
+        $sc   .= '</span></center>';
+  			$sc 	.= '</td>';
+
+  			//$i++;
+
+  			//$sc 	.= $i%2 == 0 ? '</tr>' : '';
+  			$sc .= "</tr>";
+
       }
-      else
-      {
-        $txt = $active === TRUE ? '' : '<span class="font-size-12 blue">'.$active.'</span>';
-      }
-
-      $available = $qty === FALSE && $active === TRUE ? '' : ( ($qty < 1 || $active !== TRUE ) ? $txt : $qty);
-      $limit = $qty === FALSE ? 1000000 : ($auz === TRUE ? 1000000 : $qty);
-
-      $code = $item->code;
-			$name = $use_product_name === TRUE ? $item->name : $item->code;
-
-			$sc 	.= '<td class="middle text-center" style="border-right:0px; white-space:pre-wrap;">';
-			$sc 	.= '<strong>' .	$name. '</strong>';
-			$sc 	.= '</td>';
-
-			$sc 	.= '<td class="middle one-attribute" style="width:80px;">';
-
-      if( $view === FALSE )
-			{
-			$sc 	.= '<input type="number" class="form-control input-sm order-grid input-qty display-block text-center" name="qty[0]['.$item->code.']" id="'.$item->code.'" onkeyup="valid_qty($(this), '.$limit.')" '.$disabled.' />';
-			}
-
-      $sc 	.= 	'<center>';
-      $sc   .= '<span class="font-size-10">';
-      $sc   .= $qty === FALSE && $active === TRUE ? '' : ( ($qty < 1 || $active !== TRUE ) ? $txt : $qty);
-      $sc   .= '</span></center>';
-			$sc 	.= '</td>';
-
-			//$i++;
-
-			//$sc 	.= $i%2 == 0 ? '</tr>' : '';
-			$sc .= "</tr>";
-
+    }
+    else
+    {
+      $sc .= "<tr><td class='text-center'>ไม่พบรายการสินค้าในรุ่นนี้</td></tr>";
     }
 
 		$sc	.= "</table>";
@@ -1367,7 +1376,7 @@ class Orders extends PS_Controller
     $sc 		= '';
 		$sc 	 .= "<table class='table table-bordered'>";
 		$i 		  = 0;
-		$use_product_name = getConfig('USE_PRODUCT_NAME') == 1 ? TRUE : FALSE;
+		$use_product_name = getConfig('USE_PRODUCT_NAME');// == 1 ? TRUE : FALSE;
 
     foreach($items as $item )
     {
@@ -1391,7 +1400,7 @@ class Orders extends PS_Controller
       $limit = 1000000;
 
       $code = $item->code;
-			$name = $use_product_name === TRUE ? $item->name : $item->code;
+			$name = $use_product_name === 1 ? $item->name : ($use_product_name == 0 ? $item->code : $item->code.' : '.$item->name);
 
 			$sc 	.= '<td class="middle text-center" style="border-right:0px; white-space:pre-wrap;">';
 			$sc 	.= '<strong>' .	$name. '</strong>';
@@ -1483,7 +1492,7 @@ class Orders extends PS_Controller
 		if(!empty($item))
 		{
 			$auz = getConfig('ALLOW_UNDER_ZERO') == 1 ? TRUE : FALSE;
-			$use_product_name = getConfig('USE_PRODUCT_NAME') == 1 ? TRUE : FALSE;
+			$use_product_name = getConfig('USE_PRODUCT_NAME');// == 1 ? TRUE : FALSE;
 			$isVisual = $item->count_stock == 1 ? FALSE : TRUE;
 			$active = $item->active == 0 ? 'Disactive' : ($item->can_sell == 0 ? 'N/S' : ($item->is_deleted == 1 ? 'Deleted' : TRUE));
 			$qty = $isVisual === FALSE ? ($active === TRUE ? $this->showStock($this->get_sell_stock($item->code)) : 0) : FALSE; //--- สต็อกที่สั่งซื้อได้
@@ -2361,6 +2370,7 @@ class Orders extends PS_Controller
       $state = $this->input->post('state');
       $order = $this->orders_model->get($code);
       $details = $this->orders_model->get_order_details($code);
+
       if(!empty($order))
       {
         //--- ถ้าเป็นเบิกแปรสภาพ จะมีการผูกสินค้าไว้
@@ -2494,7 +2504,7 @@ class Orders extends PS_Controller
     $this->load->model('inventory/lend_model');
     $this->load->model('stock/stock_model');
 
-    //---- set is_complete = 0
+		//---- set is_complete = 0
     $this->orders_model->un_complete($order->code);
 
     //---- move cancle product back to  buffer
@@ -2512,24 +2522,27 @@ class Orders extends PS_Controller
       {
         if($rs->is_count == 1)
         {
-          //---- restore_buffer
-          if($this->buffer_model->is_exists($rs->reference, $rs->product_code, $rs->zone_code) === TRUE)
-          {
-            $this->buffer_model->update($rs->reference, $rs->product_code, $rs->zone_code, $rs->qty);
-          }
-          else
-          {
-            $ds = array(
-              'order_code' => $rs->reference,
-              'product_code' => $rs->product_code,
-              'warehouse_code' => $rs->warehouse_code,
-              'zone_code' => $rs->zone_code,
-              'qty' => $rs->qty,
-              'user' => $rs->user
-            );
+					if($order->picked == 1)
+					{
+						//---- restore_buffer
+	          if($this->buffer_model->is_exists($rs->reference, $rs->product_code, $rs->zone_code) === TRUE)
+	          {
+	            $this->buffer_model->update($rs->reference, $rs->product_code, $rs->zone_code, $rs->qty);
+	          }
+	          else
+	          {
+	            $ds = array(
+	              'order_code' => $rs->reference,
+	              'product_code' => $rs->product_code,
+	              'warehouse_code' => $rs->warehouse_code,
+	              'zone_code' => $rs->zone_code,
+	              'qty' => $rs->qty,
+	              'user' => $rs->user
+	            );
 
-            $this->buffer_model->add($ds);
-          }
+	            $this->buffer_model->add($ds);
+	          }
+					}
 
           if($order->role === 'N' OR $order->role === 'L')
           {

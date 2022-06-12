@@ -1,4 +1,6 @@
 <?php
+$btn_prepare_yes = $USE_PREPARE == 1 ? 'btn-success' : '';
+$btn_prepare_no = $USE_PREPARE == 0 ? 'btn-danger' : '';
 $btn_qc_yes = $USE_QC == 1 ? 'btn-success' : '';
 $btn_qc_no = $USE_QC == 0 ? 'btn-danger' : '';
 $auz_no = $ALLOW_UNDER_ZERO == 0 ? 'btn-success' : '';
@@ -34,6 +36,17 @@ $input_qc_no = $QC_ALLOW_INPUT_QTY == 0 ? 'btn-success' : '';
       </div>
 		-->
       <div class="divider-hidden"></div>
+			<div class="col-sm-3"><span class="form-control left-label">ใช้งานระบบจัดสินค้า</span></div>
+			<div class="col-sm-9">
+				<div class="btn-group input-medium">
+					<button type="button" class="btn btn-sm <?php echo $btn_prepare_yes; ?>" style="width:50%;" id="btn-prepare-yes" onClick="togglePrepare(1)">ใช้</button>
+					<button type="button" class="btn btn-sm <?php echo $btn_prepare_no; ?>" style="width:50%;" id="btn-prepare-no" onClick="togglePrepare(0)">ไม่ใช้</button>
+				</div>
+				<span class="help-block">เปิด/ปิด ระบบจัดสินค้า</span>
+				<input type="hidden" name="USE_PREPARE" id="use_prepare" value="<?php echo $USE_PREPARE; ?>" />
+			</div>
+			<div class="divider-hidden"></div>
+
 			<div class="col-sm-3"><span class="form-control left-label">ใช้งานระบบ QC</span></div>
 			<div class="col-sm-9">
 				<div class="btn-group input-medium">
@@ -55,6 +68,20 @@ $input_qc_no = $QC_ALLOW_INPUT_QTY == 0 ? 'btn-success' : '';
 				<input type="hidden" name="QC_ALLOW_INPUT_QTY" id="qty_qc" value="<?php echo $QC_ALLOW_INPUT_QTY; ?>" />
 			</div>
 			<div class="divider-hidden"></div>
+
+
+
+			<div class="col-sm-3"><span class="form-control left-label">โซนขายเริ่มต้น</span></div>
+			<div class="col-sm-9">
+				<select class="form-control input-sm input-large" name="DEFAULT_ZONE" id="default_zone" />
+					<option value="">กรุณาเลือก</option>
+					<?php echo select_sell_zone($DEFAULT_ZONE); ?>
+				</select>
+				<span class="help-block">ระบุโซนสินค้าเริ่มต้น เพื่อใช้ในการตัดสต็อกขาย กรณีไม่มีการจัดสินค้า</span>
+			</div>
+			<div class="divider-hidden"></div>
+
+
 
       <div class="col-sm-3">
         <span class="form-control left-label">สต็อกติดลบได้</span>

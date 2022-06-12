@@ -223,6 +223,23 @@ function toggleAuz(option)
 }
 
 
+//---- ไม่ขายสินค้าให้ลูกค้าที่มียอดค้างเกินกำหนด
+function togglePrepare(option)
+{
+	$('#use_prepare').val(option);
+	if(option == 1){
+		$('#btn-prepare-yes').addClass('btn-success');
+		$('#btn-prepare-no').removeClass('btn-danger');
+		return;
+	}
+
+	if(option == 0){
+		$('#btn-prepare-yes').removeClass('btn-success');
+		$('#btn-prepare-no').addClass('btn-danger');
+		return;
+	}
+}
+
 
 //---- ไม่ขายสินค้าให้ลูกค้าที่มียอดค้างเกินกำหนด
 function toggleQC(option)

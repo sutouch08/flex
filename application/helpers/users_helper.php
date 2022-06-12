@@ -117,4 +117,24 @@ function get_display_name($uname)
 }
 
 
+function selece_profile($id = NULL)
+{
+	$sc = "";
+
+	$ci =& get_instance();
+	$ci->load->model('users/profile_model');
+	$profiles = $ci->profile_model->get_profiles();
+
+	if(!empty($profiles))
+	{
+		foreach($profiles as $rs)
+		{
+			$sc .= '<option value="'.$rs->id.'" '.is_selected($id, $rs->id).'>'.$rs->name.'</option>';
+		}
+	}
+
+	return $sc;
+}
+
+
  ?>

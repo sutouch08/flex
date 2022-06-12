@@ -69,14 +69,25 @@ class Delivery_order extends PS_Controller
 		$this->load->model('masters/payment_methods_model');
 		$this->load->model('masters/products_model');
     $this->load->model('stock/stock_model');
+		$this->load->model('masters/zone_model');
 		$this->load->model('masters/vat_model');
 
     $this->load->helper('discount');
 		$this->load->helper('order');
     $code = $this->input->post('order_code');
     $use_qc = getConfig('USE_QC') == 1 ? TRUE : FALSE;
+		$use_prepare = getConfig('USE_PREPARE') == 1 ? TRUE : FALSE;
 		$use_credit = getConfig('CONTROL_CREDIT') == 1 ? TRUE : FALSE;
+
 		$warehouse_code = NULL;
+
+		$default_zone = getConfig('DEFAULT_ZONE');
+
+		if(!$use_prepare && $default_zone != "" && $default_zone != NULL)
+		{
+			$warehouse_code = $this->zone_model->get_warehouse_code($default_zone);
+		}
+
 
     if($code)
     {
@@ -120,7 +131,8 @@ class Delivery_order extends PS_Controller
 				$sold_date = getConfig('ORDER_SOLD_DATE') == 'D' ? $order->date_add : now();
 
         //---- รายการทีรอการเปิดบิล
-        $bill = $this->delivery_order_model->get_bill_detail($code, $use_qc);
+        $bill = $use_prepare ? $this->delivery_order_model->get_bill_detail($code, $use_qc) : $this->delivery_order_model->get_order_details($code);
+
 
 				$customer = $this->customers_model->get_attribute($order->customer_code);
 
@@ -129,7 +141,9 @@ class Delivery_order extends PS_Controller
 				if($order->bDiscAmount > 0)
 				{
 					$sum_qty = 0;
-					if($use_qc)
+					$sum_order_qty = $this->orders_model->get_order_total_qty($code);
+
+					if($use_qc && $use_prepare)
 					{
 						$sum_buffer = $this->buffer_model->get_sum_order_qty($code);
 						$sum_qc = $this->qc_model->get_sum_order_qty($code);
@@ -137,13 +151,20 @@ class Delivery_order extends PS_Controller
 						$non_stock_qty = $this->delivery_order_model->get_sum_non_bill_qty($code);
 						$sum_qty = $sum_qty + $non_stock_qty;
 					}
-					else
+
+					if($use_prepare && ! $use_qc)
 					{
 						$sum_buffer = $this->buffer_model->get_sum_order_qty($code);
 						$non_stock_qty = $this->delivery_order_model->get_sum_non_bill_qty($code);
 						$sum_qty = $sum_qty + $non_stock_qty;
 					}
-					$sum_order_qty = $this->orders_model->get_order_total_qty($code);
+
+					if(!$use_prepare)
+					{
+						$sum_qty = $sum_order_qty;
+					}
+
+
 					$sum_qty = $sum_order_qty < $sum_qty ? $sum_order_qty : $sum_qty;
 
 					$avgBillDiscAmount = round(($sum_qty > 0 ? ($order->bDiscAmount / $sum_qty) : 0), 2);
@@ -163,27 +184,35 @@ class Delivery_order extends PS_Controller
 
             //--- ถ้ายอดตรวจ น้อยกว่า หรือ เท่ากับ ยอดสั่ง ใช้ยอดตรวจในการตัด buffer
             //--- ถ้ายอดตวจ มากกว่า ยอดสั่ง ให้ใช้ยอดสั่งในการตัด buffer (บางทีอาจมีการแก้ไขออเดอร์หลังจากมีการตรวจสินค้าแล้ว)
-            if($use_qc)
+            if($use_prepare && $use_qc)
             {
               $sell_qty = ($rs->order_qty >= $rs->qc) ? $rs->qc : $rs->order_qty;
             }
-            else
+
+						if($use_prepare && ! $use_qc)
             {
               $sell_qty = ($rs->order_qty >= $rs->prepared) ? $rs->prepared : $rs->order_qty;
             }
 
+						if(!$use_prepare)
+						{
+							$sell_qty = $rs->order_qty;
+						}
+
 
             //--- ดึงข้อมูลสินค้าที่จัดไปแล้วตามสินค้า
-            $buffers = $this->buffer_model->get_details($code, $rs->product_code);
-            if(!empty($buffers))
+            $buffers = $use_prepare ? $this->buffer_model->get_details($code, $rs->product_code) : array('0' => $rs);
+
+            if(! empty($buffers))
             {
               $no = 0;
+
               foreach($buffers as $rm)
               {
                 if($sell_qty > 0)
                 {
                 //--- ถ้ายอดใน buffer น้อยกว่าหรือเท่ากับยอดสั่งซื้อ (แยกแต่ละโซน น้อยกว่าหรือเท่ากับยอดสั่ง (ซึ่งควรเป็นแบบนี้))
-                  $buffer_qty = $rm->qty <= $sell_qty ? $rm->qty : $sell_qty;
+                  $buffer_qty = $use_prepare ? ($rm->qty <= $sell_qty ? $rm->qty : $sell_qty) : $rm->order_qty;
 
                   //--- ทำยอดให้เป็นลบเพื่อตัดยอดออก เพราะใน function  ใช้การบวก
                   $qty = $buffer_qty * (-1);
@@ -191,10 +220,10 @@ class Delivery_order extends PS_Controller
                   //--- 1. ตัดยอดออกจาก buffer
                   //--- นำจำนวนติดลบบวกกลับเข้าไปใน buffer เพื่อตัดยอดให้น้อยลง
 
-                  if($this->buffer_model->update($rm->order_code, $rm->product_code, $rm->zone_code, $qty) !== TRUE)
+                  if($use_prepare && $this->buffer_model->update($rm->order_code, $rm->product_code, $rm->zone_code, $qty) !== TRUE)
                   {
                     $sc = FALSE;
-                    $message = 'ปรับยอดใน buffer ไม่สำเร็จ';
+                    $this->error = 'ปรับยอดใน buffer ไม่สำเร็จ';
                     break;
                   }
 
@@ -204,8 +233,8 @@ class Delivery_order extends PS_Controller
                   //--- 2. update movement
                   $arr = array(
                     'reference' => $order->code,
-                    'warehouse_code' => $rm->warehouse_code,
-                    'zone_code' => $rm->zone_code,
+                    'warehouse_code' => $use_prepare ? $rm->warehouse_code : $warehouse_code,
+                    'zone_code' => $use_prepare ? $rm->zone_code : $default_zone,
                     'product_code' => $rm->product_code,
                     'move_in' => 0,
                     'move_out' => $buffer_qty,
@@ -215,7 +244,7 @@ class Delivery_order extends PS_Controller
                   if($this->movement_model->add($arr) === FALSE)
                   {
                     $sc = FALSE;
-                    $message = 'บันทึก movement ขาออกไม่สำเร็จ';
+                    $this->error = 'บันทึก movement ขาออกไม่สำเร็จ';
                     break;
                   }
 
@@ -227,7 +256,7 @@ class Delivery_order extends PS_Controller
                     if($this->stock_model->update_stock_zone($order->zone_code, $rm->product_code, $buffer_qty) !== TRUE)
                     {
                       $sc = FALSE;
-                      $message = 'โอนสินค้าเข้าโซนปลายทางไม่สำเร็จ';
+                      $this->error = 'โอนสินค้าเข้าโซนปลายทางไม่สำเร็จ';
                     }
 
                     //--- 2. เพิ่ม movement เข้าปลายทาง
@@ -244,12 +273,13 @@ class Delivery_order extends PS_Controller
                     if($this->movement_model->add($arr) === FALSE)
                     {
                       $sc = FALSE;
-                      $message = 'บันทึก movement ขาเข้าไม่สำเร็จ';
+                      $this->error = 'บันทึก movement ขาเข้าไม่สำเร็จ';
                       break;
                     }
                   }
 
                   $total_amount = ($rs->final_price + $avgBillDiscAmount) * $buffer_qty;
+
                   //--- 4. update credit used
                   if($sc === TRUE && $order->role == 'S' && $order->is_term == 1)
                   {
@@ -258,7 +288,7 @@ class Delivery_order extends PS_Controller
                     if($use_credit && ($credit_balance < $total_amount))
                     {
                       $sc = FALSE;
-                      $message = 'เครดิตคงเหลือไม่เพียงพอ';
+                      $this->error = 'เครดิตคงเหลือไม่เพียงพอ';
                     }
 
                     if($sc === TRUE && $this->customers_model->update_used($order->customer_code, (($rs->final_price + $avgBillDiscAmount) * $buffer_qty)))
@@ -272,6 +302,7 @@ class Delivery_order extends PS_Controller
 									$total_amount = ($rs->final_price - $avgBillDiscAmount) * $buffer_qty;
 									$total_amount_ex = remove_vat($total_amount, $item->vat_rate);
 									$total_cost = $rs->cost * $buffer_qty;
+
                   $arr = array(
                           'reference' => $order->code,
                           'role'   => $order->role,
@@ -336,17 +367,18 @@ class Delivery_order extends PS_Controller
 													'sale_name' => $customer->sale_name,
                           'user' => $order->user,
                           'date_add'  => $sold_date,
-                          'zone_code' => $rm->zone_code,
-                          'warehouse_code'  => $rm->warehouse_code,
+                          'zone_code' => $use_prepare ? $rm->zone_code : $default_zone,
+                          'warehouse_code'  => $use_prepare ? $rm->warehouse_code : $warehouse_code,
                           'update_user' => get_cookie('uname'),
-                          'budget_code' => $order->budget_code
+                          'budget_code' => $order->budget_code,
+													'is_count' => $rs->is_count
                   );
 
                   //--- 3. บันทึกยอดขาย
                   if($this->delivery_order_model->sold($arr) !== TRUE)
                   {
                     $sc = FALSE;
-                    $message = 'บันทึกขายไม่สำเร็จ';
+                    $this->error = 'บันทึกขายไม่สำเร็จ';
                     break;
                   }
                 } //--- end if sell_qty > 0
@@ -359,14 +391,20 @@ class Delivery_order extends PS_Controller
             if($order->role == 'T')
             {
               //--- ตัวเลขที่มีการเปิดบิล
-              if($use_qc)
+              if($use_prepare && $use_qc)
               {
                 $sold_qty = ($rs->order_qty >= $rs->qc) ? $rs->qc : $rs->order_qty;
               }
-              else
+
+              if($use_prepare && !$use_qc)
               {
                 $sold_qty = ($rs->order_qty >= $rs->prepared) ? $rs->prepared : $rs->order_qty;
               }
+
+							if(!$use_prepare)
+							{
+								$sold_qty = $rs->order_qty;
+							}
 
               //--- ยอดสินค้าที่มีการเชื่อมโยงไว้ในตาราง tbl_order_transform_detail (เอาไว้โอนเข้าคลังระหว่างทำ รอรับเข้า)
               //--- ถ้ามีการเชื่อมโยงไว้ ยอดต้องมากกว่า 0 ถ้ายอดเป็น 0 แสดงว่าไม่ได้เชื่อมโยงไว้
@@ -392,7 +430,7 @@ class Delivery_order extends PS_Controller
                     else
                     {
                       $sc = FALSE;
-                      $message = 'ปรับปรุงยอดรายการค้างรับไม่สำเร็จ';
+                      $this->error = 'ปรับปรุงยอดรายการค้างรับไม่สำเร็จ';
                     }
                   }
                 }
@@ -404,14 +442,21 @@ class Delivery_order extends PS_Controller
             if($order->role == 'L')
             {
               //--- ตัวเลขที่มีการเปิดบิล
-              if($use_qc)
+              if($use_prepare && $use_qc)
               {
                 $sold_qty = ($rs->order_qty >= $rs->qc) ? $rs->qc : $rs->order_qty;
               }
-              else
+
+
+              if($use_prepare && !$use_qc)
               {
                 $sold_qty = ($rs->order_qty >= $rs->prepared) ? $rs->prepared : $rs->order_qty;
               }
+
+							if(! $use_prepare)
+							{
+								$sold_qty = $rs->order_qty;
+							}
 
 
               $arr = array(
@@ -425,7 +470,7 @@ class Delivery_order extends PS_Controller
               if($this->lend_model->add_detail($arr) === FALSE)
               {
                 $sc = FALSE;
-                $message = 'เพิ่มรายการค้างรับไม่สำเร็จ';
+                $this->error = 'เพิ่มรายการค้างรับไม่สำเร็จ';
               }
             }
 
@@ -456,7 +501,7 @@ class Delivery_order extends PS_Controller
               if($this->cancle_model->add($arr) === FALSE)
               {
                 $sc = FALSE;
-                $message = 'เคลียร์ยอดค้างเข้า cancle ไม่สำเร็จ';
+                $this->error = 'เคลียร์ยอดค้างเข้า cancle ไม่สำเร็จ';
                 break;
               }
             }
@@ -464,7 +509,7 @@ class Delivery_order extends PS_Controller
             if($this->buffer_model->delete($rs->id) === FALSE)
             {
               $sc = FALSE;
-              $message = 'ลบ Buffer ที่ค้างอยู่ไม่สำเร็จ';
+              $this->error = 'ลบ Buffer ที่ค้างอยู่ไม่สำเร็จ';
               break;
             }
           }
@@ -472,7 +517,8 @@ class Delivery_order extends PS_Controller
 
 
         //--- บันทึกขายรายการที่ไม่นับสต็อก
-        $bill = $this->delivery_order_model->get_non_count_bill_detail($order->code);
+        $bill = $use_prepare ? $this->delivery_order_model->get_non_count_bill_detail($order->code) : NULL;
+
         if(!empty($bill))
         {
           foreach($bill as $rs)
@@ -487,7 +533,7 @@ class Delivery_order extends PS_Controller
               if( $use_credit && ($credit_balance < $total_amount))
               {
                 $sc = FALSE;
-                $message = 'เครดิตคงเหลือไม่เพียงพอ';
+                $this->error = 'เครดิตคงเหลือไม่เพียงพอ';
               }
 
               if($sc === TRUE && $this->customers_model->update_used($order->customer_code, (($rs->final_price + $avgBillDiscAmount)* $rs->qty)))
@@ -577,12 +623,12 @@ class Delivery_order extends PS_Controller
             if($this->delivery_order_model->sold($arr) !== TRUE)
             {
               $sc = FALSE;
-              $message = 'บันทึกขายไม่สำเร็จ';
+              $this->error = 'บันทึกขายไม่สำเร็จ';
               break;
             }
           }
-
         }
+
 
         if($sc === TRUE)
         {
@@ -639,7 +685,7 @@ class Delivery_order extends PS_Controller
 
     }
 
-    echo $sc === TRUE ? 'success' : $message;
+    echo $sc === TRUE ? 'success' : $this->error;
   }
 
 
@@ -653,6 +699,9 @@ class Delivery_order extends PS_Controller
     $this->load->model('masters/payment_methods_model');
     $this->load->model('masters/sender_model');
     $use_qc = getConfig('USE_QC') == 1 ? TRUE : FALSE;
+		$use_prepare = getConfig('USE_PREPARE') == 1 ? TRUE : FALSE;
+		$default_zone = getConfig('DEFAULT_ZONE');
+		$has_default_zone = ($default_zone == "" OR $default_zone == NULL) ? FALSE : TRUE;
     $order = $this->orders_model->get($code);
     $order->customer_name = $this->customers_model->get_name($order->customer_code);
     if($order->role == 'C' OR $order->role == 'N')
@@ -674,6 +723,8 @@ class Delivery_order extends PS_Controller
     $ds['details'] = $details;
     $ds['box_list'] = $box_list;
     $ds['use_qc'] = $use_qc;
+		$ds['use_prepare'] = $use_prepare;
+		$ds['has_default_zone'] = $has_default_zone;
     $this->load->view('inventory/delivery_order/bill_detail', $ds);
   }
 

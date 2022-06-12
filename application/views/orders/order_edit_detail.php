@@ -5,14 +5,14 @@ $edit = $this->pm->can_edit;
 $delete = $this->pm->can_delete;
  ?>
 <div class="row">
-	<div class="col-sm-6 col-xs-12 padding-5">
-    	<h4 class="title"><?php echo $this->title; ?></h4>
+	<div class="col-sm-6 col-xs-6 padding-5">
+    	<h3 class="title"><?php echo $this->title; ?></h3>
     </div>
-    <div class="col-sm-6 col-xs-12 padding-5">
+    <div class="col-sm-6 col-xs-6 padding-5">
     	<p class="pull-right top-p">
-        	<button type="button" class="btn btn-sm btn-warning" onclick="editOrder('<?php echo $order->code; ?>')"><i class="fa fa-arrow-left"></i> กลับ</button>
+        	<button type="button" class="btn btn-xs btn-warning top-btn" onclick="editOrder('<?php echo $order->code; ?>')"><i class="fa fa-arrow-left"></i> กลับ</button>
       <?php if($order->status == 0 && ($this->pm->can_add OR $this->pm->can_edit)) : ?>
-          <button type="button" class="btn btn-sm btn-success" id="btn-save-order" onclick="saveOrder()"><i class="fa fa-save"></i> บันทึก</button>
+          <button type="button" class="btn btn-xs btn-success top-btn" id="btn-save-order" onclick="saveOrder()"><i class="fa fa-save"></i> บันทึก</button>
       <?php endif; ?>
         </p>
     </div>
@@ -22,8 +22,8 @@ $delete = $this->pm->can_delete;
 
 <hr class="padding-5 "/>
 <div class="row">
-	<div class="col-sm-9 hidden-xs">&nbsp;</div>
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-9 col-md-9 col-sm-9 hidden-xs">&nbsp;</div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 		<label>ค่าจัดส่ง</label>
 		<input type="number"
 		class="form-control input-sm text-right"
@@ -33,7 +33,7 @@ $delete = $this->pm->can_delete;
 		<input type="hidden" id="current_shipping_fee" value="<?php echo $order->shipping_fee; ?>">
 	</div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 		<label>ค่าบริการ</label>
 		<input type="number"
 		class="form-control input-sm text-right"
@@ -44,38 +44,37 @@ $delete = $this->pm->can_delete;
 	</div>
 </div>
 
-<hr class="padding-5 margin-bottom-10"/>
+<hr class="padding-5 margin-bottom-10 hidden-xs"/>
 
 <!--  Search Product -->
 <div class="row">
-	<div class="col-sm-2 col-2-harf col-xs-8 padding-5 margin-bottom-10">
+	<div class="divider padding-5 visible-xs"></div>
+	<div class="col-lg-2-harf col-md-2-harf col-sm-2-harf col-xs-8 padding-5 margin-bottom-10">
     <input type="text" class="form-control input-sm text-center" id="pd-box" placeholder="ค้นรหัสสินค้า" />
   </div>
-  <div class="col-sm-1 col-1-harf col-xs-4 padding-5 margin-bottom-10">
-  	<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductGrid()"><i class="fa fa-tags"></i> แสดงสินค้า</button>
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5 margin-bottom-10">
+  	<button type="button" class="btn btn-xs btn-primary btn-block" onclick="getProductGrid()">แสดงสินค้า</button>
   </div>
 
 	<div class="divider padding-5 visible-xs"></div>
 
-  <div class="col-sm-2 col-2-harf col-xs-8 padding-5 margin-bottom-10">
+  <div class="col-lg-2-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5 margin-bottom-10">
     <input type="text" class="form-control input-sm text-center" id="item-code" placeholder="ค้นหารหัสสินค้า">
   </div>
-  <div class="col-sm-1 col-xs-4 padding-5 margin-bottom-10">
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 padding-5 margin-bottom-10">
     <input type="number" class="form-control input-sm text-center" id="stock-qty" disabled>
   </div>
-  <div class="col-sm-1 col-xs-8 padding-5 margin-bottom-10">
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 padding-5 margin-bottom-10">
     <input type="number" class="form-control input-sm text-center" id="input-qty">
   </div>
-  <div class="col-sm-1 col-xs-4 padding-5 margin-bottom-10">
+  <div class="col-lg-1 col-md-1-harf col-sm-1 col-xs-2 padding-5 margin-bottom-10">
     <button type="button" class="btn btn-xs btn-primary btn-block" onclick="addItemToOrder()">เพิ่ม</button>
   </div>
 
 	<div class="divider padding-5 visible-xs"></div>
 
-  <div class="col-sm-1 col-1-harf col-sm-offset-1 col-xs-12 padding-5">
-    <button type="button" class="btn btn-xs btn-info btn-block" onclick="recal_discount_rule()">
-        <i class="fa fa-calculator"></i> คำนวณส่วนลดใหม่</button>
-      </button>
+  <div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-12 col-lg-offset-1 padding-5">
+    <button type="button" class="btn btn-xs btn-info btn-block" onclick="recal_discount_rule()">คำนวณส่วนลดใหม่</button>
   </div>
 </div>
 <hr class="margin-top-15 margin-bottom-0 padding-5" />
@@ -119,7 +118,7 @@ if(getConfig('USE_PRODUCT_TAB') == 1)
 
 <form id="orderItemForm">
 <div class="modal fade" id="orderItemGrid" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog" >
+	<div class="modal-dialog" id="modal-item" style="min-width:250px; max-width:1000px;">
 		<div class="modal-content">
   			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>

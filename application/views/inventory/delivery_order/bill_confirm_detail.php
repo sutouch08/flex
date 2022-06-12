@@ -51,7 +51,11 @@
   <div class="col-sm-12 text-right">
     <?php if( $this->pm->can_edit || $this->pm->can_add ) : ?>
       <?php if($order->is_term == 1 OR $order->balance <= 0 OR $order->payment_role == 4) : ?>
-      <button type="button" class="btn btn-sm btn-primary" id="btn-confirm-order" onclick="confirmOrder()">เปิดบิลและตัดสต็อก</button>
+				<?php if($use_prepare === FALSE && $has_default_zone === FALSE) : ?>
+							<div class="alert alert-danger text-center margin-bottom-10">กรุณากำหนดค่า โซนขายสินค้าเริ่มต้น</div>
+				<?php else : ?>
+      				<button type="button" class="btn btn-sm btn-primary" id="btn-confirm-order" onclick="confirmOrder()">เปิดบิลและตัดสต็อก</button>
+				<?php endif; ?>
       <?php else : ?>
         <span class="red">มียอดค้างชำระ : <?php echo number($order->balance,2); ?></span>
       <button type="button" class="btn btn-sm btn-info" onclick="refresh()"><i class="fa fa-refresh"></i> รีเฟรช</button>

@@ -81,6 +81,55 @@ function getDelete(code) {
 
 
 
+
+function printSelectedInvoice(option) {
+	var data = [];
+	var url = '';
+
+	$('.chk').each(function() {
+		if($(this).is(':checked')) {
+			data.push($(this).val());
+		}
+	});
+
+	if(option == 'tax') {
+		url = BASE_URL + "orders/order_invoice/print_selected_tax_invoice";
+	}
+	else {
+		url = BASE_URL + "orders/order_invoice/print_selected_do_invoice";
+	}
+
+	if(data.length) {
+
+			var mapForm = document.createElement("form");
+		 mapForm.target = "Map";
+		 mapForm.method = "POST";
+		 mapForm.action = url;
+
+		 var mapInput = document.createElement("input");
+		 mapInput.type = "text";
+		 mapInput.name = "data";
+		 mapInput.value = data;
+		 mapForm.appendChild(mapInput);
+
+		 document.body.appendChild(mapForm);
+
+		 var center = ($(document).width() - 800)/2;
+		 var prop = "width=800, height=900, left="+center+", scrollbars=yes";
+
+		 map = window.open("", "Map", prop);
+
+			if (map) {
+
+				 mapForm.submit();
+			}
+			else {
+				 alert('You must allow popups for this map to work.');
+			}
+	}
+}
+
+
 function print_invoice() {
 	//--- properties for print
 	var center = ($(document).width() - 800)/2;

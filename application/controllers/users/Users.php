@@ -10,15 +10,19 @@ class Users extends PS_Controller{
   {
     parent::__construct();
     $this->home = base_url().'users/users';
+		$this->load->helper('profile');
   }
 
 
 
   public function index()
   {
-		$uname = get_filter('user', 'user', '');
-		$dname = get_filter('dname', 'dname', '');
-		$profile = get_filter('profile', 'profile', '');
+		$filter = array(
+			'uname' => get_filter('user', 'user', ''),
+			'dname' => get_filter('dname', 'dname', ''),
+			'profile' => get_filter('profile', 'profile', 'all'),
+			'status' => get_filter('status', 'status', 'all')
+		);
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_filter('set_rows', 'rows', 20);
@@ -29,20 +33,17 @@ class Users extends PS_Controller{
 		}
 
 		$segment = 4; //-- url segment
-		$rows = $this->user_model->count_rows($uname, $dname, $profile);
+		$rows = $this->user_model->count_rows($filter);
 
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 
-		$rs = $this->user_model->get_users($uname, $dname, $profile, $perpage, $this->uri->segment($segment));
-    $ds = array(
-      'user' => $uname,
-      'dname' => $dname,
-      'profile' => $profile,
-			'data' => $rs
-    );
+		$data = $this->user_model->get_list($filter, $perpage, $this->uri->segment($segment));
+		$filter['data'] = $data;
+
+
 		$this->pagination->initialize($init);
-    $this->load->view('users/users_view', $ds);
+    $this->load->view('users/users_view', $filter);
   }
 
 
@@ -51,7 +52,6 @@ class Users extends PS_Controller{
 
   public function add_user()
   {
-		$this->load->helper('profile');
 		$this->load->helper('saleman');
     $this->load->view('users/user_add_view');
   }
@@ -59,7 +59,6 @@ class Users extends PS_Controller{
 
 	public function edit_user($id)
 	{
-		$this->load->helper('profile');
 		$this->load->helper('saleman');
 		$ds['data'] = $this->user_model->get_user($id);
 		$this->load->view('users/user_edit_view', $ds);
@@ -110,41 +109,37 @@ class Users extends PS_Controller{
 	public function update_user()
 	{
 		$sc = TRUE;
+
 		if($this->input->post('user_id'))
 		{
 			$id = $this->input->post('user_id');
-			$uname = $this->input->post('uname');
-			$dname = $this->input->post('dname');
-			$id_profile = $this->input->post('profile') === '' ? NULL : $this->input->post('profile');
-			$sale_code = $this->input->post('sale_code') === '' ? NULL : $this->input->post('sale_code');
+			$uname = trim($this->input->post('uname'));
+			$dname = trim($this->input->post('dname'));
+			$id_profile = get_null($this->input->post('profile'));
+			$sale_code = get_null($this->input->post('sale_code'));
 			$status = $this->input->post('status');
-			$is_viewer = $this->input->post('is_viewer');
 
-			$data = array(
+			$ds = array(
 				'uname' => $uname,
 				'name' => $dname,
 				'id_profile' => $id_profile,
 				'sale_code' => $sale_code,
-				'active' => $status,
-				'is_viewer' => $is_viewer
+				'active' => $status
 			);
 
-			$rs = $this->user_model->update_user($id, $data);
-			if($rs === FALSE)
+			if(! $this->user_model->update_user($id, $ds))
 			{
-				$this->session->set_flashdata('error', 'Update user not successfully');
-			}
-			else
-			{
-				$this->session->set_flashdata('success', 'User updated');
-			}
+				$sc = FALSE;
+				$this->error = "Update user failed";
+			}			
 		}
 		else
 		{
-			$this->session->set_flashdata('error','Update fail : data not found');
+			$sc = FALSE;
+			$this->error = "Missing required parameter";
 		}
 
-		redirect($this->home.'/edit_user/'.$id);
+		$this->response($sc);
 
 	}
 
@@ -153,46 +148,41 @@ class Users extends PS_Controller{
 
 	public function new_user()
 	{
+		$sc = TRUE;
+
 		if($this->input->post('uname'))
 		{
-			$uname = $this->input->post('uname');
-			$dname = $this->input->post('dname');
+			$uname = trim($this->input->post('uname'));
+			$dname = trim($this->input->post('dname'));
 			$pwd = password_hash($this->input->post('pwd'), PASSWORD_DEFAULT);
 			$uid = md5(uniqid());
-			$id_profile = $this->input->post('profile') === '' ? NULL : $this->input->post('profile');
-			$sale_code = $this->input->post('sale_code') === '' ? NULL : $this->input->post('sale_code');
+			$id_profile = get_null($this->input->post('profile'));
+			$sale_code = get_null($this->input->post('sale_code'));
 			$status = $this->input->post('status');
-			$is_viewer = $this->input->post('is_viewer');
 
-			$data = array(
+			$ds = array(
 				'uname' => $uname,
 				'pwd' => $pwd,
 				'name' => $dname,
 				'uid' => $uid,
 				'id_profile' => $id_profile,
 				'sale_code' => $sale_code,
-				'active' => $status,
-				'is_viewer' => $is_viewer
+				'active' => $status
 			);
 
-			$rs = $this->user_model->new_user($data);
-			if($rs === FALSE)
+			if(! $this->user_model->add($ds))
 			{
-				set_error('Create User fail');
+				$sc = FALSE;
+				$this->error = "Create user failed";
 			}
-			else
-			{
-				set_message('User created');
-			}
-
 		}
 		else
 		{
-
-			set_error('Create User fail : Empty data');
+			$sc = FALSE;
+			$this->error = "Missing required parameter";
 		}
 
-		redirect($this->home.'/add_user');
+		$this->response($sc);
 	}
 
 
@@ -262,7 +252,7 @@ class Users extends PS_Controller{
 
 	public function clear_filter()
 	{
-		$filter = array('user', 'dname', 'profile');
+		$filter = array('user', 'dname', 'profile', 'status');
 		clear_filter($filter);
 		echo 'done';
 	}

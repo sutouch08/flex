@@ -12,7 +12,7 @@ class Printer
 	//---- top header logo and doc name
 	public $title = "";
 	public $title_position = "right"; //--- left or middle or right
-	public $has_logo = TRUE;
+	public $has_logo = FALSE;
 	public $logo_position = "left"; //-- left or middle or right
 	public $cancle_watermark = "";
 
@@ -79,7 +79,7 @@ class Printer
 			.page_layout{
 				border: solid 1px #333;
 				border-radius:5px;
-			} 
+			}
 			@media print{
 				.page_layout{
 					border: none;
@@ -367,11 +367,16 @@ class Printer
 		$logo_path = base_url()."images/company/company_logo.png";
 		$top  = "";
 		$top .= "<table style='width:60%; border:none; float:left;'>";
-		$top .= "<tr>";
-		$top .= "<td style='width:100%; height:10mm; text-align:{$this->logo_position}; vertical-aligh:top; padding-right:20mm;'>";
-		$top .= $this->has_logo === TRUE ? "<img src='{$logo_path}' class='company-logo' />" : '';
-		$top .= "</td>";
-		$top .= "</tr>";
+
+		if($this->has_logo)
+		{
+			$top .= "<tr>";
+			$top .= "<td style='width:100%; height:10mm; text-align:{$this->logo_position}; vertical-aligh:top; padding-right:20mm;'>";
+			$top .= "<img src='{$logo_path}' class='company-logo' />";
+			$top .= "</td>";
+			$top .= "</tr>";
+		}
+
 
 		if(!empty($this->header_row['left']))
 		{

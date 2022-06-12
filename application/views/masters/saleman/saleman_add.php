@@ -1,61 +1,50 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-sm-6">
-    <h3 class="title"><?php echo $this->title; ?></h3>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
+    <h4 class="title"><?php echo $this->title; ?></h4>
   </div>
-	<div class="col-sm-6">
-		<p class="pull-right">
-			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> Back</button>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
+		<p class="pull-right top-p">
+			<button type="button" class="btn btn-xs btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> Back</button>
 		</p>
 	</div>
 </div><!-- End Row -->
-<hr class="title-block"/>
-<form class="form-horizontal" id="addForm" method="post" action="<?php echo $this->home."/add"; ?>">
-
-	<div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">รหัส</label>
-    <div class="col-xs-12 col-sm-3">
-      <input type="text" name="code" id="code" class="width-100 code" maxlength="15" value="" onkeyup="validCode(this)" autofocus required />
-    </div>
-    <div class="help-block col-xs-12 col-sm-reset inline red" id="code-error"></div>
-  </div>
-
-
-
-  <div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">ชื่อ</label>
-    <div class="col-xs-12 col-sm-3">
-			<input type="text" name="name" id="name" class="width-100" maxlength="100" value="" required />
-    </div>
-    <div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
-  </div>
-
-  <div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right">เปิดใช้งาน</label>
-    <div class="col-xs-12 col-sm-3">
-      <label style="padding-top:5px;">
-        <input name="active" class="ace ace-switch ace-switch-7" type="checkbox" value="1" checked />
-        <span class="lbl"></span>
-      </label>
-    </div>
-    <div class="help-block col-xs-12 col-sm-reset inline red"></div>
-  </div>
-
-	<div class="divider-hidden">
-
+<hr class="padding-5"/>
+<div class="row padding-top-20">
+	<div class="col-lg-3 col-md-3 col-sm-3 control-label text-right hidden-xs">รหัส</div>
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+		<label class="visible-xs">รหัส</label>
+		<input type="text" name="code" id="code" class="width-100 code" maxlength="15" onkeyup="validCode(this)" value="" autofocus />
 	</div>
-  <div class="form-group">
-    <label class="col-sm-3 control-label no-padding-right"></label>
-    <div class="col-xs-12 col-sm-3">
-      <p class="pull-right">
-        <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Save</button>
-      </p>
-    </div>
-    <div class="help-block col-xs-12 col-sm-reset inline">
-      &nbsp;
-    </div>
-  </div>
-</form>
+	<div class="divider-hidden hidden-xs"></div>
 
-<script src="<?php echo base_url(); ?>scripts/masters/saleman.js"></script>
+
+	<div class="col-lg-3 col-md-3 col-sm-3 control-label text-right hidden-xs">ชื่อ</div>
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+		<label class="visible-xs">ชื่อ</label>
+		<input type="text" name="name" id="name" class="width-100" maxlength="100" value="" required />
+	</div>
+	<div class="divider-hidden hidden-xs"></div>
+
+	<div class="col-lg-3 col-md-3 col-sm-3 control-label text-right hidden-xs"></div>
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+		<label class="visible-xs">&nbsp;</label>
+		<label style="padding-top:5px;">
+			<input name="active" id="active" class="ace" type="checkbox" value="1" checked />
+			<span class="lbl">  Active</span>
+		</label>
+	</div>
+	<div class="divider-hidden hidden-xs"></div>
+
+	<div class="col-lg-3 col-md-3 col-sm-3 control-label text-right hidden-xs"></div>
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
+		<p class="pull-right">
+			<button type="button" class="btn btn-sm btn-success" onclick="saveAdd()"><i class="fa fa-save"></i> Add</button>
+		</p>
+	</div>
+</div>
+
+
+
+<script src="<?php echo base_url(); ?>scripts/masters/saleman.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

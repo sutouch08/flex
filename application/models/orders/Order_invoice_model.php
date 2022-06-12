@@ -326,5 +326,24 @@ class Order_invoice_model extends CI_Model
 		return NULL;
 	}
 
+
+	public function get_invoice_list(array $ds = array())
+	{
+		$rs = $this->db->where_in('code', $ds)->where('status', 1)->get('order_invoice');
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
+	public function update_order_sold($reference, array $ds = array())
+	{
+		return $this->db->where('reference', $reference)->update('order_sold', $ds);
+	}
+
 } //--- end class
  ?>

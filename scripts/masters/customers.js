@@ -219,7 +219,35 @@ function getDelete(code, name){
 		cancelButtonText: 'ยกเลิก',
 		closeOnConfirm: false
   },function(){
-    window.location.href = HOME + 'delete/' + code;
+
+		$.ajax({
+			url:HOME + 'delete',
+			type:'POST',
+			cache:false,
+			data:{
+				"code" : code
+			},
+			success:function(rs) {
+				if(rs === 'success') {
+					swal({
+						title:'Success',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(function() {
+						goBack();
+					}, 1200);
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:rs,
+						type:'error'
+					})
+				}
+			}
+		})
   })
 }
 

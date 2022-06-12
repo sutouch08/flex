@@ -18,7 +18,9 @@ class Profiles extends PS_Controller{
 
   public function index()
   {
-		$profileName = get_filter('profileName', 'profileName', '');
+		$filter = array(
+			'name' => get_filter('profileName', 'profileName', '')
+		);
 
 		//--- แสดงผลกี่รายการต่อหน้า
 		$perpage = get_filter('set_rows', 'rows', 20);
@@ -29,12 +31,14 @@ class Profiles extends PS_Controller{
 		}
 
 		$segment = 4; //-- url segment
-		$rows = $this->profile_model->count_rows($profileName);
+
+		$rows = $this->profile_model->count_rows($filter);
 
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 
-		$result = $this->profile_model->get_profiles($profileName, $perpage, $this->uri->segment($segment));
+		$result = $this->profile_model->get_list($filter, $perpage, $this->uri->segment($segment));
+
     $data = array();
 
     if(!empty($result))
@@ -49,14 +53,11 @@ class Profiles extends PS_Controller{
       }
     }
 
-    $ds = array(
-      'profileName' => $profileName,
-			'data' => $data
-    );
+    $filter['data'] = $data;
 
 		$this->pagination->initialize($init);
 
-    $this->load->view('users/profile_view', $ds);
+    $this->load->view('users/profile_view', $filter);
   }
 
 

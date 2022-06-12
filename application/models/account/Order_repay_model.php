@@ -162,8 +162,8 @@ class Order_repay_model extends CI_Model
     if(!empty($ds['customer']))
     {
       $this->db->group_start();
-      $this->db->like('customers.customer_code', $ds['customer']);
-      $this->db->or_like('customers.customer_name', $ds['customer']);
+      $this->db->like('customers.code', $ds['customer']);
+      $this->db->or_like('customers.name', $ds['customer']);
       $this->db->group_end();
     }
     //--- status
@@ -220,8 +220,8 @@ class Order_repay_model extends CI_Model
     if(!empty($ds['customer']))
     {
       $this->db->group_start();
-      $this->db->like('customers.customer_code', $ds['customer']);
-      $this->db->or_like('customers.customer_name', $ds['customer']);
+      $this->db->like('customers.code', $ds['customer']);
+      $this->db->or_like('customers.name', $ds['customer']);
       $this->db->group_end();
     }
 

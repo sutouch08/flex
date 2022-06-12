@@ -191,9 +191,10 @@ class Delivery_order_model extends CI_Model
 
     //------------- สำหรับใช้ในการบันทึกขาย ---------//
     //--- รายการสั้งซื้อ รายการจัดสินค้า รายการตรวจสินค้า
-    //--- เปรียบเทียบยอดที่มีการสั่งซื้อ และมีการตรวจสอนค้า
+    //--- เปรียบเทียบยอดที่มีการสั่งซื้อ และมีการตรวจสินค้า
     //--- เพื่อให้ได้ยอดที่ต้องเปิดบิล บันทึกขายจริงๆ
     //--- ผลลัพธ์จะไม่ได้ยอดที่มีการสั่งซื้อแต่ไม่มียอดตรวจ หรือ มียอดตรวจแต่ไม่มียอดสั่งซื้อ (กรณีมีการแก้ไขออเดอร์)
+
     public function get_bill_detail($code, $use_qc = TRUE)
     {
       $qr = "SELECT o.id, o.style_code, o.product_code, o.product_name, o.qty AS order_qty, ";
@@ -202,6 +203,7 @@ class Delivery_order_model extends CI_Model
       $qr .= "(o.discount_amount / o.qty) AS discount_amount, ";
       $qr .= "(o.total_amount/o.qty) AS final_price, ";
       $qr .= "(SELECT SUM(qty) FROM buffer WHERE order_code = '{$code}' AND product_code = o.product_code) AS prepared ";
+
       if($use_qc)
       {
         $qr .= ",(SELECT SUM(qty) FROM qc WHERE order_code = '{$code}' AND product_code = o.product_code) AS qc ";
@@ -210,6 +212,7 @@ class Delivery_order_model extends CI_Model
       $qr .= "FROM order_details AS o ";
       $qr .= "LEFT JOIN discount_rule AS ru ON ru.id = o.id_rule ";
       $qr .= "WHERE o.order_code = '{$code}' GROUP BY o.product_code ";
+
       if($use_qc)
       {
         $qr .= "HAVING qc IS NOT NULL";
@@ -223,6 +226,37 @@ class Delivery_order_model extends CI_Model
 
       return FALSE;
     }
+
+
+
+		//---- กรณีที่ มีการตั้งค่า ไม่จัดสินค้าไว้ ใช้ข้องมูลจาก function นี้ในการบันทึกขายเต็มจำนวนที่สั่งมา
+		public function get_order_details($code)
+		{
+			$rs = $this->db
+			->select('o.id, o.style_code, o.product_code, o.product_name, o.qty AS order_qty')
+			->select('o.cost, o.price, o.discount1, o.discount2, o.discount3')
+			->select('o.id_rule, ru.id_policy, o.is_count')
+			->select('(o.total_amount/o.qty) AS discount_amount', FALSE)
+			->select('(o.total_amount/o.qty) AS final_price', FALSE)
+			->from('order_details AS o')
+			->join('discount_rule AS ru', 'ru.id = o.id_rule', 'left')
+			->where('o.order_code', $code)
+			->get();
+
+
+			if($rs->num_rows() > 0)
+			{
+				return $rs->result();
+			}
+
+			return NULL;
+		}
+
+
+		public function get_order_detail($id)
+		{
+
+		}
 
 
 

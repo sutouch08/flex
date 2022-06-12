@@ -7,6 +7,11 @@
     </div>
     <div class="col-sm-6 col-xs-4 padding-5">
     	<p class="pull-right top-p">
+				<?php if($this->_use_vat) : ?>
+				<button type="button" class="btn btn-sm btn-info" onclick="printSelectedInvoice('tax')"><i class="fa fa-print"></i> พิมพ์ใบกำกับภาษี</button>
+			<?php else : ?>				
+				<button type="button" class="btn btn-sm btn-info" onclick="printSelectedInvoice('do')"><i class="fa fa-print"></i> พิมพ์ใบส่งสินค้า</button>
+			<?php endif; ?>
       <?php if($this->pm->can_add) : ?>
         <button type="button" class="btn btn-sm btn-success" onclick="addNew()"><i class="fa fa-plus"></i> เพิ่มใหม่</button>
       <?php endif; ?>
@@ -85,6 +90,7 @@
 			<thead>
 				<tr>
 					<th class="width-5 text-center">#</th>
+					<th class="width-5 text-center" style="width:20px;"></th>
 					<th class="width-10 text-center">วันที่</th>
 					<th class="width-15">เลขที่</th>
 					<th class="">อ้างอิง</th>
@@ -100,6 +106,14 @@
 		<?php foreach($order as $rs) : ?>
 				<tr>
 					<td class="middle text-center no"><?php echo $no; ?></td>
+					<td class="middle text-center" style="padding-left:0px; padding-right:0px;">
+						<?php if($rs->status == 1) : ?>
+						<label>
+							<input type="checkbox" class="ace chk" value="<?php echo $rs->code; ?>" />
+							<span class="lbl"></span>
+						</label>
+						<?php endif; ?>
+					</td>
 					<td class="middle text-center"><?php echo thai_date($rs->doc_date); ?></td>
 					<td class="middle"><?php echo $rs->code; ?></td>
 					<td class="middle" style="overflow:hidden;"><?php echo $rs->reference; ?></td>

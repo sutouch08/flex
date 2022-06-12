@@ -414,6 +414,46 @@ class Zone_model extends CI_Model
     return FALSE;
   }
 
+
+
+	public function get_zone($warehouse = NULL)
+	{
+		if($warehouse != '' && $warehouse !== NULL )
+		{
+			$this->db->where('warehouse_code', $warehouse);
+		}
+
+		$rs = $this->db->get('zone');
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
+
+
+	public function get_sell_zone()
+	{
+		$this->db
+		->select('zone.*')
+		->from('zone')
+		->join('warehouse', 'zone.warehouse_code = warehouse.code', 'left')
+		->where('warehouse.sell', 1)
+		->order_by('zone.name', 'ASC');
+
+		$rs = $this->db->get();
+
+		if($rs->num_rows() > 0)
+		{
+			return $rs->result();
+		}
+
+		return NULL;
+	}
+
 } //--- end class
 
  ?>

@@ -200,23 +200,23 @@ while($total_page > 0 )
 	if($this->printer->current_page == $this->printer->total_page)
   {
 		//--- จำนวนรวม   ตัว
-	  $sub_qty  = '<td class="width-70 text-center" style="border:0;">';
+	  $sub_qty  = '<td class="width-60 text-center" style="border:0;">';
 		$sub_qty .= $qty;
 	  $sub_qty .= '</td>';
-	  $sub_qty .= '<td class="width-15" style="border:0;">';
+	  $sub_qty .= '<td class="width-20" style="border:0;">';
 	  $sub_qty .= '</td>';
-		$sub_qty .= '<td class="width-15 text-right" style="border:0;"></td>';
+		$sub_qty .= '<td class="width-20 text-right" style="border:0;"></td>';
 
 	  array_push($subTotal, array($sub_qty));
 	}
 
 	if($use_vat)
 	{
-		$sub_price  = '<td rowspan="'.$row_span.'" class="subtotal-first-row middle text-center">'.$baht_text.'</td>';
-		$sub_price .= '<td class="subtotal subtotal-first-row">';
+		$sub_price  = '<td rowspan="'.$row_span.'" class="width-60 subtotal-first-row middle text-center">'.$baht_text.'</td>';
+		$sub_price .= '<td class="width-20 subtotal subtotal-first-row">';
 	  $sub_price .=  '<strong>รวมเป็นเงิน</strong>';
 	  $sub_price .= '</td>';
-	  $sub_price .= '<td class="subtotal subtotal-first-row text-right">';
+	  $sub_price .= '<td class="width-20 subtotal subtotal-first-row text-right">';
 	  $sub_price .=  $totalBfTax;
 	  $sub_price .= '</td>';
 	  array_push($subTotal, array($sub_price));

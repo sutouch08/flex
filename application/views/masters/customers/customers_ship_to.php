@@ -1,7 +1,6 @@
 <div class='row'>
-  <div class="col-sm-12">
-  <div class="table-responsive">
-    <table class='table table-bordered' style="margin-bottom:0px;">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-0 table-responsive border-1">
+    <table class='table table-bordered' style="min-width:800px; margin-bottom:0px;">
       <thead>
         <tr>
           <td colspan="6" align="center">ที่อยู่สำหรับจัดส่ง
@@ -52,7 +51,6 @@
 <?php endif; ?>
       </tbody>
     </table>
-  </div>
   </div>
 </div><!-- /row-->
 
